@@ -4,22 +4,22 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 
 ## Phases (GDD section 16)
 
-| #   | Phase                                                          | Status                                            |
-| --- | -------------------------------------------------------------- | ------------------------------------------------- |
-| 0   | Project setup                                                  | Done (live on GitHub Pages)                       |
+| #   | Phase                                                          | Status                            |
+| --- | -------------------------------------------------------------- | --------------------------------- |
+| 0   | Project setup                                                  | Done (live on GitHub Pages)       |
 | 1   | Map data pipeline                                              | Done in code — waiting for review |
-| 2   | Map rendering                                                  | Not started                                       |
-| 3   | Countries and setup screens                                    | Not started                                       |
-| 4   | Turn engine and saves                                          | Not started                                       |
-| 5   | Economy                                                        | Not started                                       |
-| 6   | Population                                                     | Not started                                       |
-| 7   | Military                                                       | Not started                                       |
-| 8   | Missiles, drones, air defense, nuclear                         | Not started                                       |
-| 9   | Diplomacy                                                      | Not started                                       |
-| 10  | Resources and trade                                            | Not started                                       |
-| 11  | AI                                                             | Not started                                       |
-| 12  | Summits, events, notifications, reports, news, advisors, goals | Not started                                       |
-| 13  | Balance, polish, demo release                                  | Not started                                       |
+| 2   | Map rendering                                                  | Not started                       |
+| 3   | Countries and setup screens                                    | Not started                       |
+| 4   | Turn engine and saves                                          | Not started                       |
+| 5   | Economy                                                        | Not started                       |
+| 6   | Population                                                     | Not started                       |
+| 7   | Military                                                       | Not started                       |
+| 8   | Missiles, drones, air defense, nuclear                         | Not started                       |
+| 9   | Diplomacy                                                      | Not started                       |
+| 10  | Resources and trade                                            | Not started                       |
+| 11  | AI                                                             | Not started                       |
+| 12  | Summits, events, notifications, reports, news, advisors, goals | Not started                       |
+| 13  | Balance, polish, demo release                                  | Not started                       |
 
 ## Phase 0 — Project setup
 
