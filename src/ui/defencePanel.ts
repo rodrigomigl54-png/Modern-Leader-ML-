@@ -9,6 +9,7 @@ import {
   pathTurns,
 } from '../sim/military';
 import type { GameState } from '../sim/newGame';
+import { factories, nuclearBasesOf, weaponsRules } from '../sim/weapons';
 import { enemiesAtWar } from '../sim/world';
 import { button, el } from './dom';
 
@@ -21,6 +22,9 @@ export interface DefencePanelOptions {
   showProvince: (provinceId: number) => void;
   /** Asks first (introducing service costs support), then changes it. */
   setService: (enabled: boolean) => void;
+  onProduce: () => void;
+  /** Asks first (cost and years), then starts the program. */
+  onNuclearProgram: () => void;
 }
 
 const LIST_LIMIT = 30;
@@ -96,6 +100,69 @@ export class DefencePanel {
         () => this.options.setService(!service),
       ),
     ];
+
+    // Arsenal: missiles, drones, air defense and nuclear weapons (GDD section 9).
+    const rules = weaponsRules(sim);
+    const arsenal = game.weapons.countries[id]!;
+    children.push(el('h3', 'dossier-subtitle', t('arsenal.title')));
+    const stock = el('dl', 'dossier-facts');
+    const line = (label: string, value: string): void => {
+      stock.append(el('dt', '', label), el('dd', 'mono', value));
+    };
+    const tiers = (list: number[]): string => list.map((n) => formatCount(n)).join(' / ');
+    line(t('arsenal.missiles'), tiers(arsenal.missiles));
+    line(t('arsenal.drones'), tiers(arsenal.drones));
+    const sites = game.weapons.airDefense.filter(
+      (lvl, c) => lvl > 0 && game.world.provinceOwners[sim.cityProvince[c]!] === id,
+    ).length;
+    line(t('arsenal.airDefense'), String(sites));
+    line(
+      t('arsenal.factories'),
+      `${factories(game, sim, id, 'missile')} / ${factories(game, sim, id, 'drone')} / ${factories(game, sim, id, 'airDefense')}`,
+    );
+    if (arsenal.warheads > 0)
+      line(
+        t('arsenal.nuclear'),
+        t('arsenal.warheads', {
+          count: formatCount(arsenal.warheads),
+          bases: nuclearBasesOf(game, sim, id).length,
+        }),
+      );
+    const queued = game.weapons.production.filter((p) => p.owner === id);
+    for (const q of queued)
+      line(
+        t(q.weapon === 'missile' ? 'arsenal.missiles' : 'arsenal.drones'),
+        t('arsenal.queued', {
+          count: formatCount(q.count),
+          tier: q.tier,
+          weeks: q.readyTurn - game.turn,
+        }),
+      );
+    children.push(
+      stock,
+      el('p', 'setup-hint', t('arsenal.hint')),
+      button('btn btn-primary', t('arsenal.produce'), () => this.options.onProduce()),
+    );
+    if (arsenal.warheads === 0) {
+      children.push(
+        el(
+          'p',
+          'setup-hint',
+          arsenal.nuclearProgramUntil >= 0
+            ? t('arsenal.programRunning', { weeks: arsenal.nuclearProgramUntil - game.turn })
+            : t('arsenal.programHint', {
+                cost: formatUsd(rules.nuclear.programCostUsd),
+                years: Math.round(rules.nuclear.programTurns / 52),
+              }),
+        ),
+      );
+      if (arsenal.nuclearProgramUntil < 0)
+        children.push(
+          button('btn btn-danger-outline', t('arsenal.startProgram'), () =>
+            this.options.onNuclearProgram(),
+          ),
+        );
+    }
 
     const enemies = enemiesAtWar(game.world, id);
     children.push(

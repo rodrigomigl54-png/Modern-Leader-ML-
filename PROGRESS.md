@@ -13,8 +13,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 4   | Turn engine and saves                                          | Done                                              |
 | 5   | Economy                                                        | Done                                              |
 | 6   | Population                                                     | Done                                              |
-| 7   | Military                                                       | Done in code — waiting for the check on the phone |
-| 8   | Missiles, drones, air defense, nuclear                         | Not started                                       |
+| 7   | Military                                                       | Done                                              |
+| 8   | Missiles, drones, air defense, nuclear                         | Done in code — waiting for the check on the phone |
 | 9   | Diplomacy                                                      | Not started                                       |
 | 10  | Resources and trade                                            | Not started                                       |
 | 11  | AI                                                             | Not started                                       |
@@ -200,14 +200,41 @@ Done:
 - Two years on real data: the Russia–Ukraine front moves back and forth without collapse; a turn takes about 16 ms.
 - Checked in Chromium with phone emulation as Serbia: declared war on Bosnia, sent the Belgrade army to Tuzla (taken via Bijeljina), recruited in Belgrade. No console errors.
 
+## Phase 8 — Missiles, drones, air defense, nuclear
+
+Done:
+
+- Rules in `data/modern/weapons.json`: 4 missile tiers (range 300–13,000 km; tiers 3–4 hit 2–3 cities), 3 drone tiers (range in provinces), air defense levels 1–3 (radius, interception rate, capacity per turn, cost), production, starting arsenals, nuclear rules and nuclear forces (9 countries; SIPRI 2025 warheads rounded; base cities approximate).
+- Simulation (`src/sim/weapons.ts`), the same rules for every country:
+  - Starting arsenals from military spending, limited by each country's tech level; air defense in the capital and largest cities by spending; weapons factories by spending.
+  - Missiles (`launchMissiles`) fly from the nearest own military base in range and hit next turn (turn step 2): they kill soldiers, destroy buildings, lower bases and air defense, can destroy nuclear bases, cut GDP and support. They never capture.
+  - Drones (`launchDrones`) fly one province per turn along a legal route and strike where they arrive; enemy air defense shoots at them on the way.
+  - Air defense of the defender and its allies intercepts within its radius, up to its capacity per turn, so volume overwhelms it. `buildAirDefense` builds or upgrades a city (needs an air-defense factory).
+  - `produceWeapons` orders missiles or drones from finished factories (time from factory count and tier weight).
+  - Nuclear weapons (`launchNuclear`) launch only from an active base (a captured or destroyed base no longer launches), cannot be intercepted and devastate the province. The user loses a lot of support and GDP and grows more slowly as a pariah (sanctions arrive in Phase 9). `startNuclearProgram`: 30 bn, about 5 years, then 5 warheads and a base in the capital.
+  - The AI at war fires a share of its missiles and drones at enemy armies near the front or the enemy capital, produces missiles, and uses nuclear weapons only as a last resort (country almost lost, enemy at the capital).
+- UI:
+  - Enemy province: "Missile or drone strike" opens the strike dialog (weapon, tier with range and stock, count, air defense at the target). Nuclear strike with consequences and a second confirmation.
+  - Own province: air-defense level, nuclear base, "Air defense here · cost".
+  - Ministry of Defence: arsenal by tier, air defense, factories, warheads and bases, production orders, nuclear program.
+  - Map: missile arcs with a timer badge, drones as chevrons along their route, nuclear bases visible to everyone, impact ripples, and an Air defense map mode with coverage and radius rings. The map mode switch is now one button with a list.
+  - Strike summary toasts, Minister of Defence telegrams for enemy strikes and nuclear use.
+- Saves from Phase 7 still load (weapons are added on load).
+- Two years on real data: missiles and drones are used every week (about 700 strikes) without wiping out armies; the Russia–Ukraine front stays stable; a turn takes about 21 ms.
+- Checked in Chromium with phone emulation as Serbia: war with Bosnia, 2 missiles on Tuzla (20 soldiers killed), arsenal, production dialog, air-defense map. No console errors.
+
 ## Next
 
-- Dario: merge the PR and check on the phone: tap Army in the top bar; open your capital, tap + next to the army, open a neighbor's province, declare war and tap Attack; select cities (+) and Recruit; play some turns.
-- Then Phase 8 — missiles, drones, air defense, nuclear weapons.
+- Dario: merge the PR and check on the phone: declare war on a neighbor, open its province, tap "Missile or drone strike"; open the Ministry of Defence (Army in the top bar) for the arsenal; switch the map to Air defense.
+- Then Phase 9 — diplomacy: relations, alliances, sanctions, ultimatums, credibility, vassals, foreign bases, aid, weapons trade, peace treaties.
 
 ## Known issues
 
-- Navy is simplified: crossings cannot be intercepted yet (GDD: "can be intercepted"; needs a navy or missiles, later phases).
+- Weapons can only be produced at home for now; buying from other countries comes with diplomacy (Phase 9). Global sanctions after nuclear use are a growth penalty until then.
+- Starting arsenals are estimated from military spending, not real inventories; nuclear base locations are approximate.
+- The AI does not threaten with nuclear weapons yet (profiles, Phase 11) and does not build air defense.
+- Naval crossings still cannot be intercepted.
+
 - Allies do not join wars and wars do not end with peace treaties yet (Phase 9); war score is not tracked yet.
 - AI only fights wars that already exist; it does not declare wars (Phase 11). The player's empty provinces fall to any enemy army, so garrisons matter.
 - Mandatory service list and reserve sizes are drafted estimates; reservists without a base do not defend (as in the GDD).

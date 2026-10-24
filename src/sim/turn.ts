@@ -4,7 +4,13 @@ import { dateOfTurn, REPORT_INTERVAL } from './calendar';
 import type { Command } from './commands';
 import { constructionPhase, economyPhase, type EconomyEvent, type SimContext } from './economy';
 import { battlePhase, movementPhase, trainingPhase, type MilitaryEvent } from './military';
-import { aiMilitaryOrders } from './ai';
+import { aiMilitaryOrders, aiWeaponsOrders } from './ai';
+import {
+  droneMovementPhase,
+  missileImpactPhase,
+  weaponsProductionPhase,
+  type WeaponsEvent,
+} from './weapons';
 import type { GameState } from './newGame';
 import { populationPhase, type PopulationEvent } from './population';
 import { createRng, type Rng } from './rng';
@@ -39,6 +45,7 @@ export type TurnEvent =
   | EconomyEvent
   | PopulationEvent
   | MilitaryEvent
+  | WeaponsEvent
   /** The 10-turn general report is due (GDD section 12). */
   | { type: 'report'; turn: number }
   /** A new year began. */
@@ -59,10 +66,14 @@ type Phase = (ctx: TurnContext) => void;
 const PHASES: Record<TurnPhaseId, Phase> = {
   aiOrders: (ctx) => {
     if (ctx.sim.military) aiMilitaryOrders(ctx.state, ctx.sim);
+    if (ctx.sim.weapons) aiWeaponsOrders(ctx.state, ctx.sim);
   },
-  missileImpacts: () => undefined,
+  missileImpacts: (ctx) => {
+    if (ctx.sim.weapons) missileImpactPhase(ctx.state, ctx.sim, ctx.rng, (e) => ctx.events.push(e));
+  },
   movement: (ctx) => {
     if (ctx.sim.military) movementPhase(ctx.state, ctx.sim);
+    if (ctx.sim.weapons) droneMovementPhase(ctx.state, ctx.sim, ctx.rng, (e) => ctx.events.push(e));
   },
   battles: (ctx) => {
     if (ctx.sim.military) battlePhase(ctx.state, ctx.sim, ctx.rng, (e) => ctx.events.push(e));
@@ -70,6 +81,7 @@ const PHASES: Record<TurnPhaseId, Phase> = {
   construction: (ctx) => {
     constructionPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e));
     if (ctx.sim.military) trainingPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e));
+    if (ctx.sim.weapons) weaponsProductionPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e));
   },
   economy: (ctx) => economyPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e)),
   population: (ctx) => {

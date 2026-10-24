@@ -2,6 +2,7 @@ import { Application, Container } from 'pixi.js';
 import type { CountryStatus } from '../sim/world';
 import { ArmyLayer, type ArmyMarker } from './armyLayer';
 import { Camera } from './camera';
+import { StrikeLayer, type StrikeOverlay } from './strikeLayer';
 import { MapControls } from './controls';
 import { loadMapData, type MapData } from './mapData';
 import { countryAnchors } from './labelLayout';
@@ -45,6 +46,12 @@ export interface MapView {
   lookAtCountry(countryId: string, insets?: { left?: number; bottom?: number }): void;
   /** Army counters and routes. */
   setArmies(markers: ArmyMarker[]): void;
+  /** Missiles, drones, nuclear bases and air-defense rings. */
+  setStrikes(overlay: StrikeOverlay): void;
+  /** Impact ripples at cities. */
+  pulseCities(cityIds: readonly number[], nuclear?: boolean): void;
+  /** Air-defense coverage per province for the air-defense map mode (null outside a game). */
+  setAirDefense(coverage: Uint8Array | null): void;
   /** Centers the camera on a province (zooming in if needed). */
   lookAtProvince(provinceId: number): void;
   /** Current owner of a province. */
@@ -89,6 +96,7 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
   };
   let focusCountry: string | null = null;
   let support: readonly number[] | null = null;
+  let airDefense: Uint8Array | null = null;
   let mode: MapMode = MAP_MODES[0]!;
   const writeOwners = (): void => {
     politics.owners.forEach((owner, id) => {
@@ -114,6 +122,7 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
         owners: politics.owners,
         focusCountry,
         support,
+        airDefense,
       })
       .forEach((c, id) => palette.setColor(id + 1, c));
     shared.paletteChanged();
@@ -136,7 +145,8 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
     }));
   const labels = new MapLabels(data, deviceRatio(), labelCountries());
   const armies = new ArmyLayer(data, Math.min(2, deviceRatio()));
-  app.stage.addChild(world, labels.container, armies.container);
+  const strikes = new StrikeLayer(data);
+  app.stage.addChild(world, labels.container, strikes.container, armies.container);
   await tiles.loadBase((f) => options.onProgress(0.5 + f * 0.5));
 
   const camera = new Camera(map.width, map.height);
@@ -178,6 +188,7 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       const next = MAP_MODES.find((m) => m.id === id);
       if (next) {
         mode = next;
+        strikes.setRingsVisible(next.id === 'airDefense');
         applyMode();
         requestRender();
       }
@@ -226,6 +237,21 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       camera.panBy(left / 2, -bottom / 2);
       requestRender();
     },
+    setStrikes: (overlay) => {
+      strikes.set(overlay);
+      requestRender();
+    },
+    pulseCities: (cityIds, nuclear) => {
+      strikes.pulse(cityIds, nuclear);
+      requestRender();
+    },
+    setAirDefense: (coverage) => {
+      airDefense = coverage;
+      if (mode.id === 'airDefense') {
+        applyMode();
+        requestRender();
+      }
+    },
     setArmies: (markers) => {
       armies.setMarkers(markers);
       requestRender();
@@ -260,7 +286,10 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       shared.setView(deviceScale, provinceAlpha);
       tiles.update(camera.visibleRect(), Math.min(deviceScale, s * 2));
       labels.update(camera);
+      strikes.update(camera);
       armies.update(camera);
+      // Impact ripples need frames until they fade.
+      if (strikes.animating) dirty = true;
       app.render();
       view.onFrame?.(dt);
     }

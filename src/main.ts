@@ -19,8 +19,10 @@ import {
   militaryTotals,
   pathTurns,
   provinceBaseLevel,
+  provinceSeat,
 } from './sim/military';
 import { createNewGame, type GameState } from './sim/newGame';
+import { airDefenseMap, airDefenseQuote, ensureWeapons, weaponsRules } from './sim/weapons';
 import {
   assimilationQuote,
   ensurePopulation,
@@ -41,12 +43,14 @@ import { InvestDialog } from './ui/investDialog';
 import { showLoadingScreen } from './ui/loadingScreen';
 import { MainMenu } from './ui/mainMenu';
 import { MapModeBar } from './ui/mapModeBar';
+import { ProduceDialog } from './ui/produceDialog';
 import { ProvincePanel } from './ui/provincePanel';
 import { RecruitDialog } from './ui/recruitDialog';
 import { SaveSlots, slotName } from './ui/saveSlots';
 import { SelectionBar } from './ui/selectionBar';
 import { defaultDisputedMode, mountSettingsStub, restoreLanguage } from './ui/settings';
 import { politicsFor, SetupWizard } from './ui/setupWizard';
+import { StrikeDialog } from './ui/strikeDialog';
 import { Toasts } from './ui/toast';
 import { mountVersionLabel } from './ui/versionLabel';
 
@@ -62,6 +66,17 @@ const COMMAND_ERRORS: Partial<Record<CommandError, TranslationKey>> = {
   alreadyAtWar: 'war.alreadyAtWar',
   allied: 'war.allied',
   invalidTarget: 'war.invalid',
+  notAtWar: 'strike.notAtWar',
+  outOfRange: 'strike.outOfRange',
+  outOfRangeOrBlocked: 'strike.outOfRange',
+  noStock: 'strike.nothing',
+  noLaunchSite: 'strike.noLaunchSite',
+  noFactory: 'produce.noFactory',
+  tierLocked: 'produce.locked',
+  maxLevel: 'arsenal.maxLevel',
+  programRunning: 'arsenal.programRunning',
+  hasNuclear: 'arsenal.hasNuclear',
+  notOwnCity: 'arsenal.notOwnCity',
 };
 
 async function start(): Promise<void> {
@@ -88,7 +103,11 @@ async function start(): Promise<void> {
     setProvinceNames(map.data.provinces.map((p) => p.name));
     const population = sim.population!;
     // Under the panels, so an open panel covers it.
-    const modeBar = new MapModeBar(uiRoot, (id) => map.setMapMode(id));
+    const modeBar = new MapModeBar(uiRoot, (id) => {
+      map.setMapMode(id);
+      if (id === 'airDefense' && game)
+        map.setAirDefense(airDefenseMap(game, sim, game.player.countryId));
+    });
 
     let game: GameState | null = null;
     /** Cities picked for a multi-city order. */
@@ -119,6 +138,55 @@ async function start(): Promise<void> {
         issue({ type: 'declareWar', countryId: game.player.countryId, targetId: countryId })
       )
         toasts.show(t('war.declared', { country: nameOf(countryId) }), 'error');
+    };
+
+    /** Missiles, drones, nuclear bases and air defense on the map. */
+    const showStrikes = (): void => {
+      if (!game) {
+        map.setStrikes({ missiles: [], drones: [], nuclearBases: [], airDefense: [] });
+        map.setAirDefense(null);
+        return;
+      }
+      const player = game.player.countryId;
+      const owners = game.world.provinceOwners;
+      const cityOwner = (c: number): string | undefined => owners[sim.cityProvince[c]!];
+      const allies = new Set(alliesOf(game.world, player));
+      const enemies = new Set(enemiesAtWar(game.world, player));
+      const levels = weaponsRules(sim).airDefense.levels;
+      map.setStrikes({
+        missiles: game.weapons.missiles
+          .filter((m) => m.owner === player || cityOwner(m.targetCityId) === player)
+          .map((m) => ({
+            fromCityId: m.fromCityId,
+            toCityId: m.targetCityId,
+            relation: m.owner === player ? 'own' : 'enemy',
+            nuclear: m.tier === 0,
+          })),
+        drones: game.weapons.drones
+          .filter((d) => d.owner === player || owners[d.targetProvinceId] === player)
+          .map((d) => ({
+            provinceId: d.provinceId,
+            path: d.path,
+            relation: d.owner === player ? 'own' : 'enemy',
+          })),
+        nuclearBases: game.weapons.nuclearBases
+          .filter((b) => cityOwner(b.cityId) === b.country)
+          .map((b) => ({ cityId: b.cityId, mine: b.country === player })),
+        airDefense: game.weapons.airDefense.flatMap((lvl, cityId) => {
+          if (lvl <= 0) return [];
+          const owner = cityOwner(cityId) ?? '';
+          const relation =
+            owner === player
+              ? 'own'
+              : allies.has(owner)
+                ? 'ally'
+                : enemies.has(owner)
+                  ? 'enemy'
+                  : 'other';
+          return [{ cityId, radiusKm: levels[lvl - 1]!.radiusKm, relation } as const];
+        }),
+      });
+      if (map.mapMode === 'airDefense') map.setAirDefense(airDefenseMap(game, sim, player));
     };
 
     /** Army counters on the map, colored by their relation to the player. */
@@ -246,6 +314,7 @@ async function start(): Promise<void> {
           game!.military.armies.some((a) => a.id === id && a.provinceId !== provinceId),
         ).length;
         const target = game.world.countries.find((c) => c.id === owner);
+        const seat = provinceSeat(sim, provinceId);
         const canDeclare =
           owner !== player &&
           !enemies.has(owner) &&
@@ -259,6 +328,15 @@ async function start(): Promise<void> {
           movable,
           attack: enemies.has(owner),
           declareWar: canDeclare ? { countryId: owner, name: nameOf(owner) } : null,
+          airDefense: seat >= 0 ? (game.weapons.airDefense[seat] ?? 0) : 0,
+          nuclearBase: game.weapons.nuclearBases.some(
+            (b) => sim.cityProvince[b.cityId] === provinceId,
+          ),
+          strike: enemies.has(owner) && seat >= 0,
+          airDefenseCost:
+            owner === player && seat >= 0 && airDefenseQuote(game, sim, player, seat).level
+              ? formatUsd(airDefenseQuote(game, sim, player, seat).level!.costUsd)
+              : null,
         };
       },
       onToggleArmy: (armyId) => {
@@ -292,6 +370,13 @@ async function start(): Promise<void> {
         }
       },
       onDeclareWar: (countryId) => void declareWar(countryId),
+      onStrike: (provinceId) => game && strikeDialog.open(game, provinceId),
+      onBuildAirDefense: (provinceId) => {
+        if (!game) return;
+        const cityId = provinceSeat(sim, provinceId);
+        if (issue({ type: 'buildAirDefense', countryId: game.player.countryId, cityId }))
+          toasts.show(t('arsenal.airDefenseStarted', { city: cityName(cityId) }));
+      },
       isSelected: (cityId) => selection.has(cityId),
       toggleSelected: (cityId) => {
         if (selection.has(cityId)) selection.delete(cityId);
@@ -334,6 +419,7 @@ async function start(): Promise<void> {
           armySelection.delete(id);
       selectionBar.update(selection.size, armySelection.size);
       showArmies();
+      showStrikes();
       hud.show(game);
       panel.refresh();
       economyPanel.update(game);
@@ -364,8 +450,8 @@ async function start(): Promise<void> {
 
     /** Shows a game (new or loaded) on the map. */
     const playGame = (loaded: GameState): void => {
-      const state = ensureMilitary(
-        ensurePopulation(ensureEconomy(loaded, sim.economy), population),
+      const state = ensureWeapons(
+        ensureMilitary(ensurePopulation(ensureEconomy(loaded, sim.economy), population), sim),
         sim,
       );
       game = state;
@@ -382,6 +468,7 @@ async function start(): Promise<void> {
       showPolitics(state);
       map.setSupport(state.population.support);
       showArmies();
+      showStrikes();
       map.setFocusCountry(state.player.countryId);
       map.lookAtCountry(state.player.countryId);
       hud.show(state);
@@ -459,6 +546,67 @@ async function start(): Promise<void> {
         if (e.type === 'countryConquered' && e.countryId !== player)
           toasts.show(t('war.conquered', { country: nameOf(e.countryId), by: nameOf(e.by) }));
       }
+      // Missile and drone strikes: own results as a toast, enemy strikes as a telegram.
+      let launched = 0;
+      let stopped = 0;
+      let killed = 0;
+      const hitCities: number[] = [];
+      const incoming: {
+        cities: number[];
+        launched: number;
+        stopped: number;
+        killed: number;
+        buildings: number;
+      } = { cities: [], launched: 0, stopped: 0, killed: 0, buildings: 0 };
+      for (const e of events) {
+        if (e.type === 'strike') {
+          if (e.cityId >= 0) hitCities.push(e.cityId);
+          if (e.attacker === player) {
+            launched += e.launched;
+            stopped += e.intercepted;
+            killed += e.soldiersKilled;
+          } else if (e.defender === player) {
+            if (!incoming.cities.includes(e.cityId)) incoming.cities.push(e.cityId);
+            incoming.launched += e.launched;
+            incoming.stopped += e.intercepted;
+            incoming.killed += e.soldiersKilled;
+            incoming.buildings += e.buildingsDestroyed;
+          }
+        }
+        if (e.type === 'weaponsReady' && e.owner === player)
+          toasts.show(t(`arsenal.ready.${e.weapon}`, { count: formatCount(e.count) }));
+      }
+      if (hitCities.length) map.pulseCities(hitCities.slice(0, 30));
+      if (launched)
+        toasts.show(t('strike.result', { launched, stopped, killed: formatCount(killed) }));
+      for (const e of events) {
+        if (e.type !== 'nuclearStrike') continue;
+        map.pulseCities([e.cityId], true);
+        await noticeDialog(
+          uiRoot,
+          t('minister.defence'),
+          t(e.attacker === player ? 'minister.nuclearOwn' : 'minister.nuclear', {
+            attacker: nameOf(e.attacker),
+            city: cityName(e.cityId),
+            country: nameOf(e.defender),
+          }),
+          t('minister.understood'),
+        );
+      }
+      if (incoming.launched) {
+        await noticeDialog(
+          uiRoot,
+          t('minister.defence'),
+          t('minister.strikes', {
+            places: incoming.cities.slice(0, 3).map(cityName).join(', '),
+            launched: incoming.launched,
+            stopped: incoming.stopped,
+            killed: formatCount(incoming.killed),
+            buildings: incoming.buildings,
+          }),
+          t('minister.understood'),
+        );
+      }
       if (won || lost)
         toasts.show(t('war.battles', { won, lost }), lost > won ? 'error' : undefined);
       if (taken.length) toasts.show(t('war.taken', { places: placeList(taken) }));
@@ -511,6 +659,8 @@ async function start(): Promise<void> {
       map.setMapMode('political');
       map.setSupport(null);
       map.setArmies([]);
+      map.setStrikes({ missiles: [], drones: [], nuclearBases: [], airDefense: [] });
+      map.setAirDefense(null);
       clearSelection();
       showMenuMap();
       menu.show();
@@ -641,6 +791,23 @@ async function start(): Promise<void> {
         map.highlightProvince(id);
         panel.show(id);
       },
+      onProduce: () => game && produceDialog.open(game),
+      onNuclearProgram: () => {
+        if (!game) return;
+        const n = weaponsRules(sim).nuclear;
+        void confirmDialog(
+          uiRoot,
+          t('arsenal.programTitle'),
+          t('arsenal.programText', {
+            cost: formatUsd(n.programCostUsd),
+            years: Math.round(n.programTurns / 52),
+          }),
+          t('arsenal.startProgram'),
+          t('saves.cancel'),
+        ).then((ok) => {
+          if (ok && game) issue({ type: 'startNuclearProgram', countryId: game.player.countryId });
+        });
+      },
       setService: (enabled) => {
         if (!game) return;
         const id = game.player.countryId;
@@ -653,6 +820,70 @@ async function start(): Promise<void> {
           t('defence.introduce'),
           t('saves.cancel'),
         ).then((ok) => ok && change());
+      },
+    });
+
+    const strikeDialog = new StrikeDialog({
+      parent: uiRoot,
+      sim,
+      provinceName,
+      cityName,
+      countryName: nameOf,
+      formatCount,
+      onMissiles: (targetCityId, tier, count) => {
+        if (!game) return;
+        if (
+          issue({
+            type: 'launchMissiles',
+            countryId: game.player.countryId,
+            targetCityId,
+            tier,
+            count,
+          })
+        )
+          toasts.show(t('strike.launched', { count, city: cityName(targetCityId) }), 'error');
+      },
+      onDrones: (targetProvinceId, tier, count) => {
+        if (!game) return;
+        if (
+          issue({
+            type: 'launchDrones',
+            countryId: game.player.countryId,
+            targetProvinceId,
+            tier,
+            count,
+          })
+        )
+          toasts.show(
+            t('strike.dronesLaunched', { count, place: provinceName(targetProvinceId) }),
+            'error',
+          );
+      },
+      onNuclear: (targetCityId) => {
+        if (!game) return;
+        void confirmDialog(
+          uiRoot,
+          t('strike.nuclearTitle'),
+          t('strike.nuclearConfirm', { city: cityName(targetCityId) }),
+          t('strike.nuclearLaunch'),
+          t('saves.cancel'),
+        ).then((ok) => {
+          if (ok && game)
+            issue({ type: 'launchNuclear', countryId: game.player.countryId, targetCityId });
+        });
+      },
+    });
+
+    const produceDialog = new ProduceDialog({
+      parent: uiRoot,
+      sim,
+      formatCount,
+      onConfirm: (weapon, tier, count) => {
+        if (!game) return;
+        if (
+          issue({ type: 'produceWeapons', countryId: game.player.countryId, weapon, tier, count })
+        )
+          toasts.show(t('produce.started'));
       },
     });
 

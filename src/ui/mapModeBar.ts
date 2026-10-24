@@ -2,17 +2,17 @@ import { t } from '../i18n';
 import { MAP_MODES } from '../map/mapModes';
 import { button, el } from './dom';
 
-/** Switches between map modes (GDD section 13); bottom left during a game. */
+/** Map mode switch (GDD section 13): one button, bottom left; tap it to choose a mode. */
 export class MapModeBar {
   private readonly root = el('div', 'map-mode-bar');
   private current = MAP_MODES[0]!.id;
+  private open = false;
 
   constructor(
     parent: HTMLElement,
     private readonly onChange: (modeId: string) => void,
   ) {
     this.root.hidden = true;
-    this.root.setAttribute('role', 'group');
     parent.append(this.root);
   }
 
@@ -22,6 +22,7 @@ export class MapModeBar {
   }
 
   hide(): void {
+    this.open = false;
     this.root.hidden = true;
   }
 
@@ -36,17 +37,31 @@ export class MapModeBar {
   }
 
   private render(): void {
-    this.root.setAttribute('aria-label', t('mapMode.title'));
-    this.root.replaceChildren(
-      ...MAP_MODES.map((mode) => {
-        const active = mode.id === this.current;
-        const b = button(`map-mode${active ? ' map-mode-on' : ''}`, t(mode.nameKey), () => {
-          this.set(mode.id);
-          this.onChange(mode.id);
+    const mode = MAP_MODES.find((m) => m.id === this.current) ?? MAP_MODES[0]!;
+    const children: HTMLElement[] = [];
+    if (this.open) {
+      const list = el('div', 'map-mode-list');
+      list.setAttribute('role', 'menu');
+      for (const m of MAP_MODES) {
+        const active = m.id === this.current;
+        const b = button(`map-mode${active ? ' map-mode-on' : ''}`, t(m.nameKey), () => {
+          this.open = false;
+          this.set(m.id);
+          this.onChange(m.id);
         });
-        b.setAttribute('aria-pressed', String(active));
-        return b;
-      }),
-    );
+        b.setAttribute('role', 'menuitemradio');
+        b.setAttribute('aria-checked', String(active));
+        list.append(b);
+      }
+      children.push(list);
+    }
+    const toggle = button('map-mode map-mode-toggle', `${t(mode.nameKey)} ▾`, () => {
+      this.open = !this.open;
+      this.render();
+    });
+    toggle.setAttribute('aria-label', `${t('mapMode.title')}: ${t(mode.nameKey)}`);
+    toggle.setAttribute('aria-expanded', String(this.open));
+    children.push(toggle);
+    this.root.replaceChildren(...children);
   }
 }

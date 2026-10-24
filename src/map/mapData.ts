@@ -33,6 +33,8 @@ export interface CityData {
   isPort: boolean;
   /** Position in level-0 map pixels. */
   position: [number, number];
+  /** Longitude and latitude in degrees. */
+  lonLat: [number, number];
   generated?: boolean;
 }
 

@@ -2,6 +2,7 @@
 // foreign cities. All numbers come from data/modern/economy.json (EconomyRules).
 import { armyUpkeep, type MilitaryRules, type SeaLink } from './military';
 import type { GameState } from './newGame';
+import { pariahPenalty, type WeaponsRules } from './weapons';
 import { productionFactor, type PopulationRules } from './population';
 import { enemiesAtWar, rivalsOf, type World, type WorldCountry } from './world';
 
@@ -79,6 +80,11 @@ export interface SimContext {
   seaRoutes?: readonly SeaLink[];
   /** Countries with mandatory military service at the start. */
   serviceAtStart?: readonly string[];
+  weapons?: WeaponsRules;
+  /** Longitude and latitude per city (missile ranges, air-defense radius). */
+  cityLonLat?: readonly (readonly [number, number])[];
+  /** Nuclear base city ids per country at the start. */
+  nuclearBaseCities?: Readonly<Record<string, readonly number[]>>;
 }
 
 export interface CountryEconomy {
@@ -293,7 +299,7 @@ export function economyPhase(
     e.printed *= 1 - rules.inflation.printedDecayPerTurn;
     // Inflation eats the real value of money in the treasury.
     e.treasury /= 1 + e.inflation / 52;
-    e.gdp *= 1 + growthRate(e, rules) / 52;
+    e.gdp *= 1 + (growthRate(e, rules) - pariahPenalty(state, ctx, id)) / 52;
 
     const alert = rules.inflation.alertThreshold;
     if (!e.inflationAlerted && e.inflation >= alert) {

@@ -105,6 +105,16 @@ export function isValidGameState(game: unknown): game is GameState {
   ) {
     return false;
   }
+  const weapons = game.weapons;
+  if (
+    weapons !== undefined &&
+    (!isRecord(weapons) ||
+      !isRecord(weapons.countries) ||
+      !Array.isArray(weapons.airDefense) ||
+      !Array.isArray(weapons.missiles))
+  ) {
+    return false;
+  }
   const playerCountry = (countries as { id: string; status: string }[]).find(
     (c) => c.id === player.countryId,
   );
