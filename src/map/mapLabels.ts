@@ -1,5 +1,4 @@
 import { BitmapFont, BitmapText, Container, Graphics } from 'pixi.js';
-import { t, type TranslationKey } from '../i18n';
 import type { Camera } from './camera';
 import {
   countryAnchors,
@@ -19,6 +18,13 @@ const STYLES: Record<
   province: { fill: 0xe8eef5, stroke: 0x0b1522, weight: 'normal', spacing: 0 },
   city: { fill: 0xffffff, stroke: 0x0b1522, weight: 'normal', spacing: 0 },
 };
+export interface LabelCountry {
+  id: string;
+  provinceIds: number[];
+  /** Display name, or null for no label. */
+  name: string | null;
+}
+
 const COUNTRY_SIZES = [12, 14, 17, 21];
 const fontName = (kind: LabelKind): string => `ml-label-${kind}`;
 
@@ -54,7 +60,7 @@ export class MapLabels {
   private readonly dots = new Graphics();
   private readonly textLayer = new Container();
   private readonly cache = new Map<string, BitmapText>();
-  private readonly anchors: CountryAnchor[];
+  private anchors: (CountryAnchor & { name: string })[] = [];
   private readonly provincesBySize: number[];
   private readonly citiesByRank: number[];
   /** Provinces named like one of their cities; their name is shown once the cities appear. */
@@ -63,12 +69,11 @@ export class MapLabels {
   constructor(
     private readonly data: MapData,
     resolution: number,
+    countries: LabelCountry[],
   ) {
     installFonts(Math.min(2, resolution));
     this.container.addChild(this.dots, this.textLayer);
-    this.anchors = countryAnchors(data.countries, data.provinces, data.map.width).sort(
-      (a, b) => b.pixels - a.pixels,
-    );
+    this.setCountries(countries);
     this.provincesBySize = data.provinces
       .map((p) => p.id)
       .sort((a, b) => data.provinces[b]!.pixels - data.provinces[a]!.pixels);
@@ -87,7 +92,17 @@ export class MapLabels {
       });
   }
 
-  /** Drops cached texts (after a language change). */
+  /** Sets the countries to label (after a change of borders, names or language). */
+  setCountries(countries: LabelCountry[]): void {
+    const named = countries.filter((c) => c.name !== null);
+    const names = new Map(named.map((c) => [c.id, c.name!]));
+    this.anchors = countryAnchors(named, this.data.provinces, this.data.map.width)
+      .map((a) => ({ ...a, name: names.get(a.countryId)! }))
+      .sort((a, b) => b.pixels - a.pixels);
+    this.reset();
+  }
+
+  /** Drops cached texts. */
   reset(): void {
     for (const text of this.cache.values()) text.destroy();
     this.cache.clear();
@@ -155,11 +170,10 @@ export class MapLabels {
       for (const a of this.anchors) {
         const size = Math.sqrt(a.pixels) * s;
         if (size < 34 || !inView(a.wx, a.wy)) continue;
-        const country = this.data.countries.find((c) => c.id === a.countryId)!;
         const fontSize = COUNTRY_SIZES[Math.min(COUNTRY_SIZES.length - 1, Math.floor(size / 70))]!;
         yield {
           key: a.countryId,
-          text: t(country.nameKey as TranslationKey).toUpperCase(),
+          text: a.name.toUpperCase(),
           kind: 'country',
           wx: a.wx,
           wy: a.wy,

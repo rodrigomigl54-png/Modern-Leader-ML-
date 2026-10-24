@@ -1,0 +1,868 @@
+{
+  "meta": {
+    "description": "Head of state or government of each country at the scenario start (the leader the player replaces). Names and titles only, no images (GDD section 1). title is a translation key under leaderTitle.*. verify: true marks entries that may change before the start date (elections or transitions in 2026).",
+    "source": "Official government sites; drafted from public information known up to mid-2026",
+    "asOf": "2026-06",
+    "checked": null,
+    "checkedBy": "Pending review by Dario (GDD section 14: leaders are verified at every data update)"
+  },
+  "leaders": {
+    "AFG": {
+      "name": "Hibatullah Akhundzada",
+      "title": "supremeLeader"
+    },
+    "AGO": {
+      "name": "João Lourenço",
+      "title": "president"
+    },
+    "ALB": {
+      "name": "Edi Rama",
+      "title": "primeMinister"
+    },
+    "AND": {
+      "name": "Xavier Espot Zamora",
+      "title": "headOfGovernment"
+    },
+    "ARE": {
+      "name": "Mohamed bin Zayed Al Nahyan",
+      "title": "president"
+    },
+    "ARG": {
+      "name": "Javier Milei",
+      "title": "president"
+    },
+    "ARM": {
+      "name": "Nikol Pashinyan",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "ATG": {
+      "name": "Gaston Browne",
+      "title": "primeMinister"
+    },
+    "AUS": {
+      "name": "Anthony Albanese",
+      "title": "primeMinister"
+    },
+    "AUT": {
+      "name": "Christian Stocker",
+      "title": "chancellor"
+    },
+    "AZE": {
+      "name": "Ilham Aliyev",
+      "title": "president"
+    },
+    "BDI": {
+      "name": "Évariste Ndayishimiye",
+      "title": "president"
+    },
+    "BEL": {
+      "name": "Bart De Wever",
+      "title": "primeMinister"
+    },
+    "BEN": {
+      "name": "Romuald Wadagni",
+      "title": "president",
+      "verify": true
+    },
+    "BFA": {
+      "name": "Ibrahim Traoré",
+      "title": "president"
+    },
+    "BGD": {
+      "name": "Tarique Rahman",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "BGR": {
+      "name": "Rosen Zhelyazkov",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "BHR": {
+      "name": "Hamad bin Isa Al Khalifa",
+      "title": "king"
+    },
+    "BHS": {
+      "name": "Philip Davis",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "BIH": {
+      "name": "Borjana Krišto",
+      "title": "chairmanCouncil",
+      "verify": true
+    },
+    "BLR": {
+      "name": "Alexander Lukashenko",
+      "title": "president"
+    },
+    "BLZ": {
+      "name": "Johnny Briceño",
+      "title": "primeMinister"
+    },
+    "BOL": {
+      "name": "Rodrigo Paz",
+      "title": "president"
+    },
+    "BRA": {
+      "name": "Luiz Inácio Lula da Silva",
+      "title": "president",
+      "verify": true
+    },
+    "BRB": {
+      "name": "Mia Mottley",
+      "title": "primeMinister"
+    },
+    "BRN": {
+      "name": "Hassanal Bolkiah",
+      "title": "sultan"
+    },
+    "BTN": {
+      "name": "Tshering Tobgay",
+      "title": "primeMinister"
+    },
+    "BWA": {
+      "name": "Duma Boko",
+      "title": "president"
+    },
+    "CAF": {
+      "name": "Faustin-Archange Touadéra",
+      "title": "president",
+      "verify": true
+    },
+    "CAN": {
+      "name": "Mark Carney",
+      "title": "primeMinister"
+    },
+    "CHE": {
+      "name": "Ignazio Cassis",
+      "title": "president",
+      "verify": true
+    },
+    "CHL": {
+      "name": "José Antonio Kast",
+      "title": "president",
+      "verify": true
+    },
+    "CHN": {
+      "name": "Xi Jinping",
+      "title": "president"
+    },
+    "CIV": {
+      "name": "Alassane Ouattara",
+      "title": "president"
+    },
+    "CMR": {
+      "name": "Paul Biya",
+      "title": "president"
+    },
+    "COD": {
+      "name": "Félix Tshisekedi",
+      "title": "president"
+    },
+    "COG": {
+      "name": "Denis Sassou Nguesso",
+      "title": "president",
+      "verify": true
+    },
+    "COL": {
+      "name": "Gustavo Petro",
+      "title": "president",
+      "verify": true
+    },
+    "COM": {
+      "name": "Azali Assoumani",
+      "title": "president"
+    },
+    "CPV": {
+      "name": "Ulisses Correia e Silva",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "CRI": {
+      "name": "Laura Fernández",
+      "title": "president",
+      "verify": true
+    },
+    "CUB": {
+      "name": "Miguel Díaz-Canel",
+      "title": "president"
+    },
+    "CYP": {
+      "name": "Nikos Christodoulides",
+      "title": "president"
+    },
+    "CZE": {
+      "name": "Andrej Babiš",
+      "title": "primeMinister"
+    },
+    "DEU": {
+      "name": "Friedrich Merz",
+      "title": "chancellor"
+    },
+    "DJI": {
+      "name": "Ismaïl Omar Guelleh",
+      "title": "president",
+      "verify": true
+    },
+    "DMA": {
+      "name": "Roosevelt Skerrit",
+      "title": "primeMinister"
+    },
+    "DNK": {
+      "name": "Mette Frederiksen",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "DOM": {
+      "name": "Luis Abinader",
+      "title": "president"
+    },
+    "DZA": {
+      "name": "Abdelmadjid Tebboune",
+      "title": "president"
+    },
+    "ECU": {
+      "name": "Daniel Noboa",
+      "title": "president"
+    },
+    "EGY": {
+      "name": "Abdel Fattah el-Sisi",
+      "title": "president"
+    },
+    "ERI": {
+      "name": "Isaias Afwerki",
+      "title": "president"
+    },
+    "ESH": {
+      "name": "Brahim Ghali",
+      "title": "president"
+    },
+    "ESP": {
+      "name": "Pedro Sánchez",
+      "title": "primeMinister"
+    },
+    "EST": {
+      "name": "Kristen Michal",
+      "title": "primeMinister"
+    },
+    "ETH": {
+      "name": "Abiy Ahmed",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "FIN": {
+      "name": "Petteri Orpo",
+      "title": "primeMinister"
+    },
+    "FJI": {
+      "name": "Sitiveni Rabuka",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "FRA": {
+      "name": "Emmanuel Macron",
+      "title": "president"
+    },
+    "FSM": {
+      "name": "Wesley Simina",
+      "title": "president"
+    },
+    "GAB": {
+      "name": "Brice Oligui Nguema",
+      "title": "president"
+    },
+    "GBR": {
+      "name": "Keir Starmer",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "GEO": {
+      "name": "Irakli Kobakhidze",
+      "title": "primeMinister"
+    },
+    "GHA": {
+      "name": "John Mahama",
+      "title": "president"
+    },
+    "GIN": {
+      "name": "Mamadi Doumbouya",
+      "title": "president"
+    },
+    "GMB": {
+      "name": "Adama Barrow",
+      "title": "president"
+    },
+    "GNB": {
+      "name": "Horta N'Tam",
+      "title": "transitionalPresident",
+      "verify": true
+    },
+    "GNQ": {
+      "name": "Teodoro Obiang Nguema Mbasogo",
+      "title": "president"
+    },
+    "GRC": {
+      "name": "Kyriakos Mitsotakis",
+      "title": "primeMinister"
+    },
+    "GRD": {
+      "name": "Dickon Mitchell",
+      "title": "primeMinister"
+    },
+    "GTM": {
+      "name": "Bernardo Arévalo",
+      "title": "president"
+    },
+    "GUY": {
+      "name": "Irfaan Ali",
+      "title": "president"
+    },
+    "HND": {
+      "name": "Nasry Asfura",
+      "title": "president"
+    },
+    "HRV": {
+      "name": "Andrej Plenković",
+      "title": "primeMinister"
+    },
+    "HTI": {
+      "name": "Alix Didier Fils-Aimé",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "HUN": {
+      "name": "Viktor Orbán",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "IDN": {
+      "name": "Prabowo Subianto",
+      "title": "president"
+    },
+    "IND": {
+      "name": "Narendra Modi",
+      "title": "primeMinister"
+    },
+    "IRL": {
+      "name": "Micheál Martin",
+      "title": "primeMinister"
+    },
+    "IRN": {
+      "name": "Ali Khamenei",
+      "title": "supremeLeader"
+    },
+    "IRQ": {
+      "name": "Mohammed Shia al-Sudani",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "ISL": {
+      "name": "Kristrún Frostadóttir",
+      "title": "primeMinister"
+    },
+    "ISR": {
+      "name": "Benjamin Netanyahu",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "ITA": {
+      "name": "Giorgia Meloni",
+      "title": "primeMinister"
+    },
+    "JAM": {
+      "name": "Andrew Holness",
+      "title": "primeMinister"
+    },
+    "JOR": {
+      "name": "Abdullah II",
+      "title": "king"
+    },
+    "JPN": {
+      "name": "Sanae Takaichi",
+      "title": "primeMinister"
+    },
+    "KAZ": {
+      "name": "Kassym-Jomart Tokayev",
+      "title": "president"
+    },
+    "KEN": {
+      "name": "William Ruto",
+      "title": "president"
+    },
+    "KGZ": {
+      "name": "Sadyr Japarov",
+      "title": "president"
+    },
+    "KHM": {
+      "name": "Hun Manet",
+      "title": "primeMinister"
+    },
+    "KIR": {
+      "name": "Taneti Maamau",
+      "title": "president"
+    },
+    "KNA": {
+      "name": "Terrance Drew",
+      "title": "primeMinister"
+    },
+    "KOR": {
+      "name": "Lee Jae-myung",
+      "title": "president"
+    },
+    "KWT": {
+      "name": "Mishal Al-Ahmad Al-Jaber Al-Sabah",
+      "title": "emir"
+    },
+    "LAO": {
+      "name": "Thongloun Sisoulith",
+      "title": "generalSecretary",
+      "verify": true
+    },
+    "LBN": {
+      "name": "Joseph Aoun",
+      "title": "president"
+    },
+    "LBR": {
+      "name": "Joseph Boakai",
+      "title": "president"
+    },
+    "LBY": {
+      "name": "Abdul Hamid Dbeibah",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "LCA": {
+      "name": "Philip J. Pierre",
+      "title": "primeMinister"
+    },
+    "LIE": {
+      "name": "Brigitte Haas",
+      "title": "primeMinister"
+    },
+    "LKA": {
+      "name": "Anura Kumara Dissanayake",
+      "title": "president"
+    },
+    "LSO": {
+      "name": "Sam Matekane",
+      "title": "primeMinister"
+    },
+    "LTU": {
+      "name": "Inga Ruginienė",
+      "title": "primeMinister"
+    },
+    "LUX": {
+      "name": "Luc Frieden",
+      "title": "primeMinister"
+    },
+    "LVA": {
+      "name": "Evika Siliņa",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "MAR": {
+      "name": "Mohammed VI",
+      "title": "king"
+    },
+    "MCO": {
+      "name": "Albert II",
+      "title": "prince"
+    },
+    "MDA": {
+      "name": "Maia Sandu",
+      "title": "president"
+    },
+    "MDG": {
+      "name": "Michael Randrianirina",
+      "title": "president",
+      "verify": true
+    },
+    "MDV": {
+      "name": "Mohamed Muizzu",
+      "title": "president"
+    },
+    "MEX": {
+      "name": "Claudia Sheinbaum",
+      "title": "president"
+    },
+    "MHL": {
+      "name": "Hilda Heine",
+      "title": "president"
+    },
+    "MKD": {
+      "name": "Hristijan Mickoski",
+      "title": "primeMinister"
+    },
+    "MLI": {
+      "name": "Assimi Goïta",
+      "title": "president"
+    },
+    "MLT": {
+      "name": "Robert Abela",
+      "title": "primeMinister"
+    },
+    "MMR": {
+      "name": "Min Aung Hlaing",
+      "title": "president",
+      "verify": true
+    },
+    "MNE": {
+      "name": "Milojko Spajić",
+      "title": "primeMinister"
+    },
+    "MNG": {
+      "name": "Gombojavyn Zandanshatar",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "MOZ": {
+      "name": "Daniel Chapo",
+      "title": "president"
+    },
+    "MRT": {
+      "name": "Mohamed Ould Ghazouani",
+      "title": "president"
+    },
+    "MUS": {
+      "name": "Navin Ramgoolam",
+      "title": "primeMinister"
+    },
+    "MWI": {
+      "name": "Peter Mutharika",
+      "title": "president"
+    },
+    "MYS": {
+      "name": "Anwar Ibrahim",
+      "title": "primeMinister"
+    },
+    "NAM": {
+      "name": "Netumbo Nandi-Ndaitwah",
+      "title": "president"
+    },
+    "NER": {
+      "name": "Abdourahamane Tchiani",
+      "title": "president"
+    },
+    "NGA": {
+      "name": "Bola Tinubu",
+      "title": "president"
+    },
+    "NIC": {
+      "name": "Daniel Ortega",
+      "title": "president"
+    },
+    "NLD": {
+      "name": "Rob Jetten",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "NOR": {
+      "name": "Jonas Gahr Støre",
+      "title": "primeMinister"
+    },
+    "NPL": {
+      "name": "Sushila Karki",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "NRU": {
+      "name": "David Adeang",
+      "title": "president"
+    },
+    "NZL": {
+      "name": "Christopher Luxon",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "OMN": {
+      "name": "Haitham bin Tariq",
+      "title": "sultan"
+    },
+    "PAK": {
+      "name": "Shehbaz Sharif",
+      "title": "primeMinister"
+    },
+    "PAN": {
+      "name": "José Raúl Mulino",
+      "title": "president"
+    },
+    "PER": {
+      "name": "José Jerí",
+      "title": "president",
+      "verify": true
+    },
+    "PHL": {
+      "name": "Ferdinand Marcos Jr.",
+      "title": "president"
+    },
+    "PLW": {
+      "name": "Surangel Whipps Jr.",
+      "title": "president"
+    },
+    "PNG": {
+      "name": "James Marape",
+      "title": "primeMinister"
+    },
+    "POL": {
+      "name": "Donald Tusk",
+      "title": "primeMinister"
+    },
+    "PRK": {
+      "name": "Kim Jong Un",
+      "title": "generalSecretary"
+    },
+    "PRT": {
+      "name": "Luís Montenegro",
+      "title": "primeMinister"
+    },
+    "PRY": {
+      "name": "Santiago Peña",
+      "title": "president"
+    },
+    "PSE": {
+      "name": "Mahmoud Abbas",
+      "title": "president"
+    },
+    "QAT": {
+      "name": "Tamim bin Hamad Al Thani",
+      "title": "emir"
+    },
+    "ROU": {
+      "name": "Nicușor Dan",
+      "title": "president"
+    },
+    "RUS": {
+      "name": "Vladimir Putin",
+      "title": "president"
+    },
+    "RWA": {
+      "name": "Paul Kagame",
+      "title": "president"
+    },
+    "SAU": {
+      "name": "Mohammed bin Salman",
+      "title": "primeMinister"
+    },
+    "SDN": {
+      "name": "Abdel Fattah al-Burhan",
+      "title": "chairmanSovereigntyCouncil"
+    },
+    "SEN": {
+      "name": "Bassirou Diomaye Faye",
+      "title": "president"
+    },
+    "SGP": {
+      "name": "Lawrence Wong",
+      "title": "primeMinister"
+    },
+    "SLB": {
+      "name": "Jeremiah Manele",
+      "title": "primeMinister"
+    },
+    "SLE": {
+      "name": "Julius Maada Bio",
+      "title": "president"
+    },
+    "SLV": {
+      "name": "Nayib Bukele",
+      "title": "president"
+    },
+    "SMR": {
+      "name": null,
+      "title": "captainRegent",
+      "verify": true
+    },
+    "SOM": {
+      "name": "Hassan Sheikh Mohamud",
+      "title": "president",
+      "verify": true
+    },
+    "SRB": {
+      "name": "Aleksandar Vučić",
+      "title": "president"
+    },
+    "SSD": {
+      "name": "Salva Kiir Mayardit",
+      "title": "president"
+    },
+    "STP": {
+      "name": "Carlos Vila Nova",
+      "title": "president"
+    },
+    "SUR": {
+      "name": "Jennifer Geerlings-Simons",
+      "title": "president"
+    },
+    "SVK": {
+      "name": "Robert Fico",
+      "title": "primeMinister"
+    },
+    "SVN": {
+      "name": "Robert Golob",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "SWE": {
+      "name": "Ulf Kristersson",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "SWZ": {
+      "name": "Mswati III",
+      "title": "king"
+    },
+    "SYC": {
+      "name": "Patrick Herminie",
+      "title": "president"
+    },
+    "SYR": {
+      "name": "Ahmed al-Sharaa",
+      "title": "president"
+    },
+    "TCD": {
+      "name": "Mahamat Idriss Déby",
+      "title": "president"
+    },
+    "TGO": {
+      "name": "Faure Gnassingbé",
+      "title": "presidentCouncil"
+    },
+    "THA": {
+      "name": "Anutin Charnvirakul",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "TJK": {
+      "name": "Emomali Rahmon",
+      "title": "president"
+    },
+    "TKM": {
+      "name": "Serdar Berdimuhamedow",
+      "title": "president"
+    },
+    "TLS": {
+      "name": "Xanana Gusmão",
+      "title": "primeMinister"
+    },
+    "TON": {
+      "name": "Lord Fakafanua",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "TTO": {
+      "name": "Kamla Persad-Bissessar",
+      "title": "primeMinister"
+    },
+    "TUN": {
+      "name": "Kais Saied",
+      "title": "president"
+    },
+    "TUR": {
+      "name": "Recep Tayyip Erdoğan",
+      "title": "president"
+    },
+    "TUV": {
+      "name": "Feleti Teo",
+      "title": "primeMinister"
+    },
+    "TWN": {
+      "name": "Lai Ching-te",
+      "title": "president"
+    },
+    "TZA": {
+      "name": "Samia Suluhu Hassan",
+      "title": "president"
+    },
+    "UGA": {
+      "name": "Yoweri Museveni",
+      "title": "president"
+    },
+    "UKR": {
+      "name": "Volodymyr Zelenskyy",
+      "title": "president"
+    },
+    "URY": {
+      "name": "Yamandú Orsi",
+      "title": "president"
+    },
+    "USA": {
+      "name": "Donald Trump",
+      "title": "president"
+    },
+    "UZB": {
+      "name": "Shavkat Mirziyoyev",
+      "title": "president"
+    },
+    "VAT": {
+      "name": "Leo XIV",
+      "title": "pope"
+    },
+    "VCT": {
+      "name": "Godwin Friday",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "VEN": {
+      "name": "Delcy Rodríguez",
+      "title": "actingPresident",
+      "verify": true
+    },
+    "VNM": {
+      "name": "Tô Lâm",
+      "title": "generalSecretary"
+    },
+    "VUT": {
+      "name": "Jotham Napat",
+      "title": "primeMinister"
+    },
+    "WSM": {
+      "name": "La'auli Leuatea Schmidt",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "XAB": {
+      "name": "Badra Gunba",
+      "title": "president"
+    },
+    "XKX": {
+      "name": "Albin Kurti",
+      "title": "primeMinister",
+      "verify": true
+    },
+    "XNC": {
+      "name": "Tufan Erhürman",
+      "title": "president"
+    },
+    "XSL": {
+      "name": "Abdirahman Mohamed Abdullahi",
+      "title": "president"
+    },
+    "XSO": {
+      "name": "Alan Gagloev",
+      "title": "president"
+    },
+    "XTR": {
+      "name": "Vadim Krasnoselsky",
+      "title": "president"
+    },
+    "YEM": {
+      "name": "Rashad al-Alimi",
+      "title": "chairmanPresidentialCouncil"
+    },
+    "ZAF": {
+      "name": "Cyril Ramaphosa",
+      "title": "president"
+    },
+    "ZMB": {
+      "name": "Hakainde Hichilema",
+      "title": "president",
+      "verify": true
+    },
+    "ZWE": {
+      "name": "Emmerson Mnangagwa",
+      "title": "president"
+    }
+  }
+}

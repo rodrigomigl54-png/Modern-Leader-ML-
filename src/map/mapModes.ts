@@ -1,13 +1,18 @@
 // Map modes decide the color of every province. Each mode is a pure function of the map data
 // (later: of the simulation state), and the renderer writes its result into the palette texture.
 import type { TranslationKey } from '../i18n';
-import type { CountryData, ProvinceData } from './mapData';
+import type { ProvinceData } from './mapData';
 import type { RGB } from './palette';
 import { hexToRgb } from './palette';
 
 export interface MapModeContext {
   provinces: ProvinceData[];
-  countries: CountryData[];
+  /** Countries that exist in the current game (after the disputed-territories setting). */
+  countries: { id: string; status: 'full' | 'disputed' | 'uninhabited' }[];
+  /** Current owner per province id. */
+  owners: string[];
+  /** The player's country (or the one being chosen), drawn in the signature amber. */
+  focusCountry: string | null;
 }
 
 export interface MapMode {
@@ -34,6 +39,7 @@ export const COUNTRY_PALETTE = [
 ].map(hexToRgb);
 export const DISPUTED_COLOR = hexToRgb('#4a4f57');
 export const UNINHABITED_COLOR = hexToRgb('#3b4552');
+export const FOCUS_COLOR = hexToRgb('#f2a93b');
 
 /**
  * Gives every country a palette color that differs from its land neighbors (greedy graph
@@ -47,10 +53,11 @@ export function assignCountryColors(context: MapModeContext): Map<string, RGB> {
     size.set(c.id, 0);
   }
   for (const p of context.provinces) {
-    size.set(p.owner, (size.get(p.owner) ?? 0) + p.pixels);
+    const owner = context.owners[p.id]!;
+    size.set(owner, (size.get(owner) ?? 0) + p.pixels);
     for (const n of p.neighbors) {
-      const other = context.provinces[n]!.owner;
-      if (other !== p.owner) neighbors.get(p.owner)!.add(other);
+      const other = context.owners[n]!;
+      if (other !== owner) neighbors.get(owner)!.add(other);
     }
   }
   const order = [...context.countries].sort(
@@ -77,6 +84,10 @@ export function assignCountryColors(context: MapModeContext): Map<string, RGB> {
   return result;
 }
 
+function mix(a: RGB, b: RGB, t: number): RGB {
+  return [0, 1, 2].map((i) => Math.round(a[i]! + (b[i]! - a[i]!) * t)) as RGB;
+}
+
 /** Small, stable brightness variation so neighboring provinces of one country stay distinguishable. */
 function vary([r, g, b]: RGB, id: number): RGB {
   const h = Math.imul(id + 1, 2654435761) >>> 0;
@@ -90,7 +101,15 @@ export const politicalMode: MapMode = {
   nameKey: 'mapMode.political',
   colors(context) {
     const countryColors = assignCountryColors(context);
-    return context.provinces.map((p) => vary(countryColors.get(p.owner)!, p.id));
+    const focus = mix(
+      countryColors.get(context.focusCountry ?? '') ?? FOCUS_COLOR,
+      FOCUS_COLOR,
+      0.55,
+    );
+    return context.provinces.map((p) => {
+      const owner = context.owners[p.id]!;
+      return vary(owner === context.focusCountry ? focus : countryColors.get(owner)!, p.id);
+    });
   },
 };
 

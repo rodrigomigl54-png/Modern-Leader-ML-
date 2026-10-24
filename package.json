@@ -16,7 +16,9 @@
     "format:check": "prettier --check .",
     "data:download": "node tools/map/download.ts",
     "data:build": "node --max-old-space-size=8192 tools/map/build.ts",
-    "data:validate": "node tools/validate/validate.ts"
+    "data:validate": "node tools/validate/validate.ts",
+    "data:flags": "node tools/countries/flags.ts",
+    "data:stats": "node tools/countries/stats.ts"
   },
   "dependencies": {
     "pixi.js": "^8.22.0"

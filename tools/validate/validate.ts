@@ -204,6 +204,78 @@ export function validateModernData(options: { checkRaster?: boolean } = {}): Val
     }
   }
 
+  // Game data: leaders, diplomacy, scenario, flags, stats
+  const leaders = read<{
+    meta: Meta;
+    leaders: Record<string, { name: string | null; title: string }>;
+  }>(join(DATA_DIR, 'leaders.json'));
+  const diplomacy = read<{
+    meta: Meta;
+    alliances: { id: string; members: string[]; source: string }[];
+    rivalries: { a: string; b: string; reason: string }[];
+    wars: { id: string; sides: [string[], string[]]; source: string }[];
+  }>(join(DATA_DIR, 'diplomacy.json'));
+  const scenario = read<{
+    meta: Meta;
+    startDate: string;
+    disputedTerritories: { id: string; parent: string }[];
+  }>(join(DATA_DIR, 'scenario.json'));
+  if (!leaders.meta?.source) err('leaders.json: meta.source missing');
+  if (!diplomacy.meta?.source) err('diplomacy.json: meta.source missing');
+  checkMeta('scenario.json', scenario.meta);
+  const enLang = read<Record<string, string>>(join(ROOT, 'src', 'i18n', 'en.json'));
+  for (const c of countries) {
+    if (c.status === 'uninhabited') continue;
+    const leader = leaders.leaders[c.id];
+    if (!leader) err(`leaders.json: no leader for ${c.id}`);
+    else if (!enLang[`leaderTitle.${leader.title}`])
+      err(`leaders.json: unknown title ${leader.title} (${c.id})`);
+    if (!existsSync(join(DATA_DIR, 'flags', `${c.id}.svg`))) err(`missing flag for ${c.id}`);
+  }
+  const known = (id: string, where: string): void => {
+    if (!countryById.has(id)) err(`${where} references unknown country ${id}`);
+  };
+  for (const a of diplomacy.alliances) {
+    if (!a.source) err(`alliance ${a.id} has no source`);
+    if (new Set(a.members).size !== a.members.length || a.members.length < 2)
+      err(`alliance ${a.id} members are invalid`);
+    a.members.forEach((m) => known(m, `alliance ${a.id}`));
+  }
+  for (const r of diplomacy.rivalries) {
+    if (!r.reason) err(`rivalry ${r.a}-${r.b} has no justification`);
+    known(r.a, 'rivalry');
+    known(r.b, 'rivalry');
+  }
+  for (const w of diplomacy.wars) w.sides.flat().forEach((id) => known(id, `war ${w.id}`));
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(scenario.startDate))
+    err('scenario.json: startDate must be YYYY-MM-DD');
+  for (const d of scenario.disputedTerritories) {
+    if (countryById.get(d.id)?.status !== 'disputed')
+      err(`scenario.json: ${d.id} is not a disputed territory`);
+    if (countryById.get(d.parent)?.status !== 'full')
+      err(`scenario.json: parent ${d.parent} of ${d.id} is not a full state`);
+  }
+  const statsPath = join(DATA_DIR, 'country-stats.json');
+  if (existsSync(statsPath)) {
+    const stats = read<{ meta: Meta; stats: Record<string, Record<string, number | null>> }>(
+      statsPath,
+    );
+    checkMeta('country-stats.json', stats.meta);
+    for (const [id, s] of Object.entries(stats.stats)) {
+      known(id, 'country-stats.json');
+      const range = (key: string, min: number, max: number): void => {
+        const v = s[key];
+        if (v !== null && v !== undefined && !(v >= min && v <= max))
+          err(`country-stats.json: ${id} ${key} out of range: ${v}`);
+      };
+      range('gdpUsd', 1e7, 1e14);
+      range('population', 500, 2e9);
+      range('militaryPersonnel', 0, 1e7);
+      range('militaryExpenditureUsd', 0, 3e12);
+      range('stability', -4, 4);
+    }
+  }
+
   // Province ID raster
   const stats: Record<string, number> = {
     provinces: provinces.length,

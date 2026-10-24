@@ -1,0 +1,662 @@
+{
+  "comment": "Drafted estimates used where the World Bank has no value or cannot be reached. Replace with World Bank MS.MIL.TOTL.P1 / MS.MIL.XPND.CD when network access is allowed. rough: true marks low-confidence figures (civil wars, rapidly changing forces). Syria is left out: its army is being rebuilt after 2024.",
+  "sources": {
+    "activePersonnel": "IISS The Military Balance, public estimates (recalled, rounded to thousands)",
+    "expenditureUsd": "SIPRI Military Expenditure Database, 2024 (recalled, rounded)",
+    "TWN": "Taiwan DGBAS national statistics, 2023 (Taiwan is not covered by the World Bank)"
+  },
+  "military": {
+    "AFG": {
+      "activePersonnel": 150000,
+      "rough": true
+    },
+    "ALB": {
+      "activePersonnel": 7000
+    },
+    "DZA": {
+      "activePersonnel": 139000,
+      "expenditureUsd": 21800000000
+    },
+    "AND": {
+      "activePersonnel": 0
+    },
+    "AGO": {
+      "activePersonnel": 107000
+    },
+    "ATG": {
+      "activePersonnel": 200
+    },
+    "ARG": {
+      "activePersonnel": 72000
+    },
+    "ARM": {
+      "activePersonnel": 42000
+    },
+    "AUS": {
+      "activePersonnel": 58000,
+      "expenditureUsd": 33799999999
+    },
+    "AUT": {
+      "activePersonnel": 23000
+    },
+    "AZE": {
+      "activePersonnel": 64000
+    },
+    "BHS": {
+      "activePersonnel": 1500
+    },
+    "BHR": {
+      "activePersonnel": 8000
+    },
+    "BGD": {
+      "activePersonnel": 163000
+    },
+    "BRB": {
+      "activePersonnel": 600
+    },
+    "BLR": {
+      "activePersonnel": 48000
+    },
+    "BEL": {
+      "activePersonnel": 23000
+    },
+    "BLZ": {
+      "activePersonnel": 1500
+    },
+    "BEN": {
+      "activePersonnel": 12000
+    },
+    "BTN": {
+      "activePersonnel": 8000
+    },
+    "BOL": {
+      "activePersonnel": 34000
+    },
+    "BIH": {
+      "activePersonnel": 10000
+    },
+    "BWA": {
+      "activePersonnel": 9000
+    },
+    "BRA": {
+      "activePersonnel": 367000,
+      "expenditureUsd": 20900000000
+    },
+    "BRN": {
+      "activePersonnel": 7000
+    },
+    "BGR": {
+      "activePersonnel": 37000
+    },
+    "BFA": {
+      "activePersonnel": 11000
+    },
+    "BDI": {
+      "activePersonnel": 30000
+    },
+    "CPV": {
+      "activePersonnel": 1000
+    },
+    "KHM": {
+      "activePersonnel": 124000
+    },
+    "CMR": {
+      "activePersonnel": 25000
+    },
+    "CAN": {
+      "activePersonnel": 63000,
+      "expenditureUsd": 29300000000
+    },
+    "CAF": {
+      "activePersonnel": 9000
+    },
+    "TCD": {
+      "activePersonnel": 33000
+    },
+    "CHL": {
+      "activePersonnel": 69000
+    },
+    "CHN": {
+      "activePersonnel": 2035000,
+      "expenditureUsd": 314000000000
+    },
+    "COL": {
+      "activePersonnel": 257000
+    },
+    "COM": {
+      "activePersonnel": 500
+    },
+    "COG": {
+      "activePersonnel": 10000
+    },
+    "CRI": {
+      "activePersonnel": 0
+    },
+    "CIV": {
+      "activePersonnel": 27000
+    },
+    "HRV": {
+      "activePersonnel": 15000
+    },
+    "CUB": {
+      "activePersonnel": 49000
+    },
+    "CYP": {
+      "activePersonnel": 12000
+    },
+    "CZE": {
+      "activePersonnel": 28000
+    },
+    "PRK": {
+      "activePersonnel": 1280000
+    },
+    "COD": {
+      "activePersonnel": 134000
+    },
+    "DNK": {
+      "activePersonnel": 14000
+    },
+    "DJI": {
+      "activePersonnel": 10000
+    },
+    "DMA": {
+      "activePersonnel": 0
+    },
+    "DOM": {
+      "activePersonnel": 56000
+    },
+    "ECU": {
+      "activePersonnel": 40000
+    },
+    "EGY": {
+      "activePersonnel": 438000
+    },
+    "SLV": {
+      "activePersonnel": 25000
+    },
+    "GNQ": {
+      "activePersonnel": 1500
+    },
+    "ERI": {
+      "activePersonnel": 200000
+    },
+    "EST": {
+      "activePersonnel": 7000
+    },
+    "SWZ": {
+      "activePersonnel": 3000
+    },
+    "ETH": {
+      "activePersonnel": 150000,
+      "rough": true
+    },
+    "FJI": {
+      "activePersonnel": 4000
+    },
+    "FIN": {
+      "activePersonnel": 24000
+    },
+    "FRA": {
+      "activePersonnel": 202000,
+      "expenditureUsd": 64700000000
+    },
+    "GAB": {
+      "activePersonnel": 5000
+    },
+    "GMB": {
+      "activePersonnel": 1000
+    },
+    "GEO": {
+      "activePersonnel": 21000
+    },
+    "DEU": {
+      "activePersonnel": 180000,
+      "expenditureUsd": 88500000000
+    },
+    "GHA": {
+      "activePersonnel": 15000
+    },
+    "GRC": {
+      "activePersonnel": 132000
+    },
+    "GRD": {
+      "activePersonnel": 0
+    },
+    "GTM": {
+      "activePersonnel": 18000
+    },
+    "GIN": {
+      "activePersonnel": 10000
+    },
+    "GNB": {
+      "activePersonnel": 4000
+    },
+    "GUY": {
+      "activePersonnel": 3000
+    },
+    "HTI": {
+      "activePersonnel": 1000
+    },
+    "HND": {
+      "activePersonnel": 15000
+    },
+    "HUN": {
+      "activePersonnel": 32000
+    },
+    "ISL": {
+      "activePersonnel": 0
+    },
+    "IND": {
+      "activePersonnel": 1475000,
+      "expenditureUsd": 86100000000
+    },
+    "IDN": {
+      "activePersonnel": 404000
+    },
+    "IRN": {
+      "activePersonnel": 610000,
+      "expenditureUsd": 7900000000
+    },
+    "IRQ": {
+      "activePersonnel": 193000
+    },
+    "IRL": {
+      "activePersonnel": 8000
+    },
+    "ISR": {
+      "activePersonnel": 170000,
+      "expenditureUsd": 46500000000
+    },
+    "ITA": {
+      "activePersonnel": 161000,
+      "expenditureUsd": 38000000000
+    },
+    "JAM": {
+      "activePersonnel": 6000
+    },
+    "JPN": {
+      "activePersonnel": 247000,
+      "expenditureUsd": 55300000000
+    },
+    "JOR": {
+      "activePersonnel": 101000
+    },
+    "KAZ": {
+      "activePersonnel": 39000
+    },
+    "KEN": {
+      "activePersonnel": 24000
+    },
+    "KIR": {
+      "activePersonnel": 0
+    },
+    "KWT": {
+      "activePersonnel": 17000
+    },
+    "KGZ": {
+      "activePersonnel": 11000
+    },
+    "LAO": {
+      "activePersonnel": 29000
+    },
+    "LVA": {
+      "activePersonnel": 7000
+    },
+    "LBN": {
+      "activePersonnel": 60000
+    },
+    "LSO": {
+      "activePersonnel": 2000
+    },
+    "LBR": {
+      "activePersonnel": 2000
+    },
+    "LBY": {
+      "activePersonnel": 30000,
+      "rough": true
+    },
+    "LIE": {
+      "activePersonnel": 0
+    },
+    "LTU": {
+      "activePersonnel": 23000
+    },
+    "LUX": {
+      "activePersonnel": 1000
+    },
+    "MDG": {
+      "activePersonnel": 13000
+    },
+    "MWI": {
+      "activePersonnel": 11000
+    },
+    "MYS": {
+      "activePersonnel": 113000
+    },
+    "MDV": {
+      "activePersonnel": 4000
+    },
+    "MLI": {
+      "activePersonnel": 21000
+    },
+    "MLT": {
+      "activePersonnel": 2000
+    },
+    "MHL": {
+      "activePersonnel": 0
+    },
+    "MRT": {
+      "activePersonnel": 16000
+    },
+    "MUS": {
+      "activePersonnel": 0
+    },
+    "MEX": {
+      "activePersonnel": 216000
+    },
+    "FSM": {
+      "activePersonnel": 0
+    },
+    "MCO": {
+      "activePersonnel": 0
+    },
+    "MNG": {
+      "activePersonnel": 10000
+    },
+    "MNE": {
+      "activePersonnel": 2000
+    },
+    "MAR": {
+      "activePersonnel": 196000
+    },
+    "MOZ": {
+      "activePersonnel": 11000
+    },
+    "MMR": {
+      "activePersonnel": 150000,
+      "rough": true
+    },
+    "NAM": {
+      "activePersonnel": 10000
+    },
+    "NRU": {
+      "activePersonnel": 0
+    },
+    "NPL": {
+      "activePersonnel": 97000
+    },
+    "NLD": {
+      "activePersonnel": 34000
+    },
+    "NZL": {
+      "activePersonnel": 9000
+    },
+    "NIC": {
+      "activePersonnel": 12000
+    },
+    "NER": {
+      "activePersonnel": 33000
+    },
+    "NGA": {
+      "activePersonnel": 143000
+    },
+    "MKD": {
+      "activePersonnel": 8000
+    },
+    "NOR": {
+      "activePersonnel": 25000
+    },
+    "OMN": {
+      "activePersonnel": 43000
+    },
+    "PAK": {
+      "activePersonnel": 660000,
+      "expenditureUsd": 10200000000
+    },
+    "PLW": {
+      "activePersonnel": 0
+    },
+    "PAN": {
+      "activePersonnel": 0
+    },
+    "PNG": {
+      "activePersonnel": 4000
+    },
+    "PRY": {
+      "activePersonnel": 14000
+    },
+    "PER": {
+      "activePersonnel": 81000
+    },
+    "PHL": {
+      "activePersonnel": 146000
+    },
+    "POL": {
+      "activePersonnel": 164000,
+      "expenditureUsd": 38000000000
+    },
+    "PRT": {
+      "activePersonnel": 24000
+    },
+    "QAT": {
+      "activePersonnel": 17000
+    },
+    "KOR": {
+      "activePersonnel": 500000,
+      "expenditureUsd": 47600000000
+    },
+    "MDA": {
+      "activePersonnel": 6000
+    },
+    "ROU": {
+      "activePersonnel": 70000
+    },
+    "RUS": {
+      "activePersonnel": 1134000,
+      "expenditureUsd": 149000000000
+    },
+    "RWA": {
+      "activePersonnel": 33000
+    },
+    "KNA": {
+      "activePersonnel": 300
+    },
+    "LCA": {
+      "activePersonnel": 0
+    },
+    "VCT": {
+      "activePersonnel": 0
+    },
+    "WSM": {
+      "activePersonnel": 0
+    },
+    "SMR": {
+      "activePersonnel": 0
+    },
+    "STP": {
+      "activePersonnel": 200
+    },
+    "SAU": {
+      "activePersonnel": 257000,
+      "expenditureUsd": 80300000000
+    },
+    "SEN": {
+      "activePersonnel": 14000
+    },
+    "SRB": {
+      "activePersonnel": 28000
+    },
+    "SYC": {
+      "activePersonnel": 400
+    },
+    "SLE": {
+      "activePersonnel": 9000
+    },
+    "SGP": {
+      "activePersonnel": 51000
+    },
+    "SVK": {
+      "activePersonnel": 18000
+    },
+    "SVN": {
+      "activePersonnel": 7000
+    },
+    "SLB": {
+      "activePersonnel": 0
+    },
+    "SOM": {
+      "activePersonnel": 15000
+    },
+    "ZAF": {
+      "activePersonnel": 72000
+    },
+    "SSD": {
+      "activePersonnel": 185000,
+      "rough": true
+    },
+    "ESP": {
+      "activePersonnel": 122000,
+      "expenditureUsd": 24600000000
+    },
+    "LKA": {
+      "activePersonnel": 200000,
+      "rough": true
+    },
+    "SDN": {
+      "activePersonnel": 100000,
+      "rough": true
+    },
+    "SUR": {
+      "activePersonnel": 2000
+    },
+    "SWE": {
+      "activePersonnel": 15000
+    },
+    "CHE": {
+      "activePersonnel": 20000
+    },
+    "TJK": {
+      "activePersonnel": 9000
+    },
+    "TZA": {
+      "activePersonnel": 27000
+    },
+    "THA": {
+      "activePersonnel": 361000
+    },
+    "TLS": {
+      "activePersonnel": 2000
+    },
+    "TGO": {
+      "activePersonnel": 9000
+    },
+    "TON": {
+      "activePersonnel": 600
+    },
+    "TTO": {
+      "activePersonnel": 5000
+    },
+    "TUN": {
+      "activePersonnel": 36000
+    },
+    "TUR": {
+      "activePersonnel": 355000,
+      "expenditureUsd": 25000000000
+    },
+    "TKM": {
+      "activePersonnel": 37000
+    },
+    "TUV": {
+      "activePersonnel": 0
+    },
+    "UGA": {
+      "activePersonnel": 45000
+    },
+    "UKR": {
+      "activePersonnel": 900000,
+      "rough": true,
+      "expenditureUsd": 64700000000
+    },
+    "ARE": {
+      "activePersonnel": 63000
+    },
+    "GBR": {
+      "activePersonnel": 141000,
+      "expenditureUsd": 81800000000
+    },
+    "USA": {
+      "activePersonnel": 1316000,
+      "expenditureUsd": 997000000000
+    },
+    "URY": {
+      "activePersonnel": 21000
+    },
+    "UZB": {
+      "activePersonnel": 48000
+    },
+    "VUT": {
+      "activePersonnel": 0
+    },
+    "VEN": {
+      "activePersonnel": 123000
+    },
+    "VNM": {
+      "activePersonnel": 450000
+    },
+    "YEM": {
+      "activePersonnel": 40000,
+      "rough": true
+    },
+    "ZMB": {
+      "activePersonnel": 15000
+    },
+    "ZWE": {
+      "activePersonnel": 29000
+    },
+    "VAT": {
+      "activePersonnel": 100
+    },
+    "PSE": {
+      "activePersonnel": 0
+    },
+    "TWN": {
+      "activePersonnel": 169000,
+      "expenditureUsd": 16500000000
+    },
+    "XKX": {
+      "activePersonnel": 3000
+    },
+    "ESH": {
+      "activePersonnel": 7000,
+      "rough": true
+    },
+    "XNC": {
+      "activePersonnel": 3000,
+      "rough": true
+    },
+    "XAB": {
+      "activePersonnel": 4000,
+      "rough": true
+    },
+    "XSO": {
+      "activePersonnel": 2000,
+      "rough": true
+    },
+    "XTR": {
+      "activePersonnel": 5000,
+      "rough": true
+    },
+    "XSL": {
+      "activePersonnel": 12000,
+      "rough": true
+    }
+  },
+  "economy": {
+    "TWN": {
+      "gdpUsd": 756600000000.0,
+      "gdpYear": 2023,
+      "population": 23400000.0,
+      "populationYear": 2024
+    }
+  }
+}

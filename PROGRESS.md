@@ -8,8 +8,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | --- | -------------------------------------------------------------- | ------------------------------------------------- |
 | 0   | Project setup                                                  | Done (live on GitHub Pages)                       |
 | 1   | Map data pipeline                                              | Done in code — waiting for review                 |
-| 2   | Map rendering                                                  | Done in code — waiting for the check on the phone |
-| 3   | Countries and setup screens                                    | Not started                                       |
+| 2   | Map rendering                                                  | Done (checked on the phone: smooth, up to 50 fps) |
+| 3   | Countries and setup screens                                    | Done in code — waiting for the check on the phone |
 | 4   | Turn engine and saves                                          | Not started                                       |
 | 5   | Economy                                                        | Not started                                       |
 | 6   | Population                                                     | Not started                                       |
@@ -83,12 +83,46 @@ Done:
 - The map renders only when something changes (an idle map uses no GPU/battery).
 - Tests: camera, tile math, palette, country coloring, label anchors and placement (`src/map/map.test.ts`). Checked in Chromium with phone emulation: load, tap → panel, pinch zoom, drag, inertia, no console errors.
 
+## Phase 3 — Countries and setup screens
+
+Done:
+
+- Main menu: New Game (Modern World — Recommended), the nine historical modes as locked "Coming soon" cards, Load Game (disabled until Phase 4), Settings. The feedback button stays hidden until there is a form link.
+- New game setup (GDD section 3):
+  - Step 1: AI aggressiveness (Peaceful / Realistic, the default / Aggressive / Chaos).
+  - Step 2: country chosen on the map or from a searchable, sortable list. It shows the flag, GDP, population, army, allies, rivals, wars and 1–5 difficulty stars. Only full-status countries are selectable.
+  - Step 3: leader name, showing who the player replaces, plus a summary.
+- Disputed territories setting (Neutral / As states / As part of parent state). It changes the game data at load time (`src/sim/world.ts`), not just the map. It sits on the country step, because it decides which countries are playable, and is also a default in ⚙.
+- Starting a game (`src/sim/newGame.ts`) creates the game state, replaces only the player's leader, and shows a top bar (flag, country, leader, date) with the player's country in signature amber with a glowing border. Main menu asks for confirmation before leaving the game.
+- Difficulty stars (`src/sim/difficulty.ts`) are computed from data only. Factors: power (GDP, military spending, manpower), GDP per capita, stability (WGI), allies vs rivals, and active wars. Weights: power 65 %, GDP per capita 15 %, stability 10 %, alliances 10 %, war −0.05. Stars are spread by ranking (10/15/20/25/30 %). Result: USA, China, Germany, UK, France, Japan 1★; Russia, India 2★; Serbia 3★; Montenegro 4★; microstates and failed states 5★.
+- Data:
+  - `leaders.json`: 203 leaders, 45 marked `verify`.
+  - `diplomacy.json`: NATO, EU, CSTO, GCC, AES and 9 bilateral pacts; 33 rivalries, each with a reason; the Russia–Ukraine war (`verify`).
+  - `scenario.json`: start date 2027-01-01 and the disputed territories with their parents.
+  - `flags/`: 199 public-domain flags (hampusborgos/country-flags, pinned commit) plus 5 simplified disputed-territory flags and a black neutral flag (`npm run data:flags`).
+- Translations: leader titles, alliances, the self-used names of disputed territories, and all new screens in English and Serbian.
+- Validation covers leaders, flags, diplomacy references, the scenario and stat ranges.
+
+- Country stats (`npm run data:stats -- --mirror`), decided with Dario to keep going without network access:
+  - GDP (2023) and population (2025): World Bank data from the pinned github.com/datasets mirrors.
+  - Armed forces and military spending: drafted estimates (IISS and SIPRI public figures, rounded) in `tools/countries/estimates.json`.
+  - Taiwan's GDP and population come from its national statistics.
+  - Political stability is empty for now.
+  - Every value not taken from the World Bank is marked with a `*Source` field.
+
 ## Next
 
-- Dario: merge the PR and check on the phone: the full map loads, zoom and pan are smooth, and tapping any province shows the right name and owner. Turn on "Show FPS" in ⚙ to see the frame rate.
-- Then Phase 3 — countries and setup screens (prompt to be written after the Phase 2 check).
+- Dario: merge the PR and check on the phone: main menu → New Game → choose any country → enter a name → the game starts with your country in amber.
+- Then Phase 4 — turn engine and saves.
+- Before the release (when we allow `api.worldbank.org` and `www.imf.org`): run `npm run data:stats` without `--mirror` for fresh GDP, armed forces, military spending and stability. Then re-tune the difficulty stars.
+- Dario: review `leaders.json` (45 `verify` entries), `diplomacy.json` and `tools/countries/estimates.json`.
 
 ## Known issues
+
+- Leaders and wars are drafted from information known up to mid-2026. Elections and events before the start date need a check.
+- Military figures are drafted estimates until the World Bank API is allowed. Political stability is missing, so it does not affect the difficulty yet.
+- No GDP data: North Korea, Vatican, and the disputed territories except Kosovo and Palestine.
+- Disputed territories use simplified flags drawn for the game (Abkhazia, South Ossetia, Transnistria, Northern Cyprus, Somaliland).
 
 - Province names come from Natural Earth's `name` field (local romanization; some are dated, e.g. "Kiev City", "L'viv"). They need a review before release.
 - Disputed territories use short names for now. The self-used names (GDD section 4, Neutral mode) belong to Phase 3.

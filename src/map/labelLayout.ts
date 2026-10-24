@@ -72,7 +72,7 @@ export interface CountryAnchor {
  * provinces, so overseas territories do not pull the label into the sea.
  */
 export function countryAnchors(
-  countries: CountryData[],
+  countries: Pick<CountryData, 'id' | 'provinceIds'>[],
   provinces: ProvinceData[],
   mapWidth: number,
 ): CountryAnchor[] {
@@ -82,6 +82,7 @@ export function countryAnchors(
     const seen = new Set<number>();
     let best: number[] = [];
     let bestPixels = -1;
+    if (country.provinceIds.length === 0) continue;
     for (const start of country.provinceIds) {
       if (seen.has(start)) continue;
       const group: number[] = [];

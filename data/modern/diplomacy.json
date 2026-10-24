@@ -1,0 +1,398 @@
+{
+  "meta": {
+    "description": "Alliances and defence pacts, rivalries and active wars between states at the scenario start. Each entry cites the treaty or documented behaviour behind it (GDD sections 10, 11, 14).",
+    "source": "Treaty texts and official alliance sites; documented diplomatic history",
+    "asOf": "2026-06",
+    "checked": null,
+    "checkedBy": "Pending review by Dario"
+  },
+  "alliances": [
+    {
+      "id": "nato",
+      "nameKey": "alliance.nato",
+      "type": "alliance",
+      "members": [
+        "ALB",
+        "BEL",
+        "BGR",
+        "CAN",
+        "HRV",
+        "CZE",
+        "DNK",
+        "EST",
+        "FIN",
+        "FRA",
+        "DEU",
+        "GRC",
+        "HUN",
+        "ISL",
+        "ITA",
+        "LVA",
+        "LTU",
+        "LUX",
+        "MNE",
+        "NLD",
+        "MKD",
+        "NOR",
+        "POL",
+        "PRT",
+        "ROU",
+        "SVK",
+        "SVN",
+        "ESP",
+        "SWE",
+        "TUR",
+        "GBR",
+        "USA"
+      ],
+      "source": "North Atlantic Treaty (1949), Article 5; membership per nato.int (32 members since Sweden joined in 2024)"
+    },
+    {
+      "id": "eu",
+      "nameKey": "alliance.eu",
+      "type": "pact",
+      "members": [
+        "AUT",
+        "BEL",
+        "BGR",
+        "HRV",
+        "CYP",
+        "CZE",
+        "DNK",
+        "EST",
+        "FIN",
+        "FRA",
+        "DEU",
+        "GRC",
+        "HUN",
+        "IRL",
+        "ITA",
+        "LVA",
+        "LTU",
+        "LUX",
+        "MLT",
+        "NLD",
+        "POL",
+        "PRT",
+        "ROU",
+        "SVK",
+        "SVN",
+        "ESP",
+        "SWE"
+      ],
+      "source": "Treaty on European Union, Article 42(7) mutual assistance clause; 27 member states"
+    },
+    {
+      "id": "csto",
+      "nameKey": "alliance.csto",
+      "type": "alliance",
+      "members": [
+        "RUS",
+        "BLR",
+        "KAZ",
+        "KGZ",
+        "TJK"
+      ],
+      "source": "Collective Security Treaty (1992), Article 4. Armenia froze its participation in 2024 and is not counted",
+      "verify": true
+    },
+    {
+      "id": "gcc",
+      "nameKey": "alliance.gcc",
+      "type": "pact",
+      "members": [
+        "SAU",
+        "ARE",
+        "QAT",
+        "KWT",
+        "BHR",
+        "OMN"
+      ],
+      "source": "GCC Joint Defence Agreement (2000)"
+    },
+    {
+      "id": "aes",
+      "nameKey": "alliance.aes",
+      "type": "alliance",
+      "members": [
+        "MLI",
+        "BFA",
+        "NER"
+      ],
+      "source": "Liptako-Gourma Charter (2023) establishing the Alliance of Sahel States, mutual defence clause"
+    },
+    {
+      "id": "pact-usa-jpn",
+      "nameKey": "alliance.bilateral",
+      "type": "pact",
+      "members": [
+        "USA",
+        "JPN"
+      ],
+      "source": "Treaty of Mutual Cooperation and Security (1960)"
+    },
+    {
+      "id": "pact-usa-kor",
+      "nameKey": "alliance.bilateral",
+      "type": "pact",
+      "members": [
+        "USA",
+        "KOR"
+      ],
+      "source": "Mutual Defense Treaty (1953)"
+    },
+    {
+      "id": "pact-usa-phl",
+      "nameKey": "alliance.bilateral",
+      "type": "pact",
+      "members": [
+        "USA",
+        "PHL"
+      ],
+      "source": "Mutual Defense Treaty (1951)"
+    },
+    {
+      "id": "pact-usa-aus",
+      "nameKey": "alliance.bilateral",
+      "type": "pact",
+      "members": [
+        "USA",
+        "AUS"
+      ],
+      "source": "ANZUS Treaty (1951); the US obligations to New Zealand are suspended since 1986"
+    },
+    {
+      "id": "pact-chn-prk",
+      "nameKey": "alliance.bilateral",
+      "type": "pact",
+      "members": [
+        "CHN",
+        "PRK"
+      ],
+      "source": "Sino-North Korean Mutual Aid and Cooperation Friendship Treaty (1961)"
+    },
+    {
+      "id": "pact-rus-prk",
+      "nameKey": "alliance.bilateral",
+      "type": "pact",
+      "members": [
+        "RUS",
+        "PRK"
+      ],
+      "source": "Treaty on Comprehensive Strategic Partnership (2024), Article 4 mutual assistance"
+    },
+    {
+      "id": "pact-rus-blr",
+      "nameKey": "alliance.bilateral",
+      "type": "pact",
+      "members": [
+        "RUS",
+        "BLR"
+      ],
+      "source": "Union State treaty (1999) and 2024 security guarantees treaty"
+    },
+    {
+      "id": "pact-sau-pak",
+      "nameKey": "alliance.bilateral",
+      "type": "pact",
+      "members": [
+        "SAU",
+        "PAK"
+      ],
+      "source": "Strategic Mutual Defence Agreement (2025)"
+    },
+    {
+      "id": "pact-tur-aze",
+      "nameKey": "alliance.bilateral",
+      "type": "pact",
+      "members": [
+        "TUR",
+        "AZE"
+      ],
+      "source": "Shusha Declaration on Allied Relations (2021)"
+    }
+  ],
+  "rivalries": [
+    {
+      "a": "USA",
+      "b": "CHN",
+      "reason": "Strategic competition: trade restrictions, Taiwan, South China Sea"
+    },
+    {
+      "a": "USA",
+      "b": "RUS",
+      "reason": "Sanctions since 2014/2022; arms support to Ukraine"
+    },
+    {
+      "a": "USA",
+      "b": "IRN",
+      "reason": "No diplomatic relations since 1980; sanctions; 2025 strikes on nuclear sites"
+    },
+    {
+      "a": "USA",
+      "b": "PRK",
+      "reason": "No diplomatic relations; sanctions over nuclear and missile programs"
+    },
+    {
+      "a": "USA",
+      "b": "CUB",
+      "reason": "Embargo since 1962"
+    },
+    {
+      "a": "RUS",
+      "b": "UKR",
+      "reason": "War since 2022; annexation of Crimea in 2014"
+    },
+    {
+      "a": "RUS",
+      "b": "GBR",
+      "reason": "Sanctions; expulsions of diplomats; support to Ukraine"
+    },
+    {
+      "a": "RUS",
+      "b": "POL",
+      "reason": "Frontline NATO state; airspace incidents and sanctions"
+    },
+    {
+      "a": "ISR",
+      "b": "IRN",
+      "reason": "No mutual recognition; direct strikes in 2024 and the 2025 war"
+    },
+    {
+      "a": "IND",
+      "b": "PAK",
+      "reason": "Wars of 1947, 1965, 1971, 1999; Kashmir; 2025 strikes"
+    },
+    {
+      "a": "IND",
+      "b": "CHN",
+      "reason": "Border dispute; 1962 war; 2020 Galwan clash"
+    },
+    {
+      "a": "CHN",
+      "b": "TWN",
+      "reason": "China claims Taiwan; military pressure"
+    },
+    {
+      "a": "CHN",
+      "b": "JPN",
+      "reason": "Senkaku/Diaoyu dispute; 2025 diplomatic row over Taiwan"
+    },
+    {
+      "a": "CHN",
+      "b": "PHL",
+      "reason": "South China Sea confrontations"
+    },
+    {
+      "a": "KOR",
+      "b": "PRK",
+      "reason": "Korean War armistice (1953), no peace treaty"
+    },
+    {
+      "a": "JPN",
+      "b": "PRK",
+      "reason": "No diplomatic relations; abductions; missile overflights"
+    },
+    {
+      "a": "ARM",
+      "b": "AZE",
+      "reason": "Nagorno-Karabakh wars (1990s, 2020, 2023); peace agreement initialled in 2025"
+    },
+    {
+      "a": "GRC",
+      "b": "TUR",
+      "reason": "Aegean and Cyprus disputes"
+    },
+    {
+      "a": "MAR",
+      "b": "DZA",
+      "reason": "Western Sahara; Algeria cut diplomatic relations in 2021"
+    },
+    {
+      "a": "ETH",
+      "b": "ERI",
+      "reason": "1998-2000 war; tensions over sea access"
+    },
+    {
+      "a": "EGY",
+      "b": "ETH",
+      "reason": "Grand Ethiopian Renaissance Dam dispute"
+    },
+    {
+      "a": "VEN",
+      "b": "GUY",
+      "reason": "Essequibo territorial claim"
+    },
+    {
+      "a": "SRB",
+      "b": "XKX",
+      "reason": "Serbia does not recognise Kosovo's independence"
+    },
+    {
+      "a": "AFG",
+      "b": "PAK",
+      "reason": "Border clashes in 2025; Durand Line dispute"
+    },
+    {
+      "a": "COD",
+      "b": "RWA",
+      "reason": "Rwanda's support for the M23 rebellion"
+    },
+    {
+      "a": "ISR",
+      "b": "LBN",
+      "reason": "Hezbollah conflict; 2024 war"
+    },
+    {
+      "a": "SAU",
+      "b": "IRN",
+      "reason": "Regional rivalry; relations restored in 2023 but competition continues"
+    },
+    {
+      "a": "CYP",
+      "b": "XNC",
+      "reason": "Division of Cyprus since 1974"
+    },
+    {
+      "a": "GEO",
+      "b": "XAB",
+      "reason": "Abkhazia's secession; Georgia claims the territory"
+    },
+    {
+      "a": "GEO",
+      "b": "XSO",
+      "reason": "South Ossetia's secession; 2008 war"
+    },
+    {
+      "a": "MDA",
+      "b": "XTR",
+      "reason": "Transnistria's secession; 1992 war"
+    },
+    {
+      "a": "SOM",
+      "b": "XSL",
+      "reason": "Somalia claims Somaliland"
+    },
+    {
+      "a": "MAR",
+      "b": "ESH",
+      "reason": "Western Sahara conflict; ceasefire collapsed in 2020"
+    }
+  ],
+  "wars": [
+    {
+      "id": "russia-ukraine",
+      "sides": [
+        [
+          "RUS"
+        ],
+        [
+          "UKR"
+        ]
+      ],
+      "since": "2022-02-24",
+      "source": "Full-scale invasion of Ukraine; still active at the last data check (mid-2026)",
+      "verify": true
+    }
+  ]
+}

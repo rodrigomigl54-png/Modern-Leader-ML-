@@ -202,5 +202,12 @@
   "country.YEM": "Jemen",
   "country.ZAF": "Južna Afrika",
   "country.ZMB": "Zambija",
-  "country.ZWE": "Zimbabve"
+  "country.ZWE": "Zimbabve",
+  "countrySelf.XKX": "Republika Kosovo",
+  "countrySelf.ESH": "Sahravijska Arapska Demokratska Republika",
+  "countrySelf.XNC": "Turska Republika Severni Kipar",
+  "countrySelf.XAB": "Republika Abhazija",
+  "countrySelf.XSO": "Republika Južna Osetija – Država Alanija",
+  "countrySelf.XTR": "Pridnjestrovska Moldavska Republika",
+  "countrySelf.XSL": "Republika Somalilend"
 }

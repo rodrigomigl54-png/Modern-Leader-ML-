@@ -125,7 +125,12 @@ describe('assignCountryColors', () => {
       province(2, 'CCC', [0, 1]),
     ];
     const countries = [country('AAA', [0]), country('BBB', [1]), country('CCC', [2])];
-    const colors = assignCountryColors({ provinces, countries });
+    const colors = assignCountryColors({
+      provinces,
+      countries,
+      owners: provinces.map((p) => p.owner),
+      focusCountry: null,
+    });
     const unique = new Set([...colors.values()].map((c) => c.join(',')));
     expect(unique.size).toBe(3);
   });

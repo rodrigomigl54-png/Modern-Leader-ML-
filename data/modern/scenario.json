@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "description": "Modern World scenario settings. startDate is set to the date the data was last verified before release (GDD section 14).",
+    "source": "GDD sections 4 and 14",
+    "checked": "2026-10-24"
+  },
+  "startDate": "2027-01-01",
+  "disputedTerritories": [
+    {
+      "id": "XKX",
+      "parent": "SRB"
+    },
+    {
+      "id": "ESH",
+      "parent": "MAR"
+    },
+    {
+      "id": "XNC",
+      "parent": "CYP"
+    },
+    {
+      "id": "XAB",
+      "parent": "GEO"
+    },
+    {
+      "id": "XSO",
+      "parent": "GEO"
+    },
+    {
+      "id": "XTR",
+      "parent": "MDA"
+    },
+    {
+      "id": "XSL",
+      "parent": "SOM"
+    }
+  ],
+  "aggressiveness": {
+    "comment": "Multipliers for hostile AI traits (GDD section 11). Chaos sets them to the maximum.",
+    "peaceful": 0.5,
+    "realistic": 1,
+    "aggressive": 1.5,
+    "chaos": "max"
+  }
+}

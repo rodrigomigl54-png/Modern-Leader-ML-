@@ -1,4 +1,4 @@
-import { getLanguage, t, type TranslationKey } from '../i18n';
+import { getLanguage, t } from '../i18n';
 import type { MapData } from '../map/mapData';
 
 /** Dossier-style info panel for the selected province. Closes with one tap. */
@@ -10,6 +10,8 @@ export class ProvincePanel {
     root: HTMLElement,
     private readonly data: MapData,
     private readonly onClose: () => void,
+    /** Current owner of a province: id and display name (ownership comes from the game). */
+    private readonly ownerOf: (provinceId: number) => { id: string; name: string },
   ) {
     this.panel.className = 'dossier';
     this.panel.hidden = true;
@@ -35,7 +37,7 @@ export class ProvincePanel {
 
   private render(): void {
     const province = this.data.provinces[this.provinceId!]!;
-    const country = this.data.countries.find((c) => c.id === province.owner)!;
+    const country = this.ownerOf(province.id);
     const cities = this.data.cities
       .filter((c) => c.provinceId === province.id)
       .sort((a, b) => Number(b.isCapital) - Number(a.isCapital) || b.population - a.population);
@@ -59,7 +61,7 @@ export class ProvincePanel {
     const facts = el('dl', 'dossier-facts');
     facts.append(
       el('dt', '', t('panel.owner')),
-      el('dd', '', t(country.nameKey as TranslationKey)),
+      el('dd', '', country.name),
       el('dt', '', t('panel.area')),
       el('dd', 'mono', t('units.km2', { value: number.format(Math.round(province.areaKm2)) })),
     );
