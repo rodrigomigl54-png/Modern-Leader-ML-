@@ -1,0 +1,118 @@
+:root {
+  --bg: #0b1522;
+  --panel-bg: rgba(16, 29, 45, 0.96);
+  --panel-border: #2a3e55;
+  --text: #dbe4ee;
+  --text-muted: #8798ab;
+  --accent: #f2a93b;
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#map-root {
+  position: fixed;
+  inset: 0;
+  touch-action: none;
+}
+
+#map-root canvas {
+  display: block;
+}
+
+#ui-root {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+#ui-root > * {
+  pointer-events: auto;
+}
+
+.settings-button {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 8px);
+  right: calc(env(safe-area-inset-right) + 8px);
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--panel-bg);
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.panel {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 60px);
+  right: calc(env(safe-area-inset-right) + 8px);
+  width: min(320px, calc(100vw - 16px));
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid var(--panel-border);
+  border-top: 3px solid var(--accent);
+  border-radius: 8px;
+  background: var(--panel-bg);
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.panel h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.panel label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.panel select,
+.panel-close {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.panel-close {
+  width: 100%;
+  cursor: pointer;
+}
+
+.version-label {
+  position: absolute;
+  left: calc(env(safe-area-inset-left) + 8px);
+  bottom: calc(env(safe-area-inset-bottom) + 6px);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  pointer-events: none;
+}
