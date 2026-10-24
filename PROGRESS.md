@@ -8,8 +8,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | --- | -------------------------------------------------------------- | ------------------------------------------------- |
 | 0   | Project setup                                                  | Done (live on GitHub Pages)                       |
 | 1   | Map data pipeline                                              | Done in code — waiting for review                 |
-| 2   | Map rendering                                                  | Done in code — waiting for the check on the phone |
-| 3   | Countries and setup screens                                    | Not started                                       |
+| 2   | Map rendering                                                  | Done (checked on the phone: smooth, up to 50 fps) |
+| 3   | Countries and setup screens                                    | In progress — waiting for World Bank data         |
 | 4   | Turn engine and saves                                          | Not started                                       |
 | 5   | Economy                                                        | Not started                                       |
 | 6   | Population                                                     | Not started                                       |
@@ -83,12 +83,39 @@ Done:
 - The map renders only when something changes (an idle map uses no GPU/battery).
 - Tests: camera, tile math, palette, country coloring, label anchors and placement (`src/map/map.test.ts`). Checked in Chromium with phone emulation: load, tap → panel, pinch zoom, drag, inertia, no console errors.
 
+## Phase 3 — Countries and setup screens (in progress)
+
+Done:
+
+- Main menu: New Game (Modern World — Recommended), the nine historical modes as locked "Coming soon" cards, Load Game (disabled until Phase 4), Settings. The feedback button stays hidden until there is a form link.
+- New game setup (GDD section 3):
+  - Step 1: AI aggressiveness (Peaceful / Realistic, the default / Aggressive / Chaos).
+  - Step 2: country chosen on the map or from a searchable, sortable list. It shows the flag, GDP, population, army, allies, rivals, wars and 1–5 difficulty stars. Only full-status countries are selectable.
+  - Step 3: leader name, showing who the player replaces, plus a summary.
+- Disputed territories setting (Neutral / As states / As part of parent state). It changes the game data at load time (`src/sim/world.ts`), not just the map. It sits on the country step, because it decides which countries are playable, and is also a default in ⚙.
+- Starting a game (`src/sim/newGame.ts`) creates the game state, replaces only the player's leader, and shows a top bar (flag, country, leader, date) with the player's country in signature amber with a glowing border. Main menu asks for confirmation before leaving the game.
+- Difficulty stars (`src/sim/difficulty.ts`) are computed from data only. Factors: power (GDP, military spending, manpower), GDP per capita, stability (WGI), allies vs rivals, and active wars. Stars are spread by ranking (12/23/30/23/12 %).
+- Data:
+  - `leaders.json`: 203 leaders, 45 marked `verify`.
+  - `diplomacy.json`: NATO, EU, CSTO, GCC, AES and 9 bilateral pacts; 33 rivalries, each with a reason; the Russia–Ukraine war (`verify`).
+  - `scenario.json`: start date 2027-01-01 and the disputed territories with their parents.
+  - `flags/`: 199 public-domain flags (hampusborgos/country-flags, pinned commit) plus 5 simplified disputed-territory flags and a black neutral flag (`npm run data:flags`).
+- Translations: leader titles, alliances, the self-used names of disputed territories, and all new screens in English and Serbian.
+- Validation covers leaders, flags, diplomacy references, the scenario and stat ranges.
+
+Blocked:
+
+- `npm run data:stats` (GDP, population, armed forces, military spending, political stability) needs network access to `api.worldbank.org` and `www.imf.org` (the IMF covers Taiwan). Until then the setup shows n/a and the difficulty stars are not meaningful.
+
 ## Next
 
-- Dario: merge the PR and check on the phone: the full map loads, zoom and pan are smooth, and tapping any province shows the right name and owner. Turn on "Show FPS" in ⚙ to see the frame rate.
-- Then Phase 3 — countries and setup screens (prompt to be written after the Phase 2 check).
+- Dario: allow `api.worldbank.org` and `www.imf.org` in the environment's network settings. Then run `npm run data:stats`, tune the stars (USA ≈ 1, Montenegro ≈ 5), review, commit and open the PR.
+- Dario: review `leaders.json` (45 `verify` entries) and `diplomacy.json`.
 
 ## Known issues
+
+- Leaders and wars are drafted from information known up to mid-2026. Elections and events before the start date need a check.
+- Disputed territories use simplified flags drawn for the game (Abkhazia, South Ossetia, Transnistria, Northern Cyprus, Somaliland).
 
 - Province names come from Natural Earth's `name` field (local romanization; some are dated, e.g. "Kiev City", "L'viv"). They need a review before release.
 - Disputed territories use short names for now. The self-used names (GDD section 4, Neutral mode) belong to Phase 3.

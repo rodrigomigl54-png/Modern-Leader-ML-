@@ -37,6 +37,8 @@ uniform vec3 uUnownedColor;
 uniform vec3 uCountryBorderColor;
 uniform vec3 uProvinceBorderColor;
 uniform vec3 uHighlightColor;
+uniform vec3 uFocusOwner;
+uniform vec3 uFocusColor;
 
 vec3 idAt(vec2 uv) {
   return texture(uIdTex, uv).rgb;
@@ -64,6 +66,10 @@ float borderKind(vec3 id, vec3 owner, vec3 n) {
 
 float selectionEdge(bool selected, vec3 n) {
   return selected != same(n, uSelected) ? 1.0 : 0.0;
+}
+
+float focusEdge(bool focused, vec3 n) {
+  return focused != same(ownerOf(n), uFocusOwner) ? 1.0 : 0.0;
 }
 
 void main() {
@@ -98,6 +104,23 @@ void main() {
     color = mix(color, uCountryBorderColor, 0.85);
   } else if (province > 0.5) {
     color = mix(color, uProvinceBorderColor, 0.55 * uProvinceAlpha);
+  }
+
+  // Focus country (the player's, or the one being chosen): amber border with a soft glow inside.
+  if (uFocusOwner.r < 1.5) {
+    bool focused = same(owner, uFocusOwner);
+    float edge = max(max(focusEdge(focused, c1), focusEdge(focused, c2)),
+                     max(focusEdge(focused, c3), focusEdge(focused, c4)));
+    if (edge > 0.5) {
+      color = uFocusColor;
+    } else if (focused) {
+      vec2 dg = dc * 3.0;
+      float glow = max(max(focusEdge(focused, idAt(vUV + vec2(dg.x, 0.0))),
+                           focusEdge(focused, idAt(vUV - vec2(dg.x, 0.0)))),
+                       max(focusEdge(focused, idAt(vUV + vec2(0.0, dg.y))),
+                           focusEdge(focused, idAt(vUV - vec2(0.0, dg.y)))));
+      color = mix(color, uFocusColor, 0.35 * glow);
+    }
   }
 
   bool selected = same(id, uSelected);
@@ -147,6 +170,8 @@ export class ProvinceShaderShared {
       uCountryBorderColor: { value: rgbToVec(style.countryBorder), type: 'vec3<f32>' },
       uProvinceBorderColor: { value: rgbToVec(style.provinceBorder), type: 'vec3<f32>' },
       uHighlightColor: { value: rgbToVec(style.highlight), type: 'vec3<f32>' },
+      uFocusOwner: { value: new Float32Array([2, 2, 2]), type: 'vec3<f32>' },
+      uFocusColor: { value: rgbToVec(style.highlight), type: 'vec3<f32>' },
     });
   }
 
@@ -169,6 +194,14 @@ export class ProvinceShaderShared {
       const label = provinceId + 1;
       sel.set([(label & 255) / 255, (label >> 8) / 255, 0]);
     }
+    this.uniforms.update();
+  }
+
+  /** Focuses a country by its palette owner index (0 = none). */
+  setFocusOwner(ownerIndex: number): void {
+    const focus = this.uniforms.uniforms.uFocusOwner as Float32Array;
+    if (ownerIndex <= 0) focus.set([2, 2, 2]);
+    else focus.set([(ownerIndex & 255) / 255, ((ownerIndex >> 8) & 255) / 255, 0]);
     this.uniforms.update();
   }
 

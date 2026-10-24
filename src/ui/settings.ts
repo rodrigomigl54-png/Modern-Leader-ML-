@@ -1,7 +1,20 @@
+import { DISPUTED_MODES, type DisputedMode } from '../sim/world';
 import { getLanguage, isLanguage, LANGUAGES, onLanguageChange, setLanguage, t } from '../i18n';
 
 const STORAGE_KEY = 'ml.language';
 const FPS_KEY = 'ml.showFps';
+const DISPUTED_KEY = 'ml.disputedMode';
+
+/** Default disputed-territories display for new games (GDD sections 4 and 13). */
+export function defaultDisputedMode(): DisputedMode {
+  try {
+    const saved = localStorage.getItem(DISPUTED_KEY);
+    if (DISPUTED_MODES.includes(saved as DisputedMode)) return saved as DisputedMode;
+  } catch {
+    // Storage blocked: use the GDD default.
+  }
+  return 'neutral';
+}
 
 function readFlag(key: string): boolean {
   try {
@@ -29,11 +42,18 @@ export function restoreLanguage(): void {
   }
 }
 
+export interface SettingsStub {
+  open(): void;
+}
+
 /**
- * Temporary settings stub: a corner button that opens a panel with the language switch and the
- * hidden FPS counter toggle.
+ * Temporary settings stub: a corner button that opens a panel with the language switch, the
+ * disputed-territories default and the hidden FPS counter toggle.
  */
-export function mountSettingsStub(root: HTMLElement, onShowFps: (show: boolean) => void): void {
+export function mountSettingsStub(
+  root: HTMLElement,
+  onShowFps: (show: boolean) => void,
+): SettingsStub {
   const button = document.createElement('button');
   button.className = 'settings-button';
   button.type = 'button';
@@ -54,12 +74,16 @@ export function mountSettingsStub(root: HTMLElement, onShowFps: (show: boolean) 
   fpsToggle.type = 'checkbox';
   fpsToggle.checked = readFlag(FPS_KEY);
   fpsLabel.append(fpsText, fpsToggle);
+  const disputedLabel = document.createElement('label');
+  const disputedText = document.createElement('span');
+  const disputedSelect = document.createElement('select');
+  disputedLabel.append(disputedText, disputedSelect);
   const close = document.createElement('button');
   close.type = 'button';
   close.className = 'panel-close';
 
   label.append(labelText, select);
-  panel.append(heading, label, fpsLabel, close);
+  panel.append(heading, label, disputedLabel, fpsLabel, close);
   root.append(button, panel);
 
   const render = (): void => {
@@ -68,6 +92,17 @@ export function mountSettingsStub(root: HTMLElement, onShowFps: (show: boolean) 
     heading.textContent = t('settings.title');
     labelText.textContent = t('settings.language');
     fpsText.textContent = t('settings.showFps');
+    disputedText.textContent = t('setup.disputed');
+    const current = defaultDisputedMode();
+    disputedSelect.replaceChildren(
+      ...DISPUTED_MODES.map((mode) => {
+        const option = document.createElement('option');
+        option.value = mode;
+        option.textContent = t(`disputed.${mode}`);
+        option.selected = mode === current;
+        return option;
+      }),
+    );
     close.textContent = t('settings.close');
     select.replaceChildren(
       ...LANGUAGES.map((language) => {
@@ -96,6 +131,14 @@ export function mountSettingsStub(root: HTMLElement, onShowFps: (show: boolean) 
     }
   });
 
+  disputedSelect.addEventListener('change', () => {
+    try {
+      localStorage.setItem(DISPUTED_KEY, disputedSelect.value);
+    } catch {
+      // Ignore: the choice still applies for this visit.
+    }
+  });
+
   fpsToggle.addEventListener('change', () => {
     writeFlag(FPS_KEY, fpsToggle.checked);
     onShowFps(fpsToggle.checked);
@@ -104,4 +147,10 @@ export function mountSettingsStub(root: HTMLElement, onShowFps: (show: boolean) 
   onLanguageChange(render);
   render();
   onShowFps(fpsToggle.checked);
+  return {
+    open: () => {
+      render();
+      panel.hidden = false;
+    },
+  };
 }
