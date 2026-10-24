@@ -15,6 +15,9 @@ export interface NewGameOptions {
 export interface GameState {
   version: 1;
   seed: number;
+  /** Seeded random generator state; advances deterministically every turn. */
+  rngState: number;
+  /** Turns played; turn 0 is the start date. */
   turn: number;
   date: string;
   settings: { aggressiveness: Aggressiveness; disputedMode: DisputedMode };
@@ -45,6 +48,7 @@ export function createNewGame(world: World, options: NewGameOptions): GameState 
   return {
     version: 1,
     seed: options.seed >>> 0,
+    rngState: options.seed >>> 0,
     turn: 0,
     date: effective.startDate,
     settings: { aggressiveness: options.aggressiveness, disputedMode: options.disputedMode },

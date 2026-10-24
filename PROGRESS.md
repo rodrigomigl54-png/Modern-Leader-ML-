@@ -9,8 +9,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 0   | Project setup                                                  | Done (live on GitHub Pages)                       |
 | 1   | Map data pipeline                                              | Done in code — waiting for review                 |
 | 2   | Map rendering                                                  | Done (checked on the phone: smooth, up to 50 fps) |
-| 3   | Countries and setup screens                                    | Done in code — waiting for the check on the phone |
-| 4   | Turn engine and saves                                          | Not started                                       |
+| 3   | Countries and setup screens                                    | Done                                              |
+| 4   | Turn engine and saves                                          | Done in code — waiting for the check on the phone |
 | 5   | Economy                                                        | Not started                                       |
 | 6   | Population                                                     | Not started                                       |
 | 7   | Military                                                       | Not started                                       |
@@ -110,12 +110,27 @@ Done:
   - Political stability is empty for now.
   - Every value not taken from the World Bank is marked with a `*Source` field.
 
+## Phase 4 — Turn engine and saves
+
+Done:
+
+- Turn engine (`src/sim/turn.ts`): one turn = one week. The ten phases run in the GDD section 5 order (AI orders → missiles → movement → battles → construction → economy → population → diplomacy → events → autosave). The system phases are empty slots that later phases fill. Every 10 turns a report event is raised (shown in Phase 12), and a new-year event at year change.
+- Determinism: a seeded random generator (`src/sim/rng.ts`) keeps its state in the game state. Same save + same seed = same result (tested over 30 turns, and loaded saves continue identically).
+- Commands (`src/sim/commands.ts`): the union that later systems extend. No command exists yet.
+- Saves (`src/sim/save.ts`): JSON with a format marker and version, a migration hook, and validation that refuses foreign, newer or damaged files.
+- Storage (`src/app/saveStore.ts`): IndexedDB with an autosave and 5 manual slots. Falls back to memory with a warning when storage is blocked. Export as a `.json` file; import from a file.
+- UI:
+  - The Next Turn button sits bottom right (Enter also works on a PC). The top bar shows the date and week.
+  - In-game menu: Resume, Save game, Load game, Export save, Import save, Settings, Exit to main menu.
+  - Main menu → Load Game lists the autosave and slots, with import.
+  - Toasts appear for saved/exported/errors.
+  - The game autosaves at the start and after every turn.
+- Checked in Chromium with phone emulation: 3 turns → week 4, save to slot 1, page reload → load slot 1, export → import. No console errors.
+
 ## Next
 
-- Dario: merge the PR and check on the phone: main menu → New Game → choose any country → enter a name → the game starts with your country in amber.
-- Then Phase 4 — turn engine and saves.
-- Before the release (when we allow `api.worldbank.org` and `www.imf.org`): run `npm run data:stats` without `--mirror` for fresh GDP, armed forces, military spending and stability. Then re-tune the difficulty stars.
-- Dario: review `leaders.json` (45 `verify` entries), `diplomacy.json` and `tools/countries/estimates.json`.
+- Dario: merge the PR and check on the phone: play a few turns, save, close the page, load again. Try export and import.
+- Then Phase 5 — economy (budget, taxes, investment, buildings, inflation, printing money).
 
 ## Known issues
 

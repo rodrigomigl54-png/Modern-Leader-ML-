@@ -1,18 +1,24 @@
 import './ui/style.css';
 import { onLanguageChange, t } from './i18n';
 import { countryName } from './app/present';
+import { AUTOSAVE_SLOT, exportSave, importSave, openSaveStore, type SlotId } from './app/saveStore';
 import { loadWorld } from './app/worldData';
 import { createMapView } from './map/mapView';
 import { createNewGame, type GameState } from './sim/newGame';
+import { createSave, type SaveError, type SaveFile } from './sim/save';
+import { advanceTurn } from './sim/turn';
 import { applyDisputedSetting } from './sim/world';
 import { confirmDialog } from './ui/confirmDialog';
 import { FpsCounter } from './ui/fpsCounter';
 import { GameHud } from './ui/gameHud';
+import { GameMenu } from './ui/gameMenu';
 import { showLoadingScreen } from './ui/loadingScreen';
 import { MainMenu } from './ui/mainMenu';
 import { ProvincePanel } from './ui/provincePanel';
+import { SaveSlots, slotName } from './ui/saveSlots';
 import { defaultDisputedMode, mountSettingsStub, restoreLanguage } from './ui/settings';
 import { politicsFor, SetupWizard } from './ui/setupWizard';
+import { Toasts } from './ui/toast';
 import { mountVersionLabel } from './ui/versionLabel';
 
 async function start(): Promise<void> {
@@ -31,9 +37,10 @@ async function start(): Promise<void> {
       onProgress: (f) => loading.setProgress(f * 0.9),
       onSelect: (id) => onMapTap(id),
     });
-    const bundle = await loadWorld(map.data);
+    const [bundle, store] = await Promise.all([loadWorld(map.data), openSaveStore()]);
     loading.setProgress(1);
     const world = bundle.world;
+    const toasts = new Toasts(uiRoot);
 
     let game: GameState | null = null;
     const showMenuMap = (): void => {
@@ -59,7 +66,45 @@ async function start(): Promise<void> {
     map.onFrame = () => fps.frame();
     mountVersionLabel(uiRoot);
 
-    const hud = new GameHud(uiRoot, world, () => {
+    const save = async (slot: SlotId, state: GameState): Promise<boolean> => {
+      try {
+        await store.put(slot, createSave(state, new Date().toISOString()));
+        return true;
+      } catch (error) {
+        console.error(error);
+        toasts.show(t('saves.failed'), 'error');
+        return false;
+      }
+    };
+
+    /** Shows a game (new or loaded) on the map. */
+    const playGame = (state: GameState): void => {
+      game = state;
+      wizard.close();
+      menu.hide();
+      slots.hide();
+      panel.hide();
+      map.clearSelection();
+      const mode = state.settings.disputedMode;
+      map.setPolitics(politicsFor(world, state.world, mode));
+      map.setFocusCountry(state.player.countryId);
+      map.lookAtCountry(state.player.countryId);
+      hud.show(state);
+    };
+
+    const endTurn = async (): Promise<void> => {
+      if (!game) return;
+      hud.setBusy(true);
+      const result = advanceTurn(game);
+      game = result.state;
+      hud.show(game);
+      panel.refresh();
+      // Step 10 of the turn: autosave (GDD section 5).
+      await save(AUTOSAVE_SLOT, game);
+      hud.setBusy(false);
+    };
+
+    const exitToMenu = (): void => {
       void confirmDialog(
         uiRoot,
         t('game.leaveTitle'),
@@ -74,6 +119,66 @@ async function start(): Promise<void> {
         showMenuMap();
         menu.show();
       });
+    };
+
+    const reportImportError = (error: SaveError): void => toasts.show(t(`saves.${error}`), 'error');
+    const importFromFile = async (): Promise<void> => {
+      const parsed = await importSave();
+      if (!parsed) return;
+      if (!parsed.ok) return reportImportError(parsed.error);
+      playGame(parsed.save.game);
+      await save(AUTOSAVE_SLOT, parsed.save.game);
+    };
+
+    const slots = new SaveSlots({
+      parent: uiRoot,
+      store,
+      baseWorld: world,
+      onSave: (slot, existing) => {
+        const state = game;
+        if (!state) return;
+        const write = async (): Promise<void> => {
+          if (await save(slot, state)) {
+            toasts.show(t('saves.saved'));
+            slots.hide();
+          }
+        };
+        if (!existing) return void write();
+        void confirmDialog(
+          uiRoot,
+          t('saves.overwriteTitle'),
+          t('saves.overwriteText', { slot: slotName(slot) }),
+          t('saves.overwrite'),
+          t('saves.cancel'),
+        ).then((ok) => {
+          if (ok) void write();
+        });
+      },
+      onLoad: (file: SaveFile) => playGame(file.game),
+      onImport: () => void importFromFile(),
+      onClose: () => {
+        if (!game) menu.show();
+      },
+    });
+
+    const hud = new GameHud(uiRoot, world, {
+      onMenu: () => gameMenu.show(),
+      onNextTurn: () => void endTurn(),
+    });
+
+    const settings = mountSettingsStub(uiRoot, (show) => fps.setVisible(show));
+    const gameMenu = new GameMenu(uiRoot, {
+      onSave: () => void slots.show('save'),
+      onLoad: () => void slots.show('load'),
+      onExport: () => {
+        if (!game) return;
+        const name = `modern-leader-${game.player.countryId.toLowerCase()}-${game.date}.json`;
+        exportSave(createSave(game, new Date().toISOString()), name);
+        toasts.show(t('saves.exported'));
+      },
+      onImport: () => void importFromFile(),
+      onSettings: () => settings.open(),
+      onExit: exitToMenu,
     });
 
     const wizard = new SetupWizard({
@@ -87,20 +192,20 @@ async function start(): Promise<void> {
         menu.show();
       },
       onStart: (options) => {
-        game = createNewGame(world, options);
-        wizard.close();
-        map.setPolitics(politicsFor(world, game.world, options.disputedMode));
-        map.setFocusCountry(options.countryId);
-        map.lookAtCountry(options.countryId);
-        hud.show(game);
+        const state = createNewGame(world, options);
+        playGame(state);
+        void save(AUTOSAVE_SLOT, state);
       },
     });
 
-    const settings = mountSettingsStub(uiRoot, (show) => fps.setVisible(show));
     const menu = new MainMenu(uiRoot, {
       onNewGame: () => {
         menu.hide();
         wizard.open();
+      },
+      onLoadGame: () => {
+        menu.hide();
+        void slots.show('load');
       },
       onSettings: () => settings.open(),
     });
