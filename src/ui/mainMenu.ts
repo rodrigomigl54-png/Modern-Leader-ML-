@@ -15,6 +15,7 @@ const HISTORICAL_MODES: { key: TranslationKey; years: string }[] = [
 
 export interface MainMenuActions {
   onNewGame: () => void;
+  onLoadGame: () => void;
   onSettings: () => void;
 }
 
@@ -66,9 +67,7 @@ export class MainMenu {
       historical.append(item);
     }
 
-    // Saves arrive with the turn engine (Phase 4).
-    const load = button('btn btn-secondary', t('menu.loadGame'), () => undefined);
-    load.disabled = true;
+    const load = button('btn btn-secondary', t('menu.loadGame'), this.actions.onLoadGame);
 
     card.append(
       modern,
