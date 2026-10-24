@@ -79,6 +79,13 @@ export function isValidGameState(game: unknown): game is GameState {
   }
   if (!(provinceOwners as unknown[]).every((o) => typeof o === 'string' && ids.has(o)))
     return false;
+  const economy = game.economy;
+  if (
+    economy !== undefined &&
+    (!isRecord(economy) || !isRecord(economy.countries) || !Array.isArray(economy.buildings))
+  ) {
+    return false;
+  }
   const playerCountry = (countries as { id: string; status: string }[]).find(
     (c) => c.id === player.countryId,
   );

@@ -38,8 +38,17 @@ function numberFormat(digits: number): Intl.NumberFormat {
 
 export function formatUsd(value: number | null): string {
   if (value === null) return t('units.unknown');
-  if (value >= 1e12) return t('units.trillionUsd', { value: numberFormat(2).format(value / 1e12) });
-  return t('units.billionUsd', { value: numberFormat(value >= 1e10 ? 0 : 1).format(value / 1e9) });
+  const sign = value < 0 ? '−' : '';
+  const v = Math.abs(value);
+  if (v < 5e4) return t('units.zeroUsd');
+  if (v >= 1e12) return sign + t('units.trillionUsd', { value: numberFormat(2).format(v / 1e12) });
+  if (v >= 1e9)
+    return sign + t('units.billionUsd', { value: numberFormat(v >= 1e10 ? 0 : 1).format(v / 1e9) });
+  return sign + t('units.millionUsd', { value: numberFormat(v >= 1e7 ? 0 : 1).format(v / 1e6) });
+}
+
+export function formatPercent(share: number, digits = 1): string {
+  return numberFormat(digits).format(share * 100);
 }
 
 export function formatPeople(value: number | null): string {

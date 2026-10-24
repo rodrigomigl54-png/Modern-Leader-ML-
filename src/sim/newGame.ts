@@ -1,4 +1,5 @@
 // Creates the initial game state from the three setup choices (GDD section 3).
+import { initEconomy, type EconomyRules, type EconomyState } from './economy';
 import { applyDisputedSetting, type Aggressiveness, type DisputedMode, type World } from './world';
 
 export const LEADER_NAME_MAX = 40;
@@ -23,6 +24,7 @@ export interface GameState {
   settings: { aggressiveness: Aggressiveness; disputedMode: DisputedMode };
   player: { countryId: string; leaderName: string };
   world: World;
+  economy: EconomyState;
 }
 
 export type NewGameError = 'invalidLeaderName' | 'countryNotPlayable';
@@ -40,11 +42,16 @@ export function validateNewGame(world: World, options: NewGameOptions): NewGameE
   return null;
 }
 
-export function createNewGame(world: World, options: NewGameOptions): GameState {
+export function createNewGame(
+  world: World,
+  options: NewGameOptions,
+  rules: EconomyRules,
+): GameState {
   const error = validateNewGame(world, options);
   if (error) throw new Error(`Cannot start a new game: ${error}`);
   const effective = applyDisputedSetting(world, options.disputedMode);
   const leaderName = normalizeLeaderName(options.leaderName);
+  const economy = initEconomy(effective, rules);
   return {
     version: 1,
     seed: options.seed >>> 0,
@@ -60,5 +67,6 @@ export function createNewGame(world: World, options: NewGameOptions): GameState 
         c.id === options.countryId ? { ...c, leader: { ...c.leader, name: leaderName } } : c,
       ),
     },
+    economy,
   };
 }

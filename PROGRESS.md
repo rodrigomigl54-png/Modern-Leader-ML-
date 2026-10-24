@@ -10,8 +10,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 1   | Map data pipeline                                              | Done in code — waiting for review                 |
 | 2   | Map rendering                                                  | Done (checked on the phone: smooth, up to 50 fps) |
 | 3   | Countries and setup screens                                    | Done                                              |
-| 4   | Turn engine and saves                                          | Done in code — waiting for the check on the phone |
-| 5   | Economy                                                        | Not started                                       |
+| 4   | Turn engine and saves                                          | Done                                              |
+| 5   | Economy                                                        | Done in code — waiting for the check on the phone |
 | 6   | Population                                                     | Not started                                       |
 | 7   | Military                                                       | Not started                                       |
 | 8   | Missiles, drones, air defense, nuclear                         | Not started                                       |
@@ -127,12 +127,39 @@ Done:
   - The game autosaves at the start and after every turn.
 - Checked in Chromium with phone emulation: 3 turns → week 4, save to slot 1, page reload → load slot 1, export → import. No console errors.
 
+## Phase 5 — Economy
+
+Done:
+
+- Rules in `data/modern/economy.json`: starting values, limits, growth, debt, inflation, money printing and the 10 investment categories (cost, build time, GDP effect, upkeep). Nothing is hard-coded.
+- Simulation (`src/sim/economy.ts`), the same rules for every country:
+  - Weekly budget: taxes and returns from investments abroad as income; military (SIPRI share of GDP), public services, debt interest and building upkeep as spending. Deficits the treasury cannot cover become debt.
+  - GDP growth from taxes, services, inflation and debt.
+  - Inflation moves toward a target driven by printed money, large deficits and overspending. It erodes the real value of the treasury. The Minister of Finance warns once it passes 10 %.
+  - Construction (turn step 5): finished buildings add GDP to the host country.
+- Commands (`src/sim/commands.ts`):
+  - `setTax`, `setServices`.
+  - `printMoney`: instant cash of 1 % of GDP; inflation rises; asks for confirmation.
+  - `invest`: one or many cities, own or foreign. The host's consent is refused between rivals or countries at war. Returns from a country at war are frozen.
+- UI:
+  - Top bar with treasury, GDP and inflation. Tap it to open the Ministry of Finance panel: budget lines, tax and services sliders, money printing and the project list.
+  - City "+" select in the province panel. A selection bar counts the selected cities.
+  - Invest dialog: category, total cost, build time, expected GDP/returns and refusing hosts, then confirm.
+  - Toasts when a building finishes; a telegram from the Minister of Finance.
+- Saves from Phase 4 still load (the economy is added on load).
+- A year of all 204 countries on real data: GDP grows about 2 % with about 2 % inflation, and Ukraine's war spending pushes it into debt and about 10 % inflation. One turn takes about 3 ms.
+- Checked in Chromium with phone emulation: print money, invest in a factory in Kragujevac, finished after 12 turns. No console errors.
+
 ## Next
 
-- Dario: merge the PR and check on the phone: play a few turns, save, close the page, load again. Try export and import.
-- Then Phase 5 — economy (budget, taxes, investment, buildings, inflation, printing money).
+- Dario: merge the PR and check on the phone: open the economy (tap the numbers in the top bar), change taxes, print money, select cities (+) and invest, then play turns.
+- Then Phase 6 — population: support, riots, revolution, secession, assimilation.
 
 ## Known issues
+
+- Debt starts at 0 for every country until IMF debt data can be loaded; trade income comes in Phase 10.
+- AI countries do not invest or change taxes yet (Phase 11). Foreign consent is a simple rule until diplomacy and AI profiles exist.
+- Economy numbers are first design values; they are tuned in Phase 13.
 
 - Leaders and wars are drafted from information known up to mid-2026. Elections and events before the start date need a check.
 - Military figures are drafted estimates until the World Bank API is allowed. Political stability is missing, so it does not affect the difficulty yet.

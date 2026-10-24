@@ -1,5 +1,6 @@
 // Loads the Modern World game data (data/modern/) into the simulation's World.
 import type { MapData } from '../map/mapData';
+import type { EconomyRules, SimContext } from '../sim/economy';
 import type { Alliance, CountryStats, Leader, Rivalry, War, World } from '../sim/world';
 
 interface StatsFile {
@@ -23,6 +24,8 @@ export interface WorldBundle {
   /** False until country-stats.json has been generated (npm run data:stats). */
   hasStats: boolean;
   allianceNames: Map<string, string>;
+  /** Rules and static facts for the simulation. */
+  sim: SimContext;
 }
 
 const optionalStats = import.meta.glob<string>('../../data/modern/country-stats.json', {
@@ -38,16 +41,18 @@ async function fetchJson<T>(url: string): Promise<T> {
 }
 
 export async function loadWorld(map: MapData): Promise<WorldBundle> {
-  const [leadersUrl, diplomacyUrl, scenarioUrl] = await Promise.all([
+  const [leadersUrl, diplomacyUrl, scenarioUrl, economyUrl] = await Promise.all([
     import('../../data/modern/leaders.json?url'),
     import('../../data/modern/diplomacy.json?url'),
     import('../../data/modern/scenario.json?url'),
+    import('../../data/modern/economy.json?url'),
   ]);
   const statsUrl = Object.values(optionalStats)[0];
-  const [leaders, diplomacy, scenario, stats] = await Promise.all([
+  const [leaders, diplomacy, scenario, economy, stats] = await Promise.all([
     fetchJson<LeadersFile>(leadersUrl.default),
     fetchJson<DiplomacyFile>(diplomacyUrl.default),
     fetchJson<ScenarioFile>(scenarioUrl.default),
+    fetchJson<EconomyRules>(economyUrl.default),
     statsUrl ? fetchJson<StatsFile>(statsUrl) : Promise.resolve(null),
   ]);
 
@@ -80,5 +85,6 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     world,
     hasStats: stats !== null,
     allianceNames: new Map(diplomacy.alliances.map((a) => [a.id, a.nameKey])),
+    sim: { economy, cityProvince: map.cities.map((c) => c.provinceId) },
   };
 }
