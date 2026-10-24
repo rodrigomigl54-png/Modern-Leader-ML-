@@ -907,6 +907,10 @@ body {
   }
 }
 
+.hud-break {
+  display: none;
+}
+
 .hud-when {
   display: flex;
   flex-direction: column;
@@ -1070,16 +1074,31 @@ body {
     flex-wrap: wrap;
   }
 
-  /* Second row on phones: the economy numbers, then support. */
+  /* Second row on phones: the economy numbers, then support and the army. */
   .hud-stats {
     order: 5;
-    flex: 1 1 calc(100% - 110px);
+    flex: 1 1 auto;
+    gap: 8px;
+    padding: 4px 6px;
     justify-content: space-around;
   }
 
   .hud-people {
     order: 6;
     flex: 0 0 auto;
+    padding: 4px 6px;
+  }
+
+  /* Forces the numbers onto their own row under the country name. */
+  .hud-break {
+    display: block;
+    order: 4;
+    flex-basis: 100%;
+    height: 0;
+  }
+
+  .hud-stat-label {
+    letter-spacing: 0.02em;
   }
 
   .hud-when {
@@ -1292,4 +1311,64 @@ body {
 
 .game-over {
   text-align: center;
+}
+
+/* Military (Phase 7) */
+.btn-small {
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.move-here {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.segmented {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+
+.segment {
+  flex: 1;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.segment + .segment {
+  border-left: 1px solid var(--panel-border);
+}
+
+.segment-on {
+  background: var(--bg);
+  color: var(--accent);
+}
+
+.recruit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.recruit-amount {
+  width: 9em;
+  min-height: 44px;
+}
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }

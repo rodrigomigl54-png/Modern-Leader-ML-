@@ -1,6 +1,7 @@
 // Population (GDD section 7): public support per province, riots, revolution, rebels, secession and
 // assimilation. All numbers come from data/modern/population.json (PopulationRules).
 import { growthRate, type SimContext } from './economy';
+import { armySize, reinforce } from './military';
 import type { GameState } from './newGame';
 import type { Rng } from './rng';
 import { alliesOf, rivalsOf, type WorldCountry } from './world';
@@ -286,10 +287,31 @@ function startRevolution(
   state.world.wars.push({ id: `revolution-${id}`, sides: [[country.id], [id]] });
   pop.factions.push({ id, parent: country.id, startedTurn: state.turn });
   for (const p of taken) transferProvince(state, ctx, p, id);
+  if (ctx.military && state.military) {
+    // Rebels raise fighters where they rise; half the local reservists join them.
+    const m = state.military;
+    m.countries[id] = {
+      service: false,
+      upkeepPerSoldier: m.countries[country.id]?.upkeepPerSoldier ?? 0,
+    };
+    for (const p of taken) {
+      const joined = Math.floor(m.reservists[p]! / 2);
+      m.reservists[p]! -= joined;
+      const fighters = Math.floor(
+        populationOf(ctx, p) * ctx.military.rebels.startShareOfPopulation + joined,
+      );
+      if (fighters > 0) reinforce(state, id, p, fighters, 0);
+    }
+  }
   emit({ type: 'revolution', countryId: country.id, factionId: id });
 }
 
 function removeFaction(state: GameState, faction: Faction): void {
+  if (state.military) {
+    state.military.armies = state.military.armies.filter((a) => a.owner !== faction.id);
+    state.military.training = state.military.training.filter((t) => t.owner !== faction.id);
+    delete state.military.countries[faction.id];
+  }
   state.population.factions = state.population.factions.filter((f) => f.id !== faction.id);
   state.world.wars = state.world.wars.filter((w) => w.id !== `revolution-${faction.id}`);
   state.world.countries = state.world.countries.filter((c) => c.id !== faction.id);
@@ -308,8 +330,25 @@ function resolveFaction(
   const rebels = state.world.countries.find((c) => c.id === faction.id)!;
   const government = state.world.countries.find((c) => c.id === faction.parent);
 
-  // Until armies exist (Phase 7), the struggle follows public support in government land.
-  if (government && government.provinceIds.length > 0) {
+  if (ctx.military && state.military && government && government.provinceIds.length > 0) {
+    // The armies fight it out (battle phase). Support decides how many join or desert the rebels.
+    const r = ctx.military.rebels;
+    const support = nationalSupport(state, ctx, government.id);
+    const people = rebels.provinceIds.reduce((s, p) => s + populationOf(ctx, p), 0);
+    const change = Math.floor(
+      people * r.recruitPerTurnOfPopulation * ((r.neutralSupport - support) / r.neutralSupport),
+    );
+    if (change > 0) {
+      reinforce(state, rebels.id, rebels.capitalProvinceId, change, 0);
+    } else if (change < 0) {
+      const armies = state.military.armies.filter((a) => a.owner === rebels.id);
+      const total = armies.reduce((s, a) => s + armySize(a), 0);
+      const share = total > 0 ? Math.min(1, -change / total) : 0;
+      for (const a of armies) a.regulars = Math.floor(a.regulars * (1 - share));
+      state.military.armies = state.military.armies.filter((a) => armySize(a) > 0);
+    }
+  } else if (government && government.provinceIds.length > 0) {
+    // Without armies (simulation contexts without military rules) the struggle follows support.
     const support = nationalSupport(state, ctx, government.id);
     const borders = (from: readonly number[], toOwner: string): number[] =>
       [...new Set(from.flatMap((p) => ctx.provinceNeighbors?.[p] ?? []))].filter(

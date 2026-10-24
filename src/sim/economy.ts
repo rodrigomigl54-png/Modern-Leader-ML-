@@ -1,5 +1,6 @@
 // Economy (GDD section 6): budget, GDP growth, inflation, money printing and investment in own and
 // foreign cities. All numbers come from data/modern/economy.json (EconomyRules).
+import { armyUpkeep, type MilitaryRules, type SeaLink } from './military';
 import type { GameState } from './newGame';
 import { productionFactor, type PopulationRules } from './population';
 import { enemiesAtWar, rivalsOf, type World, type WorldCountry } from './world';
@@ -71,6 +72,13 @@ export interface SimContext {
   provincePopulation?: readonly number[];
   /** Land neighbors per province. */
   provinceNeighbors?: readonly (readonly number[])[];
+  military?: MilitaryRules;
+  /** Inhabitants per city. */
+  cityPopulation?: readonly number[];
+  /** Sea routes between port provinces. */
+  seaRoutes?: readonly SeaLink[];
+  /** Countries with mandatory military service at the start. */
+  serviceAtStart?: readonly string[];
 }
 
 export interface CountryEconomy {
@@ -200,7 +208,11 @@ export function weeklyBudget(state: GameState, countryId: string, ctx: SimContex
     // Riots and unassimilated provinces produce less (GDD section 7).
     taxes: (e.gdp * e.taxRate * productionFactor(state, ctx, countryId)) / 52,
     investmentReturns: investmentReturns / 52,
-    military: (e.gdp * e.militaryShare) / 52,
+    // With armies (Phase 7) the military costs what the soldiers cost.
+    military:
+      ctx.military && state.military
+        ? armyUpkeep(state, ctx, countryId)
+        : (e.gdp * e.militaryShare) / 52,
     services: (e.gdp * e.servicesShare) / 52,
     interest: (e.debt * interestRate) / 52,
     upkeep: upkeep / 52,

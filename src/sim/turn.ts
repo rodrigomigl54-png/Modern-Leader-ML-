@@ -3,6 +3,8 @@
 import { dateOfTurn, REPORT_INTERVAL } from './calendar';
 import type { Command } from './commands';
 import { constructionPhase, economyPhase, type EconomyEvent, type SimContext } from './economy';
+import { battlePhase, movementPhase, trainingPhase, type MilitaryEvent } from './military';
+import { aiMilitaryOrders } from './ai';
 import type { GameState } from './newGame';
 import { populationPhase, type PopulationEvent } from './population';
 import { createRng, type Rng } from './rng';
@@ -36,6 +38,7 @@ export const TURN_PHASES: readonly TurnPhaseId[] = [
 export type TurnEvent =
   | EconomyEvent
   | PopulationEvent
+  | MilitaryEvent
   /** The 10-turn general report is due (GDD section 12). */
   | { type: 'report'; turn: number }
   /** A new year began. */
@@ -54,11 +57,20 @@ type Phase = (ctx: TurnContext) => void;
 
 // Each system fills in its phase as it is built (Phase 5 economy, Phase 6 population, ...).
 const PHASES: Record<TurnPhaseId, Phase> = {
-  aiOrders: () => undefined,
+  aiOrders: (ctx) => {
+    if (ctx.sim.military) aiMilitaryOrders(ctx.state, ctx.sim);
+  },
   missileImpacts: () => undefined,
-  movement: () => undefined,
-  battles: () => undefined,
-  construction: (ctx) => constructionPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e)),
+  movement: (ctx) => {
+    if (ctx.sim.military) movementPhase(ctx.state, ctx.sim);
+  },
+  battles: (ctx) => {
+    if (ctx.sim.military) battlePhase(ctx.state, ctx.sim, ctx.rng, (e) => ctx.events.push(e));
+  },
+  construction: (ctx) => {
+    constructionPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e));
+    if (ctx.sim.military) trainingPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e));
+  },
   economy: (ctx) => economyPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e)),
   population: (ctx) => {
     if (ctx.sim.population) populationPhase(ctx.state, ctx.sim, ctx.rng, (e) => ctx.events.push(e));

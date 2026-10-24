@@ -1,5 +1,6 @@
 // Creates the initial game state from the three setup choices (GDD section 3).
 import { initEconomy, type EconomyState, type SimContext } from './economy';
+import { emptyMilitary, initMilitary, type MilitaryState } from './military';
 import { initPopulation, type PopulationState } from './population';
 import { applyDisputedSetting, type Aggressiveness, type DisputedMode, type World } from './world';
 
@@ -27,8 +28,9 @@ export interface GameState {
   world: World;
   economy: EconomyState;
   population: PopulationState;
-  /** Set when the player's government has fallen. */
-  gameOver?: { reason: 'revolution'; turn: number };
+  military: MilitaryState;
+  /** Set when the player's government has fallen or the country was conquered. */
+  gameOver?: { reason: 'revolution' | 'conquered'; turn: number };
 }
 
 export type NewGameError = 'invalidLeaderName' | 'countryNotPlayable';
@@ -54,6 +56,9 @@ export function createNewGame(world: World, options: NewGameOptions, sim: SimCon
   const economy = initEconomy(effective, sim.economy);
   if (!sim.population) throw new Error('Population rules missing from the simulation context');
   const population = initPopulation({ world: effective }, sim.population);
+  const military = sim.military
+    ? initMilitary({ world: effective, economy }, sim)
+    : emptyMilitary(effective, sim);
   return {
     version: 1,
     seed: options.seed >>> 0,
@@ -71,5 +76,6 @@ export function createNewGame(world: World, options: NewGameOptions, sim: SimCon
     },
     economy,
     population,
+    military,
   };
 }

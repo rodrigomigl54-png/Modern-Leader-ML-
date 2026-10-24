@@ -63,6 +63,11 @@ export function formatUsd(value: number | null): string {
   return sign + t('units.millionUsd', { value: numberFormat(v >= 1e7 ? 0 : 1).format(v / 1e6) });
 }
 
+/** Whole number with thousands separators (soldiers, people). */
+export function formatCount(value: number): string {
+  return numberFormat(0).format(Math.round(value));
+}
+
 export function formatPercent(share: number, digits = 1): string {
   return numberFormat(digits).format(share * 100);
 }

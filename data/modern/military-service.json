@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "description": "Countries with mandatory military service (conscription in force) at the game's start, GDD section 8. All other countries start without it.",
+    "source": "Drafted from public information known up to mid-2026 (national defense laws as reported by CIA World Factbook 'Military service age and obligation' and news). Entries in 'verify' need a check before release.",
+    "checked": "2026-10-24",
+    "checkedBy": "draft"
+  },
+  "service": [
+    "AGO", "ARM", "AUT", "AZE", "BLR", "BOL", "BRA", "CHE", "CHL", "COL", "CPV", "CUB", "CYP",
+    "DNK", "DZA", "EGY", "ERI", "EST", "FIN", "GEO", "GNB", "GRC", "HRV", "IRN", "ISR", "KAZ",
+    "KGZ", "KHM", "KOR", "KWT", "LAO", "LTU", "LVA", "MAR", "MDA", "MEX", "MLI", "MMR", "MNG",
+    "MOZ", "NER", "NOR", "PRK", "PRY", "QAT", "RUS", "SGP", "SWE", "SYR", "THA", "TJK", "TKM",
+    "TUN", "TUR", "TWN", "UKR", "UZB", "VEN", "VNM", "ARE", "XNC", "XAB", "XSO", "XTR"
+  ],
+  "verify": ["CPV", "GNB", "HRV", "KHM", "MEX", "MLI", "NER", "SYR", "VEN", "XNC", "XAB", "XSO", "XTR", "SRB", "JOR", "POL", "DEU"]
+}

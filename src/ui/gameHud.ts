@@ -10,6 +10,9 @@ export interface GameHudActions {
   onNextTurn: () => void;
   onEconomy: () => void;
   onInterior: () => void;
+  onDefence: () => void;
+  /** Soldiers of the player's country (regulars and special forces), formatted. */
+  armyOf: (game: GameState) => string;
   /** National public support of the player's country (0-100). */
   supportOf: (game: GameState) => number;
   /** Support below which provinces riot: shown in red. */
@@ -112,11 +115,16 @@ export class GameHud {
         support < this.actions.riotThreshold ? 'danger' : '',
       ),
     );
+    const army = button('hud-stats hud-people', '', this.actions.onDefence);
+    army.setAttribute('aria-label', t('defence.title'));
+    army.append(stat(t('defence.armyShort'), this.actions.armyOf(game)));
     this.bar.replaceChildren(
       flagImage(countryFlag(this.baseWorld, id, mode), 'flag hud-flag'),
       who,
+      el('span', 'hud-break'),
       stats,
       people,
+      army,
       when,
       button('btn btn-secondary hud-menu', t('menu.gameMenu'), this.actions.onMenu),
     );
