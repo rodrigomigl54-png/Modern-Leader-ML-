@@ -1,6 +1,7 @@
 // Economy (GDD section 6): budget, GDP growth, inflation, money printing and investment in own and
 // foreign cities. All numbers come from data/modern/economy.json (EconomyRules).
 import type { GameState } from './newGame';
+import { productionFactor, type PopulationRules } from './population';
 import { enemiesAtWar, rivalsOf, type World, type WorldCountry } from './world';
 
 export interface InvestmentCategory {
@@ -63,8 +64,13 @@ export interface EconomyRules {
 /** Static facts the simulation needs besides the game state. */
 export interface SimContext {
   economy: EconomyRules;
+  population?: PopulationRules;
   /** Province id of every city id. */
   cityProvince: readonly number[];
+  /** Inhabitants per province (sum of its cities). */
+  provincePopulation?: readonly number[];
+  /** Land neighbors per province. */
+  provinceNeighbors?: readonly (readonly number[])[];
 }
 
 export interface CountryEconomy {
@@ -191,7 +197,8 @@ export function weeklyBudget(state: GameState, countryId: string, ctx: SimContex
   const interestRate =
     rules.debt.interestRate + rules.debt.interestPerDebtShare * Math.max(0, debtShare);
   const week = {
-    taxes: (e.gdp * e.taxRate) / 52,
+    // Riots and unassimilated provinces produce less (GDD section 7).
+    taxes: (e.gdp * e.taxRate * productionFactor(state, ctx, countryId)) / 52,
     investmentReturns: investmentReturns / 52,
     military: (e.gdp * e.militaryShare) / 52,
     services: (e.gdp * e.servicesShare) / 52,

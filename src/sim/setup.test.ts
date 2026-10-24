@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { computeDifficulty, percentileRanks } from './difficulty';
 import economyRules from '../../data/modern/economy.json';
+import populationRules from '../../data/modern/population.json';
+import type { PopulationRules } from './population';
 import type { EconomyRules } from './economy';
 import { createNewGame, validateNewGame } from './newGame';
 import {
@@ -123,7 +125,11 @@ describe('createNewGame', () => {
   };
 
   it('replaces only the player country leader', () => {
-    const game = createNewGame(world(), options, economyRules as EconomyRules);
+    const game = createNewGame(world(), options, {
+      economy: economyRules as EconomyRules,
+      population: populationRules as PopulationRules,
+      cityProvince: [],
+    });
     expect(game.player).toEqual({ countryId: 'MID', leaderName: 'Ana Petrović' });
     expect(game.world.countries.find((c) => c.id === 'MID')!.leader.name).toBe('Ana Petrović');
     expect(game.world.countries.find((c) => c.id === 'BIG')!.leader.name).toBe('Leader BIG');

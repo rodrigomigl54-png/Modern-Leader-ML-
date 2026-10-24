@@ -1,6 +1,7 @@
 // Loads the Modern World game data (data/modern/) into the simulation's World.
 import type { MapData } from '../map/mapData';
 import type { EconomyRules, SimContext } from '../sim/economy';
+import type { PopulationRules } from '../sim/population';
 import type { Alliance, CountryStats, Leader, Rivalry, War, World } from '../sim/world';
 
 interface StatsFile {
@@ -41,18 +42,20 @@ async function fetchJson<T>(url: string): Promise<T> {
 }
 
 export async function loadWorld(map: MapData): Promise<WorldBundle> {
-  const [leadersUrl, diplomacyUrl, scenarioUrl, economyUrl] = await Promise.all([
+  const [leadersUrl, diplomacyUrl, scenarioUrl, economyUrl, populationUrl] = await Promise.all([
     import('../../data/modern/leaders.json?url'),
     import('../../data/modern/diplomacy.json?url'),
     import('../../data/modern/scenario.json?url'),
     import('../../data/modern/economy.json?url'),
+    import('../../data/modern/population.json?url'),
   ]);
   const statsUrl = Object.values(optionalStats)[0];
-  const [leaders, diplomacy, scenario, economy, stats] = await Promise.all([
+  const [leaders, diplomacy, scenario, economy, population, stats] = await Promise.all([
     fetchJson<LeadersFile>(leadersUrl.default),
     fetchJson<DiplomacyFile>(diplomacyUrl.default),
     fetchJson<ScenarioFile>(scenarioUrl.default),
     fetchJson<EconomyRules>(economyUrl.default),
+    fetchJson<PopulationRules>(populationUrl.default),
     statsUrl ? fetchJson<StatsFile>(statsUrl) : Promise.resolve(null),
   ]);
 
@@ -85,6 +88,19 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     world,
     hasStats: stats !== null,
     allianceNames: new Map(diplomacy.alliances.map((a) => [a.id, a.nameKey])),
-    sim: { economy, cityProvince: map.cities.map((c) => c.provinceId) },
+    sim: {
+      economy,
+      population,
+      cityProvince: map.cities.map((c) => c.provinceId),
+      provincePopulation: provincePopulation(map),
+      provinceNeighbors: map.provinces.map((p) => p.neighbors),
+    },
   };
+}
+
+/** Inhabitants per province: the sum of its cities' populations. */
+function provincePopulation(map: MapData): number[] {
+  const totals = new Array<number>(map.provinces.length).fill(0);
+  for (const c of map.cities) totals[c.provinceId]! += c.population;
+  return totals;
 }

@@ -4,11 +4,19 @@ import { createNewGame, type GameState } from './newGame';
 import { createRng } from './rng';
 import { createSave, parseSave, serializeSave } from './save';
 import economyRules from '../../data/modern/economy.json';
+import populationRules from '../../data/modern/population.json';
+import type { PopulationRules } from './population';
 import type { EconomyRules, SimContext } from './economy';
 import { advanceTurn, TURN_PHASES } from './turn';
 
 const rules = economyRules as EconomyRules;
-const sim: SimContext = { economy: rules, cityProvince: [0] };
+const sim: SimContext = {
+  economy: rules,
+  population: populationRules as PopulationRules,
+  cityProvince: [0],
+  provincePopulation: [1e6],
+  provinceNeighbors: [[]],
+};
 import type { World } from './world';
 
 const world = (): World => ({
@@ -46,7 +54,7 @@ const newGame = (seed = 7): GameState =>
       leaderName: 'Player',
       seed,
     },
-    rules,
+    sim,
   );
 
 const play = (game: GameState, turns: number): GameState => {

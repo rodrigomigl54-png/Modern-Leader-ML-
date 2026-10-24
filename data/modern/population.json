@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "description": "Population rules (GDD section 7): public support, riots, revolution, rebels, secession and assimilation. Support is 0-100. Game-design defaults to be tuned in Phase 13 (balance).",
+    "source": "Game design (GDD section 7)",
+    "checked": "2026-10-24"
+  },
+  "support": {
+    "comment": "Each province moves toward a target support every turn. Effects are points of support.",
+    "start": 60,
+    "base": 60,
+    "adjustPerTurn": 0.05,
+    "growthEffect": 400,
+    "servicesNeutral": 0.2,
+    "servicesEffect": 80,
+    "inflationNeutral": 0.03,
+    "inflationEffect": 150,
+    "taxNeutral": 0.3,
+    "taxEffect": 120,
+    "debtNeutral": 1,
+    "debtEffect": 10,
+    "buildingEffect": 2,
+    "buildingEffectMax": 10,
+    "unassimilatedPenalty": 20,
+    "assimilatingPenalty": 15,
+    "rebelNeighborPenalty": 5,
+    "riotAftermathPenalty": 10
+  },
+  "riots": {
+    "threshold": 30,
+    "endThreshold": 36,
+    "productionPenalty": 0.5
+  },
+  "revolution": {
+    "comment": "A revolution breaks out when national support is below the threshold while riots have lasted long enough in a large enough share of the population.",
+    "nationalThreshold": 30,
+    "minRiotTurns": 6,
+    "minRiotPopulationShare": 0.15,
+    "initialShare": 0.25,
+    "rebelGainSupport": 40,
+    "rebelLoseSupport": 50,
+    "spreadChance": 0.35,
+    "retakeChance": 0.35,
+    "crushedGdpLoss": 0.05,
+    "crushedDebtShareOfGdp": 0.03,
+    "secessionTurns": 52,
+    "successSupport": 55
+  },
+  "assimilation": {
+    "comment": "Cost per inhabitant of the province, times the cultural distance. Unrest lasts while the province assimilates.",
+    "costPerPersonUsd": 200,
+    "minCostUsd": 20000000,
+    "distanceDefault": 1,
+    "distanceAllied": 0.7,
+    "distanceRival": 1.6,
+    "turns": 26,
+    "unassimilatedProductionPenalty": 0.3
+  }
+}

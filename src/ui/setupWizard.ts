@@ -26,7 +26,7 @@ import { button, el, flagImage } from './dom';
 type Sort = 'name' | 'gdp' | 'difficulty';
 
 /** Map view of a world after the disputed-territories setting. */
-export function politicsFor(base: World, effective: World, mode: DisputedMode): MapPolitics {
+export function politicsFor(effective: World, mode: DisputedMode): MapPolitics {
   return {
     owners: effective.provinceOwners,
     countries: effective.countries.map((c) => ({
@@ -34,7 +34,7 @@ export function politicsFor(base: World, effective: World, mode: DisputedMode): 
       status: c.status,
       provinceIds: c.provinceIds,
     })),
-    nameOf: (id) => countryName(base, id, mode),
+    nameOf: (id) => countryName(effective, id, mode),
   };
 }
 
@@ -97,7 +97,7 @@ export class SetupWizard {
 
   refresh(): void {
     if (this.root.hidden) return;
-    this.options.map.setPolitics(politicsFor(this.world, this.effective, this.disputedMode));
+    this.options.map.setPolitics(politicsFor(this.effective, this.disputedMode));
     this.render();
   }
 
@@ -105,7 +105,7 @@ export class SetupWizard {
     this.disputedMode = mode;
     this.effective = applyDisputedSetting(this.world, mode);
     this.difficulty = computeDifficulty(this.effective);
-    this.options.map.setPolitics(politicsFor(this.world, this.effective, mode));
+    this.options.map.setPolitics(politicsFor(this.effective, mode));
     if (this.countryId && !this.effective.countries.some((c) => c.id === this.countryId)) {
       this.countryId = null;
     }

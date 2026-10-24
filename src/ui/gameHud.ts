@@ -9,6 +9,11 @@ export interface GameHudActions {
   onMenu: () => void;
   onNextTurn: () => void;
   onEconomy: () => void;
+  onInterior: () => void;
+  /** National public support of the player's country (0-100). */
+  supportOf: (game: GameState) => number;
+  /** Support below which provinces riot: shown in red. */
+  riotThreshold: number;
 }
 
 /** Top bar of a running game (country, leader, date) and the Next Turn button (bottom right). */
@@ -68,7 +73,7 @@ export class GameHud {
 
     const who = el('div', 'hud-who');
     who.append(
-      el('span', 'hud-country', countryName(this.baseWorld, id, mode)),
+      el('span', 'hud-country', countryName(game.world, id, mode)),
       el(
         'span',
         'hud-leader',
@@ -97,10 +102,21 @@ export class GameHud {
         e.inflation >= 0.1 ? 'danger' : '',
       ),
     );
+    const support = this.actions.supportOf(game);
+    const people = button('hud-stats hud-people', '', this.actions.onInterior);
+    people.setAttribute('aria-label', t('interior.title'));
+    people.append(
+      stat(
+        t('interior.supportShort'),
+        `${formatPercent(support / 100, 0)}%`,
+        support < this.actions.riotThreshold ? 'danger' : '',
+      ),
+    );
     this.bar.replaceChildren(
       flagImage(countryFlag(this.baseWorld, id, mode), 'flag hud-flag'),
       who,
       stats,
+      people,
       when,
       button('btn btn-secondary hud-menu', t('menu.gameMenu'), this.actions.onMenu),
     );

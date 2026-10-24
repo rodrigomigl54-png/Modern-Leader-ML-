@@ -3,6 +3,7 @@
 // starts at once); the turn engine then advances everything they set in motion.
 import { investmentQuote, printAmount, type SimContext } from './economy';
 import type { GameState } from './newGame';
+import { assimilationQuote } from './population';
 
 export interface SetTaxCommand {
   type: 'setTax';
@@ -28,7 +29,15 @@ export interface InvestCommand {
   category: string;
 }
 
-export type Command = SetTaxCommand | SetServicesCommand | PrintMoneyCommand | InvestCommand;
+/** Assimilates the listed provinces ("Assimilate all" sends every eligible one). */
+export interface AssimilateCommand {
+  type: 'assimilate';
+  countryId: string;
+  provinceIds: number[];
+}
+
+export type Command =
+  SetTaxCommand | SetServicesCommand | PrintMoneyCommand | InvestCommand | AssimilateCommand;
 
 export type CommandError =
   | 'unknownCountry'
@@ -36,7 +45,8 @@ export type CommandError =
   | 'unknownCategory'
   | 'noCities'
   | 'allRefused'
-  | 'notEnoughMoney';
+  | 'notEnoughMoney'
+  | 'nothingToAssimilate';
 
 export type CommandResult = { ok: true; state: GameState } | { ok: false; error: CommandError };
 
@@ -104,6 +114,16 @@ export function applyCommand(
           completed: false,
         });
       }
+      return { ok: true, state };
+    }
+    case 'assimilate': {
+      const quote = assimilationQuote(previous, ctx, command.countryId, command.provinceIds);
+      if (quote.provinceIds.length === 0) return { ok: false, error: 'nothingToAssimilate' };
+      if (!quote.affordable) return { ok: false, error: 'notEnoughMoney' };
+      const state = structuredClone(previous);
+      state.economy.countries[command.countryId]!.treasury -= quote.totalCost;
+      for (const p of quote.provinceIds)
+        state.population.assimilateUntil[p] = state.turn + quote.turns;
       return { ok: true, state };
     }
   }

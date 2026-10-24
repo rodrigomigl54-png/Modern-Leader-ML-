@@ -12,11 +12,26 @@ export function flagUrl(countryId: string): string | null {
   return flags[`../../data/modern/flags/${countryId}.svg`] ?? null;
 }
 
+let provinceNames: readonly string[] = [];
+
+/** Province names, used for countries born during the game ("Free Donetsk"). */
+export function setProvinceNames(names: readonly string[]): void {
+  provinceNames = names;
+}
+
 /**
- * Display name of a country. Disputed territories use the name they use for themselves while
+ * Display name of a country. Rebel factions and seceded states are named after their parent
+ * country or their capital province (pass the game's world so they can be found). Disputed territories use the name they use for themselves while
  * neutral, and their own short name as states (GDD section 4).
  */
 export function countryName(world: World, countryId: string, mode: DisputedMode): string {
+  const faction = world.countries.find((c) => c.id === countryId)?.faction;
+  if (faction?.kind === 'rebels')
+    return t('faction.rebels', { country: countryName(world, faction.parent, mode) });
+  if (faction?.kind === 'seceded') {
+    const capital = world.countries.find((c) => c.id === countryId)!.capitalProvinceId;
+    return t('faction.seceded', { place: provinceNames[capital] ?? countryId });
+  }
   const disputed = world.disputed.some((d) => d.id === countryId);
   if (disputed && mode === 'neutral') return t(`countrySelf.${countryId}` as TranslationKey);
   return t(`country.${countryId}` as TranslationKey);
@@ -24,6 +39,7 @@ export function countryName(world: World, countryId: string, mode: DisputedMode)
 
 /** Flag of a country; neutral disputed territories show a black flag. */
 export function countryFlag(world: World, countryId: string, mode: DisputedMode): string | null {
+  if (world.countries.find((c) => c.id === countryId)?.faction) return flagUrl('neutral');
   const disputed = world.disputed.some((d) => d.id === countryId);
   if (disputed && mode === 'neutral') return flagUrl('neutral');
   return flagUrl(countryId);

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import economyRules from '../../data/modern/economy.json';
+import populationRules from '../../data/modern/population.json';
+import type { PopulationRules } from './population';
 import { applyCommand, type Command } from './commands';
 import {
   growthRate,
@@ -41,7 +43,13 @@ const world = (): World => ({
 });
 
 // Cities 0-1 in AAA, 2 in BBB, 3 in CCC.
-const sim: SimContext = { economy: rules, cityProvince: [0, 0, 1, 2] };
+const sim: SimContext = {
+  economy: rules,
+  population: populationRules as PopulationRules,
+  cityProvince: [0, 0, 1, 2],
+  provincePopulation: [1e6, 1e6, 1e6],
+  provinceNeighbors: [[1], [0, 2], [1]],
+};
 
 const newGame = (): GameState =>
   createNewGame(
@@ -53,7 +61,7 @@ const newGame = (): GameState =>
       leaderName: 'P',
       seed: 1,
     },
-    rules,
+    sim,
   );
 
 const run = (state: GameState, command: Command): GameState => {
