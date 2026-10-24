@@ -3,3 +3,5 @@ coverage/
 node_modules/
 package-lock.json
 docs/GDD.md
+data/modern/**/*.json
+tools/.cache/

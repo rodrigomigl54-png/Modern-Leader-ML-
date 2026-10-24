@@ -1,7 +1,12 @@
-import en from './en.json';
-import sr from './sr.json';
+import countriesEn from './countries.en.json';
+import countriesSr from './countries.sr.json';
+import uiEn from './en.json';
+import uiSr from './sr.json';
 
 export type Language = 'en' | 'sr';
+const en = { ...uiEn, ...countriesEn };
+const sr = { ...uiSr, ...countriesSr };
+
 export type TranslationKey = keyof typeof en;
 export type TranslationParams = Record<string, string | number>;
 

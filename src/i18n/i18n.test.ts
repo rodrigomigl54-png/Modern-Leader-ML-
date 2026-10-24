@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import countriesEn from './countries.en.json';
+import countriesSr from './countries.sr.json';
 import en from './en.json';
 import sr from './sr.json';
 import { DEFAULT_LANGUAGE, getLanguage, onLanguageChange, setLanguage, t } from './index';
@@ -29,5 +31,12 @@ describe('i18n', () => {
 
   it('has the same keys in every language', () => {
     expect(Object.keys(sr).sort()).toEqual(Object.keys(en).sort());
+    expect(Object.keys(countriesSr).sort()).toEqual(Object.keys(countriesEn).sort());
+  });
+
+  it('translates country names', () => {
+    expect(t('country.SRB')).toBe('Serbia');
+    setLanguage('sr');
+    expect(t('country.SRB')).toBe('Srbija');
   });
 });

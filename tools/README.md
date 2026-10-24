@@ -1,3 +1,61 @@
 # tools
 
-Data preprocessing scripts (Natural Earth → game files). Their output is committed under `data/`, so the game never needs the raw data. Filled from Phase 1 onwards.
+Data preprocessing scripts. Their output is committed under `data/`, so the game never needs the raw data.
+The scripts are TypeScript run directly by Node 22 (type stripping); no build step.
+
+## Map data pipeline (Phase 1)
+
+```sh
+npm run data:download   # Natural Earth GeoJSON -> tools/.cache/ (not committed)
+npm run data:build      # -> data/modern/ (about a minute, needs ~2 GB RAM)
+npm run data:validate   # checks + file size report (also part of npm test)
+```
+
+All decisions live in `tools/map/config.json`, not in code: Natural Earth version, raster size,
+who owns which Natural Earth unit, breakaway territories, capitals and sea-route settings.
+
+### Source
+
+[Natural Earth](https://www.naturalearthdata.com) 1:10m, public domain, pinned to release `v5.1.2`
+of [nvkelso/natural-earth-vector](https://github.com/nvkelso/natural-earth-vector):
+admin-0 countries, admin-1 states/provinces, admin-0 disputed areas, populated places.
+
+### Outputs (`data/modern/`)
+
+| File                      | Content                                                                                                                                                                     |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `provinces.json`          | One province per admin-1 region (none merged): id, key (Natural Earth `adm1_code`), name, owner, centroid (map pixels), lonLat, areaKm2, neighbors, isCoastal, pixels, bbox |
+| `countries.json`          | id, nameKey (`country.<id>`, names in `src/i18n/countries.*.json`), status, capitalProvinceId, provinceIds                                                                  |
+| `cities.json`             | id, name, provinceId, population, isCapital, isPort, lonLat, position (map pixels); `generated: true` for cities created at a province centroid                             |
+| `sea-routes.json`         | Draft graph of sea routes between port cities, with sea distance in km                                                                                                      |
+| `map/province-id-X-Y.png` | Province ID map tiles (max 4096 px). Color = province id + 1 as `R + 256 * G`; black = water, blue `#0000ff` = unowned land                                                 |
+| `map/province-map.json`   | Map size, projection, tile list, encoding, color → province id lookup                                                                                                       |
+| `map/borders.json`        | Border polylines per pair of provinces (or province and water), traced from the ID map                                                                                      |
+| `map/build-report.json`   | Counts, capitals, every ownership decision, overlaps and warnings from the last build                                                                                       |
+
+### Projection
+
+Miller cylindrical, 16384 px wide, from 84° N to 85° S. Its shapes look like the familiar Mercator
+world map at middle latitudes, but the poles do not blow up. It is cylindrical, so east-west
+panning can wrap around later, and pixel → lon/lat is a simple formula. Antarctica stays on the
+map as a neutral, uninhabited territory.
+
+### How the pipeline works
+
+1. Every admin-1 region becomes a province. Its owner comes from its admin-0 unit: sovereign states map to
+   their ISO code, and dependencies go to their sovereign (Greenland → Denmark, Hong Kong → China, …).
+   Special cases are listed in `owners.overrides`.
+2. Breakaway territories without their own admin-1 region (Abkhazia, South Ossetia, Transnistria) are carved
+   out using Natural Earth's disputed-area polygons. A region almost fully inside moves whole; a region
+   partly inside is split into two provinces.
+3. Provinces are rasterized into the ID map. Provinces smaller than one pixel get one pixel at their label
+   point, so every province can be seen and tapped.
+4. Neighbors come from touching pixels, plus shared boundary vertices for borders thinner than a pixel.
+5. A coarse water grid finds the navigable seas: the world ocean and the Caspian. The Suez and Panama
+   canals, the Bosphorus and the Dardanelles are forced open. A province is coastal if it touches that
+   water.
+6. Cities are placed in provinces by point-in-polygon. Provinces without a city get one at their centroid.
+   A city within 15 km of the sea in a coastal province is a port. A coastal province with no such city
+   gets its closest city (up to 50 km) as port.
+7. Sea routes connect ports whose nearest-port sea areas touch, following the water.
+8. Borders are traced from the ID map, so they match it exactly, and simplified.
