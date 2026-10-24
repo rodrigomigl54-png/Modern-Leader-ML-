@@ -11,6 +11,16 @@ import {
   type UnitKind,
 } from './military';
 import type { GameState } from './newGame';
+import {
+  airDefenseQuote,
+  launchDrones,
+  launchMissiles,
+  launchNuclear,
+  startProduction,
+  weaponsRules,
+  type WeaponKind,
+  type WeaponsError,
+} from './weapons';
 import { assimilationQuote } from './population';
 import { alliesOf, enemiesAtWar } from './world';
 
@@ -84,6 +94,52 @@ export interface DeclareWarCommand {
   targetId: string;
 }
 
+/** Missiles hit the target city next turn (GDD section 9). */
+export interface LaunchMissilesCommand {
+  type: 'launchMissiles';
+  countryId: string;
+  targetCityId: number;
+  tier: number;
+  count: number;
+}
+
+/** Drones fly to the target province, one province per turn, and strike on arrival. */
+export interface LaunchDronesCommand {
+  type: 'launchDrones';
+  countryId: string;
+  targetProvinceId: number;
+  tier: number;
+  count: number;
+}
+
+export interface LaunchNuclearCommand {
+  type: 'launchNuclear';
+  countryId: string;
+  targetCityId: number;
+}
+
+/** Orders missiles or drones from the country's factories. */
+export interface ProduceWeaponsCommand {
+  type: 'produceWeapons';
+  countryId: string;
+  weapon: WeaponKind;
+  tier: number;
+  count: number;
+}
+
+/** Builds or upgrades air defense in a city. */
+export interface BuildAirDefenseCommand {
+  type: 'buildAirDefense';
+  countryId: string;
+  cityId: number;
+}
+
+/** Starts a long and expensive nuclear weapons program. */
+export interface StartNuclearProgramCommand {
+  type: 'startNuclearProgram';
+  countryId: string;
+}
+
 export type Command =
   | SetTaxCommand
   | SetServicesCommand
@@ -94,7 +150,13 @@ export type Command =
   | SplitArmyCommand
   | RecruitCommand
   | SetServiceCommand
-  | DeclareWarCommand;
+  | DeclareWarCommand
+  | LaunchMissilesCommand
+  | LaunchDronesCommand
+  | LaunchNuclearCommand
+  | ProduceWeaponsCommand
+  | BuildAirDefenseCommand
+  | StartNuclearProgramCommand;
 
 export type CommandError =
   | 'unknownCountry'
@@ -111,7 +173,8 @@ export type CommandError =
   | 'needsBase'
   | 'invalidTarget'
   | 'alreadyAtWar'
-  | 'allied';
+  | 'allied'
+  | WeaponsError;
 
 export type CommandResult = { ok: true; state: GameState } | { ok: false; error: CommandError };
 
@@ -264,6 +327,47 @@ export function applyCommand(
           state.population.support[p] = Math.max(0, state.population.support[p]! - penalty);
       }
       next.service = command.enabled;
+      return { ok: true, state };
+    }
+    case 'launchMissiles':
+    case 'launchDrones':
+    case 'launchNuclear':
+    case 'produceWeapons': {
+      const state = structuredClone(previous);
+      const c = command;
+      const error =
+        c.type === 'launchMissiles'
+          ? launchMissiles(state, ctx, c.countryId, c.targetCityId, c.tier, c.count)
+          : c.type === 'launchDrones'
+            ? launchDrones(state, ctx, c.countryId, c.targetProvinceId, c.tier, c.count)
+            : c.type === 'launchNuclear'
+              ? launchNuclear(state, ctx, c.countryId, c.targetCityId)
+              : startProduction(state, ctx, c.countryId, c.weapon, c.tier, c.count);
+      return error ? { ok: false, error } : { ok: true, state };
+    }
+    case 'buildAirDefense': {
+      const quote = airDefenseQuote(previous, ctx, command.countryId, command.cityId);
+      if (quote.allowed || !quote.level) return { ok: false, error: quote.allowed ?? 'maxLevel' };
+      const state = structuredClone(previous);
+      state.economy.countries[command.countryId]!.treasury -= quote.level.costUsd;
+      state.weapons.airDefenseBuilds.push({
+        owner: command.countryId,
+        cityId: command.cityId,
+        level: quote.level.level,
+        readyTurn: state.turn + quote.level.buildTurns,
+      });
+      return { ok: true, state };
+    }
+    case 'startNuclearProgram': {
+      const n = weaponsRules(ctx).nuclear;
+      const a = previous.weapons.countries[command.countryId];
+      if (!a) return { ok: false, error: 'unknownCountry' };
+      if (a.warheads > 0) return { ok: false, error: 'hasNuclear' };
+      if (a.nuclearProgramUntil >= 0) return { ok: false, error: 'programRunning' };
+      if (economy.treasury < n.programCostUsd) return { ok: false, error: 'notEnoughMoney' };
+      const state = structuredClone(previous);
+      state.economy.countries[command.countryId]!.treasury -= n.programCostUsd;
+      state.weapons.countries[command.countryId]!.nuclearProgramUntil = state.turn + n.programTurns;
       return { ok: true, state };
     }
     case 'declareWar': {

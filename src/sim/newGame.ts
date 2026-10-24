@@ -2,6 +2,7 @@
 import { initEconomy, type EconomyState, type SimContext } from './economy';
 import { emptyMilitary, initMilitary, type MilitaryState } from './military';
 import { initPopulation, type PopulationState } from './population';
+import { emptyWeapons, initWeapons, type WeaponsState } from './weapons';
 import { applyDisputedSetting, type Aggressiveness, type DisputedMode, type World } from './world';
 
 export const LEADER_NAME_MAX = 40;
@@ -29,6 +30,7 @@ export interface GameState {
   economy: EconomyState;
   population: PopulationState;
   military: MilitaryState;
+  weapons: WeaponsState;
   /** Set when the player's government has fallen or the country was conquered. */
   gameOver?: { reason: 'revolution' | 'conquered'; turn: number };
 }
@@ -59,6 +61,7 @@ export function createNewGame(world: World, options: NewGameOptions, sim: SimCon
   const military = sim.military
     ? initMilitary({ world: effective, economy }, sim)
     : emptyMilitary(effective, sim);
+  const weapons = sim.weapons ? initWeapons({ world: effective, economy }, sim) : emptyWeapons(sim);
   return {
     version: 1,
     seed: options.seed >>> 0,
@@ -77,5 +80,6 @@ export function createNewGame(world: World, options: NewGameOptions, sim: SimCon
     economy,
     population,
     military,
+    weapons,
   };
 }

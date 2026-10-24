@@ -14,6 +14,15 @@ import {
   type Army,
 } from './military';
 import type { GameState } from './newGame';
+import {
+  launchDrones,
+  launchMissiles,
+  launchNuclear,
+  launchSiteFor,
+  productionQuote,
+  startProduction,
+  weaponsRules,
+} from './weapons';
 import { alliesOf, enemiesAtWar } from './world';
 
 const RECRUIT_CITIES = 8;
@@ -203,4 +212,87 @@ function recruit(state: GameState, ctx: SimContext, countryId: string): void {
   }
   if (quote.affordable && quote.cost <= e.treasury * rules.ai.maxTreasuryShare)
     startRecruitment(state, countryId, ctx, quote);
+}
+
+/**
+ * AI use of missiles and drones in its wars: strikes on enemy armies near the front (or the enemy
+ * capital), production when it has factories, and nuclear weapons only as a last resort when it is
+ * about to lose the country (GDD section 9).
+ */
+export function aiWeaponsOrders(state: GameState, ctx: SimContext): void {
+  const rules = weaponsRules(ctx);
+  const owners = state.world.provinceOwners;
+  const land = ctx.provinceNeighbors ?? [];
+  const armyIn = new Map<number, number>();
+  for (const a of state.military.armies)
+    armyIn.set(a.provinceId, (armyIn.get(a.provinceId) ?? 0) + a.regulars + a.special);
+
+  for (const country of state.world.countries) {
+    if (country.id === state.player.countryId || country.provinceIds.length === 0) continue;
+    const arsenal = state.weapons.countries[country.id];
+    if (!arsenal) continue;
+    const enemies = new Set(enemiesAtWar(state.world, country.id));
+    if (enemies.size === 0) continue;
+
+    // Targets: enemy provinces next to ours, biggest enemy armies first; then enemy capitals.
+    const near = new Set<number>();
+    for (const p of country.provinceIds)
+      for (const q of land[p] ?? []) if (enemies.has(owners[q]!)) near.add(q);
+    const targets = [...near]
+      .filter((q) => (armyIn.get(q) ?? 0) > 0)
+      .sort((a, b) => (armyIn.get(b) ?? 0) - (armyIn.get(a) ?? 0) || a - b);
+    const capitals = state.world.countries
+      .filter((c) => enemies.has(c.id) && c.provinceIds.length > 0)
+      .map((c) => c.capitalProvinceId);
+    const targetCities = [...targets, ...capitals]
+      .map((p) => citiesOfProvince(ctx, p)[0])
+      .filter((c): c is number => c !== undefined);
+
+    // Last resort: the country is almost lost and the enemy stands at the capital.
+    const nearlyLost =
+      country.provinceIds.length <= arsenal.startProvinces * rules.nuclear.aiLastResortShare;
+    const capitalThreatened = [
+      country.capitalProvinceId,
+      ...(land[country.capitalProvinceId] ?? []),
+    ].some((p) => state.military.armies.some((a) => a.provinceId === p && enemies.has(a.owner)));
+    if (arsenal.warheads > 0 && nearlyLost && capitalThreatened) {
+      const capital = capitals[0];
+      const city = capital !== undefined ? citiesOfProvince(ctx, capital)[0] : undefined;
+      if (city !== undefined) launchNuclear(state, ctx, country.id, city);
+    }
+
+    for (let tier = rules.missiles.length; tier >= 1; tier--) {
+      const stock = arsenal.missiles[tier - 1] ?? 0;
+      if (stock <= 0) continue;
+      const count = Math.min(
+        rules.ai.missileMax,
+        Math.max(1, Math.floor(stock * rules.ai.missileShare)),
+      );
+      const range = rules.missiles[tier - 1]!.rangeKm;
+      const city = targetCities.find((c) => launchSiteFor(state, ctx, country.id, c, range) >= 0);
+      if (city !== undefined) launchMissiles(state, ctx, country.id, city, tier, count);
+    }
+    for (let tier = rules.drones.length; tier >= 1; tier--) {
+      const stock = arsenal.drones[tier - 1] ?? 0;
+      if (stock <= 0) continue;
+      const count = Math.min(
+        rules.ai.droneMax,
+        Math.max(1, Math.floor(stock * rules.ai.droneShare)),
+      );
+      for (const p of targets) {
+        if (!launchDrones(state, ctx, country.id, p, tier, count)) break;
+      }
+    }
+
+    // Keep producing the best missiles it can make with a share of the treasury.
+    const e = state.economy.countries[country.id];
+    if (e && !state.weapons.production.some((p) => p.owner === country.id)) {
+      const tier = arsenal.tech[0];
+      const cost = rules.missiles[tier - 1]?.costUsd ?? 0;
+      const count =
+        cost > 0 ? Math.floor((e.treasury * rules.ai.productionTreasuryShare) / cost) : 0;
+      if (count > 0 && !productionQuote(state, ctx, country.id, 'missile', tier, count).allowed)
+        startProduction(state, ctx, country.id, 'missile', tier, count);
+    }
+  }
 }

@@ -3,6 +3,7 @@ import type { MapData } from '../map/mapData';
 import type { EconomyRules, SimContext } from '../sim/economy';
 import type { MilitaryRules, SeaLink } from '../sim/military';
 import type { PopulationRules } from '../sim/population';
+import type { WeaponsRules } from '../sim/weapons';
 import type { Alliance, CountryStats, Leader, Rivalry, War, World } from '../sim/world';
 
 interface StatsFile {
@@ -58,22 +59,34 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     import('../../data/modern/military.json?url'),
     import('../../data/modern/military-service.json?url'),
     import('../../data/modern/sea-routes.json?url'),
+    import('../../data/modern/weapons.json?url'),
   ]);
   const [leadersUrl, diplomacyUrl, scenarioUrl, economyUrl, populationUrl] = urls;
-  const [militaryUrl, serviceUrl, seaUrl] = urls.slice(5);
+  const [militaryUrl, serviceUrl, seaUrl, weaponsUrl] = urls.slice(5);
   const statsUrl = Object.values(optionalStats)[0];
-  const [leaders, diplomacy, scenario, economy, population, military, service, sea, stats] =
-    await Promise.all([
-      fetchJson<LeadersFile>(leadersUrl.default),
-      fetchJson<DiplomacyFile>(diplomacyUrl.default),
-      fetchJson<ScenarioFile>(scenarioUrl.default),
-      fetchJson<EconomyRules>(economyUrl.default),
-      fetchJson<PopulationRules>(populationUrl.default),
-      fetchJson<MilitaryRules>(militaryUrl!.default),
-      fetchJson<ServiceFile>(serviceUrl!.default),
-      fetchJson<SeaRoutesFile>(seaUrl!.default),
-      statsUrl ? fetchJson<StatsFile>(statsUrl) : Promise.resolve(null),
-    ]);
+  const [
+    leaders,
+    diplomacy,
+    scenario,
+    economy,
+    population,
+    military,
+    service,
+    sea,
+    weapons,
+    stats,
+  ] = await Promise.all([
+    fetchJson<LeadersFile>(leadersUrl.default),
+    fetchJson<DiplomacyFile>(diplomacyUrl.default),
+    fetchJson<ScenarioFile>(scenarioUrl.default),
+    fetchJson<EconomyRules>(economyUrl.default),
+    fetchJson<PopulationRules>(populationUrl.default),
+    fetchJson<MilitaryRules>(militaryUrl!.default),
+    fetchJson<ServiceFile>(serviceUrl!.default),
+    fetchJson<SeaRoutesFile>(seaUrl!.default),
+    fetchJson<WeaponsRules>(weaponsUrl!.default),
+    statsUrl ? fetchJson<StatsFile>(statsUrl) : Promise.resolve(null),
+  ]);
 
   const world: World = {
     startDate: scenario.startDate,
@@ -114,6 +127,9 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
       cityPopulation: map.cities.map((c) => c.population),
       seaRoutes: seaLinks(map, sea),
       serviceAtStart: service.service,
+      weapons,
+      cityLonLat: map.cities.map((c) => c.lonLat),
+      nuclearBaseCities: nuclearBases(map, weapons),
     },
   };
 }
@@ -135,4 +151,19 @@ function seaLinks(map: MapData, file: SeaRoutesFile): SeaLink[] {
     links.push({ a, b, km: r.km });
   }
   return links;
+}
+
+/** Nuclear base cities by name, within the country (data/modern/weapons.json). */
+function nuclearBases(map: MapData, rules: WeaponsRules): Record<string, number[]> {
+  const result: Record<string, number[]> = {};
+  for (const [country, { bases }] of Object.entries(rules.nuclear.countries)) {
+    result[country] = bases
+      .map(
+        (name) =>
+          map.cities.find((c) => c.name === name && map.provinces[c.provinceId]?.owner === country)
+            ?.id,
+      )
+      .filter((id): id is number => id !== undefined);
+  }
+  return result;
 }

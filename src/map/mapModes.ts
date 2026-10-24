@@ -16,6 +16,8 @@ export interface MapModeContext {
   focusCountry: string | null;
   /** Public support per province id (0-100), or null outside a game. */
   support: readonly number[] | null;
+  /** Air-defense coverage per province: 0 none, 1 own, 2 ally, 3 enemy, 4 other. */
+  airDefense?: Uint8Array | null;
 }
 
 export interface MapMode {
@@ -145,4 +147,22 @@ export const supportMode: MapMode = {
   },
 };
 
-export const MAP_MODES: readonly MapMode[] = [politicalMode, supportMode];
+const COVER_NONE = hexToRgb('#3a414b');
+const COVER = [
+  COVER_NONE,
+  hexToRgb('#3f8f84'),
+  hexToRgb('#4d7fa0'),
+  hexToRgb('#a04a42'),
+  hexToRgb('#6b7480'),
+];
+
+/** Air-defense coverage (GDD section 9): who protects each province. */
+export const airDefenseMode: MapMode = {
+  id: 'airDefense',
+  nameKey: 'mapMode.airDefense',
+  colors(context) {
+    return context.provinces.map((p) => vary(COVER[context.airDefense?.[p.id] ?? 0]!, p.id));
+  },
+};
+
+export const MAP_MODES: readonly MapMode[] = [politicalMode, supportMode, airDefenseMode];

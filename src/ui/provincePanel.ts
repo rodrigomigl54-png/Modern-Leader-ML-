@@ -44,6 +44,13 @@ export interface ProvinceMilitary {
   attack: boolean;
   /** Country the player may declare war on from this province. */
   declareWar: { countryId: string; name: string } | null;
+  /** Air-defense level of the main city, 0 for none. */
+  airDefense: number;
+  nuclearBase: boolean;
+  /** The player may strike here with missiles or drones (enemy at war). */
+  strike: boolean;
+  /** Cost of the next air-defense level when the player can build it here. */
+  airDefenseCost: string | null;
 }
 
 export interface ProvincePanelOptions {
@@ -64,6 +71,8 @@ export interface ProvincePanelOptions {
   onSplitArmy: (armyId: number) => void;
   onMoveHere: (provinceId: number) => void;
   onDeclareWar: (countryId: string) => void;
+  onStrike: (provinceId: number) => void;
+  onBuildAirDefense: (provinceId: number) => void;
 }
 
 /** Dossier-style info panel for the selected province. Closes with one tap. */
@@ -232,6 +241,21 @@ export class ProvincePanel {
       );
       if (military.reservists !== null)
         mfacts.append(el('dt', '', t('army.reservists')), el('dd', 'mono', military.reservists));
+      mfacts.append(
+        el('dt', '', t('arsenal.airDefense')),
+        el(
+          'dd',
+          'mono',
+          military.airDefense > 0
+            ? t('army.baseLevel', { level: military.airDefense })
+            : t('army.noBase'),
+        ),
+      );
+      if (military.nuclearBase)
+        mfacts.append(
+          el('dt', '', t('arsenal.nuclear')),
+          el('dd', 'danger', t('arsenal.nuclearBase')),
+        );
       army.push(mfacts);
       const list = el('ul', 'dossier-cities');
       for (const a of military.armies) {
@@ -261,6 +285,22 @@ export class ProvincePanel {
       }
       if (military.armies.length === 0) list.append(el('li', 'muted', t('army.none')));
       army.push(list);
+      if (military.strike) {
+        army.push(
+          button('btn btn-danger-outline', t('strike.open'), () =>
+            this.options.onStrike(province.id),
+          ),
+        );
+      }
+      if (military.airDefenseCost) {
+        army.push(
+          button(
+            'btn btn-secondary',
+            t('arsenal.buildAirDefense', { cost: military.airDefenseCost }),
+            () => this.options.onBuildAirDefense(province.id),
+          ),
+        );
+      }
       if (military.declareWar) {
         const war = military.declareWar;
         army.push(
