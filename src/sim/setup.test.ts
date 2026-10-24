@@ -107,7 +107,7 @@ describe('computeDifficulty', () => {
     w.wars = [];
     const counts = [0, 0, 0, 0, 0];
     for (const r of computeDifficulty(w).values()) counts[r.stars - 1]!++;
-    expect(counts).toEqual([12, 23, 30, 23, 12]);
+    expect(counts).toEqual([10, 15, 20, 25, 30]);
   });
 });
 

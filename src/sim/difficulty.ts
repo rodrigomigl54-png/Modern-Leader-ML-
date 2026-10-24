@@ -12,15 +12,15 @@ export type Stars = 1 | 2 | 3 | 4 | 5;
 
 /** Weights of the factors; each factor is a percentile rank among playable countries (1 = best). */
 export const DIFFICULTY_WEIGHTS = {
-  power: 0.45,
+  power: 0.65,
   gdpPerCapita: 0.15,
-  stability: 0.15,
-  alliances: 0.15,
+  stability: 0.1,
+  alliances: 0.1,
 } as const;
 /** Score subtracted while the country is at war. */
-export const WAR_PENALTY = 0.1;
+export const WAR_PENALTY = 0.05;
 /** Share of playable countries per star, from 1 (easiest) to 5 (hardest). */
-export const STAR_SHARES = [0.12, 0.23, 0.3, 0.23, 0.12] as const;
+export const STAR_SHARES = [0.1, 0.15, 0.2, 0.25, 0.3] as const;
 
 /** Raw strength of a country: economy, military spending and manpower on a log scale. */
 export function powerOf(c: WorldCountry): number | null {
