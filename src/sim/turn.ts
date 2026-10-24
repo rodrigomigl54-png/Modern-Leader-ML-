@@ -2,6 +2,7 @@
 // the player and the AI. Pure and deterministic: same state + same commands = same result.
 import { dateOfTurn, REPORT_INTERVAL } from './calendar';
 import type { Command } from './commands';
+import { constructionPhase, economyPhase, type EconomyEvent, type SimContext } from './economy';
 import type { GameState } from './newGame';
 import { createRng, type Rng } from './rng';
 
@@ -32,6 +33,7 @@ export const TURN_PHASES: readonly TurnPhaseId[] = [
 ];
 
 export type TurnEvent =
+  | EconomyEvent
   /** The 10-turn general report is due (GDD section 12). */
   | { type: 'report'; turn: number }
   /** A new year began. */
@@ -41,6 +43,7 @@ export interface TurnContext {
   /** The state being built for the new turn; phases change it in place. */
   state: GameState;
   commands: readonly Command[];
+  sim: SimContext;
   rng: Rng;
   events: TurnEvent[];
 }
@@ -53,8 +56,8 @@ const PHASES: Record<TurnPhaseId, Phase> = {
   missileImpacts: () => undefined,
   movement: () => undefined,
   battles: () => undefined,
-  construction: () => undefined,
-  economy: () => undefined,
+  construction: (ctx) => constructionPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e)),
+  economy: (ctx) => economyPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e)),
   population: () => undefined,
   diplomacy: () => undefined,
   events: (ctx) => {
@@ -75,11 +78,15 @@ export interface TurnResult {
 }
 
 /** Resolves the current turn and returns the state of the next one; the input is not changed. */
-export function advanceTurn(previous: GameState, commands: readonly Command[] = []): TurnResult {
+export function advanceTurn(
+  previous: GameState,
+  sim: SimContext,
+  commands: readonly Command[] = [],
+): TurnResult {
   const state = structuredClone(previous);
   state.turn += 1;
   state.date = dateOfTurn(state.world.startDate, state.turn);
-  const ctx: TurnContext = { state, commands, rng: createRng(state.rngState), events: [] };
+  const ctx: TurnContext = { state, commands, sim, rng: createRng(state.rngState), events: [] };
   const phases: TurnPhaseId[] = [];
   for (const id of TURN_PHASES) {
     PHASES[id](ctx);

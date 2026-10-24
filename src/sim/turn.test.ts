@@ -3,7 +3,12 @@ import { addDays, dateOfTurn } from './calendar';
 import { createNewGame, type GameState } from './newGame';
 import { createRng } from './rng';
 import { createSave, parseSave, serializeSave } from './save';
+import economyRules from '../../data/modern/economy.json';
+import type { EconomyRules, SimContext } from './economy';
 import { advanceTurn, TURN_PHASES } from './turn';
+
+const rules = economyRules as EconomyRules;
+const sim: SimContext = { economy: rules, cityProvince: [0] };
 import type { World } from './world';
 
 const world = (): World => ({
@@ -32,17 +37,21 @@ const world = (): World => ({
 });
 
 const newGame = (seed = 7): GameState =>
-  createNewGame(world(), {
-    aggressiveness: 'realistic',
-    disputedMode: 'neutral',
-    countryId: 'AAA',
-    leaderName: 'Player',
-    seed,
-  });
+  createNewGame(
+    world(),
+    {
+      aggressiveness: 'realistic',
+      disputedMode: 'neutral',
+      countryId: 'AAA',
+      leaderName: 'Player',
+      seed,
+    },
+    rules,
+  );
 
 const play = (game: GameState, turns: number): GameState => {
   let state = game;
-  for (let i = 0; i < turns; i++) state = advanceTurn(state).state;
+  for (let i = 0; i < turns; i++) state = advanceTurn(state, sim).state;
   return state;
 };
 
@@ -76,7 +85,7 @@ describe('createRng', () => {
 describe('advanceTurn', () => {
   it('moves one week forward without changing the input', () => {
     const game = newGame();
-    const { state } = advanceTurn(game);
+    const { state } = advanceTurn(game, sim);
     expect(state.turn).toBe(1);
     expect(state.date).toBe('2027-01-08');
     expect(game.turn).toBe(0);
@@ -84,7 +93,7 @@ describe('advanceTurn', () => {
   });
 
   it('runs the phases in the GDD order', () => {
-    expect(advanceTurn(newGame()).phases).toEqual([...TURN_PHASES]);
+    expect(advanceTurn(newGame(), sim).phases).toEqual([...TURN_PHASES]);
     expect(TURN_PHASES[0]).toBe('aiOrders');
     expect(TURN_PHASES.at(-1)).toBe('autosave');
   });
@@ -98,10 +107,12 @@ describe('advanceTurn', () => {
     let state = newGame();
     const events: string[] = [];
     for (let i = 0; i < 53; i++) {
-      const result = advanceTurn(state);
+      const result = advanceTurn(state, sim);
       state = result.state;
-      for (const e of result.events)
-        events.push(e.type === 'report' ? `report@${e.turn}` : `year@${e.year}`);
+      for (const e of result.events) {
+        if (e.type === 'report') events.push(`report@${e.turn}`);
+        if (e.type === 'newYear') events.push(`year@${e.year}`);
+      }
     }
     expect(events).toEqual([
       'report@10',

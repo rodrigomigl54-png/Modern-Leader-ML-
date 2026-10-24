@@ -1,0 +1,138 @@
+{
+  "meta": {
+    "description": "Economy rules (GDD section 6): budget, growth, inflation, money printing and the investment categories. All rates are per year unless noted; the turn engine divides by 52. Values are game-design defaults to be tuned in Phase 13 (balance).",
+    "source": "Game design (GDD section 6); starting tax and spending shares are typical government-to-GDP ratios",
+    "checked": "2026-10-24"
+  },
+  "start": {
+    "comment": "Starting values for every country. Debt starts at 0 until IMF debt data can be loaded (GGXWDG_NGDP).",
+    "taxRate": 0.25,
+    "treasuryShareOfGdp": 0.02,
+    "inflation": 0.03,
+    "debtShareOfGdp": 0,
+    "fallbackGdpPerCapita": 1500,
+    "fallbackGdp": 100000000,
+    "defaultMilitaryShareOfGdp": 0.015,
+    "servicesDeficit": 0.005
+  },
+  "limits": {
+    "taxRateMin": 0,
+    "taxRateMax": 0.6,
+    "servicesShareMin": 0.05,
+    "servicesShareMax": 0.4
+  },
+  "growth": {
+    "base": 0.02,
+    "taxThreshold": 0.3,
+    "taxDrag": 0.08,
+    "servicesNeutral": 0.2,
+    "servicesEffect": 0.05,
+    "inflationThreshold": 0.05,
+    "inflationDrag": 0.15,
+    "debtThreshold": 0.9,
+    "debtDrag": 0.01,
+    "minGrowth": -0.1,
+    "maxGrowth": 0.1
+  },
+  "debt": {
+    "interestRate": 0.04,
+    "interestPerDebtShare": 0.02
+  },
+  "inflation": {
+    "base": 0.02,
+    "deficitThreshold": 0.03,
+    "deficitEffect": 0.6,
+    "printedEffect": 2.5,
+    "spendingThreshold": 0.45,
+    "spendingEffect": 0.5,
+    "adjustPerTurn": 0.08,
+    "printedDecayPerTurn": 0.02,
+    "alertThreshold": 0.1,
+    "min": -0.02,
+    "max": 3
+  },
+  "printing": {
+    "comment": "One print adds this share of GDP as instant cash.",
+    "shareOfGdp": 0.01
+  },
+  "investment": {
+    "comment": "costUsd at price level 1; gdpPerYearShare = GDP added to the host country per year, as a share of the cost; returnShare = yearly return to a foreign investor; upkeepShare = yearly upkeep paid by the owner.",
+    "foreignReturnShare": 0.08,
+    "categories": [
+      {
+        "id": "factory",
+        "costUsd": 500000000,
+        "buildTurns": 12,
+        "gdpPerYearShare": 0.25,
+        "upkeepShare": 0.02
+      },
+      {
+        "id": "university",
+        "costUsd": 800000000,
+        "buildTurns": 20,
+        "gdpPerYearShare": 0.12,
+        "upkeepShare": 0.03
+      },
+      {
+        "id": "agriculture",
+        "costUsd": 300000000,
+        "buildTurns": 8,
+        "gdpPerYearShare": 0.2,
+        "upkeepShare": 0.02
+      },
+      {
+        "id": "infrastructure",
+        "costUsd": 1000000000,
+        "buildTurns": 20,
+        "gdpPerYearShare": 0.2,
+        "upkeepShare": 0.01
+      },
+      {
+        "id": "energy",
+        "costUsd": 1500000000,
+        "buildTurns": 26,
+        "gdpPerYearShare": 0.22,
+        "upkeepShare": 0.02
+      },
+      {
+        "id": "hospital",
+        "costUsd": 400000000,
+        "buildTurns": 12,
+        "gdpPerYearShare": 0.06,
+        "upkeepShare": 0.04
+      },
+      {
+        "id": "missileFactory",
+        "costUsd": 2000000000,
+        "buildTurns": 30,
+        "gdpPerYearShare": 0.05,
+        "upkeepShare": 0.03,
+        "military": true
+      },
+      {
+        "id": "droneFactory",
+        "costUsd": 1000000000,
+        "buildTurns": 20,
+        "gdpPerYearShare": 0.05,
+        "upkeepShare": 0.03,
+        "military": true
+      },
+      {
+        "id": "airDefenseFactory",
+        "costUsd": 1500000000,
+        "buildTurns": 26,
+        "gdpPerYearShare": 0.05,
+        "upkeepShare": 0.03,
+        "military": true
+      },
+      {
+        "id": "militaryBase",
+        "costUsd": 1000000000,
+        "buildTurns": 16,
+        "gdpPerYearShare": 0.03,
+        "upkeepShare": 0.04,
+        "military": true
+      }
+    ]
+  }
+}

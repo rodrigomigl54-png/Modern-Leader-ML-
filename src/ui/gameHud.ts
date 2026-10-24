@@ -1,5 +1,5 @@
 import { t, type TranslationKey } from '../i18n';
-import { countryFlag, countryName } from '../app/present';
+import { countryFlag, countryName, formatPercent, formatUsd } from '../app/present';
 import type { GameState } from '../sim/newGame';
 import type { World } from '../sim/world';
 import { button, el, flagImage } from './dom';
@@ -8,6 +8,7 @@ import { formatGameDate } from './format';
 export interface GameHudActions {
   onMenu: () => void;
   onNextTurn: () => void;
+  onEconomy: () => void;
 }
 
 /** Top bar of a running game (country, leader, date) and the Next Turn button (bottom right). */
@@ -79,9 +80,27 @@ export class GameHud {
       el('span', 'hud-date mono', formatGameDate(game.date)),
       el('span', 'hud-week mono', t('turn.week', { turn: game.turn + 1 })),
     );
+    const e = game.economy.countries[id]!;
+    const stats = button('hud-stats', '', this.actions.onEconomy);
+    stats.setAttribute('aria-label', t('econ.title'));
+    const stat = (label: string, value: string, cls = ''): HTMLElement => {
+      const s = el('span', `hud-stat ${cls}`);
+      s.append(el('span', 'hud-stat-label', label), el('span', 'hud-stat-value mono', value));
+      return s;
+    };
+    stats.append(
+      stat(t('econ.treasury'), formatUsd(e.treasury)),
+      stat(t('econ.gdp'), formatUsd(e.gdp)),
+      stat(
+        t('econ.inflation'),
+        `${formatPercent(e.inflation)}%`,
+        e.inflation >= 0.1 ? 'danger' : '',
+      ),
+    );
     this.bar.replaceChildren(
       flagImage(countryFlag(this.baseWorld, id, mode), 'flag hud-flag'),
       who,
+      stats,
       when,
       button('btn btn-secondary hud-menu', t('menu.gameMenu'), this.actions.onMenu),
     );
