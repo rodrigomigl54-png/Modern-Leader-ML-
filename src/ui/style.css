@@ -1070,10 +1070,16 @@ body {
     flex-wrap: wrap;
   }
 
+  /* Second row on phones: the economy numbers, then support. */
   .hud-stats {
     order: 5;
-    width: 100%;
+    flex: 1 1 calc(100% - 110px);
     justify-content: space-around;
+  }
+
+  .hud-people {
+    order: 6;
+    flex: 0 0 auto;
   }
 
   .hud-when {
@@ -1224,4 +1230,66 @@ body {
 
 .modal-footer .modal-actions {
   margin-top: 12px;
+}
+
+/* Map modes and the Ministry of the Interior (Phase 6) */
+.map-mode-bar {
+  position: absolute;
+  left: calc(env(safe-area-inset-left) + 10px);
+  bottom: calc(env(safe-area-inset-bottom) + 28px);
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--panel-bg);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+.map-mode-bar[hidden] {
+  display: none;
+}
+
+.map-mode {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.map-mode + .map-mode {
+  border-left: 1px solid var(--panel-border);
+}
+
+.map-mode-on {
+  background: var(--bg);
+  color: var(--accent);
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+
+.badge-danger {
+  border-color: #f0a197;
+  color: #f0a197;
+}
+
+.dossier .btn + .dossier-subtitle,
+.dossier-facts + .btn {
+  margin-top: 12px;
+}
+
+.game-over {
+  text-align: center;
 }

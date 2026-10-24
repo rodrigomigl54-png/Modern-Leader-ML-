@@ -86,6 +86,15 @@ export function isValidGameState(game: unknown): game is GameState {
   ) {
     return false;
   }
+  const population = game.population;
+  if (
+    population !== undefined &&
+    (!isRecord(population) ||
+      !Array.isArray(population.support) ||
+      population.support.length !== (provinceOwners as unknown[]).length)
+  ) {
+    return false;
+  }
   const playerCountry = (countries as { id: string; status: string }[]).find(
     (c) => c.id === player.countryId,
   );

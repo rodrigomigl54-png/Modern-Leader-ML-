@@ -4,6 +4,7 @@ import { dateOfTurn, REPORT_INTERVAL } from './calendar';
 import type { Command } from './commands';
 import { constructionPhase, economyPhase, type EconomyEvent, type SimContext } from './economy';
 import type { GameState } from './newGame';
+import { populationPhase, type PopulationEvent } from './population';
 import { createRng, type Rng } from './rng';
 
 export type TurnPhaseId =
@@ -34,6 +35,7 @@ export const TURN_PHASES: readonly TurnPhaseId[] = [
 
 export type TurnEvent =
   | EconomyEvent
+  | PopulationEvent
   /** The 10-turn general report is due (GDD section 12). */
   | { type: 'report'; turn: number }
   /** A new year began. */
@@ -58,7 +60,9 @@ const PHASES: Record<TurnPhaseId, Phase> = {
   battles: () => undefined,
   construction: (ctx) => constructionPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e)),
   economy: (ctx) => economyPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e)),
-  population: () => undefined,
+  population: (ctx) => {
+    if (ctx.sim.population) populationPhase(ctx.state, ctx.sim, ctx.rng, (e) => ctx.events.push(e));
+  },
   diplomacy: () => undefined,
   events: (ctx) => {
     const { state } = ctx;

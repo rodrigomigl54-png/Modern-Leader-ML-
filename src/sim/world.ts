@@ -1,6 +1,7 @@
 // The political world at the scenario start, as the simulation sees it.
 
-export type CountryStatus = 'full' | 'disputed' | 'uninhabited';
+/** 'rebels' are factions created by a revolution during the game (GDD section 7). */
+export type CountryStatus = 'full' | 'disputed' | 'uninhabited' | 'rebels';
 export type DisputedMode = 'neutral' | 'states' | 'parent';
 export type Aggressiveness = 'peaceful' | 'realistic' | 'aggressive' | 'chaos';
 
@@ -33,6 +34,8 @@ export interface WorldCountry {
   provinceIds: number[];
   stats: CountryStats;
   leader: Leader;
+  /** Set for countries born during the game: rebels, or a state that seceded from its parent. */
+  faction?: { kind: 'rebels' | 'seceded'; parent: string };
 }
 
 export interface Alliance {

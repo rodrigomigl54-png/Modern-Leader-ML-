@@ -1,4 +1,5 @@
 import { Application, Container } from 'pixi.js';
+import type { CountryStatus } from '../sim/world';
 import { Camera } from './camera';
 import { MapControls } from './controls';
 import { loadMapData, type MapData } from './mapData';
@@ -16,7 +17,7 @@ const WATER = hexToRgb('#0b1522');
 export interface MapPolitics {
   /** Owner country id per province id. */
   owners: string[];
-  countries: { id: string; status: 'full' | 'disputed' | 'uninhabited'; provinceIds: number[] }[];
+  countries: { id: string; status: CountryStatus; provinceIds: number[] }[];
   /** Display name per country, or null for no label. */
   nameOf: (countryId: string) => string | null;
 }
@@ -30,6 +31,9 @@ export interface MapView {
   /** Clears the province highlight. */
   clearSelection(): void;
   setMapMode(id: string): void;
+  readonly mapMode: string;
+  /** Public support per province for the support map mode (null outside a game). */
+  setSupport(support: readonly number[] | null): void;
   setPolitics(politics: MapPolitics): void;
   /** Draws a country in the signature amber with a glowing border (null for none). */
   setFocusCountry(countryId: string | null): void;
@@ -79,9 +83,14 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
     nameOf: () => null,
   };
   let focusCountry: string | null = null;
+  let support: readonly number[] | null = null;
   let mode: MapMode = MAP_MODES[0]!;
   const writeOwners = (): void => {
-    politics.owners.forEach((owner, id) => palette.setOwner(id + 1, ownerIndex.get(owner) ?? 0));
+    politics.owners.forEach((owner, id) => {
+      // Countries born during the game (rebels, seceded states) get the next free index.
+      if (!ownerIndex.has(owner)) ownerIndex.set(owner, ownerIndex.size + 1);
+      palette.setOwner(id + 1, ownerIndex.get(owner)!);
+    });
   };
   writeOwners();
   const shared = new ProvinceShaderShared(palette, {
@@ -94,7 +103,13 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
   });
   const applyMode = (): void => {
     mode
-      .colors({ provinces, countries: politics.countries, owners: politics.owners, focusCountry })
+      .colors({
+        provinces,
+        countries: politics.countries,
+        owners: politics.owners,
+        focusCountry,
+        support,
+      })
       .forEach((c, id) => palette.setColor(id + 1, c));
     shared.paletteChanged();
   };
@@ -157,6 +172,16 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       const next = MAP_MODES.find((m) => m.id === id);
       if (next) {
         mode = next;
+        applyMode();
+        requestRender();
+      }
+    },
+    get mapMode() {
+      return mode.id;
+    },
+    setSupport: (values) => {
+      support = values;
+      if (mode.id === 'support') {
         applyMode();
         requestRender();
       }

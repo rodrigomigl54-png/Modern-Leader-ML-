@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Camera } from './camera';
 import { countryAnchors, placeLabels, type LabelCandidate } from './labelLayout';
 import type { CountryData, ProvinceData } from './mapData';
-import { assignCountryColors } from './mapModes';
+import { assignCountryColors, REBEL_COLOR, supportColor, supportMode } from './mapModes';
 import { PaletteData } from './palette';
 import { chooseLevel, decodeProvince, visibleTiles, type TileLevel } from './tileMath';
 
@@ -130,9 +130,26 @@ describe('assignCountryColors', () => {
       countries,
       owners: provinces.map((p) => p.owner),
       focusCountry: null,
+      support: null,
     });
     const unique = new Set([...colors.values()].map((c) => c.join(',')));
     expect(unique.size).toBe(3);
+  });
+});
+
+describe('supportMode', () => {
+  it('colors support red to green and rebel land dark red', () => {
+    expect(supportColor(0)).not.toEqual(supportColor(100));
+    expect(supportColor(-10)).toEqual(supportColor(0));
+    const provinces = [province(0, 'AAA', [1]), province(1, 'R01', [0])];
+    const colors = supportMode.colors({
+      provinces,
+      countries: [country('AAA', [0]), { ...country('R01', [1]), status: 'rebels' }],
+      owners: ['AAA', 'R01'],
+      focusCountry: null,
+      support: [90, 50],
+    });
+    expect(colors).toEqual([supportColor(90), REBEL_COLOR]);
   });
 });
 

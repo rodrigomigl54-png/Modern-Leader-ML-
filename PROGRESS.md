@@ -11,8 +11,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 2   | Map rendering                                                  | Done (checked on the phone: smooth, up to 50 fps) |
 | 3   | Countries and setup screens                                    | Done                                              |
 | 4   | Turn engine and saves                                          | Done                                              |
-| 5   | Economy                                                        | Done in code — waiting for the check on the phone |
-| 6   | Population                                                     | Not started                                       |
+| 5   | Economy                                                        | Done                                              |
+| 6   | Population                                                     | Done in code — waiting for the check on the phone |
 | 7   | Military                                                       | Not started                                       |
 | 8   | Missiles, drones, air defense, nuclear                         | Not started                                       |
 | 9   | Diplomacy                                                      | Not started                                       |
@@ -150,12 +150,38 @@ Done:
 - A year of all 204 countries on real data: GDP grows about 2 % with about 2 % inflation, and Ukraine's war spending pushes it into debt and about 10 % inflation. One turn takes about 3 ms.
 - Checked in Chromium with phone emulation: print money, invest in a factory in Kragujevac, finished after 12 turns. No console errors.
 
+## Phase 6 — Population
+
+Done:
+
+- Rules in `data/modern/population.json`: support effects, riot and revolution thresholds, rebel advance, secession time and assimilation costs.
+- Simulation (`src/sim/population.ts`, turn step 7), the same rules for every country:
+  - Public support (0–100 %) per province; national support is the population-weighted average. Each province moves toward a target set by GDP growth, public services, inflation, taxes, debt, finished buildings in the province, unassimilated people and nearby rebels.
+  - Riots below 30 %: production (tax income) drops in rioting provinces.
+  - Revolution: when national support is below 30 % and riots have lasted 6 weeks in at least 15 % of the population, a rebel faction rises in the angriest provinces (up to a quarter of the country; never the capital) and is at war with the government.
+  - Until armies exist (Phase 7), rebels advance while national support is below 40 % and retreat while it is above 50 %.
+  - Crushed revolution: GDP loss and new debt. Rebels taking the whole country: game over for the player, a new government for an AI country. Rebels holding land for 52 weeks: it becomes a new country.
+  - Conquered provinces keep their culture: lower production and support until assimilated. `assimilate` command: cost by population and cultural distance (cheaper for allies, dearer for rivals), 26 weeks, lower support while it runs.
+- UI:
+  - Support in the top bar (red below 30 %). Tap it for the Ministry of the Interior: national support, production, rioting provinces (tap to open on the map), the revolution and weeks to secession, conquered land with "Assimilate all" (asks first with the total cost and the risk).
+  - Map mode switch (bottom left): Political and Support (red–grey–green, rebel land dark red).
+  - Province panel: support, riots, people of another culture, assimilation progress and an Assimilate button.
+  - Telegrams from the Minister of the Interior (riots, revolution, crushed, secession); toasts for revolutions abroad; game-over screen.
+  - Rebels and new countries are named "Rebels of Serbia" / "Free {province}" in both languages.
+- Saves from Phase 5 still load (the population is added on load).
+- Two years of all countries on real data with no player action: the world stays calm (median support about 64 %); Ukraine falls to about 31 % because of war spending and inflation.
+- Checked in Chromium with phone emulation as Serbia with maximum taxes: riots after 25 weeks, revolution after 30, and the rebels slowly take the country. No console errors.
+
 ## Next
 
-- Dario: merge the PR and check on the phone: open the economy (tap the numbers in the top bar), change taxes, print money, select cities (+) and invest, then play turns.
-- Then Phase 6 — population: support, riots, revolution, secession, assimilation.
+- Dario: merge the PR and check on the phone: tap Support in the top bar, switch the map to Support, tap a province. To see a revolution, set taxes to the maximum and play about 30 turns.
+- Then Phase 7 — military: armies, movement, battles, reserves, mandatory service. Rebels will then fight with armies instead of following support.
 
 ## Known issues
+
+- Until Phase 7, rebels advance and retreat by public support, not by fighting. Conquest does not exist yet, so assimilation only matters for provinces taken by rebels and retaken.
+- Support does not react to wars, sanctions, missile damage or summits yet (later phases). Population numbers are first design values; they are tuned in Phase 13.
+- Province population is the sum of its Natural Earth cities, so provinces without a listed city weigh little.
 
 - Debt starts at 0 for every country until IMF debt data can be loaded; trade income comes in Phase 10.
 - AI countries do not invest or change taxes yet (Phase 11). Foreign consent is a simple rule until diplomacy and AI profiles exist.
