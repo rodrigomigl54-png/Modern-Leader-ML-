@@ -7,7 +7,7 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | #   | Phase                                                          | Status                                            |
 | --- | -------------------------------------------------------------- | ------------------------------------------------- |
 | 0   | Project setup                                                  | Done (live on GitHub Pages)                       |
-| 1   | Map data pipeline                                              | Done in code — one open question (Western Sahara) |
+| 1   | Map data pipeline                                              | Done in code — waiting for review |
 | 2   | Map rendering                                                  | Not started                                       |
 | 3   | Countries and setup screens                                    | Not started                                       |
 | 4   | Turn engine and saves                                          | Not started                                       |
@@ -58,6 +58,7 @@ Decisions (Dario, 2026-10-24):
 - Antarctica stays on the map as a neutral, uninhabited, non-playable territory (status `uninhabited`).
 - Dependencies belong to their sovereign (Greenland → Denmark, Hong Kong → China, Puerto Rico → USA, …). Leases stay with the host state: Guantanamo → Cuba, Baikonur → Kazakhstan.
 - Siachen Glacier → India; Spratly Islands → Vietnam.
+- Western Sahara by de facto control, as in Natural Earth: Morocco holds the western ~3/4 (incl. Laayoune), and Western Sahara (ESH) is the Polisario-held area east of the berm (~91,000 km², capital Bir Lehlou).
 
 Other decisions (listed in `data/modern/map/build-report.json`):
 
@@ -69,12 +70,11 @@ Other decisions (listed in `data/modern/map/build-report.json`):
 
 ## Next
 
-- Dario: answer the Western Sahara question (see Known issues), then review the PR and merge.
+- Dario: review the PR and merge.
 - Then Phase 2 — map rendering (Prompt 2 in GDD section 17).
 
 ## Known issues
 
-- **Open question — Western Sahara:** Natural Earth follows de facto control. Morocco holds the western ~3/4 (incl. Laayoune), and "Western Sahara" (ESH) is only the Polisario-held strip east of the berm (~91,000 km², capital Bir Lehlou). Alternative: make the whole territory ESH. That is a config change plus a rebuild.
 - Province names come from Natural Earth's `name` field (local romanization; some are dated, e.g. "Kiev City", "L'viv"). They need a review before release.
 - Disputed territories use short names for now. The self-used names (GDD section 4, Neutral mode) belong to Phase 3.
 - Generated cities have population 0 until Phase 3 data.
