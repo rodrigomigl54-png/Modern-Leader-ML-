@@ -1,6 +1,7 @@
 // Loads the Modern World game data (data/modern/) into the simulation's World.
 import type { MapData } from '../map/mapData';
 import type { EconomyRules, SimContext } from '../sim/economy';
+import type { MilitaryRules, SeaLink } from '../sim/military';
 import type { PopulationRules } from '../sim/population';
 import type { Alliance, CountryStats, Leader, Rivalry, War, World } from '../sim/world';
 
@@ -14,6 +15,12 @@ interface DiplomacyFile {
   alliances: (Alliance & { nameKey: string })[];
   rivalries: (Rivalry & { reason: string })[];
   wars: War[];
+}
+interface ServiceFile {
+  service: string[];
+}
+interface SeaRoutesFile {
+  routes: { a: number; b: number; km: number }[];
 }
 interface ScenarioFile {
   startDate: string;
@@ -42,22 +49,31 @@ async function fetchJson<T>(url: string): Promise<T> {
 }
 
 export async function loadWorld(map: MapData): Promise<WorldBundle> {
-  const [leadersUrl, diplomacyUrl, scenarioUrl, economyUrl, populationUrl] = await Promise.all([
+  const urls = await Promise.all([
     import('../../data/modern/leaders.json?url'),
     import('../../data/modern/diplomacy.json?url'),
     import('../../data/modern/scenario.json?url'),
     import('../../data/modern/economy.json?url'),
     import('../../data/modern/population.json?url'),
+    import('../../data/modern/military.json?url'),
+    import('../../data/modern/military-service.json?url'),
+    import('../../data/modern/sea-routes.json?url'),
   ]);
+  const [leadersUrl, diplomacyUrl, scenarioUrl, economyUrl, populationUrl] = urls;
+  const [militaryUrl, serviceUrl, seaUrl] = urls.slice(5);
   const statsUrl = Object.values(optionalStats)[0];
-  const [leaders, diplomacy, scenario, economy, population, stats] = await Promise.all([
-    fetchJson<LeadersFile>(leadersUrl.default),
-    fetchJson<DiplomacyFile>(diplomacyUrl.default),
-    fetchJson<ScenarioFile>(scenarioUrl.default),
-    fetchJson<EconomyRules>(economyUrl.default),
-    fetchJson<PopulationRules>(populationUrl.default),
-    statsUrl ? fetchJson<StatsFile>(statsUrl) : Promise.resolve(null),
-  ]);
+  const [leaders, diplomacy, scenario, economy, population, military, service, sea, stats] =
+    await Promise.all([
+      fetchJson<LeadersFile>(leadersUrl.default),
+      fetchJson<DiplomacyFile>(diplomacyUrl.default),
+      fetchJson<ScenarioFile>(scenarioUrl.default),
+      fetchJson<EconomyRules>(economyUrl.default),
+      fetchJson<PopulationRules>(populationUrl.default),
+      fetchJson<MilitaryRules>(militaryUrl!.default),
+      fetchJson<ServiceFile>(serviceUrl!.default),
+      fetchJson<SeaRoutesFile>(seaUrl!.default),
+      statsUrl ? fetchJson<StatsFile>(statsUrl) : Promise.resolve(null),
+    ]);
 
   const world: World = {
     startDate: scenario.startDate,
@@ -94,6 +110,10 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
       cityProvince: map.cities.map((c) => c.provinceId),
       provincePopulation: provincePopulation(map),
       provinceNeighbors: map.provinces.map((p) => p.neighbors),
+      military,
+      cityPopulation: map.cities.map((c) => c.population),
+      seaRoutes: seaLinks(map, sea),
+      serviceAtStart: service.service,
     },
   };
 }
@@ -103,4 +123,16 @@ function provincePopulation(map: MapData): number[] {
   const totals = new Array<number>(map.provinces.length).fill(0);
   for (const c of map.cities) totals[c.provinceId]! += c.population;
   return totals;
+}
+
+/** Sea routes between port cities, as links between their provinces. */
+function seaLinks(map: MapData, file: SeaRoutesFile): SeaLink[] {
+  const links: SeaLink[] = [];
+  for (const r of file.routes) {
+    const a = map.cities[r.a]?.provinceId;
+    const b = map.cities[r.b]?.provinceId;
+    if (a === undefined || b === undefined || a === b) continue;
+    links.push({ a, b, km: r.km });
+  }
+  return links;
 }

@@ -12,8 +12,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 3   | Countries and setup screens                                    | Done                                              |
 | 4   | Turn engine and saves                                          | Done                                              |
 | 5   | Economy                                                        | Done                                              |
-| 6   | Population                                                     | Done in code — waiting for the check on the phone |
-| 7   | Military                                                       | Not started                                       |
+| 6   | Population                                                     | Done                                              |
+| 7   | Military                                                       | Done in code — waiting for the check on the phone |
 | 8   | Missiles, drones, air defense, nuclear                         | Not started                                       |
 | 9   | Diplomacy                                                      | Not started                                       |
 | 10  | Resources and trade                                            | Not started                                       |
@@ -172,14 +172,46 @@ Done:
 - Two years of all countries on real data with no player action: the world stays calm (median support about 64 %); Ukraine falls to about 31 % because of war spending and inflation.
 - Checked in Chromium with phone emulation as Serbia with maximum taxes: riots after 25 weeks, revolution after 30, and the rebels slowly take the country. No console errors.
 
+## Phase 7 — Military
+
+Movement works as in Age of History 2 (Dario's choice): armies stand in provinces, get a destination and move one province per turn; entering an undefended enemy province takes it, a defended one means a battle.
+
+Done:
+
+- Rules in `data/modern/military.json`; mandatory service at the start in `data/modern/military-service.json` (drafted, entries to check listed in `verify`).
+- Simulation (`src/sim/military.ts`), the same rules for every country:
+  - Starting army from real personnel: 40 % in the capital, the rest in the most populous provinces. Reserves from personnel (more with service), spread by population. Bases: level 2 in the capital, level 1 in the 3 largest cities.
+  - Upkeep per soldier is calibrated so the starting army costs the real (SIPRI) military spending; the budget's military line is now the cost of the soldiers.
+  - Recruitment (`recruit`): many cities at once, a fixed number per city (takes what is available) or a percentage of each city's manpower; base level caps recruits per turn; special forces (2.5×) only at level 2+ bases. Training 4 weeks (special 12); trainees defend their city.
+  - Manpower per city refills slowly; with service the reserves grow, without it they shrink. Introducing service costs support (`setService`).
+  - Movement (turn step 3): shortest path over land and sea routes, respecting the borders rule (own, allied or enemy land only). Sea crossings take one turn per 1,200 km.
+  - Battles (step 4): strength, numbers, defender bonus, base level, supply and a little randomness. The loser retreats or is destroyed; reservists defend only provinces with a base. Captured provinces keep their culture (assimilation). A country that loses its last province is conquered; for the player that is game over.
+  - `moveArmies`, `splitArmy`, `declareWar` (simple until diplomacy).
+  - Revolutions now raise rebel armies; support decides how many join or desert them.
+- Simple AI (`src/sim/ai.ts`) for countries at war: recruits toward the army it can pay for (at most a quarter of the treasury per turn), covers the front according to the enemy next to it, attacks weak neighboring provinces, keeps the capital garrison.
+- UI:
+  - Army counters on the map (own amber, enemy red, allies blue, others grey when zoomed in) with dashed routes for moving armies.
+  - Province panel: base, reservists, armies with + select and Split, "Move here" / "Attack" for the selected armies, "Declare war" (asks first).
+  - Selection bar: Recruit next to Invest for selected cities; selected armies count.
+  - Recruit dialog: unit, number per city or % of manpower, recruits, cost, training time, cities short of people.
+  - Army in the top bar opens the Ministry of Defence: soldiers, reservists, manpower, cost, mandatory service, wars, all armies (tap to open the province).
+  - Weekly war summary toasts, Minister of Defence telegram when provinces are lost, game-over screen when conquered.
+- Saves from Phase 6 still load (the military is added on load).
+- Two years on real data: the Russia–Ukraine front moves back and forth without collapse; a turn takes about 16 ms.
+- Checked in Chromium with phone emulation as Serbia: declared war on Bosnia, sent the Belgrade army to Tuzla (taken via Bijeljina), recruited in Belgrade. No console errors.
+
 ## Next
 
-- Dario: merge the PR and check on the phone: tap Support in the top bar, switch the map to Support, tap a province. To see a revolution, set taxes to the maximum and play about 30 turns.
-- Then Phase 7 — military: armies, movement, battles, reserves, mandatory service. Rebels will then fight with armies instead of following support.
+- Dario: merge the PR and check on the phone: tap Army in the top bar; open your capital, tap + next to the army, open a neighbor's province, declare war and tap Attack; select cities (+) and Recruit; play some turns.
+- Then Phase 8 — missiles, drones, air defense, nuclear weapons.
 
 ## Known issues
 
-- Until Phase 7, rebels advance and retreat by public support, not by fighting. Conquest does not exist yet, so assimilation only matters for provinces taken by rebels and retaken.
+- Navy is simplified: crossings cannot be intercepted yet (GDD: "can be intercepted"; needs a navy or missiles, later phases).
+- Allies do not join wars and wars do not end with peace treaties yet (Phase 9); war score is not tracked yet.
+- AI only fights wars that already exist; it does not declare wars (Phase 11). The player's empty provinces fall to any enemy army, so garrisons matter.
+- Mandatory service list and reserve sizes are drafted estimates; reservists without a base do not defend (as in the GDD).
+
 - Support does not react to wars, sanctions, missile damage or summits yet (later phases). Population numbers are first design values; they are tuned in Phase 13.
 - Province population is the sum of its Natural Earth cities, so provinces without a listed city weigh little.
 

@@ -23,6 +23,29 @@ export interface ProvinceStatus {
   riotThreshold: number;
 }
 
+/** Armies, base and reserves of a province in a running game (GDD section 8). */
+export interface ProvinceMilitary {
+  armies: {
+    id: number;
+    owner: string;
+    size: string;
+    mine: boolean;
+    enemy: boolean;
+    selected: boolean;
+    /** Where it is going, e.g. "→ Novi Sad · 3 wk", or null when idle. */
+    status: string | null;
+  }[];
+  baseLevel: number;
+  /** Reservists, shown for the player's own provinces. */
+  reservists: string | null;
+  /** Number of selected armies that can be sent here (0 = no move button). */
+  movable: number;
+  /** Sending armies here attacks (enemy land). */
+  attack: boolean;
+  /** Country the player may declare war on from this province. */
+  declareWar: { countryId: string; name: string } | null;
+}
+
 export interface ProvincePanelOptions {
   parent: HTMLElement;
   data: MapData;
@@ -36,6 +59,11 @@ export interface ProvincePanelOptions {
   /** Population status, or null outside a game. */
   statusOf: (provinceId: number) => ProvinceStatus | null;
   onAssimilate: (provinceId: number) => void;
+  militaryOf: (provinceId: number) => ProvinceMilitary | null;
+  onToggleArmy: (armyId: number) => void;
+  onSplitArmy: (armyId: number) => void;
+  onMoveHere: (provinceId: number) => void;
+  onDeclareWar: (countryId: string) => void;
 }
 
 /** Dossier-style info panel for the selected province. Closes with one tap. */
@@ -178,11 +206,77 @@ export class ProvincePanel {
       list.append(item);
     }
 
+    const military = this.options.militaryOf(province.id);
+    const army: HTMLElement[] = [];
+    if (military) {
+      if (military.movable > 0) {
+        army.push(
+          button(
+            military.attack ? 'btn btn-danger move-here' : 'btn btn-primary move-here',
+            t(military.attack ? 'army.attackHere' : 'army.moveHere', { count: military.movable }),
+            () => this.options.onMoveHere(province.id),
+          ),
+        );
+      }
+      army.push(el('h3', 'dossier-subtitle', t('army.title')));
+      const mfacts = el('dl', 'dossier-facts');
+      mfacts.append(
+        el('dt', '', t('army.base')),
+        el(
+          'dd',
+          'mono',
+          military.baseLevel > 0
+            ? t('army.baseLevel', { level: military.baseLevel })
+            : t('army.noBase'),
+        ),
+      );
+      if (military.reservists !== null)
+        mfacts.append(el('dt', '', t('army.reservists')), el('dd', 'mono', military.reservists));
+      army.push(mfacts);
+      const list = el('ul', 'dossier-cities');
+      for (const a of military.armies) {
+        const item = el('li');
+        if (a.mine) {
+          const toggle = button(
+            `select-toggle${a.selected ? ' select-toggle-on' : ''}`,
+            a.selected ? '✓' : '+',
+            () => this.options.onToggleArmy(a.id),
+          );
+          toggle.setAttribute('aria-pressed', String(a.selected));
+          toggle.setAttribute('aria-label', t(a.selected ? 'army.selected' : 'army.select'));
+          item.append(toggle);
+        }
+        item.append(
+          el('span', `city-name${a.enemy ? ' danger' : ''}`, a.owner),
+          el('span', 'city-pop mono', t('army.soldiers', { count: a.size })),
+        );
+        if (a.status) item.append(el('span', 'badge', a.status));
+        if (a.mine) {
+          const split = button('btn btn-secondary btn-small', t('army.split'), () =>
+            this.options.onSplitArmy(a.id),
+          );
+          item.append(split);
+        }
+        list.append(item);
+      }
+      if (military.armies.length === 0) list.append(el('li', 'muted', t('army.none')));
+      army.push(list);
+      if (military.declareWar) {
+        const war = military.declareWar;
+        army.push(
+          button('btn btn-danger-outline', t('war.declareOn', { country: war.name }), () =>
+            this.options.onDeclareWar(war.countryId),
+          ),
+        );
+      }
+    }
+
     this.panel.replaceChildren(
       header,
       el('h2', 'dossier-title', province.name),
       facts,
       ...extra,
+      ...army,
       el('h3', 'dossier-subtitle', t('panel.cities')),
       list,
     );

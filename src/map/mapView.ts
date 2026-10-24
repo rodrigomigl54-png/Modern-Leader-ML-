@@ -1,5 +1,6 @@
 import { Application, Container } from 'pixi.js';
 import type { CountryStatus } from '../sim/world';
+import { ArmyLayer, type ArmyMarker } from './armyLayer';
 import { Camera } from './camera';
 import { MapControls } from './controls';
 import { loadMapData, type MapData } from './mapData';
@@ -42,6 +43,10 @@ export interface MapView {
    * (insets in CSS pixels).
    */
   lookAtCountry(countryId: string, insets?: { left?: number; bottom?: number }): void;
+  /** Army counters and routes. */
+  setArmies(markers: ArmyMarker[]): void;
+  /** Centers the camera on a province (zooming in if needed). */
+  lookAtProvince(provinceId: number): void;
   /** Current owner of a province. */
   ownerOf(provinceId: number): string;
   /** Called after every rendered frame with the frame time in ms. */
@@ -130,7 +135,8 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       name: politics.nameOf(c.id),
     }));
   const labels = new MapLabels(data, deviceRatio(), labelCountries());
-  app.stage.addChild(world, labels.container);
+  const armies = new ArmyLayer(data, Math.min(2, deviceRatio()));
+  app.stage.addChild(world, labels.container, armies.container);
   await tiles.loadBase((f) => options.onProgress(0.5 + f * 0.5));
 
   const camera = new Camera(map.width, map.height);
@@ -220,6 +226,16 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       camera.panBy(left / 2, -bottom / 2);
       requestRender();
     },
+    setArmies: (markers) => {
+      armies.setMarkers(markers);
+      requestRender();
+    },
+    lookAtProvince: (id) => {
+      const p = provinces[id];
+      if (!p) return;
+      camera.lookAt(p.centroid[0], p.centroid[1], Math.max(camera.scale, 0.6));
+      requestRender();
+    },
     ownerOf: (id) => politics.owners[id]!,
     onFrame: null,
   };
@@ -244,6 +260,7 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       shared.setView(deviceScale, provinceAlpha);
       tiles.update(camera.visibleRect(), Math.min(deviceScale, s * 2));
       labels.update(camera);
+      armies.update(camera);
       app.render();
       view.onFrame?.(dt);
     }

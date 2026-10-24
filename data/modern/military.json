@@ -1,0 +1,82 @@
+{
+  "meta": {
+    "description": "Military rules (GDD section 8): units, recruitment, bases, reserves, movement and combat. Game-design defaults to be tuned in Phase 13 (balance).",
+    "source": "Game design (GDD section 8)",
+    "checked": "2026-10-24"
+  },
+  "units": {
+    "comment": "Strength per soldier. Reservists only defend; trainees defend their own city.",
+    "regularStrength": 1,
+    "specialStrength": 2.5,
+    "reservistStrength": 1,
+    "traineeStrength": 0.5
+  },
+  "upkeep": {
+    "comment": "Weekly cost per soldier is calibrated per country so that its starting army costs its real military spending (SIPRI). Reservists cost a share of that.",
+    "reservistShare": 0.05,
+    "specialMultiplier": 3,
+    "defaultPersonnelPerMillion": 3000,
+    "minWeeklyPerSoldierUsd": 15
+  },
+  "recruitment": {
+    "comment": "Manpower per city is a share of its population and refills slowly. Bases raise how many soldiers a city can recruit per turn.",
+    "manpowerShare": 0.03,
+    "manpowerShareWithService": 0.05,
+    "manpowerRefillPerTurn": 0.01,
+    "regularCostWeeks": 26,
+    "specialCostWeeks": 80,
+    "regularTrainTurns": 4,
+    "specialTrainTurns": 12,
+    "capPerTurnByBase": [1000, 3000, 8000, 20000],
+    "specialMinBase": 2
+  },
+  "bases": {
+    "comment": "Levels 1-3. Each finished military base investment in a city raises its level by one. Starting bases: the capital and the largest cities of countries with an army.",
+    "maxLevel": 3,
+    "capitalStartLevel": 2,
+    "largestCitiesWithBase": 3,
+    "reservistActivation": [0, 0.4, 0.7, 1],
+    "defenseBonusPerLevel": 0.15
+  },
+  "reserves": {
+    "comment": "Mandatory service fills the reserve pool; without it reserves shrink. Starting reserves are a multiple of the regular army.",
+    "startRatioWithService": 1.5,
+    "startRatioWithoutService": 0.3,
+    "growthPerTurnOfPopulation": 0.0001,
+    "maxShareOfPopulation": 0.06,
+    "shrinkPerTurn": 0.004,
+    "introduceSupportPenalty": 8
+  },
+  "army": {
+    "comment": "Starting regulars are split between the capital province and the most populous other provinces.",
+    "startGarrisons": 6,
+    "capitalShare": 0.4
+  },
+  "combat": {
+    "defenderBonus": 0.25,
+    "lossRate": 0.1,
+    "randomness": 0.1,
+    "routRatio": 0.25,
+    "supplyInEnemyLand": 0.9,
+    "supplyCutOff": 0.7
+  },
+  "naval": {
+    "comment": "Armies cross the sea between port cities; a crossing takes one turn per kmPerTurn of sea.",
+    "kmPerTurn": 1200
+  },
+  "rebels": {
+    "comment": "Rebels raise fighters from the population of the land they hold; more while national support is low, deserters when it recovers.",
+    "startShareOfPopulation": 0.004,
+    "recruitPerTurnOfPopulation": 0.0004,
+    "neutralSupport": 45
+  },
+  "ai": {
+    "attackRatio": 1.4,
+    "targetArmyAtWar": 1.3,
+    "recruitShareOfGap": 0.25,
+    "maxTreasuryShare": 0.25,
+    "frontCover": 0.8,
+    "minGarrison": 2000,
+    "minDetachment": 1000
+  }
+}
