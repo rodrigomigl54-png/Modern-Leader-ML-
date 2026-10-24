@@ -666,6 +666,7 @@ const writeJson = (path: string, value: unknown): void =>
 
 mkdirSync(MAP_DIR, { recursive: true });
 for (const f of readdirSync(MAP_DIR)) if (f.endsWith('.png')) rmSync(join(MAP_DIR, f));
+rmSync(join(MAP_DIR, 'tiles'), { recursive: true, force: true });
 
 const provinces = sources.map((s, id) => {
   const c = centroids[id]!;
@@ -736,35 +737,57 @@ writeJson(join(DATA_DIR, 'sea-routes.json'), {
   routes: seaRoutes,
 });
 
-const tiles: { file: string; x: number; y: number; width: number; height: number }[] = [];
-const T = config.raster.tileSize;
-for (let ty = 0; ty * T < H; ty++) {
-  for (let tx = 0; tx * T < W; tx++) {
-    const tw = Math.min(T, W - tx * T);
-    const th = Math.min(T, H - ty * T);
-    const png = new PNG({ width: tw, height: th });
-    for (let y = 0; y < th; y++) {
-      for (let x = 0; x < tw; x++) {
-        const l = labels[(ty * T + y) * W + tx * T + x]!;
-        const o = (y * tw + x) * 4;
-        if (l === UNOWNED_LAND) png.data[o + 2] = 255;
-        else {
-          png.data[o] = l & 255;
-          png.data[o + 1] = l >> 8;
-        }
-        png.data[o + 3] = 255;
-      }
-    }
-    const file = `province-id-${tx}-${ty}.png`;
-    writeFileSync(join(MAP_DIR, file), PNG.sync.write(png, { colorType: 2 }));
-    tiles.push({ file, x: tx * T, y: ty * T, width: tw, height: th });
-  }
+// Tile pyramid: level 0 is the full raster; each further level halves it (nearest sample at the
+// block center, so labels stay exact). The renderer picks the level that matches the zoom.
+interface Tile {
+  file: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
+const T = config.raster.tileSize;
+const levels: { level: number; scale: number; width: number; height: number; tiles: Tile[] }[] = [];
+for (let level = 0; level < config.raster.levels; level++) {
+  const f = 2 ** level;
+  const lw = Math.ceil(W / f);
+  const lh = Math.ceil(H / f);
+  const half = Math.floor(f / 2);
+  const dir = join(MAP_DIR, 'tiles', `L${level}`);
+  mkdirSync(dir, { recursive: true });
+  const tiles: Tile[] = [];
+  for (let ty = 0; ty * T < lh; ty++) {
+    for (let tx = 0; tx * T < lw; tx++) {
+      const tw = Math.min(T, lw - tx * T);
+      const th = Math.min(T, lh - ty * T);
+      const png = new PNG({ width: tw, height: th });
+      for (let y = 0; y < th; y++) {
+        const sy = Math.min(H - 1, (ty * T + y) * f + half);
+        for (let x = 0; x < tw; x++) {
+          const sx = Math.min(W - 1, (tx * T + x) * f + half);
+          const l = labels[sy * W + sx]!;
+          const o = (y * tw + x) * 4;
+          if (l === UNOWNED_LAND) png.data[o + 2] = 255;
+          else {
+            png.data[o] = l & 255;
+            png.data[o + 1] = l >> 8;
+          }
+          png.data[o + 3] = 255;
+        }
+      }
+      const file = `tiles/L${level}/${tx}-${ty}.png`;
+      writeFileSync(join(MAP_DIR, file), PNG.sync.write(png, { colorType: 2 }));
+      tiles.push({ file, x: tx * T, y: ty * T, width: tw, height: th });
+    }
+  }
+  levels.push({ level, scale: f, width: lw, height: lh, tiles });
+}
+log(`${levels.reduce((n, l) => n + l.tiles.length, 0)} tiles in ${levels.length} levels`);
 const hex = (l: number): string =>
   '#' + [l & 255, l >> 8, 0].map((v) => v.toString(16).padStart(2, '0')).join('');
 writeJson(join(MAP_DIR, 'province-map.json'), {
   meta: meta(
-    'Province ID map: the world raster split into PNG tiles (max 4096 px for phone GPUs).',
+    "Province ID map as a tile pyramid. Level 0 is the full map; level n is downscaled by 2^n (tile x, y, width, height are in that level's pixels).",
   ),
   width: W,
   height: H,
@@ -775,7 +798,7 @@ writeJson(join(MAP_DIR, 'province-map.json'), {
     water: '#000000',
     unownedLand: '#0000ff',
   },
-  tiles,
+  levels,
   colorToProvince: Object.fromEntries(provinces.map((p) => [hex(p.id + 1), p.id])),
 });
 
@@ -803,7 +826,12 @@ const overlapList = [...overlaps.entries()]
 const report = {
   naturalEarth: config.naturalEarth.version,
   generated: today,
-  map: { width: W, height: H, tiles: tiles.length, projection: 'Miller cylindrical' },
+  map: {
+    width: W,
+    height: H,
+    tiles: levels.map((l) => l.tiles.length),
+    projection: 'Miller cylindrical',
+  },
   counts: {
     admin1Regions: admin1.length,
     provinces: N,

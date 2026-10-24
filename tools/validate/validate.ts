@@ -41,7 +41,13 @@ interface ProvinceMap {
   meta: Meta;
   width: number;
   height: number;
-  tiles: { file: string; x: number; y: number; width: number; height: number }[];
+  levels: {
+    level: number;
+    scale: number;
+    width: number;
+    height: number;
+    tiles: { file: string; x: number; y: number; width: number; height: number }[];
+  }[];
   colorToProvince: Record<string, number>;
 }
 
@@ -209,35 +215,43 @@ export function validateModernData(options: { checkRaster?: boolean } = {}): Val
   };
   if (options.checkRaster !== false) {
     const counts = new Int32Array(provinces.length);
-    for (const tile of map.tiles) {
-      const path = join(MAP_DIR, tile.file);
-      if (!existsSync(path)) {
-        err(`missing tile ${tile.file}`);
-        continue;
-      }
-      const png = PNG.sync.read(readFileSync(path));
-      if (png.width !== tile.width || png.height !== tile.height)
-        err(`tile ${tile.file} has the wrong size`);
-      if (png.width > 4096 || png.height > 4096) err(`tile ${tile.file} exceeds 4096 px`);
-      const d = png.data;
-      for (let o = 0; o < d.length; o += 4) {
-        const r = d[o]!;
-        const g = d[o + 1]!;
-        const b = d[o + 2]!;
-        if (b === 0) {
-          const label = r + 256 * g;
-          if (label === 0) continue;
-          if (label > provinces.length) {
+    if (map.levels[0]?.scale !== 1 || map.levels[0].width !== map.width)
+      err('map level 0 must be the full-resolution map');
+    for (const level of map.levels) {
+      const covered = level.tiles.reduce((n, t) => n + t.width * t.height, 0);
+      if (covered !== level.width * level.height)
+        err(`level ${level.level} tiles do not cover the map`);
+    }
+    for (const level of map.levels)
+      for (const tile of level.tiles) {
+        const path = join(MAP_DIR, tile.file);
+        if (!existsSync(path)) {
+          err(`missing tile ${tile.file}`);
+          continue;
+        }
+        const png = PNG.sync.read(readFileSync(path));
+        if (png.width !== tile.width || png.height !== tile.height)
+          err(`tile ${tile.file} has the wrong size`);
+        if (png.width > 4096 || png.height > 4096) err(`tile ${tile.file} exceeds 4096 px`);
+        const d = png.data;
+        for (let o = 0; o < d.length; o += 4) {
+          const r = d[o]!;
+          const g = d[o + 1]!;
+          const b = d[o + 2]!;
+          if (b === 0) {
+            const label = r + 256 * g;
+            if (label === 0) continue;
+            if (label > provinces.length) {
+              err(`tile ${tile.file} has unknown color ${r},${g},${b}`);
+              break;
+            }
+            if (level.level === 0) counts[label - 1]!++;
+          } else if (!(r === 0 && g === 0 && b === 255)) {
             err(`tile ${tile.file} has unknown color ${r},${g},${b}`);
             break;
           }
-          counts[label - 1]!++;
-        } else if (!(r === 0 && g === 0 && b === 255)) {
-          err(`tile ${tile.file} has unknown color ${r},${g},${b}`);
-          break;
         }
       }
-    }
     provinces.forEach((p) => {
       if (counts[p.id] === 0) err(`province ${p.id} (${p.name}) has no pixels in the ID map`);
       else if (counts[p.id] !== p.pixels)

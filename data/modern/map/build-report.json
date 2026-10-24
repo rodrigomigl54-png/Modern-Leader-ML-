@@ -4,7 +4,12 @@
   "map": {
     "width": 16384,
     "height": 10559,
-    "tiles": 12,
+    "tiles": [
+      176,
+      48,
+      12,
+      4
+    ],
     "projection": "Miller cylindrical"
   },
   "counts": {

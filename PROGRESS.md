@@ -4,22 +4,22 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 
 ## Phases (GDD section 16)
 
-| #   | Phase                                                          | Status                            |
-| --- | -------------------------------------------------------------- | --------------------------------- |
-| 0   | Project setup                                                  | Done (live on GitHub Pages)       |
-| 1   | Map data pipeline                                              | Done in code — waiting for review |
-| 2   | Map rendering                                                  | Not started                       |
-| 3   | Countries and setup screens                                    | Not started                       |
-| 4   | Turn engine and saves                                          | Not started                       |
-| 5   | Economy                                                        | Not started                       |
-| 6   | Population                                                     | Not started                       |
-| 7   | Military                                                       | Not started                       |
-| 8   | Missiles, drones, air defense, nuclear                         | Not started                       |
-| 9   | Diplomacy                                                      | Not started                       |
-| 10  | Resources and trade                                            | Not started                       |
-| 11  | AI                                                             | Not started                       |
-| 12  | Summits, events, notifications, reports, news, advisors, goals | Not started                       |
-| 13  | Balance, polish, demo release                                  | Not started                       |
+| #   | Phase                                                          | Status                                            |
+| --- | -------------------------------------------------------------- | ------------------------------------------------- |
+| 0   | Project setup                                                  | Done (live on GitHub Pages)                       |
+| 1   | Map data pipeline                                              | Done in code — waiting for review                 |
+| 2   | Map rendering                                                  | Done in code — waiting for the check on the phone |
+| 3   | Countries and setup screens                                    | Not started                                       |
+| 4   | Turn engine and saves                                          | Not started                                       |
+| 5   | Economy                                                        | Not started                                       |
+| 6   | Population                                                     | Not started                                       |
+| 7   | Military                                                       | Not started                                       |
+| 8   | Missiles, drones, air defense, nuclear                         | Not started                                       |
+| 9   | Diplomacy                                                      | Not started                                       |
+| 10  | Resources and trade                                            | Not started                                       |
+| 11  | AI                                                             | Not started                                       |
+| 12  | Summits, events, notifications, reports, news, advisors, goals | Not started                                       |
+| 13  | Balance, polish, demo release                                  | Not started                                       |
 
 ## Phase 0 — Project setup
 
@@ -68,10 +68,25 @@ Other decisions (listed in `data/modern/map/build-report.json`):
 - Small unclaimed areas with no admin-1 region (Bir Tawil, Southern Patagonian Ice Field, Cyprus buffer zone, a few reefs) are "unowned land", not provinces.
 - Navigable sea = world ocean + Caspian. Suez, Panama, Bosphorus and Dardanelles are forced open.
 
+## Phase 2 — Map rendering
+
+Done:
+
+- Full world map with PixiJS (WebGL), rendered from the province ID map. A shader looks up each province's color in a palette texture, so recoloring all provinces is one small texture upload.
+- Tile pyramid (pipeline change): 4 levels of 1024 px tiles (`data/modern/map/tiles/L0..L3`). The coarsest level is always loaded. Finer tiles load only for the visible area (max 24 cached, evicted LRU), so a phone never holds the full 16384 px map in GPU memory.
+- Borders are drawn in the shader with a constant screen width: country borders and coasts clear, province borders subtle and fading out when zoomed out. They work at mediump precision, so they are safe on any phone GPU.
+- Controls: drag to pan, wheel and pinch to zoom, inertia after a flick, zoom limits, and the map cannot be lost off-screen.
+- Tap or click a province: amber highlight plus an HTML dossier panel (name, owner, area, cities with capital/port badges). It closes with one tap (× or tapping the sea).
+- Labels: country names when zoomed out, then capitals, provinces and cities as you zoom in. Greedy collision avoidance, constant screen size, country names through `t()`.
+- Map mode framework (`src/map/mapModes.ts`) with the Political mode. Countries get calm colors that differ from their neighbors.
+- Loading screen with progress. The FPS counter is hidden and toggled in the settings stub (remembered).
+- The map renders only when something changes (an idle map uses no GPU/battery).
+- Tests: camera, tile math, palette, country coloring, label anchors and placement (`src/map/map.test.ts`). Checked in Chromium with phone emulation: load, tap → panel, pinch zoom, drag, inertia, no console errors.
+
 ## Next
 
-- Dario: review the PR and merge.
-- Then Phase 2 — map rendering (Prompt 2 in GDD section 17).
+- Dario: merge the PR and check on the phone: the full map loads, zoom and pan are smooth, and tapping any province shows the right name and owner. Turn on "Show FPS" in ⚙ to see the frame rate.
+- Then Phase 3 — countries and setup screens (prompt to be written after the Phase 2 check).
 
 ## Known issues
 
@@ -79,5 +94,8 @@ Other decisions (listed in `data/modern/map/build-report.json`):
 - Disputed territories use short names for now. The self-used names (GDD section 4, Neutral mode) belong to Phase 3.
 - Generated cities have population 0 until Phase 3 data.
 - 55 coastal provinces have no port: no city within 50 km of the sea.
-- Phase 2 must not upload the full 16384 × 10559 ID map to a phone GPU at full resolution (~690 MB as RGBA). Load tiles by zoom, or use a downscaled copy for the zoomed-out view. 408 provinces are under 10 px, so they need a minimum tap target.
+- 408 provinces are under 10 px on the full map. They can be tapped when zoomed in, but they have no enlarged tap target yet.
+- Borders are drawn from the ID map pixels, so at maximum zoom they show a slight pixel staircase. The vector borders in `map/borders.json` are available if smoother lines are needed later.
+- A border running exactly along a tile edge can miss a 1-pixel segment (the shader does not sample across tiles).
+- Frame rate was not measured on a real phone (the test browser uses software rendering). Please check with the FPS counter.
 - Sea routes are a nearest-port graph and will be refined in Phase 7.

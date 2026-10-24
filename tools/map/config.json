@@ -11,7 +11,8 @@
   },
   "raster": {
     "width": 16384,
-    "tileSize": 4096,
+    "tileSize": 1024,
+    "levels": 4,
     "latNorth": 84,
     "latSouth": -85
   },

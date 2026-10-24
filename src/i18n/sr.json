@@ -6,5 +6,18 @@
   "settings.language": "Jezik",
   "settings.close": "Zatvori",
   "language.en": "English",
-  "language.sr": "Srpski"
+  "language.sr": "Srpski",
+  "mapMode.political": "Politička",
+  "loading.map": "Učitavanje sveta…",
+  "loading.error": "Mapa nije mogla da se učita. Proverite vezu i ponovo učitajte stranicu.",
+  "panel.owner": "Vlasnik",
+  "panel.area": "Površina",
+  "panel.cities": "Gradovi",
+  "panel.capital": "Prestonica",
+  "panel.port": "Luka",
+  "panel.close": "Zatvori",
+  "panel.province": "Pokrajina",
+  "settings.showFps": "Prikaži FPS",
+  "units.km2": "{value} km²",
+  "units.population": "stan. {value}"
 }
