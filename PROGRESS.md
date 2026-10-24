@@ -14,8 +14,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 5   | Economy                                                        | Done                                              |
 | 6   | Population                                                     | Done                                              |
 | 7   | Military                                                       | Done                                              |
-| 8   | Missiles, drones, air defense, nuclear                         | Done in code — waiting for the check on the phone |
-| 9   | Diplomacy                                                      | Not started                                       |
+| 8   | Missiles, drones, air defense, nuclear                         | Done                                              |
+| 9   | Diplomacy                                                      | Done in code — waiting for the check on the phone |
 | 10  | Resources and trade                                            | Not started                                       |
 | 11  | AI                                                             | Not started                                       |
 | 12  | Summits, events, notifications, reports, news, advisors, goals | Not started                                       |
@@ -223,19 +223,47 @@ Done:
 - Two years on real data: missiles and drones are used every week (about 700 strikes) without wiping out armies; the Russia–Ukraine front stays stable; a turn takes about 21 ms.
 - Checked in Chromium with phone emulation as Serbia: war with Bosnia, 2 missiles on Tuzla (20 soldiers killed), arsenal, production dialog, air-defense map. No console errors.
 
+## Phase 9 — Diplomacy
+
+Done:
+
+- Rules in `data/modern/diplomacy-rules.json`; documented starting relations in `data/modern/relations.json` (51 pairs with a reason each; draft, needs review). Other pairs start from alliances (+60), pacts (+50), rivalries (−60) and wars (−100).
+- Simulation (`src/sim/diplomacy.ts`, turn step 8), the same rules for every country. Until AI profiles (Phase 11), AI answers follow thresholds in the rules file:
+  - Relations −100..+100 for every pair; actions change them and they drift back slowly toward what alliances and rivalries imply.
+  - Diplomatic points per week from size and credibility, capped at three weeks; costs from GDD section 5 (ultimatum 3, sanction 2, alliance 4, base 3, vassal 4, aid 1). Countries start with full points.
+  - Alliances and pacts: propose a pact, ask to join an alliance (members must be friendly), leave. When a country is attacked, its alliance and pact members decide whether to join by their relations; vassals and overlords always do; the player's allies are asked.
+  - Sanctions: slow the target's growth by the sanctioning share of the world economy, lower its support, block investment and weapons trade, freeze investment returns, and push the target toward the sender's rivals.
+  - Ultimatums (province, leaving an alliance, lifting sanctions, tribute, vassal, base; threat war, sanctions or leaving the alliance; 3-week deadline). The AI weighs the threat (power and credibility) against the demand. A refused ultimatum must be carried out within 4 weeks or the sender loses credibility.
+  - Foreign bases (ask or pay): a launch site for missiles and drones, and the right to move armies through the host. They close when relations break down.
+  - Aid (money and/or weapons), weapons trade (buy and sell; blocked by sanctions; nobody sells to the enemies of its friends).
+  - Vassals: ask, offer, transfer, release; vassals pay tribute and follow their overlord in war.
+  - War score from captured provinces, battles and strikes; peace terms (keep provinces, get ours back, reparations, vassal, demilitarized border) cost war score, war weariness helps. AI countries make peace after a decisive result or a long stalemate and offer peace to the player.
+  - Nuclear use now brings real global sanctions (replaces the growth penalty of Phase 8).
+- UI:
+  - Diplomacy points in the top bar open the Ministry of Foreign Affairs: points, credibility, requests to answer, wars with score and peace talks, alliances (leave), vassals, sanctions, bases, our ultimatums.
+  - "Diplomacy: {country}" in the province panel opens the country dialog: relation bar, credibility, alliances, and every action with its cost (pact, join alliance, ultimatum, base, aid, trade, vassal, sanctions, war, peace talks).
+  - Declaring war warns which allies may join; a telegram lists those who did.
+  - Requests (join a war, peace offers) arrive as questions from the Minister of Foreign Affairs.
+  - Map modes: Relations (green to red toward the player) and Alliances.
+- Saves from Phase 8 still load (diplomacy is added on load).
+- Two years on real data: a turn takes about 28 ms; the Russia–Ukraine war ended in a negotiated peace in the first year.
+- Checked in Chromium with phone emulation as Serbia: Croatia refused a pact; declaring war on Croatia brought 30 NATO members into the war; peace with Croatia; relations map. No console errors.
+
 ## Next
 
-- Dario: merge the PR and check on the phone: declare war on a neighbor, open its province, tap "Missile or drone strike"; open the Ministry of Defence (Army in the top bar) for the arsenal; switch the map to Air defense.
-- Then Phase 9 — diplomacy: relations, alliances, sanctions, ultimatums, credibility, vassals, foreign bases, aid, weapons trade, peace treaties.
+- Dario: merge the PR and check on the phone: Dipl. in the top bar; open a neighbor's province → Diplomacy; try a pact, sanctions, an ultimatum, aid; switch the map to Relations and Alliances.
+- Then Phase 10 — resources and trade.
 
 ## Known issues
 
-- Weapons can only be produced at home for now; buying from other countries comes with diplomacy (Phase 9). Global sanctions after nuclear use are a growth penalty until then.
+- AI countries do not start diplomacy on their own yet (no ultimatums, sanctions or alliance proposals from the AI); they only answer and join wars. This comes with AI profiles in Phase 11.
+- A separate peace ends the war with one country at a time; with many enemies (for example NATO) each needs its own peace.
+- Vassals are not shown on the political map in their overlord's colors yet.
+
 - Starting arsenals are estimated from military spending, not real inventories; nuclear base locations are approximate.
 - The AI does not threaten with nuclear weapons yet (profiles, Phase 11) and does not build air defense.
 - Naval crossings still cannot be intercepted.
 
-- Allies do not join wars and wars do not end with peace treaties yet (Phase 9); war score is not tracked yet.
 - AI only fights wars that already exist; it does not declare wars (Phase 11). The player's empty provinces fall to any enemy army, so garrisons matter.
 - Mandatory service list and reserve sizes are drafted estimates; reservists without a base do not defend (as in the GDD).
 

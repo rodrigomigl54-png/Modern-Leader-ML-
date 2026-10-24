@@ -1086,7 +1086,11 @@ body {
   .hud-people {
     order: 6;
     flex: 0 0 auto;
-    padding: 4px 6px;
+    padding: 4px 5px;
+  }
+
+  .hud {
+    gap: 6px;
   }
 
   /* Forces the numbers onto their own row under the country name. */
@@ -1394,4 +1398,114 @@ body {
 .option:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+/* Diplomacy (Phase 9) */
+.modal-text {
+  white-space: pre-line;
+}
+
+.country-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.country-head .flag {
+  width: 56px;
+  height: auto;
+}
+
+.country-title {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.country-relation {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.relation-bar {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--panel-border);
+}
+
+.relation-bar::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  width: 1px;
+  height: 10px;
+  background: var(--text-muted);
+}
+
+.relation-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 3px;
+}
+
+.relation-good {
+  background: #4e9a5e;
+}
+
+.relation-bad {
+  background: #b4453c;
+}
+
+.country-dialog .chip-list {
+  margin: 10px 0 4px;
+}
+
+.dip-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.dip-action {
+  width: 100%;
+  min-height: 44px;
+  text-align: left;
+}
+
+.dip-message {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--accent);
+  background: var(--bg);
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.check-row input {
+  width: 22px;
+  height: 22px;
+}
+
+.request {
+  flex-wrap: wrap;
+}
+
+.request-text {
+  flex: 1 1 100%;
+}
+
+.chip-ally {
+  border-color: #4e9a5e;
+  color: #9fd3aa;
 }

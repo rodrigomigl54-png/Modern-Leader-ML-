@@ -1,6 +1,7 @@
 // Population (GDD section 7): public support per province, riots, revolution, rebels, secession and
 // assimilation. All numbers come from data/modern/population.json (PopulationRules).
 import { growthRate, type SimContext } from './economy';
+import { sanctionWeight } from './diplomacy';
 import { armySize, reinforce } from './military';
 import type { GameState } from './newGame';
 import type { Rng } from './rng';
@@ -25,6 +26,8 @@ export interface PopulationRules {
     unassimilatedPenalty: number;
     assimilatingPenalty: number;
     rebelNeighborPenalty: number;
+    /** Points lost when the whole world economy sanctions the country. */
+    sanctionsEffect: number;
     riotAftermathPenalty: number;
   };
   riots: { threshold: number; endThreshold: number; productionPenalty: number };
@@ -187,6 +190,7 @@ export function targetSupport(
     target -= rules.taxEffect * Math.max(0, e.taxRate - rules.taxNeutral);
     target -= rules.debtEffect * Math.max(0, e.debt / Math.max(1, e.gdp) - rules.debtNeutral);
   }
+  target -= (rules.sanctionsEffect ?? 0) * sanctionWeight(state, owner);
   let buildings = 0;
   for (const b of state.economy.buildings) {
     if (b.completed && ctx.cityProvince[b.cityId] === provinceId) buildings++;

@@ -23,7 +23,8 @@
     "unassimilatedPenalty": 20,
     "assimilatingPenalty": 15,
     "rebelNeighborPenalty": 5,
-    "riotAftermathPenalty": 10
+    "riotAftermathPenalty": 10,
+    "sanctionsEffect": 20
   },
   "riots": {
     "threshold": 30,

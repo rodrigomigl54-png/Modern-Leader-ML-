@@ -11,6 +11,9 @@ export interface GameHudActions {
   onEconomy: () => void;
   onInterior: () => void;
   onDefence: () => void;
+  onForeign: () => void;
+  /** Diplomatic points of the player, formatted. */
+  pointsOf: (game: GameState) => string;
   /** Soldiers of the player's country (regulars and special forces), formatted. */
   armyOf: (game: GameState) => string;
   /** National public support of the player's country (0-100). */
@@ -118,6 +121,9 @@ export class GameHud {
     const army = button('hud-stats hud-people', '', this.actions.onDefence);
     army.setAttribute('aria-label', t('defence.title'));
     army.append(stat(t('defence.armyShort'), this.actions.armyOf(game)));
+    const diplomacy = button('hud-stats hud-people', '', this.actions.onForeign);
+    diplomacy.setAttribute('aria-label', t('foreign.title'));
+    diplomacy.append(stat(t('foreign.pointsShort'), this.actions.pointsOf(game)));
     this.bar.replaceChildren(
       flagImage(countryFlag(this.baseWorld, id, mode), 'flag hud-flag'),
       who,
@@ -125,6 +131,7 @@ export class GameHud {
       stats,
       people,
       army,
+      diplomacy,
       when,
       button('btn btn-secondary hud-menu', t('menu.gameMenu'), this.actions.onMenu),
     );

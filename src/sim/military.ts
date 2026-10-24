@@ -4,6 +4,7 @@
 import type { SimContext } from './economy';
 import type { GameState } from './newGame';
 import type { Rng } from './rng';
+import { demilitarizedFor } from './diplomacy';
 import { transferProvince } from './population';
 import { alliesOf, enemiesAtWar, type World } from './world';
 
@@ -397,7 +398,13 @@ export function armyUpkeep(state: GameState, ctx: SimContext, countryId: string)
 
 /** Border rule (GDD section 5): own land, allies' land, or land of a country at war with us. */
 export function entryRule(world: World, mover: string): (owner: string) => boolean {
-  const allowed = new Set([mover, ...alliesOf(world, mover), ...enemiesAtWar(world, mover)]);
+  const hosts = (world.foreignBases ?? []).filter((b) => b.owner === mover).map((b) => b.host);
+  const allowed = new Set([
+    mover,
+    ...alliesOf(world, mover),
+    ...enemiesAtWar(world, mover),
+    ...hosts,
+  ]);
   return (owner) => allowed.has(owner);
 }
 
@@ -623,7 +630,8 @@ export function movementPhase(state: GameState, ctx: SimContext): void {
       canEnter = entryRule(state.world, army.owner);
       rules.set(army.owner, canEnter);
     }
-    if (!canEnter(owners[next]!)) {
+    // A peace treaty can keep a country's armies out of its border provinces.
+    if (!canEnter(owners[next]!) || demilitarizedFor(state, army.owner).has(next)) {
       army.path = [];
       continue;
     }

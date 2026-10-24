@@ -42,8 +42,8 @@ export interface ProvinceMilitary {
   movable: number;
   /** Sending armies here attacks (enemy land). */
   attack: boolean;
-  /** Country the player may declare war on from this province. */
-  declareWar: { countryId: string; name: string } | null;
+  /** Foreign owner the player can deal with from this province. */
+  diplomacy: { countryId: string; name: string } | null;
   /** Air-defense level of the main city, 0 for none. */
   airDefense: number;
   nuclearBase: boolean;
@@ -70,7 +70,7 @@ export interface ProvincePanelOptions {
   onToggleArmy: (armyId: number) => void;
   onSplitArmy: (armyId: number) => void;
   onMoveHere: (provinceId: number) => void;
-  onDeclareWar: (countryId: string) => void;
+  onDiplomacy: (countryId: string, provinceId: number) => void;
   onStrike: (provinceId: number) => void;
   onBuildAirDefense: (provinceId: number) => void;
 }
@@ -301,11 +301,11 @@ export class ProvincePanel {
           ),
         );
       }
-      if (military.declareWar) {
-        const war = military.declareWar;
+      if (military.diplomacy) {
+        const other = military.diplomacy;
         army.push(
-          button('btn btn-danger-outline', t('war.declareOn', { country: war.name }), () =>
-            this.options.onDeclareWar(war.countryId),
+          button('btn btn-secondary', t('dip.open', { country: other.name }), () =>
+            this.options.onDiplomacy(other.countryId, province.id),
           ),
         );
       }

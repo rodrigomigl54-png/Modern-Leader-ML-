@@ -40,8 +40,16 @@ export interface WorldCountry {
 
 export interface Alliance {
   id: string;
-  type: 'alliance' | 'pact';
+  /** 'vassal': members are [overlord, vassal] (GDD section 10). */
+  type: 'alliance' | 'pact' | 'vassal';
   members: string[];
+}
+
+/** A military base of one country in another country's city (GDD section 10). */
+export interface ForeignBase {
+  owner: string;
+  host: string;
+  cityId: number;
 }
 
 export interface Rivalry {
@@ -63,6 +71,8 @@ export interface World {
   rivalries: Rivalry[];
   wars: War[];
   disputed: { id: string; parent: string }[];
+  /** Bases abroad; a base lets its owner's armies enter the host's land. */
+  foreignBases?: ForeignBase[];
 }
 
 /**
