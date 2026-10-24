@@ -1,0 +1,10 @@
+{
+  "app.title": "Modern Leader",
+  "app.versionLabel": "v{version} · verzija od {date}",
+  "settings.open": "Podešavanja",
+  "settings.title": "Podešavanja",
+  "settings.language": "Jezik",
+  "settings.close": "Zatvori",
+  "language.en": "English",
+  "language.sr": "Srpski"
+}
