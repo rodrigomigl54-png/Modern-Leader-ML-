@@ -22,16 +22,16 @@ admin-0 countries, admin-1 states/provinces, admin-0 disputed areas, populated p
 
 ### Outputs (`data/modern/`)
 
-| File                      | Content                                                                                                                                                                     |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `provinces.json`          | One province per admin-1 region (none merged): id, key (Natural Earth `adm1_code`), name, owner, centroid (map pixels), lonLat, areaKm2, neighbors, isCoastal, pixels, bbox |
-| `countries.json`          | id, nameKey (`country.<id>`, names in `src/i18n/countries.*.json`), status, capitalProvinceId, provinceIds                                                                  |
-| `cities.json`             | id, name, provinceId, population, isCapital, isPort, lonLat, position (map pixels); `generated: true` for cities created at a province centroid                             |
-| `sea-routes.json`         | Draft graph of sea routes between port cities, with sea distance in km                                                                                                      |
-| `map/province-id-X-Y.png` | Province ID map tiles (max 4096 px). Color = province id + 1 as `R + 256 * G`; black = water, blue `#0000ff` = unowned land                                                 |
-| `map/province-map.json`   | Map size, projection, tile list, encoding, color → province id lookup                                                                                                       |
-| `map/borders.json`        | Border polylines per pair of provinces (or province and water), traced from the ID map                                                                                      |
-| `map/build-report.json`   | Counts, capitals, every ownership decision, overlaps and warnings from the last build                                                                                       |
+| File                         | Content                                                                                                                                                                                                  |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `provinces.json`             | One province per admin-1 region (none merged): id, key (Natural Earth `adm1_code`), name, owner, centroid (map pixels), lonLat, areaKm2, neighbors, isCoastal, pixels, bbox                              |
+| `countries.json`             | id, nameKey (`country.<id>`, names in `src/i18n/countries.*.json`), status, capitalProvinceId, provinceIds                                                                                               |
+| `cities.json`                | id, name, provinceId, population, isCapital, isPort, lonLat, position (map pixels); `generated: true` for cities created at a province centroid                                                          |
+| `sea-routes.json`            | Draft graph of sea routes between port cities, with sea distance in km                                                                                                                                   |
+| `map/tiles/L<n>/<x>-<y>.png` | Province ID map as a tile pyramid of 1024 px PNG tiles: level 0 is full resolution, each further level halves it. Color = province id + 1 as `R + 256 * G`; black = water, blue `#0000ff` = unowned land |
+| `map/province-map.json`      | Map size, projection, levels and their tiles, encoding, color → province id lookup                                                                                                                       |
+| `map/borders.json`           | Border polylines per pair of provinces (or province and water), traced from the ID map                                                                                                                   |
+| `map/build-report.json`      | Counts, capitals, every ownership decision, overlaps and warnings from the last build                                                                                                                    |
 
 ### Projection
 

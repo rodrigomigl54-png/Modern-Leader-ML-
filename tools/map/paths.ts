@@ -9,7 +9,7 @@ export const MAP_DIR = join(DATA_DIR, 'map');
 
 export interface PipelineConfig {
   naturalEarth: { version: string; baseUrl: string; files: string[] };
-  raster: { width: number; tileSize: number; latNorth: number; latSouth: number };
+  raster: { width: number; tileSize: number; levels: number; latNorth: number; latSouth: number };
   owners: {
     sovereignCodes: Record<string, string>;
     overrides: Record<string, string>;
