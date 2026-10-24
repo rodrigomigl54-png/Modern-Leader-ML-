@@ -5,6 +5,7 @@
 import { category, type SimContext } from './economy';
 import { armySize, citiesOfProvince, entryRule, findPath, provinceSeat } from './military';
 import type { GameState } from './newGame';
+import { factoriesStopped } from './resources';
 import type { Rng } from './rng';
 import { alliesOf, enemiesAtWar } from './world';
 
@@ -390,7 +391,8 @@ export type WeaponsError =
   | 'programRunning'
   | 'hasNuclear'
   | 'notOwnCity'
-  | 'outOfRangeOrBlocked';
+  | 'outOfRangeOrBlocked'
+  | 'noChips';
 
 export function launchMissiles(
   state: GameState,
@@ -521,6 +523,7 @@ export function productionQuote(
   if (!t || !arsenal) allowed = 'noStock';
   else if (tier > arsenal.tech[weapon === 'missile' ? 0 : 1]) allowed = 'tierLocked';
   else if (f === 0) allowed = 'noFactory';
+  else if (factoriesStopped(state, ctx, countryId)) allowed = 'noChips';
   else if (n < 1 || cost > (state.economy.countries[countryId]?.treasury ?? 0))
     allowed = 'notEnoughMoney';
   return { cost, turns, factories: f, allowed };
@@ -871,6 +874,11 @@ export function weaponsProductionPhase(
   const rules = weaponsRules(ctx);
   const w = state.weapons;
   w.production = w.production.filter((p) => {
+    // Without chips the factories stand still (GDD section 6).
+    if (factoriesStopped(state, ctx, p.owner)) {
+      p.readyTurn++;
+      return true;
+    }
     if (p.readyTurn > state.turn) return true;
     const a = w.countries[p.owner];
     if (a) {

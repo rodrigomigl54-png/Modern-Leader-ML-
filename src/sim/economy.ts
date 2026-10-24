@@ -8,6 +8,7 @@ import {
   type RelationOverride,
 } from './diplomacy';
 import type { GameState } from './newGame';
+import { shortageLoss, type ResourcesData } from './resources';
 import { pariahPenalty, type WeaponsRules } from './weapons';
 import { productionFactor, type PopulationRules } from './population';
 import { enemiesAtWar, rivalsOf, type World, type WorldCountry } from './world';
@@ -93,6 +94,9 @@ export interface SimContext {
   nuclearBaseCities?: Readonly<Record<string, readonly number[]>>;
   diplomacy?: DiplomacyRules;
   relationOverrides?: readonly RelationOverride[];
+  /** Sanctions in force at the start. */
+  startSanctions?: readonly { from: string; to: string }[];
+  resources?: ResourcesData;
 }
 
 export interface CountryEconomy {
@@ -191,6 +195,8 @@ const atWar = (world: World, a: string, b: string): boolean => enemiesAtWar(worl
 export interface WeeklyBudget {
   taxes: number;
   investmentReturns: number;
+  /** The treasury's share of resource exports (GDD section 6). */
+  trade: number;
   military: number;
   services: number;
   interest: number;
@@ -227,6 +233,7 @@ export function weeklyBudget(state: GameState, countryId: string, ctx: SimContex
     // Riots and unassimilated provinces produce less (GDD section 7).
     taxes: (e.gdp * e.taxRate * productionFactor(state, ctx, countryId)) / 52,
     investmentReturns: investmentReturns / 52,
+    trade: (state.resources?.trade[countryId]?.income ?? 0) / 52,
     // With armies (Phase 7) the military costs what the soldiers cost.
     military:
       ctx.military && state.military
@@ -236,7 +243,7 @@ export function weeklyBudget(state: GameState, countryId: string, ctx: SimContex
     interest: (e.debt * interestRate) / 52,
     upkeep: upkeep / 52,
   };
-  const income = week.taxes + week.investmentReturns;
+  const income = week.taxes + week.investmentReturns + week.trade;
   const spending = week.military + week.services + week.interest + week.upkeep;
   return { ...week, income, spending, balance: income - spending };
 }
@@ -316,7 +323,8 @@ export function economyPhase(
       1 +
       (growthRate(e, rules) -
         pariahPenalty(state, ctx, id) -
-        sanctionsGrowthPenalty(state, ctx, id)) /
+        sanctionsGrowthPenalty(state, ctx, id) -
+        shortageLoss(state, ctx, id)) /
         52;
 
     const alert = rules.inflation.alertThreshold;

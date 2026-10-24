@@ -3,6 +3,7 @@ import { formatPercent, formatUsd } from '../app/present';
 import type { Command } from '../sim/commands';
 import { growthRate, printAmount, weeklyBudget, type SimContext } from '../sim/economy';
 import type { GameState } from '../sim/newGame';
+import { consumptionOf, productionOf, RESOURCES } from '../sim/resources';
 import { button, el } from './dom';
 
 export interface EconomyPanelOptions {
@@ -82,6 +83,7 @@ export class EconomyPanel {
     };
     line(t('econ.taxes'), b.taxes);
     if (b.investmentReturns > 0) line(t('econ.returns'), b.investmentReturns);
+    if (b.trade > 0) line(t('econ.trade'), b.trade);
     line(t('econ.military'), -b.military);
     line(t('econ.services'), -b.services);
     if (b.interest > 0) line(t('econ.interest'), -b.interest);
@@ -143,6 +145,26 @@ export class EconomyPanel {
     }
     if (mine.length === 0) projects.append(el('li', 'muted', t('econ.noProjects')));
 
+    // Resources (GDD section 6): production, needs, how much of it we get, exports.
+    const resources = el('table', 'resource-table');
+    const head = el('tr');
+    for (const h of ['', t('res.production'), t('res.needs'), t('res.supply')])
+      head.append(el('th', '', h));
+    resources.append(head);
+    const trade = game.resources?.trade[id];
+    RESOURCES.forEach((r, ri) => {
+      const row = el('tr');
+      const supply = trade?.supply[ri] ?? 1;
+      const share = (v: number): string => formatPercent(v / 1000, 1);
+      row.append(
+        el('td', '', t(`res.${r}`)),
+        el('td', 'mono', `${share(productionOf(game, id, ri))}%`),
+        el('td', 'mono', `${share(consumptionOf(game, id, ri))}%`),
+        el('td', supply < 0.85 ? 'mono danger' : 'mono', `${formatPercent(supply, 0)}%`),
+      );
+      resources.append(row);
+    });
+
     this.root.replaceChildren(
       header,
       el('h2', 'dossier-title', t('econ.title')),
@@ -167,6 +189,9 @@ export class EconomyPanel {
       ),
       el('p', 'setup-hint', t('econ.printHint', { amount })),
       print,
+      el('h3', 'dossier-subtitle', t('res.title')),
+      resources,
+      el('p', 'setup-hint', t('res.hint', { exports: formatUsd(trade?.exportValue ?? 0) })),
       el('h3', 'dossier-subtitle', t('econ.projects')),
       projects,
     );

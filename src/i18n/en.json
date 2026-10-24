@@ -513,5 +513,19 @@
   "foreign.peaceRequest": "{country} offers peace: each side keeps what it holds.",
   "foreign.ultimatumRequest": "Ultimatum from {country}: {demand}. Threat: {threat}. {weeks} weeks to answer.",
   "foreign.hint": "Open a foreign province and tap Diplomacy to deal with that country. Points refill every week.",
-  "dip.peaceTooEarly": "Too early for peace talks: wait {weeks} more weeks."
+  "dip.peaceTooEarly": "Too early for peace talks: wait {weeks} more weeks.",
+  "econ.trade": "Exports (state share)",
+  "res.title": "Resources",
+  "res.production": "Production",
+  "res.needs": "Needs",
+  "res.supply": "Supplied",
+  "res.oil": "Oil",
+  "res.gas": "Gas",
+  "res.food": "Food",
+  "res.rareMetals": "Rare metals",
+  "res.chips": "Chips",
+  "res.hint": "Shares of world production and needs. Exports are worth {exports} a year; sanctions and wars cut trade with those countries. Shortages slow the economy; food shortages anger the people; without chips the missile and drone factories stop.",
+  "minister.shortage": "We are short of: {resources}. The economy is losing ground. Make peace, lift sanctions or invest in agriculture and energy.",
+  "mapMode.resources": "Resources",
+  "produce.noChips": "The factories stand still: there are not enough chips."
 }

@@ -513,5 +513,19 @@
   "foreign.peaceRequest": "{country} nudi mir: svaka strana zadržava ono što drži.",
   "foreign.ultimatumRequest": "Ultimatum od zemlje {country}: {demand}. Pretnja: {threat}. Rok: {weeks} nedelja.",
   "foreign.hint": "Otvori stranu provinciju i dodirni Diplomatija da bi radio sa tom zemljom. Poeni se obnavljaju svake nedelje.",
-  "dip.peaceTooEarly": "Prerano za mirovne pregovore: sačekaj još {weeks} nedelja."
+  "dip.peaceTooEarly": "Prerano za mirovne pregovore: sačekaj još {weeks} nedelja.",
+  "econ.trade": "Izvoz (deo države)",
+  "res.title": "Resursi",
+  "res.production": "Proizvodnja",
+  "res.needs": "Potrebe",
+  "res.supply": "Snabdeveno",
+  "res.oil": "Nafta",
+  "res.gas": "Gas",
+  "res.food": "Hrana",
+  "res.rareMetals": "Retki metali",
+  "res.chips": "Čipovi",
+  "res.hint": "Udeli u svetskoj proizvodnji i potrebama. Izvoz vredi {exports} godišnje; sankcije i ratovi prekidaju trgovinu sa tim zemljama. Nestašice usporavaju privredu; nestašica hrane ljuti narod; bez čipova fabrike raketa i dronova stoje.",
+  "minister.shortage": "Nedostaje nam: {resources}. Privreda gubi. Sklopi mir, ukini sankcije ili investiraj u poljoprivredu i energetiku.",
+  "mapMode.resources": "Resursi",
+  "produce.noChips": "Fabrike stoje: nema dovoljno čipova."
 }

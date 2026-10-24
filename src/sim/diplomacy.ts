@@ -293,6 +293,14 @@ export function initDiplomacy(
       (rules.points.credibilityWeight * rules.credibility.start) / 100;
     d.points[c.id] = (rules.points.base + size) * credibility * rules.points.capTurns;
   }
+  for (const s of ctx.startSanctions ?? []) {
+    if (
+      ids.has(s.from) &&
+      ids.has(s.to) &&
+      !d.sanctions.some((x) => x.from === s.from && x.to === s.to)
+    )
+      d.sanctions.push({ from: s.from, to: s.to, since: 0 });
+  }
   for (const w of state.world.wars) d.wars[w.id] = warRecord(state, ctx, w);
   return d;
 }
@@ -363,13 +371,23 @@ function worldGdp(state: GameState): number {
   return Object.values(state.economy.countries).reduce((s, e) => s + e.gdp, 0) || 1;
 }
 
+/** Per-turn cache of sanction weights (they are read for every province). */
+let weightCache: { state: GameState; turn: number; weights: Map<string, number> } | null = null;
+
 /** Share of the world economy that sanctions a country. */
 export function sanctionWeight(state: GameState, id: string): number {
   if (!state.diplomacy) return 0;
-  const total = worldGdp(state);
-  return state.diplomacy.sanctions
-    .filter((s) => s.to === id)
-    .reduce((sum, s) => sum + (state.economy.countries[s.from]?.gdp ?? 0) / total, 0);
+  if (weightCache?.state !== state || weightCache.turn !== state.turn) {
+    const total = worldGdp(state);
+    const weights = new Map<string, number>();
+    for (const s of state.diplomacy.sanctions)
+      weights.set(
+        s.to,
+        (weights.get(s.to) ?? 0) + (state.economy.countries[s.from]?.gdp ?? 0) / total,
+      );
+    weightCache = { state, turn: state.turn, weights };
+  }
+  return weightCache.weights.get(id) ?? 0;
 }
 
 /** Annual growth lost to sanctions (GDD section 10). */

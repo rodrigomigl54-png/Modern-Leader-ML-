@@ -6,6 +6,7 @@ import { constructionPhase, economyPhase, type EconomyEvent, type SimContext } f
 import { battlePhase, movementPhase, trainingPhase, type MilitaryEvent } from './military';
 import { aiMilitaryOrders, aiWeaponsOrders } from './ai';
 import { diplomacyPhase, type DiplomacyEvent } from './diplomacy';
+import { resourcesPhase, type ResourcesEvent } from './resources';
 import {
   droneMovementPhase,
   missileImpactPhase,
@@ -48,6 +49,7 @@ export type TurnEvent =
   | MilitaryEvent
   | WeaponsEvent
   | DiplomacyEvent
+  | ResourcesEvent
   /** The 10-turn general report is due (GDD section 12). */
   | { type: 'report'; turn: number }
   /** A new year began. */
@@ -85,7 +87,11 @@ const PHASES: Record<TurnPhaseId, Phase> = {
     if (ctx.sim.military) trainingPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e));
     if (ctx.sim.weapons) weaponsProductionPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e));
   },
-  economy: (ctx) => economyPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e)),
+  economy: (ctx) => {
+    // Trade first: its income and shortages feed this week's budget and growth.
+    if (ctx.sim.resources) resourcesPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e));
+    economyPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e));
+  },
   population: (ctx) => {
     if (ctx.sim.population) populationPhase(ctx.state, ctx.sim, ctx.rng, (e) => ctx.events.push(e));
   },

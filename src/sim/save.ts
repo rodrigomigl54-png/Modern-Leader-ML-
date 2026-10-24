@@ -122,6 +122,13 @@ export function isValidGameState(game: unknown): game is GameState {
   ) {
     return false;
   }
+  const resources = game.resources;
+  if (
+    resources !== undefined &&
+    (!isRecord(resources) || !Array.isArray(resources.production) || !isRecord(resources.trade))
+  ) {
+    return false;
+  }
   const playerCountry = (countries as { id: string; status: string }[]).find(
     (c) => c.id === player.countryId,
   );

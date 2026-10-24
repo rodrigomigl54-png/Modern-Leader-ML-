@@ -22,6 +22,8 @@ export interface MapModeContext {
   relations?: ReadonlyMap<string, number> | null;
   /** Alliance (index) each country belongs to, for the alliances map mode. */
   blocs?: ReadonlyMap<string, number> | null;
+  /** Main resource each country exports (index into the resources), for the resources mode. */
+  exports?: ReadonlyMap<string, number> | null;
 }
 
 export interface MapMode {
@@ -214,10 +216,28 @@ export const alliancesMode: MapMode = {
   },
 };
 
+/** Oil, gas, food, rare metals, chips. */
+export const RESOURCE_COLORS = ['#6b5a3e', '#4d7fa0', '#5d8a4e', '#7a6aa0', '#3f8f8f'].map(
+  hexToRgb,
+);
+
+/** Resources (GDD section 13): each country in the color of its main export. */
+export const resourcesMode: MapMode = {
+  id: 'resources',
+  nameKey: 'mapMode.resources',
+  colors(context) {
+    return context.provinces.map((p) => {
+      const r = context.exports?.get(context.owners[p.id]!);
+      return vary(r === undefined || r < 0 ? COVER_NONE : RESOURCE_COLORS[r]!, p.id);
+    });
+  },
+};
+
 export const MAP_MODES: readonly MapMode[] = [
   politicalMode,
   supportMode,
   relationsMode,
   alliancesMode,
+  resourcesMode,
   airDefenseMode,
 ];

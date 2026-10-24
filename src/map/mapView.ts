@@ -57,6 +57,8 @@ export interface MapView {
     relations: ReadonlyMap<string, number> | null,
     blocs: ReadonlyMap<string, number> | null,
   ): void;
+  /** Main export of each country, for the resources map mode. */
+  setExports(exports: ReadonlyMap<string, number> | null): void;
   /** Centers the camera on a province (zooming in if needed). */
   lookAtProvince(provinceId: number): void;
   /** Current owner of a province. */
@@ -83,7 +85,7 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
     resolution: deviceRatio(),
     autoDensity: true,
     antialias: false,
-    background: WATER,
+    background: '#0b1522',
     preference: 'webgl',
     autoStart: false,
   });
@@ -104,6 +106,7 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
   let airDefense: Uint8Array | null = null;
   let relations: ReadonlyMap<string, number> | null = null;
   let blocs: ReadonlyMap<string, number> | null = null;
+  let exports: ReadonlyMap<string, number> | null = null;
   let mode: MapMode = MAP_MODES[0]!;
   const writeOwners = (): void => {
     politics.owners.forEach((owner, id) => {
@@ -132,6 +135,7 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
         airDefense,
         relations,
         blocs,
+        exports,
       })
       .forEach((c, id) => palette.setColor(id + 1, c));
     shared.paletteChanged();
@@ -265,6 +269,13 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       relations = nextRelations;
       blocs = nextBlocs;
       if (mode.id === 'relations' || mode.id === 'alliances') {
+        applyMode();
+        requestRender();
+      }
+    },
+    setExports: (next) => {
+      exports = next;
+      if (mode.id === 'resources') {
         applyMode();
         requestRender();
       }

@@ -15,8 +15,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 6   | Population                                                     | Done                                              |
 | 7   | Military                                                       | Done                                              |
 | 8   | Missiles, drones, air defense, nuclear                         | Done                                              |
-| 9   | Diplomacy                                                      | Done in code — waiting for the check on the phone |
-| 10  | Resources and trade                                            | Not started                                       |
+| 9   | Diplomacy                                                      | Done                                              |
+| 10  | Resources and trade                                            | Done in code — waiting for the check on the phone |
 | 11  | AI                                                             | Not started                                       |
 | 12  | Summits, events, notifications, reports, news, advisors, goals | Not started                                       |
 | 13  | Balance, polish, demo release                                  | Not started                                       |
@@ -249,12 +249,33 @@ Done:
 - Two years on real data: a turn takes about 28 ms; the Russia–Ukraine war ended in a negotiated peace in the first year.
 - Checked in Chromium with phone emulation as Serbia: Croatia refused a pact; declaring war on Croatia brought 30 NATO members into the war; peace with Croatia; relations map. No console errors.
 
+## Phase 10 — Resources and trade
+
+Done:
+
+- Data in `data/modern/resources.json`: oil, gas, food, rare metals and chips, as rounded world shares of production and consumption (Energy Institute / EIA, FAOSTAT, USGS, SIA / SEMI; draft, spot checks pending). Food uses self-sufficiency ratios. World trade values set the prices.
+- Sanctions in force at the start are now in `data/modern/relations.json` (187 entries: on Russia, Belarus, Iran, North Korea, Cuba, Venezuela, Myanmar, each with its reason).
+- Simulation (`src/sim/resources.ts`, turn step 6 before the budget), the same rules for every country:
+  - Production sits in provinces (by population), so conquest moves it; finished agriculture adds food, energy adds oil and gas.
+  - Consumption grows with each economy relative to the world.
+  - A world market per resource: exporters sell their surplus, importers buy what they lack. Sanctions and wars block trade between the countries involved; half of the blocked trade can be rerouted through third countries. The effect depends on how much a country depends on the blocked partners.
+  - Export revenue: the treasury gets 15% (new budget line). Shortages cost GDP each year by the resource's weight; food shortages lower support; below half of the needed chips, missile and drone factories stop.
+  - The Minister of Finance warns about shortages.
+- UI: resources table in the Ministry of Finance (production, needs, supply, export value); Resources map mode (main export of each country) with a legend.
+- Fixed: the map background below Antarctica was white when zoomed out (wrong color format).
+- Saves from Phase 9 still load (resources are added on load).
+- Two years on real data: a turn takes about 32 ms. Russia exports about 390 bn a year under sanctions (500 bn without) and gets 79% of the chips it needs; Germany is a little short of oil and gas.
+- Checked in Chromium with phone emulation as Russia: economy panel with resources, resources map. No console errors.
+
 ## Next
 
-- Dario: merge the PR and check on the phone: Dipl. in the top bar; open a neighbor's province → Diplomacy; try a pact, sanctions, an ultimatum, aid; switch the map to Relations and Alliances.
-- Then Phase 10 — resources and trade.
+- Dario: merge the PR and check on the phone: tap the numbers in the top bar (Ministry of Finance → Resources); switch the map to Resources.
+- Then Phase 11 — AI behavior profiles (traits from documented behavior, aggressiveness multipliers, AI starting diplomacy and wars).
 
 ## Known issues
+
+- Resource shares are rounded estimates; the shortage alert is not shown for shortages that exist at the very start (e.g. Russia's chips) — the economy panel shows them.
+- Resource trade is a world market, not per-partner deals; prices are fixed.
 
 - AI countries do not start diplomacy on their own yet (no ultimatums, sanctions or alliance proposals from the AI); they only answer and join wars. This comes with AI profiles in Phase 11.
 - A separate peace ends the war with one country at a time; with many enemies (for example NATO) each needs its own peace.
