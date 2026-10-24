@@ -3,7 +3,7 @@
     "description": "Missiles, drones, air defense and nuclear weapons (GDD section 9). Tiers, ranges, damage and costs are game-design defaults to be tuned in Phase 13 (balance). Starting arsenals are estimated from military spending; nuclear countries, warhead counts and base locations are drafted from public information known up to mid-2026 (SIPRI Yearbook 2025 estimates, rounded).",
     "source": "Game design (GDD section 9); nuclear forces: SIPRI Yearbook 2025 (rounded)",
     "checked": "2026-10-24",
-    "checkedBy": "draft \u2014 nuclear base locations are approximate (nearest large city) and need a check"
+    "checkedBy": "draft — nuclear base locations are approximate (nearest large city) and need a check"
   },
   "missiles": [
     {
@@ -279,7 +279,7 @@
     "provinceSupport": 50,
     "userSupport": 25,
     "userGdpLoss": 0.08,
-    "pariahGrowthPenalty": 0.03,
+    "pariahGrowthPenalty": 0,
     "aiLastResortShare": 0.25,
     "countries": {
       "RUS": {

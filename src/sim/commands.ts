@@ -10,6 +10,25 @@ import {
   type RecruitMode,
   type UnitKind,
 } from './military';
+import {
+  answerRequest,
+  imposeSanctions,
+  leaveAlliance,
+  liftSanctions,
+  proposeAlliance,
+  proposePeace,
+  requestBase,
+  sendAid,
+  sendUltimatum,
+  startWar,
+  tradeWeapons,
+  vassalAction,
+  type ActionResult,
+  type Demand,
+  type DiplomacyError,
+  type PeaceTerms,
+  type Threat,
+} from './diplomacy';
 import type { GameState } from './newGame';
 import {
   airDefenseQuote,
@@ -140,7 +159,43 @@ export interface StartNuclearProgramCommand {
   countryId: string;
 }
 
+/** Diplomacy (GDD section 10). AI countries answer at once (`accepted` in the result). */
+export type DiplomacyCommand =
+  | { type: 'proposeAlliance'; countryId: string; targetId: string; allianceId?: string }
+  | { type: 'leaveAlliance'; countryId: string; allianceId: string }
+  | { type: 'sanction'; countryId: string; targetId: string }
+  | { type: 'liftSanctions'; countryId: string; targetId: string }
+  | { type: 'ultimatum'; countryId: string; targetId: string; demand: Demand; threat: Threat }
+  | { type: 'requestBase'; countryId: string; cityId: number; pay: boolean }
+  | {
+      type: 'sendAid';
+      countryId: string;
+      targetId: string;
+      money: number;
+      weapons?: { weapon: WeaponKind; tier: number; count: number };
+    }
+  | {
+      type: 'tradeWeapons';
+      countryId: string;
+      /** 'buy' from the other country or 'sell' to it. */
+      direction: 'buy' | 'sell';
+      targetId: string;
+      weapon: WeaponKind;
+      tier: number;
+      count: number;
+    }
+  | {
+      type: 'vassal';
+      countryId: string;
+      mode: 'ask' | 'offer' | 'transfer' | 'release';
+      targetId: string;
+      vassalId?: string;
+    }
+  | { type: 'proposePeace'; countryId: string; targetId: string; terms: PeaceTerms }
+  | { type: 'answerRequest'; countryId: string; requestId: number; accept: boolean };
+
 export type Command =
+  | DiplomacyCommand
   | SetTaxCommand
   | SetServicesCommand
   | PrintMoneyCommand
@@ -174,9 +229,11 @@ export type CommandError =
   | 'invalidTarget'
   | 'alreadyAtWar'
   | 'allied'
-  | WeaponsError;
+  | WeaponsError
+  | DiplomacyError;
 
-export type CommandResult = { ok: true; state: GameState } | { ok: false; error: CommandError };
+export type CommandResult =
+  { ok: true; state: GameState; accepted?: boolean } | { ok: false; error: CommandError };
 
 /** Applies a command to a copy of the state; the input state is never changed. */
 export function applyCommand(
@@ -385,11 +442,61 @@ export function applyCommand(
       if (alliesOf(previous.world, countryId).includes(targetId))
         return { ok: false, error: 'allied' };
       const state = structuredClone(previous);
-      state.world.wars.push({
-        id: `war-${state.turn}-${countryId}-${targetId}`,
-        sides: [[countryId], [targetId]],
-      });
+      startWar(state, ctx, countryId, targetId);
       return { ok: true, state };
     }
+    default:
+      return diplomacyCommand(previous, command, ctx);
   }
+}
+
+function diplomacyCommand(
+  previous: GameState,
+  c: DiplomacyCommand,
+  ctx: SimContext,
+): CommandResult {
+  const state = structuredClone(previous);
+  const id = c.countryId;
+  let result: ActionResult;
+  switch (c.type) {
+    case 'proposeAlliance':
+      result = proposeAlliance(state, ctx, id, c.targetId, c.allianceId);
+      break;
+    case 'leaveAlliance':
+      result = leaveAlliance(state, ctx, id, c.allianceId);
+      break;
+    case 'sanction':
+      result = imposeSanctions(state, ctx, id, c.targetId);
+      break;
+    case 'liftSanctions':
+      result = liftSanctions(state, ctx, id, c.targetId);
+      break;
+    case 'ultimatum':
+      result = sendUltimatum(state, ctx, id, c.targetId, c.demand, c.threat);
+      break;
+    case 'requestBase':
+      result = requestBase(state, ctx, id, c.cityId, c.pay);
+      break;
+    case 'sendAid':
+      result = sendAid(state, ctx, id, c.targetId, c.money, c.weapons);
+      break;
+    case 'tradeWeapons':
+      result =
+        c.direction === 'buy'
+          ? tradeWeapons(state, ctx, id, c.targetId, c.weapon, c.tier, c.count)
+          : tradeWeapons(state, ctx, c.targetId, id, c.weapon, c.tier, c.count);
+      break;
+    case 'vassal':
+      result = vassalAction(state, ctx, id, c.mode, c.targetId, c.vassalId);
+      break;
+    case 'proposePeace':
+      result = proposePeace(state, ctx, id, c.targetId, c.terms);
+      break;
+    case 'answerRequest':
+      result = answerRequest(state, ctx, c.requestId, c.accept);
+      break;
+  }
+  if ('error' in result) return { ok: false, error: result.error };
+  // A refused proposal still costs its diplomatic points.
+  return { ok: true, state, accepted: result.accepted };
 }

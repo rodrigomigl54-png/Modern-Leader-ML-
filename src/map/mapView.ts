@@ -52,6 +52,11 @@ export interface MapView {
   pulseCities(cityIds: readonly number[], nuclear?: boolean): void;
   /** Air-defense coverage per province for the air-defense map mode (null outside a game). */
   setAirDefense(coverage: Uint8Array | null): void;
+  /** Relations toward the player and alliance blocs, for the diplomacy map modes. */
+  setDiplomacy(
+    relations: ReadonlyMap<string, number> | null,
+    blocs: ReadonlyMap<string, number> | null,
+  ): void;
   /** Centers the camera on a province (zooming in if needed). */
   lookAtProvince(provinceId: number): void;
   /** Current owner of a province. */
@@ -97,6 +102,8 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
   let focusCountry: string | null = null;
   let support: readonly number[] | null = null;
   let airDefense: Uint8Array | null = null;
+  let relations: ReadonlyMap<string, number> | null = null;
+  let blocs: ReadonlyMap<string, number> | null = null;
   let mode: MapMode = MAP_MODES[0]!;
   const writeOwners = (): void => {
     politics.owners.forEach((owner, id) => {
@@ -123,6 +130,8 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
         focusCountry,
         support,
         airDefense,
+        relations,
+        blocs,
       })
       .forEach((c, id) => palette.setColor(id + 1, c));
     shared.paletteChanged();
@@ -248,6 +257,14 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
     setAirDefense: (coverage) => {
       airDefense = coverage;
       if (mode.id === 'airDefense') {
+        applyMode();
+        requestRender();
+      }
+    },
+    setDiplomacy: (nextRelations, nextBlocs) => {
+      relations = nextRelations;
+      blocs = nextBlocs;
+      if (mode.id === 'relations' || mode.id === 'alliances') {
         applyMode();
         requestRender();
       }

@@ -1,5 +1,6 @@
 // Creates the initial game state from the three setup choices (GDD section 3).
 import { initEconomy, type EconomyState, type SimContext } from './economy';
+import { emptyDiplomacy, initDiplomacy, type DiplomacyState } from './diplomacy';
 import { emptyMilitary, initMilitary, type MilitaryState } from './military';
 import { initPopulation, type PopulationState } from './population';
 import { emptyWeapons, initWeapons, type WeaponsState } from './weapons';
@@ -31,6 +32,7 @@ export interface GameState {
   population: PopulationState;
   military: MilitaryState;
   weapons: WeaponsState;
+  diplomacy: DiplomacyState;
   /** Set when the player's government has fallen or the country was conquered. */
   gameOver?: { reason: 'revolution' | 'conquered'; turn: number };
 }
@@ -81,5 +83,8 @@ export function createNewGame(world: World, options: NewGameOptions, sim: SimCon
     population,
     military,
     weapons,
+    diplomacy: sim.diplomacy
+      ? initDiplomacy({ world: effective, turn: 0, economy }, sim)
+      : emptyDiplomacy(),
   };
 }

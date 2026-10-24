@@ -306,9 +306,14 @@ export function nuclearBasesOf(state: GameState, ctx: SimContext, countryId: str
 /** Missile launch sites: own cities with a military base. */
 function launchSites(state: GameState, ctx: SimContext, countryId: string): number[] {
   const country = state.world.countries.find((c) => c.id === countryId);
-  return (country?.provinceIds ?? [])
+  const own = (country?.provinceIds ?? [])
     .flatMap((p) => citiesOfProvince(ctx, p))
     .filter((c) => (state.military.bases[c] ?? 0) > 0);
+  // Bases abroad extend the reach (GDD section 10).
+  const abroad = (state.world.foreignBases ?? [])
+    .filter((b) => b.owner === countryId && ownerOfCity(state, ctx, b.cityId) === b.host)
+    .map((b) => b.cityId);
+  return [...own, ...abroad];
 }
 
 /** Nearest launch site within range of a target city, or -1. */

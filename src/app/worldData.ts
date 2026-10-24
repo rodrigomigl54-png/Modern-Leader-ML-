@@ -1,6 +1,7 @@
 // Loads the Modern World game data (data/modern/) into the simulation's World.
 import type { MapData } from '../map/mapData';
 import type { EconomyRules, SimContext } from '../sim/economy';
+import type { DiplomacyRules, RelationOverride } from '../sim/diplomacy';
 import type { MilitaryRules, SeaLink } from '../sim/military';
 import type { PopulationRules } from '../sim/population';
 import type { WeaponsRules } from '../sim/weapons';
@@ -60,9 +61,12 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     import('../../data/modern/military-service.json?url'),
     import('../../data/modern/sea-routes.json?url'),
     import('../../data/modern/weapons.json?url'),
+    import('../../data/modern/diplomacy-rules.json?url'),
+    import('../../data/modern/relations.json?url'),
   ]);
   const [leadersUrl, diplomacyUrl, scenarioUrl, economyUrl, populationUrl] = urls;
-  const [militaryUrl, serviceUrl, seaUrl, weaponsUrl] = urls.slice(5);
+  const [militaryUrl, serviceUrl, seaUrl, weaponsUrl, diplomacyRulesUrl, relationsUrl] =
+    urls.slice(5);
   const statsUrl = Object.values(optionalStats)[0];
   const [
     leaders,
@@ -74,6 +78,8 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     service,
     sea,
     weapons,
+    diplomacyRules,
+    relations,
     stats,
   ] = await Promise.all([
     fetchJson<LeadersFile>(leadersUrl.default),
@@ -85,6 +91,8 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     fetchJson<ServiceFile>(serviceUrl!.default),
     fetchJson<SeaRoutesFile>(seaUrl!.default),
     fetchJson<WeaponsRules>(weaponsUrl!.default),
+    fetchJson<DiplomacyRules>(diplomacyRulesUrl!.default),
+    fetchJson<{ pairs: RelationOverride[] }>(relationsUrl!.default),
     statsUrl ? fetchJson<StatsFile>(statsUrl) : Promise.resolve(null),
   ]);
 
@@ -130,6 +138,8 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
       weapons,
       cityLonLat: map.cities.map((c) => c.lonLat),
       nuclearBaseCities: nuclearBases(map, weapons),
+      diplomacy: diplomacyRules,
+      relationOverrides: relations.pairs,
     },
   };
 }

@@ -5,6 +5,7 @@ import type { Command } from './commands';
 import { constructionPhase, economyPhase, type EconomyEvent, type SimContext } from './economy';
 import { battlePhase, movementPhase, trainingPhase, type MilitaryEvent } from './military';
 import { aiMilitaryOrders, aiWeaponsOrders } from './ai';
+import { diplomacyPhase, type DiplomacyEvent } from './diplomacy';
 import {
   droneMovementPhase,
   missileImpactPhase,
@@ -46,6 +47,7 @@ export type TurnEvent =
   | PopulationEvent
   | MilitaryEvent
   | WeaponsEvent
+  | DiplomacyEvent
   /** The 10-turn general report is due (GDD section 12). */
   | { type: 'report'; turn: number }
   /** A new year began. */
@@ -87,7 +89,10 @@ const PHASES: Record<TurnPhaseId, Phase> = {
   population: (ctx) => {
     if (ctx.sim.population) populationPhase(ctx.state, ctx.sim, ctx.rng, (e) => ctx.events.push(e));
   },
-  diplomacy: () => undefined,
+  diplomacy: (ctx) => {
+    if (ctx.sim.diplomacy)
+      diplomacyPhase(ctx.state, ctx.sim, [...ctx.events], (e) => ctx.events.push(e));
+  },
   events: (ctx) => {
     const { state } = ctx;
     if (state.turn % REPORT_INTERVAL === 0) ctx.events.push({ type: 'report', turn: state.turn });

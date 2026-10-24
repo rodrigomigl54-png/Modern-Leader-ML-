@@ -18,6 +18,10 @@ export interface MapModeContext {
   support: readonly number[] | null;
   /** Air-defense coverage per province: 0 none, 1 own, 2 ally, 3 enemy, 4 other. */
   airDefense?: Uint8Array | null;
+  /** Relation of every country toward the player (-100..100). */
+  relations?: ReadonlyMap<string, number> | null;
+  /** Alliance (index) each country belongs to, for the alliances map mode. */
+  blocs?: ReadonlyMap<string, number> | null;
 }
 
 export interface MapMode {
@@ -165,4 +169,55 @@ export const airDefenseMode: MapMode = {
   },
 };
 
-export const MAP_MODES: readonly MapMode[] = [politicalMode, supportMode, airDefenseMode];
+const RELATION_BAD = hexToRgb('#b4453c');
+const RELATION_GOOD = hexToRgb('#4e9a5e');
+
+/** Relations toward the player (GDD section 13): green friends, red enemies. */
+export const relationsMode: MapMode = {
+  id: 'relations',
+  nameKey: 'mapMode.relations',
+  colors(context) {
+    return context.provinces.map((p) => {
+      const owner = context.owners[p.id]!;
+      if (owner === context.focusCountry) return FOCUS_COLOR;
+      const r = context.relations?.get(owner);
+      if (r === undefined) return SUPPORT_MID;
+      const v = Math.max(-100, Math.min(100, r)) / 100;
+      return vary(
+        v < 0 ? mix(SUPPORT_MID, RELATION_BAD, -v) : mix(SUPPORT_MID, RELATION_GOOD, v),
+        p.id,
+      );
+    });
+  },
+};
+
+const BLOC_COLORS = [
+  '#4d7fa0',
+  '#a04a42',
+  '#7a6aa0',
+  '#3f8f84',
+  '#a08a42',
+  '#8c5f6e',
+  '#5d8a80',
+  '#868a5f',
+].map(hexToRgb);
+
+/** Alliances (GDD section 13): each alliance or pact in its own color. */
+export const alliancesMode: MapMode = {
+  id: 'alliances',
+  nameKey: 'mapMode.alliances',
+  colors(context) {
+    return context.provinces.map((p) => {
+      const bloc = context.blocs?.get(context.owners[p.id]!);
+      return vary(bloc === undefined ? COVER_NONE : BLOC_COLORS[bloc % BLOC_COLORS.length]!, p.id);
+    });
+  },
+};
+
+export const MAP_MODES: readonly MapMode[] = [
+  politicalMode,
+  supportMode,
+  relationsMode,
+  alliancesMode,
+  airDefenseMode,
+];

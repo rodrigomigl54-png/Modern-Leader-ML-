@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "description": "Diplomacy rules (GDD sections 5, 8 and 10): relations, diplomatic points and costs, credibility, sanctions, ultimatums, war joining, foreign bases, aid, weapons trade, vassals and peace treaties. Until AI profiles exist (Phase 11), AI answers follow these thresholds. Game-design defaults to be tuned in Phase 13.",
+    "source": "Game design (GDD sections 5, 8, 10)",
+    "checked": "2026-10-24"
+  },
+  "relations": {
+    "alliance": 60,
+    "pact": 50,
+    "vassal": 70,
+    "rival": -60,
+    "war": -100,
+    "driftPerTurn": 0.25
+  },
+  "points": {
+    "comment": "Points per turn: base plus one per factor of ten of GDP above 10 bn USD (up to gdpCap), times a credibility factor. Points cap at capTurns turns' worth.",
+    "base": 1,
+    "gdpCap": 2,
+    "capTurns": 3,
+    "credibilityWeight": 0.5
+  },
+  "costs": {
+    "ultimatum": 3,
+    "sanction": 2,
+    "alliance": 4,
+    "base": 3,
+    "vassal": 4,
+    "aid": 1
+  },
+  "credibility": {
+    "start": 70,
+    "enforced": 5,
+    "failed": 20,
+    "enforceTurns": 4
+  },
+  "ultimatum": {
+    "deadlineTurns": 3,
+    "threatWeight": {
+      "war": 1,
+      "sanctions": 0.6,
+      "leaveAlliance": 0.5
+    },
+    "demandCost": {
+      "province": 0.6,
+      "leaveAlliance": 0.7,
+      "liftSanctions": 0.3,
+      "tribute": 10,
+      "vassal": 2.5,
+      "base": 0.5
+    },
+    "refusedRelation": -15,
+    "acceptedRelation": -10,
+    "sanctionsGdpFactor": 5
+  },
+  "sanctions": {
+    "relation": -30,
+    "targetAlliesRelation": -10,
+    "senderRivalsRelation": 10,
+    "growthPerWorldShare": 0.2,
+    "maxGrowthPenalty": 0.08
+  },
+  "war": {
+    "declaredRelation": -50,
+    "targetAlliesRelation": -15,
+    "joinAllianceMinRelation": 40,
+    "joinPactMinRelation": 55,
+    "joinMaxRelationWithAttacker": 30,
+    "refusedJoinRelation": -20,
+    "requestTurns": 3
+  },
+  "aid": {
+    "relationPerGdpShare": 2000,
+    "maxRelation": 30,
+    "enemyRelation": -8
+  },
+  "trade": {
+    "markup": 1.3,
+    "sellShare": 0.3,
+    "minRelation": 0,
+    "buyMinRelation": 30
+  },
+  "base": {
+    "askMinRelation": 50,
+    "payMinRelation": 10,
+    "priceShareOfHostGdp": 0.002,
+    "minPriceUsd": 50000000,
+    "removeBelowRelation": -20
+  },
+  "vassal": {
+    "tributeShare": 0.1,
+    "askPowerRatio": 4,
+    "askMinRelation": 10,
+    "offerMinRelation": 0,
+    "transferMinRelation": 20
+  },
+  "alliance": {
+    "pactMinRelation": 40,
+    "joinMinRelation": 50
+  },
+  "peace": {
+    "comment": "War score from the point of view of each side: provinces taken (by population share of the enemy at the start of the war), battles won and soldiers killed by strikes. Peace demands cost score.",
+    "capturePoints": 120,
+    "battlePoints": 1,
+    "strikePointsPer10k": 1,
+    "wearinessPerTurn": 0.3,
+    "maxWeariness": 30,
+    "reparationsCost": 200,
+    "maxReparationsShare": 0.2,
+    "vassalCost": 60,
+    "demilitarizeCost": 15,
+    "demilitarizeTurns": 52,
+    "aiPeaceScore": 50,
+    "aiPeaceMinTurns": 26,
+    "aiStalemateTurns": 104,
+    "aiOfferEvery": 8,
+    "peaceRelation": 20,
+    "minTurns": 4
+  },
+  "nuclear": {
+    "relation": -60,
+    "alliesRelation": -30
+  }
+}

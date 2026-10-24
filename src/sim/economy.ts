@@ -1,6 +1,12 @@
 // Economy (GDD section 6): budget, GDP growth, inflation, money printing and investment in own and
 // foreign cities. All numbers come from data/modern/economy.json (EconomyRules).
 import { armyUpkeep, type MilitaryRules, type SeaLink } from './military';
+import {
+  sanctionsBetween,
+  sanctionsGrowthPenalty,
+  type DiplomacyRules,
+  type RelationOverride,
+} from './diplomacy';
 import type { GameState } from './newGame';
 import { pariahPenalty, type WeaponsRules } from './weapons';
 import { productionFactor, type PopulationRules } from './population';
@@ -85,6 +91,8 @@ export interface SimContext {
   cityLonLat?: readonly (readonly [number, number])[];
   /** Nuclear base city ids per country at the start. */
   nuclearBaseCities?: Readonly<Record<string, readonly number[]>>;
+  diplomacy?: DiplomacyRules;
+  relationOverrides?: readonly RelationOverride[];
 }
 
 export interface CountryEconomy {
@@ -203,7 +211,12 @@ export function weeklyBudget(state: GameState, countryId: string, ctx: SimContex
     const cat = category(rules, b.category);
     if (cat) upkeep += b.costUsd * cat.upkeepShare;
     // Returns from investments abroad are frozen while the two countries are at war.
-    if (b.completed && b.host !== countryId && !atWar(state.world, countryId, b.host)) {
+    if (
+      b.completed &&
+      b.host !== countryId &&
+      !atWar(state.world, countryId, b.host) &&
+      !sanctionsBetween(state, countryId, b.host)
+    ) {
       investmentReturns += b.costUsd * rules.investment.foreignReturnShare;
     }
   }
@@ -299,7 +312,12 @@ export function economyPhase(
     e.printed *= 1 - rules.inflation.printedDecayPerTurn;
     // Inflation eats the real value of money in the treasury.
     e.treasury /= 1 + e.inflation / 52;
-    e.gdp *= 1 + (growthRate(e, rules) - pariahPenalty(state, ctx, id)) / 52;
+    e.gdp *=
+      1 +
+      (growthRate(e, rules) -
+        pariahPenalty(state, ctx, id) -
+        sanctionsGrowthPenalty(state, ctx, id)) /
+        52;
 
     const alert = rules.inflation.alertThreshold;
     if (!e.inflationAlerted && e.inflation >= alert) {
@@ -357,7 +375,12 @@ export function investmentQuote(
   if (!cat || !economy) return null;
   const cities = [...new Set(cityIds)].flatMap((cityId) => {
     const host = cityOwner(state, ctx, cityId);
-    return host ? [{ cityId, host, consent: hostConsent(state.world, investor, host) }] : [];
+    if (!host) return [];
+    // Sanctions freeze investment both ways (GDD section 10).
+    const consent = sanctionsBetween(state, investor, host)
+      ? 'refuses'
+      : hostConsent(state.world, investor, host);
+    return [{ cityId, host, consent }];
   });
   const buildable = cities.filter((c) => c.consent !== 'refuses');
   const own = buildable.filter((c) => c.consent === 'own').length;

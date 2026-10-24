@@ -1,6 +1,7 @@
 import './ui/style.css';
 import { onLanguageChange, t, type TranslationKey } from './i18n';
 import {
+  countryFlag,
   countryName,
   formatCount,
   formatPercent,
@@ -21,6 +22,7 @@ import {
   provinceBaseLevel,
   provinceSeat,
 } from './sim/military';
+import { ensureDiplomacy, relation, type Demand, type PlayerRequest } from './sim/diplomacy';
 import { createNewGame, type GameState } from './sim/newGame';
 import { airDefenseMap, airDefenseQuote, ensureWeapons, weaponsRules } from './sim/weapons';
 import {
@@ -33,8 +35,11 @@ import { createSave, type SaveError, type SaveFile } from './sim/save';
 import { advanceTurn, type TurnEvent } from './sim/turn';
 import { alliesOf, applyDisputedSetting, enemiesAtWar } from './sim/world';
 import { confirmDialog, noticeDialog } from './ui/confirmDialog';
+import { flagImage } from './ui/dom';
+import { CountryDialog } from './ui/countryDialog';
 import { DefencePanel } from './ui/defencePanel';
 import { EconomyPanel } from './ui/economyPanel';
+import { ForeignPanel } from './ui/foreignPanel';
 import { FpsCounter } from './ui/fpsCounter';
 import { GameHud } from './ui/gameHud';
 import { GameMenu } from './ui/gameMenu';
@@ -77,6 +82,14 @@ const COMMAND_ERRORS: Partial<Record<CommandError, TranslationKey>> = {
   programRunning: 'arsenal.programRunning',
   hasNuclear: 'arsenal.hasNuclear',
   notOwnCity: 'arsenal.notOwnCity',
+  notEnoughPoints: 'dip.notEnoughPoints',
+  refused: 'dip.refused',
+  alreadyAllied: 'dip.alreadyAllied',
+  sanctioned: 'dip.sanctionedError',
+  notSanctioned: 'dip.notSanctioned',
+  atWar: 'dip.atWarError',
+  unknownRequest: 'dip.unknownRequest',
+  tooEarly: 'dip.peaceTooEarly',
 };
 
 async function start(): Promise<void> {
@@ -126,18 +139,41 @@ async function start(): Promise<void> {
     /** Asks before declaring war (simple until diplomacy, Phase 9). */
     const declareWar = async (countryId: string): Promise<void> => {
       if (!game) return;
+      const allies = alliesOf(game.world, countryId).filter((a) => a !== game!.player.countryId);
+      const text = t('war.declareText', { country: nameOf(countryId) });
       const ok = await confirmDialog(
         uiRoot,
         t('war.declareTitle', { country: nameOf(countryId) }),
-        t('war.declareText', { country: nameOf(countryId) }),
+        allies.length
+          ? `${text}\n\n${t('war.alliesWarning', {
+              allies:
+                allies.slice(0, 5).map(nameOf).join(', ') +
+                (allies.length > 5 ? ` +${allies.length - 5}` : ''),
+            })}`
+          : text,
         t('war.declare'),
         t('saves.cancel'),
       );
-      if (
-        ok &&
-        issue({ type: 'declareWar', countryId: game.player.countryId, targetId: countryId })
-      )
-        toasts.show(t('war.declared', { country: nameOf(countryId) }), 'error');
+      if (!ok || !game) return;
+      const player = game.player.countryId;
+      const before = new Set(enemiesAtWar(game.world, player));
+      if (!issue({ type: 'declareWar', countryId: player, targetId: countryId })) return;
+      toasts.show(t('war.declared', { country: nameOf(countryId) }), 'error');
+      // Allies of the target that answered its call.
+      const joined = enemiesAtWar(game.world, player).filter(
+        (e) => e !== countryId && !before.has(e),
+      );
+      if (joined.length)
+        await noticeDialog(
+          uiRoot,
+          t('minister.foreign'),
+          t('minister.warJoined', {
+            countries:
+              joined.slice(0, 6).map(nameOf).join(', ') +
+              (joined.length > 6 ? ` +${joined.length - 6}` : ''),
+          }),
+          t('minister.understood'),
+        );
     };
 
     /** Missiles, drones, nuclear bases and air defense on the map. */
@@ -315,19 +351,18 @@ async function start(): Promise<void> {
         ).length;
         const target = game.world.countries.find((c) => c.id === owner);
         const seat = provinceSeat(sim, provinceId);
-        const canDeclare =
+        const canDeal =
           owner !== player &&
-          !enemies.has(owner) &&
-          !alliesOf(game.world, player).includes(owner) &&
           target !== undefined &&
-          target.status !== 'uninhabited';
+          target.status !== 'uninhabited' &&
+          target.provinceIds.length > 0;
         return {
           armies,
           baseLevel: provinceBaseLevel(game, sim, provinceId),
           reservists: owner === player ? formatCount(game.military.reservists[provinceId]!) : null,
           movable,
           attack: enemies.has(owner),
-          declareWar: canDeclare ? { countryId: owner, name: nameOf(owner) } : null,
+          diplomacy: canDeal ? { countryId: owner, name: nameOf(owner) } : null,
           airDefense: seat >= 0 ? (game.weapons.airDefense[seat] ?? 0) : 0,
           nuclearBase: game.weapons.nuclearBases.some(
             (b) => sim.cityProvince[b.cityId] === provinceId,
@@ -369,7 +404,11 @@ async function start(): Promise<void> {
           showState();
         }
       },
-      onDeclareWar: (countryId) => void declareWar(countryId),
+      onDiplomacy: (countryId, provinceId) => {
+        if (!game) return;
+        panel.hide();
+        countryDialog.open(game, countryId, provinceId);
+      },
       onStrike: (provinceId) => game && strikeDialog.open(game, provinceId),
       onBuildAirDefense: (provinceId) => {
         if (!game) return;
@@ -420,24 +459,82 @@ async function start(): Promise<void> {
       selectionBar.update(selection.size, armySelection.size);
       showArmies();
       showStrikes();
+      showDiplomacy();
       hud.show(game);
       panel.refresh();
       economyPanel.update(game);
       interiorPanel.update(game);
       defencePanel.update(game);
+      foreignPanel.update(game);
+      countryDialog.update(game);
     };
 
-    /** The only way the UI changes the game (GDD section 2). */
-    const issue = (command: Command): boolean => {
-      if (!game) return false;
+    /** The only way the UI changes the game (GDD section 2). Null when it was refused. */
+    const issueResult = (command: Command): { accepted?: boolean } | null => {
+      if (!game) return null;
       const result = applyCommand(game, command, sim);
       if (!result.ok) {
         toasts.show(t(COMMAND_ERRORS[result.error] ?? 'saves.failed'), 'error');
-        return false;
+        return null;
       }
       game = result.state;
       showState();
-      return true;
+      return { accepted: result.accepted };
+    };
+    const issue = (command: Command): boolean => issueResult(command) !== null;
+
+    const allianceName = (id: string): string => {
+      const key = bundle.allianceNames.get(id);
+      if (key) return t(key as TranslationKey);
+      const al = game?.world.alliances.find((a) => a.id === id);
+      return t('alliance.pactOf', { members: (al?.members ?? []).map(nameOf).join(' – ') });
+    };
+    const describeDemand = (d: Demand): string => {
+      switch (d.type) {
+        case 'province':
+          return t('dip.demandProvince', { place: provinceName(d.provinceId) });
+        case 'leaveAlliance':
+          return t('dip.demandLeave', { alliance: allianceName(d.allianceId) });
+        case 'liftSanctions':
+          return t('dip.demandLift');
+        case 'tribute':
+          return t('dip.demandTribute', { amount: formatUsd(d.amountUsd) });
+        case 'vassal':
+          return t('dip.demandVassal');
+        case 'base':
+          return t('dip.demandBase', { city: cityName(d.cityId) });
+      }
+    };
+    const describeRequest = (state: GameState, r: PlayerRequest): string => {
+      if (r.type === 'joinWar')
+        return t('foreign.joinWarRequest', { ally: nameOf(r.from), enemy: nameOf(r.enemy) });
+      if (r.type === 'peace') return t('foreign.peaceRequest', { country: nameOf(r.from) });
+      const u = state.diplomacy.ultimatums.find((x) => x.id === r.ultimatumId);
+      return u
+        ? t('foreign.ultimatumRequest', {
+            country: nameOf(u.from),
+            demand: describeDemand(u.demand),
+            threat: t(`dip.threat.${u.threat}`),
+            weeks: Math.max(0, u.deadline - state.turn),
+          })
+        : '';
+    };
+
+    /** Relations toward the player and alliance blocs for the diplomacy map modes. */
+    const showDiplomacy = (): void => {
+      if (!game) return map.setDiplomacy(null, null);
+      const player = game.player.countryId;
+      const relations = new Map(
+        game.world.countries.map((c) => [c.id, relation(game!, sim, player, c.id)] as const),
+      );
+      const blocs = new Map<string, number>();
+      const alliances = game.world.alliances
+        .filter((a) => a.type !== 'vassal')
+        .sort((a, b) => b.members.length - a.members.length || (a.id < b.id ? -1 : 1));
+      alliances.forEach((a, i) => {
+        for (const m of a.members) if (!blocs.has(m)) blocs.set(m, i);
+      });
+      map.setDiplomacy(relations, blocs);
     };
 
     const clearSelection = (): void => {
@@ -450,8 +547,11 @@ async function start(): Promise<void> {
 
     /** Shows a game (new or loaded) on the map. */
     const playGame = (loaded: GameState): void => {
-      const state = ensureWeapons(
-        ensureMilitary(ensurePopulation(ensureEconomy(loaded, sim.economy), population), sim),
+      const state = ensureDiplomacy(
+        ensureWeapons(
+          ensureMilitary(ensurePopulation(ensureEconomy(loaded, sim.economy), population), sim),
+          sim,
+        ),
         sim,
       );
       game = state;
@@ -462,6 +562,7 @@ async function start(): Promise<void> {
       economyPanel.close();
       interiorPanel.close();
       defencePanel.close();
+      foreignPanel.close();
       clearSelection();
       map.clearSelection();
       shownOwners = '';
@@ -469,6 +570,7 @@ async function start(): Promise<void> {
       map.setSupport(state.population.support);
       showArmies();
       showStrikes();
+      showDiplomacy();
       map.setFocusCountry(state.player.countryId);
       map.lookAtCountry(state.player.countryId);
       hud.show(state);
@@ -527,6 +629,48 @@ async function start(): Promise<void> {
         if (e.type === 'revolutionCrushed') await interior(t('minister.crushed'));
         if (e.type === 'secession')
           await interior(t('minister.secession', { state: nameOf(e.newCountryId) }));
+      }
+      // Diplomacy: allies joining, peace, answers to our ultimatums, requests to answer.
+      const foreign = (text: string): Promise<void> =>
+        noticeDialog(uiRoot, t('minister.foreign'), text, t('minister.understood'));
+      const joinedAgainst: string[] = [];
+      const joinedFor: string[] = [];
+      for (const e of events) {
+        if (e.type === 'warJoined') {
+          if (e.enemy === player) joinedAgainst.push(e.countryId);
+          else if (e.ally === player) joinedFor.push(e.countryId);
+        }
+        if (e.type === 'peace' && (e.a === player || e.b === player))
+          toasts.show(t('dip.peaceMade', { country: nameOf(e.a === player ? e.b : e.a) }));
+        if (e.type === 'ultimatumAnswered' && e.from === player)
+          toasts.show(
+            t(e.accepted ? 'dip.ultimatumAccepted' : 'dip.ultimatumRefused', {
+              country: nameOf(e.to),
+            }),
+            e.accepted ? undefined : 'error',
+          );
+        if (e.type === 'credibilityLost' && e.countryId === player)
+          toasts.show(t('dip.credibilityLost'), 'error');
+        if (e.type === 'globalSanctions' && e.countryId === player)
+          await foreign(t('minister.globalSanctions'));
+      }
+      const names = (ids: string[]): string =>
+        ids.slice(0, 6).map(nameOf).join(', ') + (ids.length > 6 ? ` +${ids.length - 6}` : '');
+      if (joinedAgainst.length)
+        await foreign(t('minister.warJoined', { countries: names(joinedAgainst) }));
+      if (joinedFor.length) toasts.show(t('dip.allyJoined', { countries: names(joinedFor) }));
+      for (const e of events) {
+        if (e.type !== 'request' || !game) continue;
+        const r = game.diplomacy.requests.find((x) => x.id === e.requestId);
+        if (!r) continue;
+        const accept = await confirmDialog(
+          uiRoot,
+          t('minister.foreign'),
+          describeRequest(game, r),
+          t('foreign.accept'),
+          t('foreign.refuse'),
+        );
+        issue({ type: 'answerRequest', countryId: player, requestId: r.id, accept });
       }
       // War news: one summary per turn instead of a toast per battle.
       let won = 0;
@@ -654,6 +798,7 @@ async function start(): Promise<void> {
       economyPanel.close();
       interiorPanel.close();
       defencePanel.close();
+      foreignPanel.close();
       modeBar.hide();
       modeBar.set('political');
       map.setMapMode('political');
@@ -661,6 +806,8 @@ async function start(): Promise<void> {
       map.setArmies([]);
       map.setStrikes({ missiles: [], drones: [], nuclearBases: [], airDefense: [] });
       map.setAirDefense(null);
+      map.setDiplomacy(null, null);
+      countryDialog.close();
       clearSelection();
       showMenuMap();
       menu.show();
@@ -741,6 +888,7 @@ async function start(): Promise<void> {
       showProvince: (id) => {
         interiorPanel.close();
         defencePanel.close();
+        foreignPanel.close();
         map.highlightProvince(id);
         panel.show(id);
       },
@@ -787,6 +935,7 @@ async function start(): Promise<void> {
       formatCount,
       showProvince: (id) => {
         defencePanel.close();
+        foreignPanel.close();
         map.lookAtProvince(id);
         map.highlightProvince(id);
         panel.show(id);
@@ -887,6 +1036,38 @@ async function start(): Promise<void> {
       },
     });
 
+    const countryDialog = new CountryDialog({
+      parent: uiRoot,
+      sim,
+      countryName: nameOf,
+      flag: (id) =>
+        flagImage(
+          countryFlag(game?.world ?? world, id, game?.settings.disputedMode ?? 'neutral'),
+          'flag',
+        ),
+      provinceName,
+      cityName,
+      allianceName,
+      formatCount,
+      issue: issueResult,
+      declareWar: (id) => {
+        countryDialog.close();
+        void declareWar(id);
+      },
+    });
+
+    const foreignPanel = new ForeignPanel({
+      parent: uiRoot,
+      sim,
+      countryName: nameOf,
+      cityName,
+      allianceName,
+      describeRequest,
+      describeDemand,
+      issue: (command) => void issue(command),
+      openCountry: (id, view) => game && countryDialog.open(game, id, -1, view),
+    });
+
     const selectionBar = new SelectionBar(uiRoot, {
       onInvest: () => game && investDialog.open(game, [...selection]),
       onRecruit: () => game && recruitDialog.open(game, [...selection]),
@@ -900,9 +1081,9 @@ async function start(): Promise<void> {
         if (!game) return;
         if (economyPanel.isOpen) return economyPanel.close();
         panel.hide();
-        defencePanel.close();
         interiorPanel.close();
         defencePanel.close();
+        foreignPanel.close();
         economyPanel.open(game);
       },
       onInterior: () => {
@@ -911,8 +1092,19 @@ async function start(): Promise<void> {
         panel.hide();
         economyPanel.close();
         defencePanel.close();
+        foreignPanel.close();
         interiorPanel.open(game);
       },
+      onForeign: () => {
+        if (!game) return;
+        if (foreignPanel.isOpen) return foreignPanel.close();
+        panel.hide();
+        economyPanel.close();
+        interiorPanel.close();
+        defencePanel.close();
+        foreignPanel.open(game);
+      },
+      pointsOf: (state) => (state.diplomacy.points[state.player.countryId] ?? 0).toFixed(0),
       onDefence: () => {
         if (!game) return;
         if (defencePanel.isOpen) return defencePanel.close();
@@ -985,6 +1177,7 @@ async function start(): Promise<void> {
           economyPanel.close();
           interiorPanel.close();
           defencePanel.close();
+          foreignPanel.close();
           panel.show(id);
         }
       }
@@ -998,6 +1191,7 @@ async function start(): Promise<void> {
       if (game) economyPanel.update(game);
       if (game) interiorPanel.update(game);
       if (game) defencePanel.update(game);
+      if (game) foreignPanel.update(game);
       modeBar.refresh();
       selectionBar.update(selection.size, armySelection.size);
       map.refreshLabels();

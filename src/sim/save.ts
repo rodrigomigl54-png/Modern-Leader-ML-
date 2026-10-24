@@ -115,6 +115,13 @@ export function isValidGameState(game: unknown): game is GameState {
   ) {
     return false;
   }
+  const diplomacy = game.diplomacy;
+  if (
+    diplomacy !== undefined &&
+    (!isRecord(diplomacy) || !isRecord(diplomacy.relations) || !Array.isArray(diplomacy.sanctions))
+  ) {
+    return false;
+  }
   const playerCountry = (countries as { id: string; status: string }[]).find(
     (c) => c.id === player.countryId,
   );
