@@ -10,6 +10,7 @@ export interface EconomyPanelOptions {
   parent: HTMLElement;
   sim: SimContext;
   cityName: (cityId: number) => string;
+  countryName: (countryId: string) => string;
   issue: (command: Command) => void;
   confirmPrint: (amount: string) => Promise<boolean>;
 }
@@ -163,7 +164,25 @@ export class EconomyPanel {
         el('td', supply < 0.85 ? 'mono danger' : 'mono', `${formatPercent(supply, 0)}%`),
       );
       resources.append(row);
+      // Where our imports come from (GDD section 6: trade with partner countries).
+      const sources = trade?.sources?.[ri] ?? [];
+      if (sources.length) {
+        const from = el('tr', 'resource-sources');
+        const cell = el(
+          'td',
+          'setup-hint',
+          t('res.from', {
+            list: sources
+              .map(([c, sh]) => `${this.options.countryName(c)} ${formatPercent(sh, 0)}%`)
+              .join(', '),
+          }),
+        );
+        cell.colSpan = 4;
+        from.append(cell);
+        resources.append(from);
+      }
     });
+    const partners = (trade?.partners ?? []).slice(0, 5);
 
     this.root.replaceChildren(
       header,
@@ -192,6 +211,17 @@ export class EconomyPanel {
       el('h3', 'dossier-subtitle', t('res.title')),
       resources,
       el('p', 'setup-hint', t('res.hint', { exports: formatUsd(trade?.exportValue ?? 0) })),
+      el(
+        'p',
+        'setup-hint',
+        partners.length
+          ? t('res.partners', {
+              list: partners
+                .map(([c, usd]) => `${this.options.countryName(c)} ${formatUsd(usd)}`)
+                .join(', '),
+            })
+          : t('res.noPartners'),
+      ),
       el('h3', 'dossier-subtitle', t('econ.projects')),
       projects,
     );

@@ -8,7 +8,8 @@ import type { GameState } from './newGame';
 import { joinThreshold } from './profiles';
 import { shiftSupport, transferProvince } from './population';
 import type { TurnEvent } from './turn';
-import { cityDistanceKm, weaponsRules, type WeaponKind } from './weapons';
+import { cachedDistanceKm } from './geo';
+import { weaponsRules, type WeaponKind } from './weapons';
 import { alliesOf, enemiesAtWar, rivalsOf, type War, type World } from './world';
 
 export interface DiplomacyRules {
@@ -387,8 +388,6 @@ function worldGdp(state: GameState): number {
 
 /** Per-turn cache of sanction weights (they are read for every province). */
 let weightCache: { state: GameState; turn: number; weights: Map<string, number> } | null = null;
-/** Distances between capitals, by the capitals' city ids. */
-const capitalKm = new Map<string, number>();
 
 /**
  * How much a country depends on each other country (GDD section 6: the effect of sanctions
@@ -410,13 +409,7 @@ export function dependenceOn(
     if (c.id === target || c.provinceIds.length === 0) continue;
     const gdp = state.economy.countries[c.id]?.gdp ?? 0;
     if (gdp <= 0) continue;
-    const to = provinceSeat(ctx, c.capitalProvinceId);
-    const key = from < to ? `${from}|${to}` : `${to}|${from}`;
-    let km = capitalKm.get(key);
-    if (km === undefined) {
-      km = cityDistanceKm(ctx, from, to);
-      capitalKm.set(key, km);
-    }
+    const km = cachedDistanceKm(ctx, from, provinceSeat(ctx, c.capitalProvinceId));
     const weight =
       gdp / Math.max(r.minKm, Number.isFinite(km) ? km : r.minKm) ** r.distanceExponent;
     result.set(c.id, weight);

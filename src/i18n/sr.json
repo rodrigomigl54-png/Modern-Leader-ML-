@@ -416,7 +416,7 @@
   "dip.askBase": "Zatraži bazu u gradu {city}",
   "dip.payBase": "Plati {price} za bazu u gradu {city}",
   "dip.aid": "Pošalji pomoć",
-  "dip.trade": "Trgovina oružjem",
+  "dip.trade": "Trgovina resursima sa njima: {value} godišnje (samo glavni partneri).",
   "dip.release": "Oslobodi vazala",
   "dip.askVassal": "Traži da postanu tvoj vazal",
   "dip.offerVassal": "Ponudi da postaneš njihov vazal",
@@ -473,7 +473,7 @@
   "dip.sendAid": "Pošalji pomoć",
   "dip.buy": "Kupi {count}",
   "dip.sell": "Prodaj {count}",
-  "dip.noTrade": "Nema šta da se trguje sa njima.",
+  "dip.noTrade": "Nisu među vašim glavnim trgovinskim partnerima.",
   "dip.tradeHint": "Cene uključuju maržu. Sankcije blokiraju trgovinu; niko ne prodaje neprijateljima svojih prijatelja.",
   "dip.notEnoughPoints": "Nema dovoljno diplomatskih poena",
   "dip.alreadyAllied": "Već ste saveznici",
@@ -667,5 +667,8 @@
   "war.convoyLost": "Naš konvoj ka {place} izgubio je {count} vojnika od vatre zemlje {country} na moru.",
   "war.convoyHit": "Naše snage su pogodile konvoj zemlje {country} ka {place}: {count} vojnika izgubljeno.",
   "peace.alliesFollow": "Ako {country} predvodi svoju stranu, i njeni saveznici u ovom ratu sklapaju mir sa vama, svako zadržava ono što drži.",
-  "dip.ties": "Ekonomske veze: oni zavise od vas {theirs}%, vi od njih {ours}% (koliko bi sankcije presekle)."
+  "dip.ties": "Ekonomske veze: oni zavise od vas {theirs}%, vi od njih {ours}% (koliko bi sankcije presekle).",
+  "res.from": "Uvoz iz: {list}",
+  "res.partners": "Glavni trgovinski partneri (resursi, godišnje): {list}",
+  "res.noPartners": "Nema trgovine resursima sa drugim zemljama."
 }

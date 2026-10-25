@@ -289,9 +289,9 @@
     }
   ],
   "rules": {
-    "comment": "exportTaxShare: share of export revenue that reaches the treasury. redirectLoss: share of blocked trade that cannot be rerouted through third countries. Shortage costs GDP by importance \u00d7 missing share of consumption (per year).",
+    "comment": "exportTaxShare: share of export revenue that reaches the treasury. trade: importers buy from exporters in proportion to the exporter's surplus divided by the distance between the capitals (at least minKm) to the power distanceExponent; what is not covered is asked again of exporters with something left, for rounds rounds. Sanctions and wars cut trade between the countries involved. Shortage costs GDP by importance \u00d7 missing share of consumption (per year).",
     "exportTaxShare": 0.15,
-    "redirectLoss": 0.5,
+    "trade": { "distanceExponent": 1, "minKm": 500, "rounds": 4 },
     "foodShortageSupport": 25,
     "chipsStopBelow": 0.5,
     "shortageAlert": 0.85,
