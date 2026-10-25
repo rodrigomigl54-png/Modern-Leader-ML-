@@ -13,7 +13,11 @@ import { loadWorld } from './app/worldData';
 import { shortCount, type ArmyMarker } from './map/armyLayer';
 import { createMapView } from './map/mapView';
 import { applyCommand, type Command, type CommandError } from './sim/commands';
+import { ensureChronicle, type NewsItem } from './sim/chronicle';
 import { ensureEconomy } from './sim/economy';
+import { ensureGoals, type Goal } from './sim/goals';
+import { ensureSummits, summitRules, type SummitQuestion } from './sim/summits';
+import { dateOfTurn } from './sim/calendar';
 import {
   armySize,
   ensureMilitary,
@@ -44,6 +48,11 @@ import { ForeignPanel } from './ui/foreignPanel';
 import { FpsCounter } from './ui/fpsCounter';
 import { GameHud } from './ui/gameHud';
 import { GameMenu } from './ui/gameMenu';
+import { GoalsPanel } from './ui/goalsPanel';
+import { NewsTicker, newsDialog } from './ui/newsTicker';
+import { reportDialog } from './ui/reportDialog';
+import { summitDialog } from './ui/summitDialog';
+import { formatGameDate } from './ui/format';
 import { InteriorPanel } from './ui/interiorPanel';
 import { InvestDialog } from './ui/investDialog';
 import { showLoadingScreen } from './ui/loadingScreen';
@@ -71,6 +80,7 @@ const COMMAND_ERRORS: Partial<Record<CommandError, TranslationKey>> = {
   needsBase: 'recruit.noBase',
   alreadyAtWar: 'war.alreadyAtWar',
   allied: 'war.allied',
+  noSummit: 'summit.gone',
   invalidTarget: 'war.invalid',
   notAtWar: 'strike.notAtWar',
   outOfRange: 'strike.outOfRange',
@@ -123,6 +133,8 @@ async function start(): Promise<void> {
       if (id === 'airDefense' && game)
         map.setAirDefense(airDefenseMap(game, sim, game.player.countryId));
     });
+
+    const ticker = new NewsTicker(uiRoot, () => void openNews());
 
     let game: GameState | null = null;
     /** Cities picked for a multi-city order. */
@@ -468,6 +480,8 @@ async function start(): Promise<void> {
       interiorPanel.update(game);
       defencePanel.update(game);
       foreignPanel.update(game);
+      goalsPanel.update(game);
+      ticker.update(headlines(game));
       countryDialog.update(game);
     };
 
@@ -570,13 +584,23 @@ async function start(): Promise<void> {
 
     /** Shows a game (new or loaded) on the map. */
     const playGame = (loaded: GameState): void => {
-      const state = ensureResources(
-        ensureDiplomacy(
-          ensureWeapons(
-            ensureMilitary(ensurePopulation(ensureEconomy(loaded, sim.economy), population), sim),
-            sim,
+      const state = ensureGoals(
+        ensureSummits(
+          ensureChronicle(
+            ensureResources(
+              ensureDiplomacy(
+                ensureWeapons(
+                  ensureMilitary(
+                    ensurePopulation(ensureEconomy(loaded, sim.economy), population),
+                    sim,
+                  ),
+                  sim,
+                ),
+                sim,
+              ),
+              sim,
+            ),
           ),
-          sim,
         ),
         sim,
       );
@@ -589,6 +613,7 @@ async function start(): Promise<void> {
       interiorPanel.close();
       defencePanel.close();
       foreignPanel.close();
+      goalsPanel.close();
       clearSelection();
       map.clearSelection();
       shownOwners = '';
@@ -601,7 +626,11 @@ async function start(): Promise<void> {
       map.lookAtCountry(state.player.countryId);
       hud.show(state);
       modeBar.show();
+      ticker.show();
+      ticker.update(headlines(state));
       if (state.gameOver) void showGameOver();
+      else if (state.turn === 0) void advisorTip(0);
+      else if (state.summits.pending) void openSummit();
     };
 
     /** The rebels took the whole country (GDD section 7). */
@@ -619,6 +648,56 @@ async function start(): Promise<void> {
         t('game.mainMenu'),
       );
       leaveGame();
+    };
+
+    /** A headline in the player's language. */
+    const headline = (n: NewsItem): string =>
+      t(`news.${n.kind}` as TranslationKey, {
+        a: nameOf(n.a),
+        b: n.b ? nameOf(n.b) : '',
+        city: n.kind === 'nuclear' ? cityName(Number(n.extra)) : '',
+        summit: n.kind === 'summit' ? t(`summit.kind.${n.extra}` as TranslationKey) : '',
+      });
+    const headlines = (state: GameState): string[] =>
+      [...state.chronicle.news].reverse().map(headline);
+    const openNews = async (): Promise<void> => {
+      if (!game) return;
+      const start = game.world.startDate;
+      await newsDialog(
+        uiRoot,
+        [...game.chronicle.news]
+          .reverse()
+          .map((n) => ({ date: formatGameDate(dateOfTurn(start, n.turn)), text: headline(n) })),
+      );
+    };
+    const describeGoal = (g: Goal): string =>
+      t(`goals.${g.kind}` as TranslationKey, {
+        gdp: formatUsd(g.target ?? 0),
+        alliance: g.allianceId ? allianceName(g.allianceId) : '',
+        max: formatPercent(sim.goals?.lowInflation.max ?? 0, 0),
+        weeks: sim.goals?.lowInflation.streak ?? 0,
+        debt: formatPercent(sim.goals?.lowDebt.maxShare ?? 0, 0),
+        years: Math.round((sim.goals?.noRiots.turns ?? 0) / 52),
+      });
+    const summitQuestion = (q: SummitQuestion): string =>
+      t(`summit.q.${q.id}` as TranslationKey, {
+        country: q.country ? nameOf(q.country) : '',
+        rival: q.rival ? nameOf(q.rival) : '',
+        side: q.side ? nameOf(q.side) : '',
+        value: q.value ?? 0,
+      });
+    /** The four ministers double as the tutorial in the first turns (GDD section 13). */
+    const ADVISOR_TIPS: [TranslationKey, TranslationKey][] = [
+      ['minister.finance', 'tip.economy'],
+      ['minister.interior', 'tip.interior'],
+      ['minister.defence', 'tip.defence'],
+      ['minister.foreign', 'tip.foreign'],
+      ['minister.foreign', 'tip.goals'],
+    ];
+    const advisorTip = async (turn: number): Promise<void> => {
+      const tip = ADVISOR_TIPS[turn];
+      if (!tip || !game) return;
+      await noticeDialog(uiRoot, t(tip[0]), t(tip[1]), t('minister.understood'));
     };
 
     const announce = async (events: TurnEvent[]): Promise<void> => {
@@ -834,6 +913,44 @@ async function start(): Promise<void> {
           );
         }
       }
+      for (const e of events) {
+        if (e.type === 'goalDone' || e.type === 'goalFailed') {
+          const goal = game.goals.find((g) => g.kind === e.kind);
+          toasts.show(
+            t(e.type === 'goalDone' ? 'goals.doneToast' : 'goals.failedToast', {
+              goal: goal ? describeGoal(goal) : '',
+            }),
+            e.type === 'goalDone' ? 'info' : 'error',
+          );
+        }
+        if (e.type === 'summitHeld' && !e.attended)
+          toasts.show(
+            t('summit.missed', { summit: t(`summit.kind.${e.kind}` as TranslationKey) }),
+            'error',
+          );
+      }
+      for (const e of events) {
+        if (e.type === 'report' && game) await reportDialog(uiRoot, e.report, nameOf);
+      }
+      if (events.some((e) => e.type === 'summitInvitation')) await openSummit();
+    };
+
+    /** Asks the player to attend or skip the pending summit. */
+    const openSummit = async (): Promise<void> => {
+      const s = game?.summits.pending;
+      if (!s || !sim.summits) return;
+      {
+        const answers = await summitDialog(uiRoot, s, summitRules(sim), {
+          title: t('summit.title', {
+            summit: t(`summit.kind.${s.kind}` as TranslationKey),
+            host: nameOf(s.host),
+          }),
+          question: summitQuestion,
+          answer: (q, a) => t(`summit.a.${q.id}.${a}` as TranslationKey),
+        });
+        if (game)
+          issue({ type: 'summit', countryId: game.player.countryId, summitId: s.id, answers });
+      }
     };
 
     const endTurn = async (): Promise<void> => {
@@ -846,6 +963,7 @@ async function start(): Promise<void> {
       await save(AUTOSAVE_SLOT, game);
       await announce(result.events);
       if (game.gameOver) return void showGameOver();
+      await advisorTip(game.turn);
       hud.setBusy(false);
     };
 
@@ -858,7 +976,9 @@ async function start(): Promise<void> {
       interiorPanel.close();
       defencePanel.close();
       foreignPanel.close();
+      goalsPanel.close();
       modeBar.hide();
+      ticker.hide();
       modeBar.set('political');
       map.setMapMode('political');
       map.setSupport(null);
@@ -949,6 +1069,7 @@ async function start(): Promise<void> {
         interiorPanel.close();
         defencePanel.close();
         foreignPanel.close();
+        goalsPanel.close();
         map.highlightProvince(id);
         panel.show(id);
       },
@@ -996,6 +1117,7 @@ async function start(): Promise<void> {
       showProvince: (id) => {
         defencePanel.close();
         foreignPanel.close();
+        goalsPanel.close();
         map.lookAtProvince(id);
         map.highlightProvince(id);
         panel.show(id);
@@ -1116,6 +1238,7 @@ async function start(): Promise<void> {
       },
     });
 
+    const goalsPanel = new GoalsPanel(uiRoot, sim, (g) => describeGoal(g));
     const foreignPanel = new ForeignPanel({
       parent: uiRoot,
       sim,
@@ -1144,6 +1267,7 @@ async function start(): Promise<void> {
         interiorPanel.close();
         defencePanel.close();
         foreignPanel.close();
+        goalsPanel.close();
         economyPanel.open(game);
       },
       onInterior: () => {
@@ -1153,11 +1277,13 @@ async function start(): Promise<void> {
         economyPanel.close();
         defencePanel.close();
         foreignPanel.close();
+        goalsPanel.close();
         interiorPanel.open(game);
       },
       onForeign: () => {
         if (!game) return;
         if (foreignPanel.isOpen) return foreignPanel.close();
+        goalsPanel.close();
         panel.hide();
         economyPanel.close();
         interiorPanel.close();
@@ -1193,6 +1319,16 @@ async function start(): Promise<void> {
       },
       onImport: () => void importFromFile(),
       onSettings: () => settings.open(),
+      onGoals: () => {
+        if (!game) return;
+        panel.hide();
+        economyPanel.close();
+        interiorPanel.close();
+        defencePanel.close();
+        foreignPanel.close();
+        goalsPanel.open(game);
+      },
+      onNews: () => void openNews(),
       onExit: exitToMenu,
     });
 
@@ -1238,6 +1374,7 @@ async function start(): Promise<void> {
           interiorPanel.close();
           defencePanel.close();
           foreignPanel.close();
+          goalsPanel.close();
           panel.show(id);
         }
       }
@@ -1252,6 +1389,8 @@ async function start(): Promise<void> {
       if (game) interiorPanel.update(game);
       if (game) defencePanel.update(game);
       if (game) foreignPanel.update(game);
+      if (game) goalsPanel.update(game);
+      if (game) ticker.update(headlines(game));
       modeBar.refresh();
       selectionBar.update(selection.size, armySelection.size);
       map.refreshLabels();

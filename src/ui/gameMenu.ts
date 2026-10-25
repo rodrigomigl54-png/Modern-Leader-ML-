@@ -7,6 +7,8 @@ export interface GameMenuActions {
   onExport: () => void;
   onImport: () => void;
   onSettings: () => void;
+  onGoals: () => void;
+  onNews: () => void;
   onExit: () => void;
 }
 
@@ -39,6 +41,8 @@ export class GameMenu {
     const list = el('div', 'menu-list');
     list.append(
       item(t('menu.resume'), () => undefined, 'btn btn-primary'),
+      item(t('goals.title'), this.actions.onGoals),
+      item(t('news.title'), this.actions.onNews),
       item(t('menu.save'), this.actions.onSave),
       item(t('saves.loadTitle'), this.actions.onLoad),
       item(t('menu.export'), this.actions.onExport),

@@ -9,6 +9,8 @@ import {
 } from './diplomacy';
 import type { GameState } from './newGame';
 import type { AiProfile, AiRules } from './profiles';
+import type { SummitRules } from './summits';
+import type { GoalRules } from './goals';
 import { shortageLoss, type ResourcesData } from './resources';
 import { pariahPenalty, type WeaponsRules } from './weapons';
 import { productionFactor, type PopulationRules } from './population';
@@ -101,6 +103,9 @@ export interface SimContext {
   /** AI behavior profiles per country and the rules that turn them into actions. */
   profiles?: Readonly<Record<string, AiProfile>>;
   aiRules?: AiRules;
+  /** Summit and goal rules (GDD sections 12-13). */
+  summits?: SummitRules;
+  goals?: GoalRules;
 }
 
 export interface CountryEconomy {

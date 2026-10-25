@@ -129,6 +129,12 @@ export function isValidGameState(game: unknown): game is GameState {
   ) {
     return false;
   }
+  const { chronicle, summits, goals } = game;
+  if (chronicle !== undefined && (!isRecord(chronicle) || !Array.isArray(chronicle.news)))
+    return false;
+  if (summits !== undefined && (!isRecord(summits) || typeof summits.nextId !== 'number'))
+    return false;
+  if (goals !== undefined && !Array.isArray(goals)) return false;
   const playerCountry = (countries as { id: string; status: string }[]).find(
     (c) => c.id === player.countryId,
   );

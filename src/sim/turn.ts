@@ -17,6 +17,9 @@ import {
 import type { GameState } from './newGame';
 import { populationPhase, type PopulationEvent } from './population';
 import { createRng, type Rng } from './rng';
+import { buildReport, markReport, recordNews, type ReportData } from './chronicle';
+import { goalsPhase, type GoalEvent } from './goals';
+import { summitPhase, type SummitEvent } from './summits';
 
 export type TurnPhaseId =
   | 'aiOrders'
@@ -52,8 +55,10 @@ export type TurnEvent =
   | DiplomacyEvent
   | ResourcesEvent
   | AiPolicyEvent
-  /** The 10-turn general report is due (GDD section 12). */
-  | { type: 'report'; turn: number }
+  | SummitEvent
+  | GoalEvent
+  /** The 10-turn general report (GDD section 12). */
+  | { type: 'report'; turn: number; report: ReportData }
   /** A new year began. */
   | { type: 'newYear'; year: number };
 
@@ -104,8 +109,15 @@ const PHASES: Record<TurnPhaseId, Phase> = {
       diplomacyPhase(ctx.state, ctx.sim, [...ctx.events], (e) => ctx.events.push(e));
   },
   events: (ctx) => {
-    const { state } = ctx;
-    if (state.turn % REPORT_INTERVAL === 0) ctx.events.push({ type: 'report', turn: state.turn });
+    const { state, sim } = ctx;
+    const push = (e: TurnEvent): void => void ctx.events.push(e);
+    if (sim.summits) summitPhase(state, sim, [...ctx.events], push);
+    if (sim.goals) goalsPhase(state, sim, push);
+    recordNews(state, ctx.events);
+    if (state.turn % REPORT_INTERVAL === 0) {
+      ctx.events.push({ type: 'report', turn: state.turn, report: buildReport(state, sim) });
+      markReport(state, sim);
+    }
     const previousYear = Number(dateOfTurn(state.world.startDate, state.turn - 1).slice(0, 4));
     const year = Number(state.date.slice(0, 4));
     if (year !== previousYear) ctx.events.push({ type: 'newYear', year });

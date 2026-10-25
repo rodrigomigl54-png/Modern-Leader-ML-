@@ -886,7 +886,7 @@ body {
 .next-turn {
   position: absolute;
   right: calc(env(safe-area-inset-right) + 12px);
-  bottom: calc(env(safe-area-inset-bottom) + 16px);
+  bottom: calc(env(safe-area-inset-bottom) + 34px);
   min-height: 56px;
   padding: 0 26px;
   font-size: 17px;
@@ -902,7 +902,7 @@ body {
 @media (max-width: 719px) {
   /* Leave room for the Next Turn button under the province sheet. */
   .dossier {
-    bottom: calc(env(safe-area-inset-bottom) + 84px);
+    bottom: calc(env(safe-area-inset-bottom) + 98px);
     max-height: 40vh;
   }
 }
@@ -1259,7 +1259,7 @@ body {
 .map-mode-bar {
   position: absolute;
   left: calc(env(safe-area-inset-left) + 10px);
-  bottom: calc(env(safe-area-inset-bottom) + 28px);
+  bottom: calc(env(safe-area-inset-bottom) + 34px);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -1597,4 +1597,164 @@ body {
   display: block;
   height: 100%;
   background: var(--accent);
+}
+
+/* News ticker, report, summits and goals (Phase 12) */
+.ticker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: calc(env(safe-area-inset-bottom) + 26px);
+  padding: 0 calc(env(safe-area-inset-right) + 8px) env(safe-area-inset-bottom)
+    calc(env(safe-area-inset-left) + 8px);
+  overflow: hidden;
+  border: 0;
+  border-top: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ticker[hidden] {
+  display: none;
+}
+
+/* The ticker takes the version label's place during a game. */
+.ticker:not([hidden]) ~ .version-label {
+  display: none;
+}
+
+.ticker-label {
+  flex: none;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--accent);
+  color: #0b1522;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.ticker-track {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ticker-line {
+  display: inline-block;
+  padding-left: 100%;
+  animation: ticker-scroll 20s linear infinite;
+}
+
+@keyframes ticker-scroll {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-line {
+    padding-left: 0;
+    animation: none;
+    text-overflow: ellipsis;
+  }
+}
+
+.news-list,
+.report-changes,
+.goal-list {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.news-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--panel-border);
+  font-size: 14px;
+}
+
+.news-date {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.report-subtitle {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.report-changes li {
+  padding: 4px 0;
+  font-size: 14px;
+}
+
+.good {
+  color: #6fbf73;
+}
+
+.summit-question {
+  margin-top: 14px;
+}
+
+.summit-q {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.goal {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--panel-border);
+  font-size: 14px;
+}
+
+.goal-status {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.goal-done .goal-status {
+  color: #6fbf73;
+}
+
+.goal-failed .goal-status,
+.goal-failed .goal-name {
+  color: #e0786b;
+}
+
+.goal-bar {
+  grid-column: 1 / -1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--panel-border);
+  overflow: hidden;
+}
+
+.goal-fill {
+  height: 100%;
+  background: var(--accent);
+}
+
+.goal-done .goal-fill {
+  background: #6fbf73;
 }
