@@ -416,7 +416,7 @@
   "dip.askBase": "Ask for a base in {city}",
   "dip.payBase": "Pay {price} for a base in {city}",
   "dip.aid": "Send aid",
-  "dip.trade": "Weapons trade",
+  "dip.trade": "Resource trade with them: {value} a year (main partners only).",
   "dip.release": "Release vassal",
   "dip.askVassal": "Ask them to become your vassal",
   "dip.offerVassal": "Offer to become their vassal",
@@ -473,7 +473,7 @@
   "dip.sendAid": "Send aid",
   "dip.buy": "Buy {count}",
   "dip.sell": "Sell {count}",
-  "dip.noTrade": "Nothing to trade with them.",
+  "dip.noTrade": "No resource trade with them among your main partners.",
   "dip.tradeHint": "Prices include a markup. Sanctions block the trade; nobody sells to the enemies of its friends.",
   "dip.notEnoughPoints": "Not enough diplomatic points",
   "dip.alreadyAllied": "You are already allied",
@@ -667,5 +667,8 @@
   "war.convoyLost": "Our convoy to {place} lost {count} soldiers to {country}'s fire at sea.",
   "war.convoyHit": "Our forces hit a convoy of {country} sailing to {place}: {count} soldiers lost.",
   "peace.alliesFollow": "If {country} leads its side, its allies in this war make peace with you too, each keeping what it holds.",
-  "dip.ties": "Economic ties: they depend on you for {theirs}%, you on them for {ours}% (what sanctions would cut)."
+  "dip.ties": "Economic ties: they depend on you for {theirs}%, you on them for {ours}% (what sanctions would cut).",
+  "res.from": "Imports from: {list}",
+  "res.partners": "Main trade partners (resources, per year): {list}",
+  "res.noPartners": "No resource trade with other countries."
 }

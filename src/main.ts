@@ -1107,6 +1107,7 @@ async function start(): Promise<void> {
       parent: uiRoot,
       sim,
       cityName,
+      countryName: nameOf,
       issue: (command) => void issue(command),
       confirmPrint: (amount) =>
         confirmDialog(

@@ -16,6 +16,7 @@ import {
   factoriesStopped,
   productionOf,
   RESOURCES,
+  resourcesPhase,
   shortageLoss,
   type ResourcesData,
 } from './resources';
@@ -26,8 +27,7 @@ import type { World, WorldCountry } from './world';
 const OIL = RESOURCES.indexOf('oil');
 const FOOD = RESOURCES.indexOf('food');
 const CHIPS = RESOURCES.indexOf('chips');
-// Most blocked trade is lost here: there are no third countries to reroute it through.
-const fileRules = { ...(resourcesFile as unknown as ResourcesData).rules, redirectLoss: 0.8 };
+const fileRules = (resourcesFile as unknown as ResourcesData).rules;
 
 // AAA pumps oil and grows food; BBB needs oil and food; CCC makes chips that AAA needs.
 const data: ResourcesData = {
@@ -231,5 +231,63 @@ describe('determinism', () => {
   it('gives the same result for the same seed', () => {
     const start = issue(newGame(), { type: 'sanction', countryId: 'BBB', targetId: 'AAA' });
     expect(play(start, 6)).toEqual(play(start, 6));
+  });
+});
+
+describe('trade between partner countries', () => {
+  // Oil from two exporters: AAA (next to BBB) and CCC (farther away).
+  const twoExporters: SimContext = {
+    ...sim,
+    resources: {
+      ...data,
+      resources: data.resources.map((r) =>
+        r.id === 'oil'
+          ? { ...r, production: { AAA: 60, CCC: 60 }, consumption: { AAA: 20, BBB: 60, CCC: 20 } }
+          : r,
+      ),
+    },
+  };
+  twoExporters.cityLonLat = [0, 1, 2, 3, 4].map((i) => [i * 1.8 + (i === 4 ? 20 : 0), 0]);
+  const game = (): GameState =>
+    createNewGame(
+      world(),
+      {
+        aggressiveness: 'peaceful',
+        disputedMode: 'neutral',
+        countryId: 'BBB',
+        leaderName: 'P',
+        seed: 6,
+      },
+      twoExporters,
+    );
+
+  it('an importer buys more from the nearer exporter and records its suppliers and partners', () => {
+    // More oil than the world needs: the importer picks, and nearness decides.
+    const g = game();
+    for (const p of [0, 1, 4]) g.resources.production[OIL]![p]! *= 2;
+    resourcesPhase(g, twoExporters, () => undefined, false);
+    const t = g.resources.trade.BBB!;
+    expect(t.supply[OIL]).toBeCloseTo(1, 6);
+    const sources = Object.fromEntries(t.sources[OIL]!);
+    expect(sources.AAA!).toBeGreaterThan(sources.CCC!);
+    expect(t.partners.map(([id]) => id)).toContain('AAA');
+  });
+
+  it('sanctions cut one partner; the importer turns to the other while it has enough', () => {
+    const start = game();
+    // CCC alone has a little more than its usual surplus.
+    for (const p of [4]) start.resources.production[OIL]![p]! *= 1.5;
+    const cut = applyCommand(
+      start,
+      { type: 'sanction', countryId: 'BBB', targetId: 'AAA' },
+      twoExporters,
+    );
+    if (!cut.ok) throw new Error(cut.error);
+    const later = advanceTurn(cut.state, twoExporters).state;
+    const t = later.resources.trade.BBB!;
+    expect(t.sources[OIL]!.map(([id]) => id)).toEqual(['CCC']);
+    // CCC alone cannot cover all of it: some oil is missing.
+    expect(t.supply[OIL]).toBeLessThan(1);
+    expect(t.supply[OIL]).toBeGreaterThan(0.3);
   });
 });

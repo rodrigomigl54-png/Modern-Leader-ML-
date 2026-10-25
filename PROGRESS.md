@@ -21,7 +21,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 12  | Summits, events, notifications, reports, news, advisors, goals | Done in code — waiting for the check on the phone |
 | 13  | Balance, polish, demo release                                  | Done (release on hold until the game is finished) |
 | 14  | Complete the Modern World (Dario's choice after the demo)      | Done                                              |
-| 15  | Complete the Modern World, part 2                              | Done in code — waiting for the check on the phone |
+| 15  | Complete the Modern World, part 2                              | Done                                              |
+| 16  | Trade between partner countries, map fix                       | Done in code — waiting for the check on the phone |
 
 ## Phase 0 — Project setup
 
@@ -356,11 +357,22 @@ Done:
 - Shortages the player's country has from the very start get a Minister of Finance telegram after the first tip (for example Russia's chips).
 - Checked in Chromium with phone emulation as Russia: ties line in a country dialog, no errors.
 
+## Phase 16 — Trade between partner countries, map fix
+
+Done:
+
+- Fixed: the map froze after zooming out and back in (Dario's report). Removing a no longer needed map tile read its image after the texture was destroyed; the error stopped the drawing loop for good. The tile is now released in the right order (with its shader and geometry), and the drawing loop can no longer be stopped by an error in one frame. Also fixed: the area around a fully zoomed-out map was white instead of the sea color (a color passed in the wrong range since Phase 13).
+- Resources are traded between partner countries instead of a world market (`src/sim/resources.ts`, `resources.json` `rules.trade`): every importer buys from the exporters in proportion to their surplus and nearness (1 / distance between capitals), exporters asked for more than they have sell a share to each, and what is still missing is asked again of exporters with something left (4 rounds). Sanctions and wars cut those exact partners; the importer turns to others while they have enough. Every country keeps its three main suppliers per resource and its eight main trade partners.
+- Real data examples: Serbia imports oil 38% from Russia, 13% Saudi Arabia, 8% Iraq; Germany gas from Norway and the US; chips everywhere mostly from Taiwan and South Korea.
+- UI: the economy panel shows where each import comes from and the main trade partners; the country dialog shows the resource trade with that country.
+- Faster turns: world GDP is computed once per turn (it was summed again for every country and resource), and the trade works on country indexes. A turn now takes about 30 ms on a PC (was 60).
+- Checked in Chromium with phone emulation: repeated zooming out and in with pinch, no errors and the map keeps drawing; Serbia's economy panel with suppliers and partners.
+
 ## Next
 
-- Dario: merge the PR and check on the phone (a war: support and the summit; the peace screen with an alliance; a country dialog: goals).
-- Fresh World Bank/IMF data when the network allows it, then rerun `npm run sim:balance`.
-- Nothing is published (itch.io) until the whole game is finished.
+- Dario: merge the PR and check on the phone: zoom out and in several times; the economy panel (imports from, main partners).
+- Then, as Dario decides: Cold War mode, espionage, UN Security Council, or more work on the Modern World.
+- Fresh World Bank/IMF data when the network allows it.
 
 ## Known issues
 
@@ -370,11 +382,11 @@ Done:
 - Summit questions come from a fixed set of eleven templates.
 
 - 163 of 203 AI profiles are derived from data rather than written by hand; their justifications are generic.
-- A turn takes 50–70 ms on a PC; to watch on slow phones.
+- A turn takes about 30 ms on a PC; to watch on slow phones.
 - In Chaos, a country at war can spiral (inflation and debt keep rising, endless rebels): the AI cannot fix its budget during a war.
 
 - Resource shares are rounded estimates.
-- Resource trade is a world market, not per-partner deals; prices are fixed.
+- Resource prices are fixed; trade partners are chosen by surplus and distance only (no trade agreements or tariffs yet).
 
 - Peace with a side's leader ends the war with its allies; a member that is not the leader still makes a separate peace.
 

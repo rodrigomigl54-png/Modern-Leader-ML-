@@ -1,10 +1,13 @@
 // Resources and trade (GDD section 6): oil, gas, food, rare metals and semiconductors. Each
-// country produces some and imports the rest on a world market; sanctions and wars block trade
-// between the countries involved, and the effect depends on how much a country depends on them.
+// country produces some and imports the rest from partner countries, more from large and near
+// exporters; sanctions and wars cut trade between the countries involved, so a country is hurt
+// as much as it depended on them (it can still buy from others while they have enough).
 // Shortages cost GDP (food also support) and chip shortages stop missile and drone factories.
 // All numbers come from data/modern/resources.json (ResourcesData).
 import { category, type SimContext } from './economy';
 import type { GameState } from './newGame';
+import { cachedDistanceKm } from './geo';
+import { provinceSeat } from './military';
 import { enemiesAtWar } from './world';
 
 export const RESOURCES = ['oil', 'gas', 'food', 'rareMetals', 'chips'] as const;
@@ -29,7 +32,8 @@ export interface ResourcesData {
   resources: ResourceData[];
   rules: {
     exportTaxShare: number;
-    redirectLoss: number;
+    /** Partner choice: exporters weigh by surplus / max(minKm, distance)^distanceExponent. */
+    trade: { distanceExponent: number; minKm: number; rounds: number };
     foodShortageSupport: number;
     chipsStopBelow: number;
     shortageAlert: number;
@@ -49,6 +53,10 @@ export interface CountryTrade {
   /** Share of the export revenue that reaches the treasury, per year. */
   income: number;
   alerted: boolean;
+  /** Main suppliers per resource: [country, share of imports], largest first (up to 3). */
+  sources: [string, number][][];
+  /** Main trade partners by value of goods both ways, USD per year (up to 8). */
+  partners: [string, number][];
 }
 
 export interface ResourcesState {
@@ -72,8 +80,17 @@ export function resourcesData(ctx: SimContext): ResourcesData {
   return ctx.resources;
 }
 
-const worldGdp = (state: Pick<GameState, 'economy'>): number =>
+const sumGdp = (state: Pick<GameState, 'economy'>): number =>
   Object.values(state.economy.countries).reduce((s, e) => s + e.gdp, 0) || 1;
+
+/** World GDP, computed once per state and turn (it is read for every country and resource). */
+let gdpCache: { state: object; turn: number; value: number } | null = null;
+const worldGdp = (state: Pick<GameState, 'economy'> & { turn?: number }): number => {
+  if (gdpCache?.state === state && gdpCache.turn === state.turn) return gdpCache.value;
+  const value = sumGdp(state);
+  gdpCache = { state, turn: state.turn ?? -1, value };
+  return value;
+};
 
 const countryPopulation = (state: Pick<GameState, 'world'>, ctx: SimContext, id: string): number =>
   (state.world.countries.find((c) => c.id === id)?.provinceIds ?? []).reduce(
@@ -107,7 +124,7 @@ export function initResources(
   const gdp = (id: string): number => state.economy.countries[id]?.gdp ?? 0;
   const totalGdp = countries.reduce((s, c) => s + gdp(c.id), 0) || 1;
   const totalPop = countries.reduce((s, c) => s + countryPopulation(state, ctx, c.id), 0) || 1;
-  r.baseWorldGdp = worldGdp(state);
+  r.baseWorldGdp = sumGdp(state);
   for (const c of countries) {
     r.baseGdp[c.id] = gdp(c.id);
     r.baseConsumption[c.id] = RESOURCES.map(() => 0);
@@ -213,9 +230,9 @@ export function shortageLoss(state: GameState, ctx: SimContext, countryId: strin
 // ---- Turn ----
 
 /**
- * Clears the world market for every resource: exporters sell their surplus, importers buy what
- * they lack. Trade between countries under sanctions or at war is blocked; part of it can be
- * rerouted through third countries, the rest is lost.
+ * Clears the market for every resource: importers buy from partner exporters (larger and nearer
+ * first) until their needs or the exporters' surplus run out. Trade between countries under
+ * sanctions or at war is cut; the importer turns to others that still have something to sell.
  */
 export function resourcesPhase(
   state: GameState,
@@ -266,45 +283,119 @@ export function resourcesPhase(
       exportValue: 0,
       income: 0,
       alerted: r.trade[id]?.alerted ?? false,
+      sources: RESOURCES.map(() => []),
+      partners: [],
     };
+  // Everything below works on country indexes (the market runs every turn for ~200 countries).
+  const n = ids.length;
+  const index = new Map(ids.map((id, i) => [id, i]));
+  const near = nearnessMatrix(state, ctx, ids);
+  const blocked = new Uint8Array(n * n);
+  for (const [a, set] of blockedWith) {
+    const i = index.get(a);
+    if (i === undefined) continue;
+    for (const b of set) {
+      const j = index.get(b);
+      if (j !== undefined) blocked[i * n + j] = 1;
+    }
+  }
+  const value = new Float64Array(n * n);
+  const bought = new Float64Array(n * n);
+  const asks = new Float64Array(n * n);
+  const left = new Float64Array(n);
+  const need = new Float64Array(n);
+  const consumption = new Float64Array(n);
+  const asked = new Float64Array(n);
+  const rounds = rules.trade.rounds;
 
   RESOURCES.forEach((_, ri) => {
-    const net = new Map<string, number>();
-    const need = new Map<string, number>();
-    let surplus = 0;
-    let deficit = 0;
-    for (const id of ids) {
+    // Importers ask exporters for their deficit, split by the exporters' surplus and nearness;
+    // an exporter asked for more than it has sells a share to each. What is left unmet is asked
+    // again of the exporters that still have some, a few rounds.
+    bought.fill(0);
+    left.fill(0);
+    need.fill(0);
+    const exporters: number[] = [];
+    const importers: number[] = [];
+    ids.forEach((id, i) => {
       const p = productionOf(state, id, ri);
       const c = consumptionOf(state, id, ri);
-      need.set(id, c);
-      net.set(id, p - c);
-      if (p > c) surplus += p - c;
-      else deficit += c - p;
-    }
-    const buyScale = deficit > 0 ? Math.min(1, surplus / deficit) : 1;
-    const sellScale = surplus > 0 ? Math.min(1, deficit / surplus) : 1;
-    for (const id of ids) {
-      const n = net.get(id)!;
-      const blocked = blockedWith.get(id);
-      const t = trade[id]!;
-      if (n < 0) {
-        // Importer: supply lost with blocked exporters, partly rerouted.
-        let lost = 0;
-        if (blocked) for (const b of blocked) lost += Math.max(0, net.get(b) ?? 0);
-        const reach = 1 - (surplus > 0 ? lost / surplus : 0) * rules.redirectLoss;
-        const imports = -n * buyScale * reach;
-        t.imports[ri] = imports;
-        const c = need.get(id)!;
-        t.supply[ri] = c > 0 ? Math.min(1, (c + n + imports) / c) : 1;
-      } else if (n > 0) {
-        let lost = 0;
-        if (blocked) for (const b of blocked) lost += Math.max(0, -(net.get(b) ?? 0));
-        const reach = 1 - (deficit > 0 ? lost / deficit : 0) * rules.redirectLoss;
-        const sold = n * sellScale * reach;
-        t.exports[ri] = sold;
-        t.exportValue += sold * r.price[ri]!;
+      consumption[i] = c;
+      if (p > c) {
+        left[i] = p - c;
+        exporters.push(i);
+      } else if (c > p) {
+        need[i] = c - p;
+        importers.push(i);
       }
+    });
+    const surplus = Float64Array.from(left);
+    for (let round = 0; round < rounds; round++) {
+      asked.fill(0);
+      let any = false;
+      for (const i of importers) {
+        if (need[i]! <= 1e-9) continue;
+        let total = 0;
+        for (const e of exporters)
+          if (left[e]! > 1e-9 && !blocked[i * n + e]) total += left[e]! * near[i * n + e]!;
+        if (total <= 0) continue;
+        any = true;
+        for (const e of exporters) {
+          const k = i * n + e;
+          const units =
+            left[e]! > 1e-9 && !blocked[k] ? (need[i]! * left[e]! * near[k]!) / total : 0;
+          asks[k] = units;
+          asked[e] = asked[e]! + units;
+        }
+      }
+      if (!any) break;
+      for (const i of importers) {
+        if (need[i]! <= 1e-9) continue;
+        for (const e of exporters) {
+          const k = i * n + e;
+          const units = asks[k]!;
+          if (units <= 0) continue;
+          const got = units * Math.min(1, left[e]! / asked[e]!);
+          need[i] = need[i]! - got;
+          bought[k] = bought[k]! + got;
+          asks[k] = 0;
+        }
+      }
+      for (const e of exporters) left[e] = Math.max(0, left[e]! - Math.min(asked[e]!, left[e]!));
     }
+
+    const price = r.price[ri]!;
+    for (const i of importers) {
+      const t = trade[ids[i]!]!;
+      let imports = 0;
+      const from: [string, number][] = [];
+      for (const e of exporters) {
+        const units = bought[i * n + e]!;
+        if (units <= 0) continue;
+        imports += units;
+        from.push([ids[e]!, units]);
+        value[i * n + e] = value[i * n + e]! + units * price;
+        value[e * n + i] = value[e * n + i]! + units * price;
+      }
+      t.imports[ri] = imports;
+      const c = consumption[i]!;
+      t.supply[ri] = c > 0 ? Math.min(1, Math.max(0, (c - need[i]!) / c)) : 1;
+      t.sources[ri] = from
+        .sort((x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1))
+        .slice(0, 3)
+        .map(([e, units]) => [e, imports > 0 ? units / imports : 0]);
+    }
+    for (const e of exporters) {
+      const sold = surplus[e]! - left[e]!;
+      const t = trade[ids[e]!]!;
+      t.exports[ri] = sold;
+      t.exportValue += sold * price;
+    }
+  });
+  ids.forEach((id, i) => {
+    const list: [string, number][] = [];
+    for (let j = 0; j < n; j++) if (value[i * n + j]! > 0) list.push([ids[j]!, value[i * n + j]!]);
+    trade[id]!.partners = list.sort((x, y) => y[1] - x[1] || (x[0] < y[0] ? -1 : 1)).slice(0, 8);
   });
 
   for (const id of ids) {
@@ -319,6 +410,28 @@ export function resourcesPhase(
     }
   }
   r.trade = trade;
+}
+
+/** Nearness of every pair of countries (1 / distance between capitals), kept while they stay. */
+let nearCache: { ctx: SimContext; key: string; matrix: Float64Array } | null = null;
+
+function nearnessMatrix(state: GameState, ctx: SimContext, ids: readonly string[]): Float64Array {
+  const t = resourcesData(ctx).rules.trade;
+  const capital = new Map(state.world.countries.map((c) => [c.id, c.capitalProvinceId]));
+  const seats = ids.map((id) => provinceSeat(ctx, capital.get(id)!));
+  const key = seats.join(',');
+  if (nearCache?.ctx === ctx && nearCache.key === key) return nearCache.matrix;
+  const n = ids.length;
+  const matrix = new Float64Array(n * n);
+  for (let i = 0; i < n; i++)
+    for (let j = i + 1; j < n; j++) {
+      const km = cachedDistanceKm(ctx, seats[i]!, seats[j]!);
+      const v = 1 / Math.max(t.minKm, Number.isFinite(km) ? km : t.minKm) ** t.distanceExponent;
+      matrix[i * n + j] = v;
+      matrix[j * n + i] = v;
+    }
+  nearCache = { ctx, key, matrix };
+  return matrix;
 }
 
 /** Support lost in a province's country to food shortage (points). */

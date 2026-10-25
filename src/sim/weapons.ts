@@ -3,6 +3,7 @@
 // turn; nuclear weapons cannot be intercepted and bring catastrophic consequences for the user.
 // All numbers come from data/modern/weapons.json (WeaponsRules).
 import { category, type SimContext } from './economy';
+import { cityDistanceKm } from './geo';
 import { armySize, atSea, citiesOfProvince, entryRule, findPath, provinceSeat } from './military';
 import type { GameState } from './newGame';
 import { factoriesStopped } from './resources';
@@ -196,18 +197,7 @@ export function weaponsRules(ctx: SimContext): WeaponsRules {
   return ctx.weapons;
 }
 
-/** Great-circle distance between two cities in km. */
-export function cityDistanceKm(ctx: SimContext, a: number, b: number): number {
-  const p = ctx.cityLonLat?.[a];
-  const q = ctx.cityLonLat?.[b];
-  if (!p || !q) return Infinity;
-  const rad = Math.PI / 180;
-  const dLat = (q[1] - p[1]) * rad;
-  const dLon = (q[0] - p[0]) * rad;
-  const h =
-    Math.sin(dLat / 2) ** 2 + Math.cos(p[1] * rad) * Math.cos(q[1] * rad) * Math.sin(dLon / 2) ** 2;
-  return 2 * 6371 * Math.asin(Math.min(1, Math.sqrt(h)));
-}
+export { cityDistanceKm };
 
 const ownerOfCity = (state: GameState, ctx: SimContext, cityId: number): string | undefined =>
   state.world.provinceOwners[ctx.cityProvince[cityId] ?? -1];

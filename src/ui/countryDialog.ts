@@ -204,6 +204,14 @@ export class CountryDialog {
           }),
         ),
       );
+      const traded = game.resources?.trade[me]?.partners?.find(([c]) => c === id)?.[1] ?? 0;
+      wrap.append(
+        el(
+          'p',
+          'setup-hint',
+          traded > 0 ? t('dip.trade', { value: formatUsd(traded) }) : t('dip.noTrade'),
+        ),
+      );
     }
     const profile = sim.profiles?.[id];
     if (profile && id !== me) {
