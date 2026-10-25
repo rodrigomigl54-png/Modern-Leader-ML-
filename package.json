@@ -19,6 +19,7 @@
     "data:validate": "node tools/validate/validate.ts",
     "data:flags": "node tools/countries/flags.ts",
     "data:stats": "node tools/countries/stats.ts",
+    "data:debt": "node tools/countries/debt.ts",
     "data:profiles": "node tools/ai/build-profiles.ts",
     "sim:balance": "node tools/balance/simulate.ts",
     "build:itch": "npm run typecheck && vite build --base ./ --outDir dist-itch && cd dist-itch && zip -qr ../modern-leader-demo.zip ."

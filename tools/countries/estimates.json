@@ -1,5 +1,5 @@
 {
-  "comment": "Drafted estimates used where the World Bank has no value or cannot be reached. Replace with World Bank MS.MIL.TOTL.P1 / MS.MIL.XPND.CD when network access is allowed. rough: true marks low-confidence figures (civil wars, rapidly changing forces). Syria is left out: its army is being rebuilt after 2024.",
+  "comment": "Drafted estimates used where the World Bank has no value or cannot be reached. Replace with World Bank MS.MIL.TOTL.P1 / MS.MIL.XPND.CD when network access is allowed. rough: true marks low-confidence figures (civil wars, rapidly changing forces). Syria is left out: its army is being rebuilt after 2024. override: true replaces the World Bank value too (forces changed by a war since its last year, 2020; the World Bank series also counts paramilitary forces, so both sides of that war use active forces).",
   "sources": {
     "activePersonnel": "IISS The Military Balance, public estimates (recalled, rounded to thousands)",
     "expenditureUsd": "SIPRI Military Expenditure Database, 2024 (recalled, rounded)",
@@ -453,7 +453,8 @@
     },
     "RUS": {
       "activePersonnel": 1134000,
-      "expenditureUsd": 149000000000
+      "expenditureUsd": 149000000000,
+      "override": true
     },
     "RWA": {
       "activePersonnel": 33000
@@ -575,7 +576,8 @@
     "UKR": {
       "activePersonnel": 900000,
       "rough": true,
-      "expenditureUsd": 64700000000
+      "expenditureUsd": 64700000000,
+      "override": true
     },
     "ARE": {
       "activePersonnel": 63000
