@@ -8,7 +8,7 @@ import type { GameState } from './newGame';
 import { joinThreshold } from './profiles';
 import { shiftSupport, transferProvince } from './population';
 import type { TurnEvent } from './turn';
-import { weaponsRules, type WeaponKind } from './weapons';
+import { cityDistanceKm, weaponsRules, type WeaponKind } from './weapons';
 import { alliesOf, enemiesAtWar, rivalsOf, type War, type World } from './world';
 
 export interface DiplomacyRules {
@@ -43,8 +43,11 @@ export interface DiplomacyRules {
     relation: number;
     targetAlliesRelation: number;
     senderRivalsRelation: number;
+    /** Annual growth lost per share of the economic ties cut. */
     growthPerWorldShare: number;
     maxGrowthPenalty: number;
+    /** Gravity model of trade ties (nearer and larger economies weigh more). */
+    dependence?: { distanceExponent: number; minKm: number };
   };
   war: {
     declaredRelation: number;
@@ -384,18 +387,71 @@ function worldGdp(state: GameState): number {
 
 /** Per-turn cache of sanction weights (they are read for every province). */
 let weightCache: { state: GameState; turn: number; weights: Map<string, number> } | null = null;
+/** Distances between capitals, by the capitals' city ids. */
+const capitalKm = new Map<string, number>();
 
-/** Share of the world economy that sanctions a country. */
-export function sanctionWeight(state: GameState, id: string): number {
+/**
+ * How much a country depends on each other country (GDD section 6: the effect of sanctions
+ * depends on how much the target depends on the sanctioning country). A gravity model: large
+ * and near economies weigh most. Shares add up to 1.
+ */
+export function dependenceOn(
+  state: GameState,
+  ctx: SimContext,
+  target: string,
+): Map<string, number> {
+  const r = ctx.diplomacy?.sanctions.dependence;
+  const result = new Map<string, number>();
+  const home = state.world.countries.find((c) => c.id === target);
+  if (!r || !home) return result;
+  const from = provinceSeat(ctx, home.capitalProvinceId);
+  let total = 0;
+  for (const c of state.world.countries) {
+    if (c.id === target || c.provinceIds.length === 0) continue;
+    const gdp = state.economy.countries[c.id]?.gdp ?? 0;
+    if (gdp <= 0) continue;
+    const to = provinceSeat(ctx, c.capitalProvinceId);
+    const key = from < to ? `${from}|${to}` : `${to}|${from}`;
+    let km = capitalKm.get(key);
+    if (km === undefined) {
+      km = cityDistanceKm(ctx, from, to);
+      capitalKm.set(key, km);
+    }
+    const weight =
+      gdp / Math.max(r.minKm, Number.isFinite(km) ? km : r.minKm) ** r.distanceExponent;
+    result.set(c.id, weight);
+    total += weight;
+  }
+  if (total > 0) for (const [id, w] of result) result.set(id, w / total);
+  return result;
+}
+
+/**
+ * Share of a country's economic ties cut by the sanctions on it (0-1): its dependence on the
+ * countries that sanction it, or their share of the world economy without dependence rules.
+ */
+export function sanctionWeight(state: GameState, ctx: SimContext, id: string): number {
   if (!state.diplomacy) return 0;
   if (weightCache?.state !== state || weightCache.turn !== state.turn) {
     const total = worldGdp(state);
     const weights = new Map<string, number>();
+    const byTarget = new Map<string, string[]>();
     for (const s of state.diplomacy.sanctions)
-      weights.set(
-        s.to,
-        (weights.get(s.to) ?? 0) + (state.economy.countries[s.from]?.gdp ?? 0) / total,
-      );
+      byTarget.set(s.to, [...(byTarget.get(s.to) ?? []), s.from]);
+    for (const [target, senders] of byTarget) {
+      if (ctx.diplomacy?.sanctions.dependence) {
+        const dep = dependenceOn(state, ctx, target);
+        weights.set(
+          target,
+          senders.reduce((sum, x) => sum + (dep.get(x) ?? 0), 0),
+        );
+      } else {
+        weights.set(
+          target,
+          senders.reduce((sum, x) => sum + (state.economy.countries[x]?.gdp ?? 0) / total, 0),
+        );
+      }
+    }
     weightCache = { state, turn: state.turn, weights };
   }
   return weightCache.weights.get(id) ?? 0;
@@ -405,7 +461,7 @@ export function sanctionWeight(state: GameState, id: string): number {
 export function sanctionsGrowthPenalty(state: GameState, ctx: SimContext, id: string): number {
   if (!ctx.diplomacy || !state.diplomacy) return 0;
   const r = ctx.diplomacy.sanctions;
-  return Math.min(r.maxGrowthPenalty, sanctionWeight(state, id) * r.growthPerWorldShare);
+  return Math.min(r.maxGrowthPenalty, sanctionWeight(state, ctx, id) * r.growthPerWorldShare);
 }
 
 // ---- Wars ----

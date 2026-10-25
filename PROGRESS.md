@@ -20,7 +20,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 11  | AI                                                             | Done in code — waiting for the check on the phone |
 | 12  | Summits, events, notifications, reports, news, advisors, goals | Done in code — waiting for the check on the phone |
 | 13  | Balance, polish, demo release                                  | Done (release on hold until the game is finished) |
-| 14  | Complete the Modern World (Dario's choice after the demo)      | Done in code — waiting for the check on the phone |
+| 14  | Complete the Modern World (Dario's choice after the demo)      | Done                                              |
+| 15  | Complete the Modern World, part 2                              | Done in code — waiting for the check on the phone |
 
 ## Phase 0 — Project setup
 
@@ -345,6 +346,16 @@ Done:
 - 10-year runs on all levels after these changes: no collapses outside wars on Peaceful/Realistic; Russia–Ukraine ends in about two years; on Chaos a losing great power can still fall apart.
 - Checked in Chromium with phone emulation: Hungary's goals in its country dialog, no errors.
 
+## Phase 15 — Complete the Modern World, part 2
+
+Done:
+
+- AI countries follow their goals (GDD section 13, `ai-rules.json` `goals`): growing GDP invests 1.5× as often, joining an alliance proposes pacts 3× as often, staying neutral proposes none, lowering debt closes deficits from half the usual debt limit.
+- Sanctions hurt by dependence (GDD section 6: "their effect depends on how much the target depends on the sanctioning country"): a gravity model of economic ties — another country's GDP divided by the distance between the capitals (`diplomacy-rules.json` `sanctions.dependence`). North Korea now loses 31% of its ties to sanctions instead of 54% (China is its lifeline), Cuba 60% instead of 26% (the US is next door). Over ten years Russia loses about 1.2% of GDP a year under sanctions, Iran about 0.5%.
+- The country dialog shows the economic ties both ways (how much sanctions would cut).
+- Shortages the player's country has from the very start get a Minister of Finance telegram after the first tip (for example Russia's chips).
+- Checked in Chromium with phone emulation as Russia: ties line in a country dialog, no errors.
+
 ## Next
 
 - Dario: merge the PR and check on the phone (a war: support and the summit; the peace screen with an alliance; a country dialog: goals).
@@ -357,13 +368,12 @@ Done:
 - The interface size uses CSS `zoom` (supported by current browsers; very old ones ignore it).
 
 - Summit questions come from a fixed set of eleven templates.
-- AI countries have goals, but their decisions do not yet follow them.
 
 - 163 of 203 AI profiles are derived from data rather than written by hand; their justifications are generic.
 - A turn takes 50–70 ms on a PC; to watch on slow phones.
 - In Chaos, a country at war can spiral (inflation and debt keep rising, endless rebels): the AI cannot fix its budget during a war.
 
-- Resource shares are rounded estimates; the shortage alert is not shown for shortages that exist at the very start (e.g. Russia's chips) — the economy panel shows them.
+- Resource shares are rounded estimates.
 - Resource trade is a world market, not per-partner deals; prices are fixed.
 
 - Peace with a side's leader ends the war with its allies; a member that is not the leader still makes a separate peace.

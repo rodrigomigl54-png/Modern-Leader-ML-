@@ -8,7 +8,13 @@ import populationRules from '../../data/modern/population.json';
 import summitsData from '../../data/modern/summits.json';
 import weaponsRulesData from '../../data/modern/weapons.json';
 import { applyCommand } from './commands';
-import { applyPeace, WHITE_PEACE, type DiplomacyRules } from './diplomacy';
+import {
+  applyPeace,
+  dependenceOn,
+  sanctionWeight,
+  WHITE_PEACE,
+  type DiplomacyRules,
+} from './diplomacy';
 import type { EconomyRules, SimContext } from './economy';
 import type { GoalRules } from './goals';
 import type { MilitaryRules } from './military';
@@ -251,5 +257,64 @@ describe('revolutions', () => {
     };
     expect(revolts(false)).toBe(true);
     expect(revolts(true)).toBe(false);
+  });
+});
+
+describe('sanctions by dependence (GDD section 6)', () => {
+  it('near and large economies weigh most; sanctions cut those ties', () => {
+    const game = newGame();
+    // PLR's capital is between AAA (larger, near) and FAR (far away).
+    const dep = dependenceOn(game, sim, 'PLR');
+    expect([...dep.values()].reduce((s, v) => s + v, 0)).toBeCloseTo(1, 6);
+    expect(dep.get('AAA')!).toBeGreaterThan(dep.get('FAR')!);
+    game.diplomacy.sanctions.push({ from: 'AAA', to: 'PLR', since: 0 });
+    const near = sanctionWeight(game, sim, 'PLR');
+    const far = newGame();
+    far.diplomacy.sanctions.push({ from: 'FAR', to: 'PLR', since: 0 });
+    expect(near).toBeCloseTo(dep.get('AAA')!, 6);
+    expect(near).toBeGreaterThan(sanctionWeight(far, sim, 'PLR'));
+  });
+});
+
+describe('AI countries follow their goals', () => {
+  const pacts = (kind: 'neutrality' | 'joinAlliance'): number => {
+    let game = newGame();
+    game.world.alliances = [];
+    game.aiGoals.BBB = [{ kind, deadline: 10000, status: 'active' }];
+    game.diplomacy.relations['AAA|BBB'] = 90;
+    let count = 0;
+    for (let i = 0; i < 300; i++) {
+      game = advanceTurn(game, {
+        ...sim,
+        profiles: {
+          BBB: {
+            ...(Object.fromEntries(
+              [
+                'interventionism',
+                'sanctions',
+                'pressure',
+                'expansionism',
+                'risk',
+                'nuclear',
+                'economy',
+              ].map((t) => [t, [0, 'test']]),
+            ) as object),
+            loyalty: [100, 'test'],
+            partners: ['AAA'],
+            rivals: [],
+          } as never,
+        },
+      }).state;
+      if (game.world.alliances.some((a) => a.members.includes('BBB'))) {
+        count++;
+        game.world.alliances = [];
+      }
+    }
+    return count;
+  };
+
+  it('a country that wants to stay neutral proposes no pacts; one that wants an alliance does', () => {
+    expect(pacts('neutrality')).toBe(0);
+    expect(pacts('joinAlliance')).toBeGreaterThan(0);
   });
 });
