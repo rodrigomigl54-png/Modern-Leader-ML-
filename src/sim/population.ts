@@ -242,7 +242,7 @@ export function targetSupport(
     target -= rules.taxEffect * Math.max(0, e.taxRate - rules.taxNeutral);
     target -= rules.debtEffect * Math.max(0, e.debt / Math.max(1, e.gdp) - rules.debtNeutral);
   }
-  target -= (rules.sanctionsEffect ?? 0) * sanctionWeight(state, owner);
+  target -= (rules.sanctionsEffect ?? 0) * sanctionWeight(state, ctx, owner);
   target -= foodShortageSupport(state, ctx, owner);
   let buildings = 0;
   for (const b of state.economy.buildings) {

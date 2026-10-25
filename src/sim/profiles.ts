@@ -75,6 +75,8 @@ export interface AiRules {
     reserveWeeks: number;
   };
   nuclear: { lastResortMinPosture: number; threatPosture: number; threatScore: number };
+  /** How a country's goals change its choices. */
+  goals?: { investFactor: number; pactFactor: number; debtLimitFactor: number };
 }
 
 /** A neutral profile for countries born during the game (rebels, seceded states). */

@@ -666,5 +666,6 @@
   "summit.a.climate.refuse": "Odbijamo",
   "war.convoyLost": "Naš konvoj ka {place} izgubio je {count} vojnika od vatre zemlje {country} na moru.",
   "war.convoyHit": "Naše snage su pogodile konvoj zemlje {country} ka {place}: {count} vojnika izgubljeno.",
-  "peace.alliesFollow": "Ako {country} predvodi svoju stranu, i njeni saveznici u ovom ratu sklapaju mir sa vama, svako zadržava ono što drži."
+  "peace.alliesFollow": "Ako {country} predvodi svoju stranu, i njeni saveznici u ovom ratu sklapaju mir sa vama, svako zadržava ono što drži.",
+  "dip.ties": "Ekonomske veze: oni zavise od vas {theirs}%, vi od njih {ours}% (koliko bi sankcije presekle)."
 }

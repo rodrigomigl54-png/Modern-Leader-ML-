@@ -3,6 +3,7 @@ import { formatPercent, formatUsd } from '../app/present';
 import type { Command } from '../sim/commands';
 import {
   basePrice,
+  dependenceOn,
   diplomacyRules,
   forSale,
   overlordOf,
@@ -190,6 +191,20 @@ export class CountryDialog {
         t('dip.points', { value: (game.diplomacy.points[me] ?? 0).toFixed(1) }),
       ),
     );
+    // Economic ties both ways: how much sanctions would hurt (GDD section 6).
+    if (id !== me && sim.diplomacy?.sanctions.dependence) {
+      const pct = (x: number | undefined): string => formatPercent(x ?? 0, 1);
+      wrap.append(
+        el(
+          'p',
+          'setup-hint',
+          t('dip.ties', {
+            theirs: pct(dependenceOn(game, sim, id).get(me)),
+            ours: pct(dependenceOn(game, sim, me).get(id)),
+          }),
+        ),
+      );
+    }
     const profile = sim.profiles?.[id];
     if (profile && id !== me) {
       // The AI profile behind this country's decisions (GDD section 11), with its sources.

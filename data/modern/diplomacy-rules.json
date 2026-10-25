@@ -57,7 +57,12 @@
     "targetAlliesRelation": -10,
     "senderRivalsRelation": 10,
     "growthPerWorldShare": 0.06,
-    "maxGrowthPenalty": 0.025
+    "maxGrowthPenalty": 0.025,
+    "dependence": {
+      "comment": "A country's ties to another: its GDP divided by the distance between the capitals (at least minKm) to the power distanceExponent, as a share of all ties (gravity model of trade). Sanctions cut the ties of the countries that impose them (GDD section 6).",
+      "distanceExponent": 1,
+      "minKm": 500
+    }
   },
   "war": {
     "declaredRelation": -50,

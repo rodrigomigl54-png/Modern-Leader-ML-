@@ -27,7 +27,7 @@ import {
   provinceSeat,
 } from './sim/military';
 import { ensureDiplomacy, relation, type Demand, type PlayerRequest } from './sim/diplomacy';
-import { ensureResources, type ResourceId } from './sim/resources';
+import { ensureResources, RESOURCES, type ResourceId } from './sim/resources';
 import { createNewGame, type GameState } from './sim/newGame';
 import { airDefenseMap, airDefenseQuote, ensureWeapons, weaponsRules } from './sim/weapons';
 import {
@@ -658,7 +658,7 @@ async function start(): Promise<void> {
       ticker.show();
       ticker.update(headlines(state));
       if (state.gameOver) void showGameOver();
-      else if (state.turn === 0) void advisorTip(0);
+      else if (state.turn === 0) void advisorTip(0).then(startShortages);
       else if (state.summits.pending) void openSummit();
     };
 
@@ -728,6 +728,21 @@ async function start(): Promise<void> {
       const tip = ADVISOR_TIPS[turn];
       if (!tip || !game) return;
       await noticeDialog(uiRoot, t(tip[0]), t(tip[1]), t('minister.understood'));
+    };
+
+    /** Shortages the player's country has from the start (none of them is an event). */
+    const startShortages = async (): Promise<void> => {
+      if (!game) return;
+      const supply = game.resources?.trade[game.player.countryId]?.supply ?? [];
+      const alert = sim.resources?.rules.shortageAlert ?? 0;
+      const short = RESOURCES.filter((_, i) => (supply[i] ?? 1) < alert);
+      if (!short.length) return;
+      await noticeDialog(
+        uiRoot,
+        t('minister.finance'),
+        t('minister.shortage', { resources: short.map((r) => t(`res.${r}`)).join(', ') }),
+        t('minister.understood'),
+      );
     };
 
     const announce = async (events: TurnEvent[]): Promise<void> => {

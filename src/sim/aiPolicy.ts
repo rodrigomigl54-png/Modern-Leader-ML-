@@ -19,6 +19,7 @@ import {
 } from './diplomacy';
 import { investmentQuote, weeklyBudget, type SimContext } from './economy';
 import { citiesOfProvince } from './military';
+import type { GoalKind } from './goals';
 import type { GameState } from './newGame';
 import { nationalSupport } from './population';
 import { trait, type AiRules } from './profiles';
@@ -93,12 +94,18 @@ export function aiPolicyOrders(
     if (!e) continue;
     const T = (x: Parameters<typeof trait>[3]): number => trait(state, ctx, id, x);
     const profile = ctx.profiles?.[id];
+    // The country's own goals steer its choices (GDD section 13).
+    const goals = state.aiGoals?.[id] ?? [];
+    const pursues = (kind: GoalKind): boolean =>
+      goals.some((g) => g.kind === kind && g.status === 'active');
+    const g = r.goals;
 
     // Budget: every few weeks, close deficits or calm the people.
     if ((state.turn + id.charCodeAt(0)) % r.fiscal.everyTurns === 0) {
       const b = weeklyBudget(state, id, ctx);
       const support = nationalSupport(state, ctx, id);
-      if (b.balance < 0 && e.debt / Math.max(1, e.gdp) > r.fiscal.debtLimit) {
+      const debtLimit = r.fiscal.debtLimit * (g && pursues('lowDebt') ? g.debtLimitFactor : 1);
+      if (b.balance < 0 && e.debt / Math.max(1, e.gdp) > debtLimit) {
         if (e.taxRate < r.fiscal.maxTax && support > r.fiscal.lowSupport)
           e.taxRate += r.fiscal.step;
         else if (e.servicesShare > r.fiscal.minServices) e.servicesShare -= r.fiscal.step;
@@ -114,7 +121,8 @@ export function aiPolicyOrders(
 
     // Investment at home, and occasionally in the player's cities (the player decides).
     const economy = T('economy');
-    if (chance(state, ctx, rng, economy, r.rates.invest)) {
+    const investRate = r.rates.invest * (g && pursues('gdpGrowth') ? g.investFactor : 1);
+    if (chance(state, ctx, rng, economy, investRate)) {
       const category = INVEST_CATEGORIES[(state.turn + id.length) % INVEST_CATEGORIES.length]!;
       const cities = country.provinceIds.flatMap((p) => citiesOfProvince(ctx, p).slice(0, 1));
       const city = cities[Math.floor(rng.next() * cities.length)];
@@ -270,8 +278,11 @@ export function aiPolicyOrders(
     for (const partner of [...partners].filter((x) => live.has(x) && x !== player).sort()) {
       if (alliesOf(state.world, id).includes(partner)) continue;
       if (relation(state, ctx, id, partner) < t.pactRelation) continue;
-      if (chance(state, ctx, rng, T('loyalty'), r.rates.pact))
-        proposeAlliance(state, ctx, id, partner);
+      // A country that wants to stay neutral proposes no pacts; one that wants an alliance
+      // tries harder.
+      if (pursues('neutrality')) break;
+      const pactRate = r.rates.pact * (g && pursues('joinAlliance') ? g.pactFactor : 1);
+      if (chance(state, ctx, rng, T('loyalty'), pactRate)) proposeAlliance(state, ctx, id, partner);
       break;
     }
 

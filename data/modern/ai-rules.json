@@ -54,5 +54,11 @@
     "lastResortMinPosture": 30,
     "threatPosture": 50,
     "threatScore": -30
+  },
+  "goals": {
+    "comment": "A country pursuing a goal: GDP growth invests investFactor times as often; join an alliance proposes pacts pactFactor times as often (neutral countries propose none); low debt closes deficits from debtLimitFactor of the usual debt limit.",
+    "investFactor": 1.5,
+    "pactFactor": 3,
+    "debtLimitFactor": 0.5
   }
 }

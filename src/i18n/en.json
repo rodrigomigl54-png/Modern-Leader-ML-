@@ -666,5 +666,6 @@
   "summit.a.climate.refuse": "We refuse",
   "war.convoyLost": "Our convoy to {place} lost {count} soldiers to {country}'s fire at sea.",
   "war.convoyHit": "Our forces hit a convoy of {country} sailing to {place}: {count} soldiers lost.",
-  "peace.alliesFollow": "If {country} leads its side, its allies in this war make peace with you too, each keeping what it holds."
+  "peace.alliesFollow": "If {country} leads its side, its allies in this war make peace with you too, each keeping what it holds.",
+  "dip.ties": "Economic ties: they depend on you for {theirs}%, you on them for {ours}% (what sanctions would cut)."
 }
