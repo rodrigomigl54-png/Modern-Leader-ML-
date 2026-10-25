@@ -117,6 +117,13 @@ export function aiPolicyOrders(
         if (e.servicesShare < r.fiscal.targetServices) e.servicesShare += r.fiscal.step;
         else if (e.taxRate > r.fiscal.minTax) e.taxRate -= r.fiscal.step;
       }
+      // Money beyond a few weeks of spending pays back debt.
+      const spare = e.treasury - b.spending * r.fiscal.repayAboveWeeks;
+      if (spare > 0 && e.debt > 0) {
+        const repaid = Math.min(e.debt, spare);
+        e.debt -= repaid;
+        e.treasury -= repaid;
+      }
     }
 
     // Investment at home, and occasionally in the player's cities (the player decides).

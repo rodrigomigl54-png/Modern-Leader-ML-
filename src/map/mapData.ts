@@ -55,11 +55,12 @@ export interface MapData {
 }
 
 export async function loadMapData(onProgress: (fraction: number) => void): Promise<MapData> {
-  const [provincesUrl, countriesUrl, citiesUrl, mapUrl] = await Promise.all([
+  const [provincesUrl, countriesUrl, citiesUrl, mapUrl, namesUrl] = await Promise.all([
     import('../../data/modern/provinces.json?url'),
     import('../../data/modern/countries.json?url'),
     import('../../data/modern/cities.json?url'),
     import('../../data/modern/map/province-map.json?url'),
+    import('../../data/modern/province-names.json?url'),
   ]);
   const tiles = import.meta.glob<string>('../../data/modern/map/tiles/**/*.png', {
     query: '?url',
@@ -72,15 +73,18 @@ export async function loadMapData(onProgress: (fraction: number) => void): Promi
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Failed to load ${url}: ${response.status}`);
     const json = (await response.json()) as T;
-    onProgress(++done / 4);
+    onProgress(++done / 5);
     return json;
   };
-  const [provinces, countries, cities, map] = await Promise.all([
+  const [provinces, countries, cities, map, names] = await Promise.all([
     fetchJson<{ provinces: ProvinceData[] }>(provincesUrl.default),
     fetchJson<{ countries: CountryData[] }>(countriesUrl.default),
     fetchJson<{ cities: CityData[] }>(citiesUrl.default),
     fetchJson<ProvinceMapData>(mapUrl.default),
+    fetchJson<{ renames: Record<string, string> }>(namesUrl.default),
   ]);
+  // Current names for provinces whose source name is out of date.
+  for (const p of provinces.provinces) p.name = names.renames[p.key] ?? p.name;
 
   return {
     provinces: provinces.provinces,

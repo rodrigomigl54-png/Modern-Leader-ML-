@@ -78,6 +78,7 @@ try {
     aiRules: read('ai-rules.json'),
     summits: read('summits.json'),
     goals: read('goals.json'),
+    startDebt: read('debt.json'),
     stats: readOptional('country-stats.json'),
   });
   const sim = bundle.sim;

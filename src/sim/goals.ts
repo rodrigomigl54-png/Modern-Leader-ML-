@@ -3,11 +3,12 @@
 // stay neutral). Templates and numbers are in data/modern/goals.json (GoalRules).
 import type { SimContext } from './economy';
 import type { GameState } from './newGame';
+import { nationalSupport } from './population';
 import { trait } from './profiles';
 
 export interface GoalRules {
   gdpGrowth: { factor: number; turns: number };
-  noRiots: { turns: number };
+  noRiots: { turns: number; minSupportMargin: number };
   lowInflation: { max: number; streak: number; turns: number };
   lowDebt: { maxShare: number; turns: number };
   joinAlliance: { turns: number };
@@ -62,8 +63,12 @@ export function createGoals(
       status: 'active',
       target: (e?.gdp ?? 0) * r.gdpGrowth.factor,
     },
-    { kind: 'noRiots', deadline: at(r.noRiots.turns), status: 'active' },
   ];
+  // Calm countries aim to stay calm; a country already near riots gets other goals.
+  const calm =
+    !ctx.population ||
+    nationalSupport(state, ctx, id) >= ctx.population.riots.threshold + r.noRiots.minSupportMargin;
+  if (calm) goals.push({ kind: 'noRiots', deadline: at(r.noRiots.turns), status: 'active' });
   const alliance = inAlliance(state, id);
   if (alliance)
     goals.push({

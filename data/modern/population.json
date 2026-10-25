@@ -17,7 +17,7 @@
     "taxNeutral": 0.3,
     "taxEffect": 120,
     "debtNeutral": 1,
-    "debtEffect": 10,
+    "debtEffect": 4,
     "buildingEffect": 2,
     "buildingEffectMax": 10,
     "unassimilatedPenalty": 20,

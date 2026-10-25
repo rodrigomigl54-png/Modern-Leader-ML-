@@ -183,6 +183,13 @@ export class EconomyPanel {
       }
     });
     const partners = (trade?.partners ?? []).slice(0, 5);
+    // World prices against the start (they follow shortages and gluts).
+    const base = game.resources?.basePrice;
+    const prices = RESOURCES.map((r, ri) => {
+      const change = base?.[ri] ? (game.resources.price[ri] ?? 0) / base[ri]! - 1 : 0;
+      const sign = change > 0.005 ? '+' : change < -0.005 ? '−' : '±';
+      return `${t(`res.${r}`)} ${sign}${formatPercent(Math.abs(change), 0)}%`;
+    }).join(', ');
 
     this.root.replaceChildren(
       header,
@@ -211,6 +218,7 @@ export class EconomyPanel {
       el('h3', 'dossier-subtitle', t('res.title')),
       resources,
       el('p', 'setup-hint', t('res.hint', { exports: formatUsd(trade?.exportValue ?? 0) })),
+      el('p', 'setup-hint', t('res.prices', { list: prices })),
       el(
         'p',
         'setup-hint',

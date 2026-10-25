@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "description": "Display names that replace out-of-date or awkward Natural Earth province names (current official romanizations; GDD section 14). Applied by the game when it loads the map; the generated provinces.json is not edited.",
+    "source": "Ukrainian national romanization (2010), common English names",
+    "checked": "2026-10-25"
+  },
+  "renames": {
+    "UKR-321": "Kyiv",
+    "UKR-4826": "Kyiv City",
+    "UKR-291": "Lviv",
+    "UKR-322": "Odesa",
+    "UKR-326": "Dnipropetrovsk",
+    "UKR-327": "Donetsk",
+    "UKR-329": "Luhansk",
+    "UKR-331": "Zaporizhzhia",
+    "UKR-284": "Mykolaiv",
+    "UKR-289": "Ivano-Frankivsk",
+    "UKR-290": "Khmelnytskyi",
+    "UKR-292": "Ternopil",
+    "UKR-323": "Vinnytsia",
+    "RUS-2306": "Stavropol",
+    "RUS-2354": "Arkhangelsk",
+    "RUS-2358": "Tver",
+    "RUS-2360": "Yaroslavl",
+    "RUS-2374": "Ryazan",
+    "RUS-2388": "Astrakhan",
+    "RUS-2395": "Ulyanovsk",
+    "RUS-2398": "Tyumen",
+    "RUS-2611": "Primorye",
+    "RUS-3200": "Perm",
+    "RUS-2365": "Moscow",
+    "SRB-836": "Belgrade"
+  }
+}

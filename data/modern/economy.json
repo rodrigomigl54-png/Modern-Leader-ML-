@@ -5,7 +5,7 @@
     "checked": "2026-10-24"
   },
   "start": {
-    "comment": "Starting values for every country. Debt starts at 0 until IMF debt data can be loaded (GGXWDG_NGDP).",
+    "comment": "Starting values for every country. Starting debt comes from data/modern/debt.json; debtShareOfGdp is used only without it (tests). Starting public services are set so the budget is roughly balanced after military spending and interest.",
     "taxRate": 0.25,
     "treasuryShareOfGdp": 0.02,
     "inflation": 0.03,
@@ -30,13 +30,13 @@
     "inflationThreshold": 0.05,
     "inflationDrag": 0.15,
     "debtThreshold": 0.9,
-    "debtDrag": 0.01,
+    "debtDrag": 0.005,
     "minGrowth": -0.1,
     "maxGrowth": 0.1
   },
   "debt": {
-    "interestRate": 0.04,
-    "interestPerDebtShare": 0.02
+    "interestRate": 0.02,
+    "interestPerDebtShare": 0.002
   },
   "inflation": {
     "base": 0.02,

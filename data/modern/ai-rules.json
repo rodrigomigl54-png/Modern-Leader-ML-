@@ -48,7 +48,8 @@
     "debtLimit": 0.6,
     "lowSupport": 45,
     "targetServices": 0.2,
-    "reserveWeeks": 26
+    "reserveWeeks": 26,
+    "repayAboveWeeks": 8
   },
   "nuclear": {
     "lastResortMinPosture": 30,

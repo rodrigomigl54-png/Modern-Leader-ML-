@@ -6,6 +6,7 @@ import { applyCommand, type Command } from './commands';
 import {
   growthRate,
   hostConsent,
+  initialEconomy,
   investmentQuote,
   weeklyBudget,
   type EconomyRules,
@@ -228,5 +229,31 @@ describe('investment', () => {
       30,
     );
     expect(a).toEqual(b);
+  });
+});
+
+describe('starting debt', () => {
+  it('comes from the debt data; interest is part of a balanced starting budget', () => {
+    const c = {
+      id: 'HIGH',
+      status: 'full',
+      capitalProvinceId: 0,
+      provinceIds: [0],
+      stats: {
+        gdpUsd: 1e12,
+        population: 1e7,
+        militaryPersonnel: 0,
+        militaryExpenditureUsd: 2e10,
+        stability: 0,
+      },
+      leader: { name: 'X', title: 'president' },
+    } as const;
+    const debt = { defaultShare: 0.5, debtShareOfGdp: { HIGH: 2 } };
+    const high = initialEconomy(c as never, rules, debt);
+    const usual = initialEconomy({ ...c, id: 'OTHER' } as never, rules, debt);
+    expect(high.debt).toBeCloseTo(2e12, 0);
+    expect(usual.debt).toBeCloseTo(0.5e12, 0);
+    // More interest to pay leaves less for public services at the start.
+    expect(high.servicesShare).toBeLessThan(usual.servicesShare);
   });
 });

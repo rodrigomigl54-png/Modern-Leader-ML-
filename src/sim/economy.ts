@@ -103,6 +103,8 @@ export interface SimContext {
   /** AI behavior profiles per country and the rules that turn them into actions. */
   profiles?: Readonly<Record<string, AiProfile>>;
   aiRules?: AiRules;
+  /** Public debt at the start (data/modern/debt.json); none means economy.json's share. */
+  startDebt?: StartDebt;
   /** Summit and goal rules (GDD sections 12-13). */
   summits?: SummitRules;
   goals?: GoalRules;
@@ -158,8 +160,24 @@ export function startingGdp(c: WorldCountry, rules: EconomyRules): number {
   return rules.start.fallbackGdp;
 }
 
-export function initialEconomy(c: WorldCountry, rules: EconomyRules): CountryEconomy {
+/** Starting public debt per country (data/modern/debt.json). */
+export interface StartDebt {
+  defaultShare: number;
+  debtShareOfGdp: Record<string, number>;
+}
+
+export function initialEconomy(
+  c: WorldCountry,
+  rules: EconomyRules,
+  startDebt?: StartDebt,
+): CountryEconomy {
   const gdp = startingGdp(c, rules);
+  const debtShare = startDebt
+    ? (startDebt.debtShareOfGdp[c.id] ?? startDebt.defaultShare)
+    : rules.start.debtShareOfGdp;
+  // Interest on that debt is part of the starting budget.
+  const interest =
+    debtShare * (rules.debt.interestRate + rules.debt.interestPerDebtShare * debtShare);
   const militaryShare =
     c.stats.militaryExpenditureUsd && c.stats.gdpUsd
       ? c.stats.militaryExpenditureUsd / c.stats.gdpUsd
@@ -168,11 +186,11 @@ export function initialEconomy(c: WorldCountry, rules: EconomyRules): CountryEco
   return {
     gdp,
     treasury: gdp * start.treasuryShareOfGdp,
-    debt: gdp * start.debtShareOfGdp,
+    debt: gdp * debtShare,
     taxRate: start.taxRate,
     // A roughly balanced budget with a small deficit, as most states run.
     servicesShare: clamp(
-      start.taxRate - militaryShare + start.servicesDeficit,
+      start.taxRate - militaryShare - interest + start.servicesDeficit,
       limits.servicesShareMin,
       limits.servicesShareMax,
     ),
@@ -183,9 +201,13 @@ export function initialEconomy(c: WorldCountry, rules: EconomyRules): CountryEco
   };
 }
 
-export function initEconomy(world: World, rules: EconomyRules): EconomyState {
+export function initEconomy(
+  world: World,
+  rules: EconomyRules,
+  startDebt?: StartDebt,
+): EconomyState {
   const countries: Record<string, CountryEconomy> = {};
-  for (const c of world.countries) countries[c.id] = initialEconomy(c, rules);
+  for (const c of world.countries) countries[c.id] = initialEconomy(c, rules, startDebt);
   return { countries, buildings: [], nextBuildingId: 1 };
 }
 

@@ -5,7 +5,7 @@
     "checked": "2026-10-25"
   },
   "gdpGrowth": { "factor": 1.15, "turns": 260 },
-  "noRiots": { "turns": 260 },
+  "noRiots": { "turns": 260, "minSupportMargin": 20 },
   "lowInflation": { "max": 0.05, "streak": 52, "turns": 260 },
   "lowDebt": { "maxShare": 0.6, "turns": 260 },
   "joinAlliance": { "turns": 260 },

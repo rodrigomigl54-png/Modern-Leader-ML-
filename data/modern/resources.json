@@ -292,6 +292,14 @@
     "comment": "exportTaxShare: share of export revenue that reaches the treasury. trade: importers buy from exporters in proportion to the exporter's surplus divided by the distance between the capitals (at least minKm) to the power distanceExponent; what is not covered is asked again of exporters with something left, for rounds rounds. Sanctions and wars cut trade between the countries involved. Shortage costs GDP by importance \u00d7 missing share of consumption (per year).",
     "exportTaxShare": 0.15,
     "trade": { "distanceExponent": 1, "minKm": 500, "rounds": 4 },
+    "prices": {
+      "comment": "Each week the price moves adjustPerTurn of the way toward start price × (1 + shortageElasticity × share of import demand left unmet − surplusElasticity × share of export surplus left unsold), kept between min and max times the start price.",
+      "shortageElasticity": 2,
+      "surplusElasticity": 0.5,
+      "adjustPerTurn": 0.1,
+      "min": 0.5,
+      "max": 3
+    },
     "foodShortageSupport": 25,
     "chipsStopBelow": 0.5,
     "shortageAlert": 0.85,

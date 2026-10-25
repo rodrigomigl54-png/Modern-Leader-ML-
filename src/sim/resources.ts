@@ -34,6 +34,14 @@ export interface ResourcesData {
     exportTaxShare: number;
     /** Partner choice: exporters weigh by surplus / max(minKm, distance)^distanceExponent. */
     trade: { distanceExponent: number; minKm: number; rounds: number };
+    /** Prices: up with unmet import demand, down with unsold surplus, a share of the way a week. */
+    prices?: {
+      shortageElasticity: number;
+      surplusElasticity: number;
+      adjustPerTurn: number;
+      min: number;
+      max: number;
+    };
     foodShortageSupport: number;
     chipsStopBelow: number;
     shortageAlert: number;
@@ -68,6 +76,8 @@ export interface ResourcesState {
   baseWorldGdp: number;
   /** Price per unit, USD. */
   price: number[];
+  /** Price at the start; the price moves around it with shortage and oversupply. */
+  basePrice?: number[];
   trade: Record<string, CountryTrade>;
 }
 
@@ -330,6 +340,7 @@ export function resourcesPhase(
       }
     });
     const surplus = Float64Array.from(left);
+    const wantedBy = Float64Array.from(need);
     for (let round = 0; round < rounds; round++) {
       asked.fill(0);
       let any = false;
@@ -385,11 +396,39 @@ export function resourcesPhase(
         .slice(0, 3)
         .map(([e, units]) => [e, imports > 0 ? units / imports : 0]);
     }
+    let unsold = 0;
+    let offered = 0;
     for (const e of exporters) {
       const sold = surplus[e]! - left[e]!;
       const t = trade[ids[e]!]!;
       t.exports[ri] = sold;
       t.exportValue += sold * price;
+      unsold += left[e]!;
+      offered += surplus[e]!;
+    }
+    // The price follows the market: up when importers cannot get enough, down when exporters
+    // cannot sell (a closed market after sanctions or wars, new production).
+    const pr = rules.prices;
+    if (pr && addBuildings) {
+      let wanted = 0;
+      let unmet = 0;
+      for (const i of importers) {
+        wanted += wantedBy[i]!;
+        unmet += need[i]!;
+      }
+      const base = (r.basePrice ??= [...r.price])[ri]!;
+      const target =
+        base *
+        Math.min(
+          pr.max,
+          Math.max(
+            pr.min,
+            1 +
+              pr.shortageElasticity * (wanted > 0 ? unmet / wanted : 0) -
+              pr.surplusElasticity * (offered > 0 ? unsold / offered : 0),
+          ),
+        );
+      r.price[ri] = price + (target - price) * pr.adjustPerTurn;
     }
   });
   ids.forEach((id, i) => {

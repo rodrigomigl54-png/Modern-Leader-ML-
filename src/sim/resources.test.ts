@@ -291,3 +291,17 @@ describe('trade between partner countries', () => {
     expect(t.supply[OIL]).toBeGreaterThan(0.3);
   });
 });
+
+describe('prices follow the market', () => {
+  it('a cut supplier makes the price rise; it falls back when trade returns', () => {
+    const start = newGame();
+    const base = start.resources.price[OIL]!;
+    let state = issue(start, { type: 'sanction', countryId: 'BBB', targetId: 'AAA' });
+    state = play(state, 20);
+    const high = state.resources.price[OIL]!;
+    expect(high).toBeGreaterThan(base * 1.2);
+    state = issue(state, { type: 'liftSanctions', countryId: 'BBB', targetId: 'AAA' });
+    state = play(state, 40);
+    expect(state.resources.price[OIL]!).toBeLessThan(high);
+  });
+});
