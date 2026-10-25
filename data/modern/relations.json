@@ -1,61 +1,1253 @@
 {
   "meta": {
-    "description": "Starting relations between pairs of countries (GDD section 10), -100 hostile to +100 close ally. Pairs not listed start from their alliances, pacts, rivalries and wars (diplomacy-rules.json); these entries replace that value where documented behavior says otherwise. Each entry cites the treaty, agreement or documented event behind it.",
+    "description": "Starting relations between pairs of countries (GDD section 10), -100 hostile to +100 close ally. Pairs not listed start from their alliances, pacts, rivalries and wars (diplomacy-rules.json); these entries replace that value where documented behavior says otherwise. Each entry cites the treaty, agreement or documented event behind it. 'sanctions' lists sanctions in force at the start (who sanctions whom), each with its reason.",
     "source": "Treaties and documented diplomatic history known up to mid-2026",
     "checked": "2026-10-24",
     "checkedBy": "draft — needs review"
   },
   "pairs": [
-    { "a": "USA", "b": "GBR", "value": 85, "reason": "Five Eyes; AUKUS; nuclear cooperation (1958 Mutual Defence Agreement)" },
-    { "a": "USA", "b": "CAN", "value": 70, "reason": "NORAD; Five Eyes" },
-    { "a": "USA", "b": "AUS", "value": 80, "reason": "ANZUS; AUKUS; Five Eyes" },
-    { "a": "USA", "b": "JPN", "value": 75, "reason": "1960 Treaty of Mutual Cooperation and Security; US forces in Japan" },
-    { "a": "USA", "b": "KOR", "value": 75, "reason": "1953 Mutual Defense Treaty; US forces in Korea" },
-    { "a": "USA", "b": "ISR", "value": 80, "reason": "2016 Memorandum of Understanding on military aid (38 bn USD)" },
-    { "a": "USA", "b": "TWN", "value": 55, "reason": "Taiwan Relations Act (1979); arms sales" },
-    { "a": "USA", "b": "SAU", "value": 45, "reason": "Long-standing security partnership and arms sales" },
-    { "a": "USA", "b": "IND", "value": 45, "reason": "Quad; 2016 Major Defense Partner designation" },
-    { "a": "USA", "b": "MEX", "value": 40, "reason": "USMCA trade agreement" },
-    { "a": "USA", "b": "UKR", "value": 40, "reason": "Military aid since 2022" },
-    { "a": "USA", "b": "VEN", "value": -70, "reason": "US sanctions on Venezuela since 2017" },
-    { "a": "USA", "b": "CUB", "value": -70, "reason": "US embargo since 1962" },
-    { "a": "RUS", "b": "CHN", "value": 55, "reason": "2022 'no limits' partnership statement" },
-    { "a": "RUS", "b": "IRN", "value": 50, "reason": "2025 Comprehensive Strategic Partnership Treaty" },
-    { "a": "RUS", "b": "BLR", "value": 85, "reason": "Union State treaty (1999); Russian nuclear weapons deployed in Belarus" },
-    { "a": "RUS", "b": "PRK", "value": 60, "reason": "2024 Comprehensive Strategic Partnership Treaty with mutual defense" },
-    { "a": "RUS", "b": "SRB", "value": 35, "reason": "Serbia did not join EU sanctions on Russia (2022)" },
-    { "a": "RUS", "b": "IND", "value": 35, "reason": "Long-standing arms supplier; 2000 Strategic Partnership" },
-    { "a": "RUS", "b": "CUB", "value": 40, "reason": "Long-standing political and economic ties" },
-    { "a": "RUS", "b": "VEN", "value": 40, "reason": "Arms sales and loans since the 2000s" },
-    { "a": "RUS", "b": "UKR", "value": -100, "reason": "Full-scale war since 2022" },
-    { "a": "RUS", "b": "GBR", "value": -60, "reason": "Expulsions and sanctions after 2018 and 2022" },
-    { "a": "RUS", "b": "POL", "value": -60, "reason": "Sanctions; Poland a main transit hub of aid to Ukraine" },
-    { "a": "CHN", "b": "PAK", "value": 70, "reason": "'All-weather strategic cooperative partnership'; CPEC" },
-    { "a": "CHN", "b": "PRK", "value": 45, "reason": "1961 Treaty of Friendship, Cooperation and Mutual Assistance" },
-    { "a": "CHN", "b": "SRB", "value": 50, "reason": "2016 Comprehensive Strategic Partnership; 2024 'shared future' statement" },
-    { "a": "CHN", "b": "IND", "value": -30, "reason": "2020 Galwan border clash" },
-    { "a": "CHN", "b": "TWN", "value": -70, "reason": "PRC claims Taiwan; military pressure" },
-    { "a": "IND", "b": "PAK", "value": -80, "reason": "Wars of 1947, 1965, 1971, 1999; 2025 strikes" },
-    { "a": "ISR", "b": "IRN", "value": -90, "reason": "Direct strikes in 2024 and 2025" },
-    { "a": "SAU", "b": "IRN", "value": -20, "reason": "Ties restored in 2023 (Beijing agreement) after a rivalry" },
-    { "a": "ARE", "b": "ISR", "value": 30, "reason": "Abraham Accords (2020)" },
-    { "a": "MAR", "b": "ISR", "value": 20, "reason": "Abraham Accords (2020)" },
-    { "a": "EGY", "b": "ISR", "value": 10, "reason": "1979 peace treaty; cold peace" },
-    { "a": "KOR", "b": "PRK", "value": -90, "reason": "Armistice only (1953); no peace treaty" },
-    { "a": "JPN", "b": "CHN", "value": -20, "reason": "Senkaku dispute" },
-    { "a": "GRC", "b": "TUR", "value": 10, "reason": "NATO allies with disputes over the Aegean and Cyprus" },
-    { "a": "ARM", "b": "AZE", "value": -50, "reason": "Wars over Nagorno-Karabakh (1990s, 2020, 2023); peace text agreed in 2025" },
-    { "a": "FRA", "b": "DEU", "value": 85, "reason": "Élysée Treaty (1963); Aachen Treaty (2019)" },
-    { "a": "DEU", "b": "POL", "value": 55, "reason": "EU and NATO partners" },
-    { "a": "UKR", "b": "POL", "value": 60, "reason": "Main supporter and transit country since 2022" },
-    { "a": "UKR", "b": "GBR", "value": 65, "reason": "2025 100-year partnership agreement" },
-    { "a": "HUN", "b": "RUS", "value": 20, "reason": "Continued energy ties; opposition to some EU sanctions" },
-    { "a": "HUN", "b": "UKR", "value": -10, "reason": "Disputes over minority rights and EU support" },
-    { "a": "SRB", "b": "HUN", "value": 50, "reason": "2024 strategic partnership council" },
-    { "a": "SRB", "b": "XKX", "value": -70, "reason": "Serbia does not recognize Kosovo" },
-    { "a": "GBR", "b": "IRL", "value": 40, "reason": "Good Friday Agreement (1998)" },
-    { "a": "PAK", "b": "AFG", "value": -40, "reason": "Border clashes in 2024 and 2025" },
-    { "a": "ETH", "b": "ERI", "value": -30, "reason": "Renewed tensions after the 2018 peace" },
-    { "a": "MAR", "b": "DZA", "value": -50, "reason": "Algeria cut diplomatic ties in 2021" }
+    {
+      "a": "USA",
+      "b": "GBR",
+      "value": 85,
+      "reason": "Five Eyes; AUKUS; nuclear cooperation (1958 Mutual Defence Agreement)"
+    },
+    {
+      "a": "USA",
+      "b": "CAN",
+      "value": 70,
+      "reason": "NORAD; Five Eyes"
+    },
+    {
+      "a": "USA",
+      "b": "AUS",
+      "value": 80,
+      "reason": "ANZUS; AUKUS; Five Eyes"
+    },
+    {
+      "a": "USA",
+      "b": "JPN",
+      "value": 75,
+      "reason": "1960 Treaty of Mutual Cooperation and Security; US forces in Japan"
+    },
+    {
+      "a": "USA",
+      "b": "KOR",
+      "value": 75,
+      "reason": "1953 Mutual Defense Treaty; US forces in Korea"
+    },
+    {
+      "a": "USA",
+      "b": "ISR",
+      "value": 80,
+      "reason": "2016 Memorandum of Understanding on military aid (38 bn USD)"
+    },
+    {
+      "a": "USA",
+      "b": "TWN",
+      "value": 55,
+      "reason": "Taiwan Relations Act (1979); arms sales"
+    },
+    {
+      "a": "USA",
+      "b": "SAU",
+      "value": 45,
+      "reason": "Long-standing security partnership and arms sales"
+    },
+    {
+      "a": "USA",
+      "b": "IND",
+      "value": 45,
+      "reason": "Quad; 2016 Major Defense Partner designation"
+    },
+    {
+      "a": "USA",
+      "b": "MEX",
+      "value": 40,
+      "reason": "USMCA trade agreement"
+    },
+    {
+      "a": "USA",
+      "b": "UKR",
+      "value": 40,
+      "reason": "Military aid since 2022"
+    },
+    {
+      "a": "USA",
+      "b": "VEN",
+      "value": -70,
+      "reason": "US sanctions on Venezuela since 2017"
+    },
+    {
+      "a": "USA",
+      "b": "CUB",
+      "value": -70,
+      "reason": "US embargo since 1962"
+    },
+    {
+      "a": "RUS",
+      "b": "CHN",
+      "value": 55,
+      "reason": "2022 'no limits' partnership statement"
+    },
+    {
+      "a": "RUS",
+      "b": "IRN",
+      "value": 50,
+      "reason": "2025 Comprehensive Strategic Partnership Treaty"
+    },
+    {
+      "a": "RUS",
+      "b": "BLR",
+      "value": 85,
+      "reason": "Union State treaty (1999); Russian nuclear weapons deployed in Belarus"
+    },
+    {
+      "a": "RUS",
+      "b": "PRK",
+      "value": 60,
+      "reason": "2024 Comprehensive Strategic Partnership Treaty with mutual defense"
+    },
+    {
+      "a": "RUS",
+      "b": "SRB",
+      "value": 35,
+      "reason": "Serbia did not join EU sanctions on Russia (2022)"
+    },
+    {
+      "a": "RUS",
+      "b": "IND",
+      "value": 35,
+      "reason": "Long-standing arms supplier; 2000 Strategic Partnership"
+    },
+    {
+      "a": "RUS",
+      "b": "CUB",
+      "value": 40,
+      "reason": "Long-standing political and economic ties"
+    },
+    {
+      "a": "RUS",
+      "b": "VEN",
+      "value": 40,
+      "reason": "Arms sales and loans since the 2000s"
+    },
+    {
+      "a": "RUS",
+      "b": "UKR",
+      "value": -100,
+      "reason": "Full-scale war since 2022"
+    },
+    {
+      "a": "RUS",
+      "b": "GBR",
+      "value": -60,
+      "reason": "Expulsions and sanctions after 2018 and 2022"
+    },
+    {
+      "a": "RUS",
+      "b": "POL",
+      "value": -60,
+      "reason": "Sanctions; Poland a main transit hub of aid to Ukraine"
+    },
+    {
+      "a": "CHN",
+      "b": "PAK",
+      "value": 70,
+      "reason": "'All-weather strategic cooperative partnership'; CPEC"
+    },
+    {
+      "a": "CHN",
+      "b": "PRK",
+      "value": 45,
+      "reason": "1961 Treaty of Friendship, Cooperation and Mutual Assistance"
+    },
+    {
+      "a": "CHN",
+      "b": "SRB",
+      "value": 50,
+      "reason": "2016 Comprehensive Strategic Partnership; 2024 'shared future' statement"
+    },
+    {
+      "a": "CHN",
+      "b": "IND",
+      "value": -30,
+      "reason": "2020 Galwan border clash"
+    },
+    {
+      "a": "CHN",
+      "b": "TWN",
+      "value": -70,
+      "reason": "PRC claims Taiwan; military pressure"
+    },
+    {
+      "a": "IND",
+      "b": "PAK",
+      "value": -80,
+      "reason": "Wars of 1947, 1965, 1971, 1999; 2025 strikes"
+    },
+    {
+      "a": "ISR",
+      "b": "IRN",
+      "value": -90,
+      "reason": "Direct strikes in 2024 and 2025"
+    },
+    {
+      "a": "SAU",
+      "b": "IRN",
+      "value": -20,
+      "reason": "Ties restored in 2023 (Beijing agreement) after a rivalry"
+    },
+    {
+      "a": "ARE",
+      "b": "ISR",
+      "value": 30,
+      "reason": "Abraham Accords (2020)"
+    },
+    {
+      "a": "MAR",
+      "b": "ISR",
+      "value": 20,
+      "reason": "Abraham Accords (2020)"
+    },
+    {
+      "a": "EGY",
+      "b": "ISR",
+      "value": 10,
+      "reason": "1979 peace treaty; cold peace"
+    },
+    {
+      "a": "KOR",
+      "b": "PRK",
+      "value": -90,
+      "reason": "Armistice only (1953); no peace treaty"
+    },
+    {
+      "a": "JPN",
+      "b": "CHN",
+      "value": -20,
+      "reason": "Senkaku dispute"
+    },
+    {
+      "a": "GRC",
+      "b": "TUR",
+      "value": 10,
+      "reason": "NATO allies with disputes over the Aegean and Cyprus"
+    },
+    {
+      "a": "ARM",
+      "b": "AZE",
+      "value": -50,
+      "reason": "Wars over Nagorno-Karabakh (1990s, 2020, 2023); peace text agreed in 2025"
+    },
+    {
+      "a": "FRA",
+      "b": "DEU",
+      "value": 85,
+      "reason": "Élysée Treaty (1963); Aachen Treaty (2019)"
+    },
+    {
+      "a": "DEU",
+      "b": "POL",
+      "value": 55,
+      "reason": "EU and NATO partners"
+    },
+    {
+      "a": "UKR",
+      "b": "POL",
+      "value": 60,
+      "reason": "Main supporter and transit country since 2022"
+    },
+    {
+      "a": "UKR",
+      "b": "GBR",
+      "value": 65,
+      "reason": "2025 100-year partnership agreement"
+    },
+    {
+      "a": "HUN",
+      "b": "RUS",
+      "value": 20,
+      "reason": "Continued energy ties; opposition to some EU sanctions"
+    },
+    {
+      "a": "HUN",
+      "b": "UKR",
+      "value": -10,
+      "reason": "Disputes over minority rights and EU support"
+    },
+    {
+      "a": "SRB",
+      "b": "HUN",
+      "value": 50,
+      "reason": "2024 strategic partnership council"
+    },
+    {
+      "a": "SRB",
+      "b": "XKX",
+      "value": -70,
+      "reason": "Serbia does not recognize Kosovo"
+    },
+    {
+      "a": "GBR",
+      "b": "IRL",
+      "value": 40,
+      "reason": "Good Friday Agreement (1998)"
+    },
+    {
+      "a": "PAK",
+      "b": "AFG",
+      "value": -40,
+      "reason": "Border clashes in 2024 and 2025"
+    },
+    {
+      "a": "ETH",
+      "b": "ERI",
+      "value": -30,
+      "reason": "Renewed tensions after the 2018 peace"
+    },
+    {
+      "a": "MAR",
+      "b": "DZA",
+      "value": -50,
+      "reason": "Algeria cut diplomatic ties in 2021"
+    }
+  ],
+  "sanctions": [
+    {
+      "from": "USA",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "GBR",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "CAN",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "JPN",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "AUS",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "NOR",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "CHE",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "KOR",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "NZL",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "AUT",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "BEL",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "BGR",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "HRV",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "CYP",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "CZE",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "DNK",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "EST",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "FIN",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "FRA",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "DEU",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "GRC",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "HUN",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "IRL",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "ITA",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "LVA",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "LTU",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "LUX",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "MLT",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "NLD",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "POL",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "PRT",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "ROU",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "SVK",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "SVN",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "ESP",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "SWE",
+      "to": "RUS",
+      "reason": "Sanctions over the invasion of Ukraine (EU packages since 2022; US, UK, Canada, Japan, Australia, Norway, Switzerland, South Korea, New Zealand)"
+    },
+    {
+      "from": "USA",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "GBR",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "CAN",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "AUT",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "BEL",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "BGR",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "HRV",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "CYP",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "CZE",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "DNK",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "EST",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "FIN",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "FRA",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "DEU",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "GRC",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "HUN",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "IRL",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "ITA",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "LVA",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "LTU",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "LUX",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "MLT",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "NLD",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "POL",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "PRT",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "ROU",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "SVK",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "SVN",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "ESP",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "SWE",
+      "to": "BLR",
+      "reason": "Sanctions over the 2020 election and support for the invasion of Ukraine"
+    },
+    {
+      "from": "USA",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "GBR",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "CAN",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "AUT",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "BEL",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "BGR",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "HRV",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "CYP",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "CZE",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "DNK",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "EST",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "FIN",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "FRA",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "DEU",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "GRC",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "HUN",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "IRL",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "ITA",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "LVA",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "LTU",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "LUX",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "MLT",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "NLD",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "POL",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "PRT",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "ROU",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "SVK",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "SVN",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "ESP",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "SWE",
+      "to": "IRN",
+      "reason": "Nuclear and missile program sanctions (UN snapback in 2025; US, EU, UK)"
+    },
+    {
+      "from": "USA",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "JPN",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "KOR",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "AUS",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "GBR",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "AUT",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "BEL",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "BGR",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "HRV",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "CYP",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "CZE",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "DNK",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "EST",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "FIN",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "FRA",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "DEU",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "GRC",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "HUN",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "IRL",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "ITA",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "LVA",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "LTU",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "LUX",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "MLT",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "NLD",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "POL",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "PRT",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "ROU",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "SVK",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "SVN",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "ESP",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "SWE",
+      "to": "PRK",
+      "reason": "UN Security Council sanctions over nuclear tests"
+    },
+    {
+      "from": "USA",
+      "to": "CUB",
+      "reason": "US embargo since 1962"
+    },
+    {
+      "from": "USA",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "CAN",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "AUT",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "BEL",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "BGR",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "HRV",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "CYP",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "CZE",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "DNK",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "EST",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "FIN",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "FRA",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "DEU",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "GRC",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "HUN",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "IRL",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "ITA",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "LVA",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "LTU",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "LUX",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "MLT",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "NLD",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "POL",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "PRT",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "ROU",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "SVK",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "SVN",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "ESP",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "SWE",
+      "to": "VEN",
+      "reason": "Sanctions over the 2018 and 2024 elections"
+    },
+    {
+      "from": "USA",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "GBR",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "AUT",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "BEL",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "BGR",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "HRV",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "CYP",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "CZE",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "DNK",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "EST",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "FIN",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "FRA",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "DEU",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "GRC",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "HUN",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "IRL",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "ITA",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "LVA",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "LTU",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "LUX",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "MLT",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "NLD",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "POL",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "PRT",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "ROU",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "SVK",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "SVN",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "ESP",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    },
+    {
+      "from": "SWE",
+      "to": "MMR",
+      "reason": "Sanctions after the 2021 coup"
+    }
   ]
 }

@@ -1509,3 +1509,92 @@ body {
   border-color: #4e9a5e;
   color: #9fd3aa;
 }
+
+/* Resources (Phase 10) */
+.resource-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.resource-table th {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: normal;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.resource-table td {
+  padding: 4px 0;
+  border-top: 1px solid var(--panel-border);
+  text-align: right;
+}
+
+.resource-table td:first-child,
+.resource-table th:first-child {
+  text-align: left;
+}
+
+.map-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--panel-bg);
+  font-size: 13px;
+  list-style: none;
+}
+
+.map-legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+/* AI profiles (Phase 11) */
+.profile {
+  margin-top: 8px;
+}
+
+.profile summary {
+  min-height: 44px;
+  line-height: 44px;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.profile-traits dt {
+  display: grid;
+  grid-template-columns: 1fr 80px 28px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.profile-traits dd {
+  margin: 2px 0 0;
+  font-size: 12px;
+}
+
+.trait-bar {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--panel-border);
+}
+
+.trait-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}

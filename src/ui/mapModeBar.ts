@@ -1,5 +1,7 @@
 import { t } from '../i18n';
-import { MAP_MODES } from '../map/mapModes';
+import type { TranslationKey } from '../i18n';
+import { MAP_MODES, RESOURCE_COLORS } from '../map/mapModes';
+import { RESOURCES } from '../sim/resources';
 import { button, el } from './dom';
 
 /** Map mode switch (GDD section 13): one button, bottom left; tap it to choose a mode. */
@@ -54,6 +56,18 @@ export class MapModeBar {
         list.append(b);
       }
       children.push(list);
+    }
+    if (this.current === 'resources' && !this.open) {
+      // What the colors mean.
+      const legend = el('ul', 'map-legend');
+      RESOURCES.forEach((r, i) => {
+        const item = el('li');
+        const dot = el('span', 'legend-dot');
+        dot.style.background = `rgb(${RESOURCE_COLORS[i]!.join(',')})`;
+        item.append(dot, el('span', '', t(`res.${r}` as TranslationKey)));
+        legend.append(item);
+      });
+      children.push(legend);
     }
     const toggle = button('map-mode map-mode-toggle', `${t(mode.nameKey)} ▾`, () => {
       this.open = !this.open;

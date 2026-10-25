@@ -23,6 +23,7 @@ import {
   provinceSeat,
 } from './sim/military';
 import { ensureDiplomacy, relation, type Demand, type PlayerRequest } from './sim/diplomacy';
+import { ensureResources, type ResourceId } from './sim/resources';
 import { createNewGame, type GameState } from './sim/newGame';
 import { airDefenseMap, airDefenseQuote, ensureWeapons, weaponsRules } from './sim/weapons';
 import {
@@ -90,6 +91,7 @@ const COMMAND_ERRORS: Partial<Record<CommandError, TranslationKey>> = {
   atWar: 'dip.atWarError',
   unknownRequest: 'dip.unknownRequest',
   tooEarly: 'dip.peaceTooEarly',
+  noChips: 'produce.noChips',
 };
 
 async function start(): Promise<void> {
@@ -509,6 +511,12 @@ async function start(): Promise<void> {
       if (r.type === 'joinWar')
         return t('foreign.joinWarRequest', { ally: nameOf(r.from), enemy: nameOf(r.enemy) });
       if (r.type === 'peace') return t('foreign.peaceRequest', { country: nameOf(r.from) });
+      if (r.type === 'investment')
+        return t('foreign.investmentRequest', {
+          country: nameOf(r.from),
+          building: t(`building.${r.category}` as TranslationKey),
+          city: cityName(r.cityId),
+        });
       const u = state.diplomacy.ultimatums.find((x) => x.id === r.ultimatumId);
       return u
         ? t('foreign.ultimatumRequest', {
@@ -535,6 +543,21 @@ async function start(): Promise<void> {
         for (const m of a.members) if (!blocs.has(m)) blocs.set(m, i);
       });
       map.setDiplomacy(relations, blocs);
+      // Main export of each country (by value) for the resources map mode.
+      const exports = new Map<string, number>();
+      for (const [id, trade] of Object.entries(game.resources?.trade ?? {})) {
+        let best = -1;
+        let bestValue = 0;
+        trade.exports.forEach((units, ri) => {
+          const value = units * (game!.resources.price[ri] ?? 0);
+          if (value > bestValue) {
+            best = ri;
+            bestValue = value;
+          }
+        });
+        exports.set(id, best);
+      }
+      map.setExports(exports);
     };
 
     const clearSelection = (): void => {
@@ -547,9 +570,12 @@ async function start(): Promise<void> {
 
     /** Shows a game (new or loaded) on the map. */
     const playGame = (loaded: GameState): void => {
-      const state = ensureDiplomacy(
-        ensureWeapons(
-          ensureMilitary(ensurePopulation(ensureEconomy(loaded, sim.economy), population), sim),
+      const state = ensureResources(
+        ensureDiplomacy(
+          ensureWeapons(
+            ensureMilitary(ensurePopulation(ensureEconomy(loaded, sim.economy), population), sim),
+            sim,
+          ),
           sim,
         ),
         sim,
@@ -635,7 +661,29 @@ async function start(): Promise<void> {
         noticeDialog(uiRoot, t('minister.foreign'), text, t('minister.understood'));
       const joinedAgainst: string[] = [];
       const joinedFor: string[] = [];
+      const playerAllies = new Set(alliesOf(game.world, player));
       for (const e of events) {
+        if (e.type === 'warDeclared') {
+          if (e.target === player)
+            await foreign(t('minister.warDeclared', { country: nameOf(e.attacker) }));
+          else if (playerAllies.has(e.target))
+            await foreign(
+              t('minister.allyAttacked', { country: nameOf(e.attacker), ally: nameOf(e.target) }),
+            );
+          else
+            toasts.show(
+              t('news.warDeclared', { attacker: nameOf(e.attacker), target: nameOf(e.target) }),
+            );
+        }
+        if (e.type === 'sanctionsImposed' && e.to === player)
+          toasts.show(t('news.sanctionsOnUs', { country: nameOf(e.from) }), 'error');
+        if (e.type === 'nuclearThreat' && e.to === player)
+          await noticeDialog(
+            uiRoot,
+            t('minister.defence'),
+            t('minister.nuclearThreat', { country: nameOf(e.from) }),
+            t('minister.understood'),
+          );
         if (e.type === 'warJoined') {
           if (e.enemy === player) joinedAgainst.push(e.countryId);
           else if (e.ally === player) joinedFor.push(e.countryId);
@@ -766,6 +814,17 @@ async function start(): Promise<void> {
         );
       }
       for (const e of events) {
+        if (e.type === 'shortage' && e.countryId === player)
+          await noticeDialog(
+            uiRoot,
+            t('minister.finance'),
+            t('minister.shortage', {
+              resources: e.resources.map((r: ResourceId) => t(`res.${r}`)).join(', '),
+            }),
+            t('minister.understood'),
+          );
+      }
+      for (const e of events) {
         if (e.type === 'inflationAlert' && e.countryId === player) {
           await noticeDialog(
             uiRoot,
@@ -807,6 +866,7 @@ async function start(): Promise<void> {
       map.setStrikes({ missiles: [], drones: [], nuclearBases: [], airDefense: [] });
       map.setAirDefense(null);
       map.setDiplomacy(null, null);
+      map.setExports(null);
       countryDialog.close();
       clearSelection();
       showMenuMap();

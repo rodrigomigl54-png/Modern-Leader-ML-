@@ -3,6 +3,7 @@ import { initEconomy, type EconomyState, type SimContext } from './economy';
 import { emptyDiplomacy, initDiplomacy, type DiplomacyState } from './diplomacy';
 import { emptyMilitary, initMilitary, type MilitaryState } from './military';
 import { initPopulation, type PopulationState } from './population';
+import { emptyResources, initResources, resourcesPhase, type ResourcesState } from './resources';
 import { emptyWeapons, initWeapons, type WeaponsState } from './weapons';
 import { applyDisputedSetting, type Aggressiveness, type DisputedMode, type World } from './world';
 
@@ -33,6 +34,7 @@ export interface GameState {
   military: MilitaryState;
   weapons: WeaponsState;
   diplomacy: DiplomacyState;
+  resources: ResourcesState;
   /** Set when the player's government has fallen or the country was conquered. */
   gameOver?: { reason: 'revolution' | 'conquered'; turn: number };
 }
@@ -64,7 +66,7 @@ export function createNewGame(world: World, options: NewGameOptions, sim: SimCon
     ? initMilitary({ world: effective, economy }, sim)
     : emptyMilitary(effective, sim);
   const weapons = sim.weapons ? initWeapons({ world: effective, economy }, sim) : emptyWeapons(sim);
-  return {
+  const game: GameState = {
     version: 1,
     seed: options.seed >>> 0,
     rngState: options.seed >>> 0,
@@ -86,5 +88,11 @@ export function createNewGame(world: World, options: NewGameOptions, sim: SimCon
     diplomacy: sim.diplomacy
       ? initDiplomacy({ world: effective, turn: 0, economy }, sim)
       : emptyDiplomacy(),
+    resources: emptyResources({ world: effective }),
   };
+  if (sim.resources) {
+    game.resources = initResources(game, sim);
+    resourcesPhase(game, sim, () => undefined, false);
+  }
+  return game;
 }

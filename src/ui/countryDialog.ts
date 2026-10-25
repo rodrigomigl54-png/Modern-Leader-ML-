@@ -21,6 +21,7 @@ import {
 import type { SimContext } from '../sim/economy';
 import { provinceSeat } from '../sim/military';
 import type { GameState } from '../sim/newGame';
+import { TRAITS } from '../sim/profiles';
 import { weaponsRules, type WeaponKind } from '../sim/weapons';
 import { alliesOf, enemiesAtWar } from '../sim/world';
 import { button, el } from './dom';
@@ -172,6 +173,35 @@ export class CountryDialog {
         t('dip.points', { value: (game.diplomacy.points[me] ?? 0).toFixed(1) }),
       ),
     );
+    const profile = sim.profiles?.[id];
+    if (profile && id !== me) {
+      // The AI profile behind this country's decisions (GDD section 11), with its sources.
+      const details = el('details', 'profile');
+      details.append(el('summary', '', t('profile.title')));
+      const list = el('dl', 'profile-traits');
+      for (const tr of TRAITS) {
+        const [value, why] = profile[tr];
+        const bar = el('span', 'trait-bar');
+        const fill = el('span', 'trait-fill');
+        fill.style.width = `${value}%`;
+        bar.append(fill);
+        const dt = el('dt', '');
+        dt.append(
+          el('span', '', t(`profile.${tr}` as TranslationKey)),
+          bar,
+          el('span', 'mono', String(value)),
+        );
+        list.append(dt, el('dd', 'muted', why));
+      }
+      details.append(list);
+      const names = (ids: string[]): string => ids.map(this.options.countryName).join(', ') || '—';
+      details.append(
+        el('p', 'setup-hint', `${t('profile.partners')}: ${names(profile.partners)}`),
+        el('p', 'setup-hint', `${t('profile.rivals')}: ${names(profile.rivals)}`),
+      );
+      if (profile.derived) details.append(el('p', 'setup-hint', t('profile.derived')));
+      wrap.append(details);
+    }
     return wrap;
   }
 

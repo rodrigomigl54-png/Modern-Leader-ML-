@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "description": "How AI profiles turn into actions (GDD section 11). Rates are chances per turn at a trait of 100; thresholds are relations (-100..100) and strength ratios. Aggressiveness multiplies hostile traits (Chaos: hostile traits at the maximum and extra randomness in timing). Game-design defaults to be tuned in Phase 13.",
+    "source": "Game design (GDD section 11)",
+    "checked": "2026-10-25"
+  },
+  "aggressiveness": {
+    "peaceful": 0.5,
+    "realistic": 1,
+    "aggressive": 1.5,
+    "chaos": 1
+  },
+  "chaosTimingJitter": 2,
+  "rates": {
+    "sanction": 0.03,
+    "ultimatum": 0.012,
+    "war": 0.004,
+    "intervene": 0.03,
+    "aid": 0.04,
+    "pact": 0.01,
+    "invest": 0.05,
+    "investInPlayer": 0.01
+  },
+  "thresholds": {
+    "sanctionRelation": -50,
+    "ultimatumRelation": -20,
+    "ultimatumPower": 2,
+    "warRelation": -30,
+    "warPower": 2.5,
+    "interveneRelation": 70,
+    "pactRelation": 50,
+    "aidRelation": 50,
+    "investInPlayerRelation": 30,
+    "enforceRisk": 50,
+    "interveneNuclearRisk": 80
+  },
+  "loyalty": {
+    "joinBase": 70,
+    "perLoyalty": 0.6,
+    "pactExtra": 10
+  },
+  "fiscal": {
+    "everyTurns": 4,
+    "step": 0.01,
+    "maxTax": 0.4,
+    "minTax": 0.15,
+    "minServices": 0.12,
+    "debtLimit": 0.6,
+    "lowSupport": 45
+  },
+  "nuclear": {
+    "lastResortMinPosture": 30,
+    "threatPosture": 50,
+    "threatScore": -30
+  }
+}

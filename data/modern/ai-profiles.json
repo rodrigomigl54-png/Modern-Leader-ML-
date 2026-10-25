@@ -1,0 +1,7755 @@
+{
+  "meta": {
+    "description": "AI behavior profiles (GDD section 11). Traits 0-100, each [score, one-line justification]. Hand-written profiles come from tools/ai/manual-profiles.json; the rest (\"derived\": true) are computed from the game data by tools/ai/build-profiles.ts. Generated file: do not edit by hand.",
+    "source": "tools/ai/manual-profiles.json and data/modern (alliances, rivalries, wars, sanctions, SIPRI spending, nuclear forces)",
+    "generatedBy": "tools/ai/build-profiles.ts",
+    "checked": "2026-10-25",
+    "checkedBy": "draft — needs review by Dario"
+  },
+  "profiles": {
+    "AFG": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with PAK"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 331 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "PAK"
+      ],
+      "derived": true
+    },
+    "AGO": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 2,170 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "ALB": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO"
+      ],
+      "economy": [
+        47,
+        "GDP per person 9,779 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "AND": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 44,964 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "ARE": {
+      "interventionism": [
+        55,
+        "Operations in Yemen and Libya; support for parties in Sudan"
+      ],
+      "sanctions": [
+        30,
+        "Blockade of Qatar 2017-2021"
+      ],
+      "pressure": [
+        30,
+        "Regional pressure through allies"
+      ],
+      "expansionism": [
+        10,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        30,
+        "Indirect means preferred"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        50,
+        "Gulf Cooperation Council"
+      ],
+      "economy": [
+        90,
+        "Large sovereign wealth funds and foreign investment"
+      ],
+      "partners": [
+        "SAU",
+        "USA",
+        "ISR"
+      ],
+      "rivals": [
+        "IRN"
+      ]
+    },
+    "ARG": {
+      "interventionism": [
+        5,
+        "No foreign operations"
+      ],
+      "sanctions": [
+        10,
+        "Rarely sanctions"
+      ],
+      "pressure": [
+        15,
+        "Claims the Falklands by diplomacy"
+      ],
+      "expansionism": [
+        25,
+        "Claims the Falkland Islands"
+      ],
+      "risk": [
+        10,
+        "No war since 1982"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "Major non-NATO ally of the US; no defense treaty"
+      ],
+      "economy": [
+        55,
+        "Agricultural exporter"
+      ],
+      "partners": [
+        "BRA",
+        "USA"
+      ],
+      "rivals": [
+        "GBR"
+      ]
+    },
+    "ARM": {
+      "interventionism": [
+        5,
+        "Defensive"
+      ],
+      "sanctions": [
+        5,
+        "No sanctions policy"
+      ],
+      "pressure": [
+        5,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        10,
+        "Gave up claims to Nagorno-Karabakh in 2023-2025"
+      ],
+      "risk": [
+        15,
+        "Avoids new war"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "Froze its CSTO participation in 2024"
+      ],
+      "economy": [
+        55,
+        "Small open economy"
+      ],
+      "partners": [
+        "FRA",
+        "IND"
+      ],
+      "rivals": [
+        "AZE"
+      ]
+    },
+    "ATG": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 21,581 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "AUS": {
+      "interventionism": [
+        50,
+        "Joined US operations in Iraq and Afghanistan"
+      ],
+      "sanctions": [
+        60,
+        "Own autonomous sanctions; Russia packages"
+      ],
+      "pressure": [
+        20,
+        "Pacific diplomacy"
+      ],
+      "expansionism": [
+        0,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        35,
+        "Joins coalitions only"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons; AUKUS submarines conventionally armed"
+      ],
+      "loyalty": [
+        85,
+        "ANZUS; AUKUS; Five Eyes"
+      ],
+      "economy": [
+        75,
+        "Resource exporter"
+      ],
+      "partners": [
+        "USA",
+        "GBR",
+        "JPN"
+      ],
+      "rivals": [
+        "CHN"
+      ]
+    },
+    "AUT": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        50,
+        "Member of the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 56,041 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "AZE": {
+      "interventionism": [
+        15,
+        "Regional focus"
+      ],
+      "sanctions": [
+        5,
+        "No sanctions policy"
+      ],
+      "pressure": [
+        70,
+        "Blockade of the Lachin corridor (2022-2023)"
+      ],
+      "expansionism": [
+        60,
+        "Retook Nagorno-Karabakh in 2020 and 2023"
+      ],
+      "risk": [
+        70,
+        "Offensives in 2020 and 2023"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        65,
+        "2021 Shusha declaration with Turkey"
+      ],
+      "economy": [
+        45,
+        "Oil and gas economy"
+      ],
+      "partners": [
+        "TUR",
+        "ISR"
+      ],
+      "rivals": [
+        "ARM"
+      ]
+    },
+    "BDI": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 184 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "BEL": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 52,942 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "BEN": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,328 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "BFA": {
+      "interventionism": [
+        20,
+        "Member of the Alliance of Sahel States; No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of the Alliance of Sahel States"
+      ],
+      "economy": [
+        32,
+        "GDP per person 844 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "BGD": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 2,490 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "BGR": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        47,
+        "GDP per person 15,790 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "BHR": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        50,
+        "Member of the GCC"
+      ],
+      "economy": [
+        67,
+        "GDP per person 26,997 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "BHS": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 35,576 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "BIH": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 8,616 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "BLR": {
+      "interventionism": [
+        25,
+        "Allowed its territory for the 2022 invasion of Ukraine"
+      ],
+      "sanctions": [
+        10,
+        "Counter-sanctions only"
+      ],
+      "pressure": [
+        35,
+        "Migrant pressure on Poland and Lithuania (2021)"
+      ],
+      "expansionism": [
+        5,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        25,
+        "Did not send its own troops to Ukraine"
+      ],
+      "nuclear": [
+        40,
+        "Hosts Russian nuclear weapons"
+      ],
+      "loyalty": [
+        85,
+        "Union State with Russia; CSTO"
+      ],
+      "economy": [
+        30,
+        "State-run economy dependent on Russia"
+      ],
+      "partners": [
+        "RUS"
+      ],
+      "rivals": [
+        "POL",
+        "LTU"
+      ]
+    },
+    "BLZ": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 7,759 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "BOL": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 3,644 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "BRA": {
+      "interventionism": [
+        10,
+        "UN peacekeeping only (Haiti)"
+      ],
+      "sanctions": [
+        5,
+        "Opposes unilateral sanctions"
+      ],
+      "pressure": [
+        10,
+        "Regional leadership by diplomacy"
+      ],
+      "expansionism": [
+        0,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        5,
+        "No wars since 1945"
+      ],
+      "nuclear": [
+        0,
+        "Renounced nuclear weapons (1988 constitution)"
+      ],
+      "loyalty": [
+        35,
+        "BRICS; no defense alliances"
+      ],
+      "economy": [
+        75,
+        "Agricultural and industrial exporter"
+      ],
+      "partners": [
+        "ARG",
+        "CHN"
+      ],
+      "rivals": []
+    },
+    "BRB": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 22,622 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "BRN": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 32,441 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "BTN": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 3,638 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "BWA": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 7,570 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "CAF": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 464 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "CAN": {
+      "interventionism": [
+        35,
+        "Afghanistan; NATO missions in Latvia"
+      ],
+      "sanctions": [
+        70,
+        "Special Economic Measures Act sanctions on Russia, Iran and others"
+      ],
+      "pressure": [
+        10,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        0,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        20,
+        "Joins coalitions only"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        80,
+        "NATO founding member; NORAD"
+      ],
+      "economy": [
+        75,
+        "Resource and trade economy"
+      ],
+      "partners": [
+        "USA",
+        "GBR"
+      ],
+      "rivals": [
+        "RUS"
+      ]
+    },
+    "CHE": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Sanctions in force on RUS"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 97,327 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "CHL": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 16,895 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "CHN": {
+      "interventionism": [
+        25,
+        "No foreign wars since 1979; one overseas base (Djibouti)"
+      ],
+      "sanctions": [
+        55,
+        "Economic coercion of Lithuania (2021), Australia (2020) and counter-sanctions on US firms"
+      ],
+      "pressure": [
+        70,
+        "Military pressure on Taiwan, the Philippines and Japan in disputed seas"
+      ],
+      "expansionism": [
+        65,
+        "Claims Taiwan and most of the South China Sea; island building since 2013"
+      ],
+      "risk": [
+        35,
+        "Prefers gray-zone pressure to open war"
+      ],
+      "nuclear": [
+        25,
+        "No-first-use policy; arsenal growing"
+      ],
+      "loyalty": [
+        40,
+        "Only treaty ally is North Korea (1961)"
+      ],
+      "economy": [
+        90,
+        "Belt and Road Initiative; largest trading nation"
+      ],
+      "partners": [
+        "RUS",
+        "PAK",
+        "PRK",
+        "SRB"
+      ],
+      "rivals": [
+        "USA",
+        "TWN",
+        "JPN",
+        "IND",
+        "PHL"
+      ]
+    },
+    "CIV": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 2,409 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "CMR": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,605 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "COD": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with RWA"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 588 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "RWA"
+      ],
+      "derived": true
+    },
+    "COG": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 2,363 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "COL": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 6,805 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "COM": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,532 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "CPV": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 4,906 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "CRI": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 16,786 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "CUB": {
+      "interventionism": [
+        15,
+        "Military advisers abroad (Venezuela)"
+      ],
+      "sanctions": [
+        0,
+        "No sanctions policy"
+      ],
+      "pressure": [
+        5,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        0,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        10,
+        "Defensive"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        50,
+        "Close to Venezuela and Russia"
+      ],
+      "economy": [
+        15,
+        "Planned economy under embargo"
+      ],
+      "partners": [
+        "VEN",
+        "RUS"
+      ],
+      "rivals": [
+        "USA"
+      ]
+    },
+    "CYP": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with XNC"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        50,
+        "Member of the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 23,512 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "XNC"
+      ],
+      "derived": true
+    },
+    "CZE": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 30,391 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "DEU": {
+      "interventionism": [
+        20,
+        "Post-war restraint; limited missions (Afghanistan, Mali)"
+      ],
+      "sanctions": [
+        55,
+        "Applies EU sanctions; cautious until 2022"
+      ],
+      "pressure": [
+        10,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        0,
+        "Constitutional and political rejection of expansion"
+      ],
+      "risk": [
+        10,
+        "Avoids combat roles"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        80,
+        "Hosts US forces; second-largest aid donor to Ukraine"
+      ],
+      "economy": [
+        90,
+        "Export-oriented industrial economy"
+      ],
+      "partners": [
+        "FRA",
+        "POL",
+        "USA"
+      ],
+      "rivals": []
+    },
+    "DJI": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 3,461 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "DMA": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 9,928 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "DNK": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 67,264 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "DOM": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 10,542 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "DZA": {
+      "interventionism": [
+        25,
+        "Military spending 9.1% of GDP (SIPRI)"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with MAR"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        51,
+        "Military spending 9.1% of GDP (SIPRI); Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        23,
+        "GDP per person 5,057 USD; Military spending 9.1% of GDP (SIPRI)"
+      ],
+      "partners": [],
+      "rivals": [
+        "MAR"
+      ],
+      "derived": true
+    },
+    "ECU": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 6,498 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "EGY": {
+      "interventionism": [
+        30,
+        "Air strikes in Libya; involvement in Sudan"
+      ],
+      "sanctions": [
+        10,
+        "Rarely sanctions"
+      ],
+      "pressure": [
+        35,
+        "Dispute with Ethiopia over the Nile dam"
+      ],
+      "expansionism": [
+        5,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        25,
+        "Avoids open war"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        50,
+        "Close to Saudi Arabia and the UAE"
+      ],
+      "economy": [
+        40,
+        "IMF programs"
+      ],
+      "partners": [
+        "SAU",
+        "ARE",
+        "USA"
+      ],
+      "rivals": [
+        "ETH"
+      ]
+    },
+    "ERI": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with ETH"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 572 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "ETH"
+      ],
+      "derived": true
+    },
+    "ESH": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with MAR"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "MAR"
+      ],
+      "derived": true
+    },
+    "ESP": {
+      "interventionism": [
+        20,
+        "NATO and EU missions"
+      ],
+      "sanctions": [
+        55,
+        "Applies EU sanctions"
+      ],
+      "pressure": [
+        10,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        5,
+        "Dispute over Gibraltar"
+      ],
+      "risk": [
+        10,
+        "Avoids combat"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        65,
+        "NATO and EU member; lowest NATO spender"
+      ],
+      "economy": [
+        70,
+        "Tourism and services economy"
+      ],
+      "partners": [
+        "FRA",
+        "PRT"
+      ],
+      "rivals": []
+    },
+    "EST": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 29,817 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "ETH": {
+      "interventionism": [
+        30,
+        "Troops in Somalia"
+      ],
+      "sanctions": [
+        5,
+        "No sanctions policy"
+      ],
+      "pressure": [
+        40,
+        "Seeks sea access; pressure on Eritrea and Somalia"
+      ],
+      "expansionism": [
+        35,
+        "2024 port deal with Somaliland; talk of Red Sea access"
+      ],
+      "risk": [
+        45,
+        "Tigray war 2020-2022"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances"
+      ],
+      "economy": [
+        40,
+        "Fast-growing but poor economy"
+      ],
+      "partners": [
+        "ARE"
+      ],
+      "rivals": [
+        "ERI",
+        "EGY"
+      ]
+    },
+    "FIN": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 53,164 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "FJI": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 5,888 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "FRA": {
+      "interventionism": [
+        65,
+        "Operations in Mali, Libya, the Sahel; bases in Djibouti and the UAE"
+      ],
+      "sanctions": [
+        65,
+        "Drives EU sanctions packages"
+      ],
+      "pressure": [
+        30,
+        "Acts mostly through the EU"
+      ],
+      "expansionism": [
+        5,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        40,
+        "Expeditionary operations against weak opponents only"
+      ],
+      "nuclear": [
+        30,
+        "Independent deterrent with 'final warning' doctrine"
+      ],
+      "loyalty": [
+        80,
+        "NATO and EU core member"
+      ],
+      "economy": [
+        70,
+        "Large economy and investor"
+      ],
+      "partners": [
+        "DEU",
+        "GBR",
+        "IND"
+      ],
+      "rivals": []
+    },
+    "FSM": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 4,046 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "GAB": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 7,912 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "GBR": {
+      "interventionism": [
+        65,
+        "Iraq, Afghanistan, Libya; strikes in Syria and Yemen"
+      ],
+      "sanctions": [
+        75,
+        "Own sanctions regime since Brexit; large Russia packages"
+      ],
+      "pressure": [
+        30,
+        "Acts mostly through alliances"
+      ],
+      "expansionism": [
+        5,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        45,
+        "Joins US-led operations; avoids wars alone"
+      ],
+      "nuclear": [
+        20,
+        "Minimum deterrent (Trident)"
+      ],
+      "loyalty": [
+        85,
+        "NATO founding member; AUKUS; Five Eyes"
+      ],
+      "economy": [
+        70,
+        "Financial center; large outward investor"
+      ],
+      "partners": [
+        "USA",
+        "UKR",
+        "AUS",
+        "CAN"
+      ],
+      "rivals": [
+        "RUS"
+      ]
+    },
+    "GEO": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        30,
+        "Documented rivalries with XAB, XSO"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 7,758 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "XAB",
+        "XSO"
+      ],
+      "derived": true
+    },
+    "GHA": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 2,178 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "GIN": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,564 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "GMB": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 829 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "GNB": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 874 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "GNQ": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 6,251 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "GRC": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with TUR"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 22,874 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "TUR"
+      ],
+      "derived": true
+    },
+    "GRD": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 11,256 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "GTM": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 5,461 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "GUY": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with VEN"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 20,080 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "VEN"
+      ],
+      "derived": true
+    },
+    "HND": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 3,126 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "HRV": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 21,332 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "HTI": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,667 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "HUN": {
+      "interventionism": [
+        5,
+        "No foreign operations beyond NATO missions"
+      ],
+      "sanctions": [
+        20,
+        "Applies EU sanctions but blocks or delays some"
+      ],
+      "pressure": [
+        15,
+        "Disputes over minority rights with Ukraine"
+      ],
+      "expansionism": [
+        5,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        5,
+        "Avoids involvement in the Ukraine war"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        50,
+        "NATO and EU member with independent policy"
+      ],
+      "economy": [
+        65,
+        "Open EU economy"
+      ],
+      "partners": [
+        "SRB",
+        "SVK"
+      ],
+      "rivals": []
+    },
+    "IDN": {
+      "interventionism": [
+        5,
+        "Non-aligned"
+      ],
+      "sanctions": [
+        5,
+        "Opposes unilateral sanctions"
+      ],
+      "pressure": [
+        10,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        5,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        10,
+        "Avoids war"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "Non-aligned; ASEAN"
+      ],
+      "economy": [
+        75,
+        "Nickel processing and growing economy"
+      ],
+      "partners": [
+        "MYS",
+        "SGP"
+      ],
+      "rivals": []
+    },
+    "IND": {
+      "interventionism": [
+        25,
+        "Regional operations only (Sri Lanka 1987, Maldives 1988)"
+      ],
+      "sanctions": [
+        10,
+        "Opposes unilateral sanctions"
+      ],
+      "pressure": [
+        45,
+        "Pressure on Pakistan and Nepal; strikes in Pakistan in 2019 and 2025"
+      ],
+      "expansionism": [
+        30,
+        "Disputes with Pakistan and China over Kashmir and Ladakh"
+      ],
+      "risk": [
+        45,
+        "Limited strikes across the Line of Control"
+      ],
+      "nuclear": [
+        25,
+        "No-first-use doctrine"
+      ],
+      "loyalty": [
+        35,
+        "Non-aligned; Quad member without defense treaty"
+      ],
+      "economy": [
+        75,
+        "Fast-growing economy"
+      ],
+      "partners": [
+        "RUS",
+        "FRA",
+        "USA"
+      ],
+      "rivals": [
+        "PAK",
+        "CHN"
+      ]
+    },
+    "IRL": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        50,
+        "Member of the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 99,488 USD; No reliable military spending data"
+      ],
+      "partners": [
+        "GBR"
+      ],
+      "rivals": [],
+      "derived": true
+    },
+    "IRN": {
+      "interventionism": [
+        75,
+        "Network of armed partners in Iraq, Syria, Lebanon, Yemen"
+      ],
+      "sanctions": [
+        10,
+        "Is mostly the target of sanctions"
+      ],
+      "pressure": [
+        55,
+        "Threats to close the Strait of Hormuz; seizure of tankers"
+      ],
+      "expansionism": [
+        40,
+        "Regional influence through proxies rather than annexation"
+      ],
+      "risk": [
+        60,
+        "Direct missile attacks on Israel in 2024"
+      ],
+      "nuclear": [
+        35,
+        "Threshold nuclear program; no weapons"
+      ],
+      "loyalty": [
+        55,
+        "Supports its 'axis of resistance' partners"
+      ],
+      "economy": [
+        30,
+        "Economy weakened by sanctions"
+      ],
+      "partners": [
+        "RUS",
+        "CHN",
+        "VEN"
+      ],
+      "rivals": [
+        "USA",
+        "ISR",
+        "SAU"
+      ]
+    },
+    "IRQ": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 5,335 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "ISL": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO"
+      ],
+      "economy": [
+        67,
+        "GDP per person 79,051 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "ISR": {
+      "interventionism": [
+        70,
+        "Operations in Gaza, Lebanon, Syria, Yemen and Iran"
+      ],
+      "sanctions": [
+        15,
+        "Uses military means instead"
+      ],
+      "pressure": [
+        55,
+        "Demands backed by strikes on neighbors"
+      ],
+      "expansionism": [
+        55,
+        "Occupation of the West Bank and Golan; settlements"
+      ],
+      "risk": [
+        80,
+        "Direct strikes on Iran in 2024 and 2025"
+      ],
+      "nuclear": [
+        30,
+        "Policy of nuclear ambiguity"
+      ],
+      "loyalty": [
+        45,
+        "No formal alliances; close to the United States"
+      ],
+      "economy": [
+        70,
+        "High-tech economy"
+      ],
+      "partners": [
+        "USA",
+        "ARE"
+      ],
+      "rivals": [
+        "IRN",
+        "LBN"
+      ]
+    },
+    "ITA": {
+      "interventionism": [
+        30,
+        "Missions in Lebanon, Libya, Iraq"
+      ],
+      "sanctions": [
+        55,
+        "Applies EU sanctions"
+      ],
+      "pressure": [
+        10,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        0,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        15,
+        "Coalition operations only"
+      ],
+      "nuclear": [
+        0,
+        "Hosts US nuclear weapons under NATO sharing"
+      ],
+      "loyalty": [
+        75,
+        "NATO and EU founding member"
+      ],
+      "economy": [
+        70,
+        "Industrial exporter"
+      ],
+      "partners": [
+        "FRA",
+        "DEU",
+        "USA"
+      ],
+      "rivals": []
+    },
+    "JAM": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 6,846 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "JOR": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 4,411 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "JPN": {
+      "interventionism": [
+        10,
+        "Constitution Article 9; no combat deployments since 1945"
+      ],
+      "sanctions": [
+        50,
+        "Joins G7 sanctions on Russia and North Korea"
+      ],
+      "pressure": [
+        10,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        5,
+        "Disputes over islands only"
+      ],
+      "risk": [
+        10,
+        "Self-defense posture"
+      ],
+      "nuclear": [
+        0,
+        "Three non-nuclear principles"
+      ],
+      "loyalty": [
+        75,
+        "Treaty ally of the United States"
+      ],
+      "economy": [
+        90,
+        "Major investor in Asia"
+      ],
+      "partners": [
+        "USA",
+        "AUS",
+        "KOR"
+      ],
+      "rivals": [
+        "CHN",
+        "PRK"
+      ]
+    },
+    "KAZ": {
+      "interventionism": [
+        5,
+        "No foreign operations"
+      ],
+      "sanctions": [
+        5,
+        "Did not join sanctions on Russia"
+      ],
+      "pressure": [
+        5,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        0,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        5,
+        "Avoids conflict"
+      ],
+      "nuclear": [
+        0,
+        "Gave up nuclear weapons in 1995"
+      ],
+      "loyalty": [
+        55,
+        "CSTO member; multi-vector policy"
+      ],
+      "economy": [
+        65,
+        "Oil and uranium exporter"
+      ],
+      "partners": [
+        "RUS",
+        "CHN"
+      ],
+      "rivals": []
+    },
+    "KEN": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,867 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "KGZ": {
+      "interventionism": [
+        20,
+        "Member of the CSTO; No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of the CSTO"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,905 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "KHM": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,780 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "KIR": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 2,044 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "KNA": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 22,954 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "KOR": {
+      "interventionism": [
+        10,
+        "Self-defense focus"
+      ],
+      "sanctions": [
+        40,
+        "Joins US sanctions on North Korea and Russia"
+      ],
+      "pressure": [
+        10,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        5,
+        "Seeks peaceful unification"
+      ],
+      "risk": [
+        15,
+        "Defensive posture"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        75,
+        "Treaty ally of the United States; sent troops to Vietnam and Iraq"
+      ],
+      "economy": [
+        85,
+        "Export economy (chips, ships, cars)"
+      ],
+      "partners": [
+        "USA",
+        "JPN"
+      ],
+      "rivals": [
+        "PRK"
+      ]
+    },
+    "KWT": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        50,
+        "Member of the GCC"
+      ],
+      "economy": [
+        67,
+        "GDP per person 33,250 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "LAO": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 2,012 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "LBN": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with ISR"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 3,589 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "ISR"
+      ],
+      "derived": true
+    },
+    "LBR": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 756 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "LBY": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 6,770 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "LCA": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 13,988 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "LIE": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 179,521 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "LKA": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 3,877 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "LSO": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 866 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "LTU": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 26,944 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "LUX": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 124,831 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "LVA": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 23,610 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MAR": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        30,
+        "Documented rivalries with DZA, ESH"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 3,672 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "DZA",
+        "ESH"
+      ],
+      "derived": true
+    },
+    "MCO": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 229,102 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MDA": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with XTR"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 7,007 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "XTR"
+      ],
+      "derived": true
+    },
+    "MDG": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 490 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MDV": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 12,460 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MEX": {
+      "interventionism": [
+        0,
+        "Estrada doctrine of non-intervention"
+      ],
+      "sanctions": [
+        5,
+        "No sanctions policy"
+      ],
+      "pressure": [
+        5,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        0,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        5,
+        "No foreign wars"
+      ],
+      "nuclear": [
+        0,
+        "Tlatelolco Treaty"
+      ],
+      "loyalty": [
+        35,
+        "No defense alliances"
+      ],
+      "economy": [
+        75,
+        "USMCA manufacturing"
+      ],
+      "partners": [
+        "USA",
+        "CAN"
+      ],
+      "rivals": []
+    },
+    "MHL": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 7,828 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MKD": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO"
+      ],
+      "economy": [
+        47,
+        "GDP per person 8,107 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MLI": {
+      "interventionism": [
+        20,
+        "Member of the Alliance of Sahel States; No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of the Alliance of Sahel States"
+      ],
+      "economy": [
+        32,
+        "GDP per person 830 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MLT": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        50,
+        "Member of the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 36,151 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MMR": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,182 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MNE": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO"
+      ],
+      "economy": [
+        47,
+        "GDP per person 11,883 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MNG": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 5,568 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MOZ": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 579 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MRT": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,967 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MUS": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 11,576 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MWI": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 634 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "MYS": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 11,108 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "NAM": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 3,993 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "NER": {
+      "interventionism": [
+        20,
+        "Member of the Alliance of Sahel States; No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of the Alliance of Sahel States"
+      ],
+      "economy": [
+        32,
+        "GDP per person 602 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "NGA": {
+      "interventionism": [
+        25,
+        "ECOWAS missions"
+      ],
+      "sanctions": [
+        25,
+        "ECOWAS sanctions on Niger (2023)"
+      ],
+      "pressure": [
+        20,
+        "Pressure on the Sahel juntas through ECOWAS"
+      ],
+      "expansionism": [
+        0,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        15,
+        "Did not intervene in Niger"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        40,
+        "ECOWAS"
+      ],
+      "economy": [
+        40,
+        "Oil economy"
+      ],
+      "partners": [
+        "GHA"
+      ],
+      "rivals": []
+    },
+    "NIC": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 2,544 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "NLD": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 61,817 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "NOR": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Sanctions in force on RUS"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO"
+      ],
+      "economy": [
+        67,
+        "GDP per person 86,531 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "NPL": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,381 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "NRU": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 12,817 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "NZL": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Sanctions in force on RUS"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 47,602 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "OMN": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        50,
+        "Member of the GCC"
+      ],
+      "economy": [
+        47,
+        "GDP per person 19,690 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "PAK": {
+      "interventionism": [
+        30,
+        "Support for armed groups in Afghanistan and Kashmir"
+      ],
+      "sanctions": [
+        5,
+        "No sanctions policy"
+      ],
+      "pressure": [
+        30,
+        "Pressure on Afghanistan (2024-2025 strikes)"
+      ],
+      "expansionism": [
+        40,
+        "Claims all of Kashmir"
+      ],
+      "risk": [
+        55,
+        "Wars of 1965, 1971 and 1999 with India; 2025 clashes"
+      ],
+      "nuclear": [
+        65,
+        "First-use posture; tactical nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Close to China and Saudi Arabia (2025 defense pact)"
+      ],
+      "economy": [
+        35,
+        "IMF programs; weak economy"
+      ],
+      "partners": [
+        "CHN",
+        "SAU",
+        "TUR"
+      ],
+      "rivals": [
+        "IND",
+        "AFG"
+      ]
+    },
+    "PAN": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 18,241 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "PER": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 7,739 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "PHL": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with CHN"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        50,
+        "Member of a pact with USA"
+      ],
+      "economy": [
+        47,
+        "GDP per person 3,743 USD; No reliable military spending data"
+      ],
+      "partners": [
+        "USA"
+      ],
+      "rivals": [
+        "CHN"
+      ],
+      "derived": true
+    },
+    "PLW": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 14,891 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "PNG": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 2,874 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "POL": {
+      "interventionism": [
+        30,
+        "Iraq and Afghanistan missions; main hub for aid to Ukraine"
+      ],
+      "sanctions": [
+        70,
+        "Pushes for tougher sanctions on Russia and Belarus"
+      ],
+      "pressure": [
+        15,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        0,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        30,
+        "Defensive build-up; spending over 4% of GDP"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        85,
+        "Strongly committed NATO member"
+      ],
+      "economy": [
+        65,
+        "Fast-growing EU economy"
+      ],
+      "partners": [
+        "UKR",
+        "USA",
+        "DEU"
+      ],
+      "rivals": [
+        "RUS",
+        "BLR"
+      ]
+    },
+    "PRK": {
+      "interventionism": [
+        20,
+        "Troops sent to Russia in 2024"
+      ],
+      "sanctions": [
+        0,
+        "No sanctions policy"
+      ],
+      "pressure": [
+        70,
+        "Missile tests and threats against South Korea and Japan"
+      ],
+      "expansionism": [
+        50,
+        "Constitution declares South Korea a hostile state; claims unification"
+      ],
+      "risk": [
+        55,
+        "Artillery and border provocations"
+      ],
+      "nuclear": [
+        95,
+        "Constant nuclear threats; laws allowing pre-emptive use"
+      ],
+      "loyalty": [
+        60,
+        "Treaties with China (1961) and Russia (2024)"
+      ],
+      "economy": [
+        10,
+        "Closed command economy"
+      ],
+      "partners": [
+        "RUS",
+        "CHN"
+      ],
+      "rivals": [
+        "KOR",
+        "USA",
+        "JPN"
+      ]
+    },
+    "PRT": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 26,569 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "PRY": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 6,125 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "PSE": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 3,213 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "QAT": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        50,
+        "Member of the GCC"
+      ],
+      "economy": [
+        67,
+        "GDP per person 79,325 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "ROU": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        47,
+        "GDP per person 18,454 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "RUS": {
+      "interventionism": [
+        80,
+        "Wars in Georgia (2008), Ukraine (2014, 2022), Syria intervention (2015); Wagner/Africa Corps in Africa"
+      ],
+      "sanctions": [
+        45,
+        "Energy cut-offs to Ukraine and Europe; counter-sanctions on Western food"
+      ],
+      "pressure": [
+        85,
+        "Ultimatums to NATO (December 2021) and pressure on neighbors"
+      ],
+      "expansionism": [
+        90,
+        "Annexed Crimea (2014) and four Ukrainian regions (2022)"
+      ],
+      "risk": [
+        85,
+        "Full-scale invasion of Ukraine in 2022"
+      ],
+      "nuclear": [
+        85,
+        "Repeated nuclear threats since 2022; changed doctrine in 2024"
+      ],
+      "loyalty": [
+        55,
+        "Leads CSTO but did not help Armenia in 2022-2023"
+      ],
+      "economy": [
+        35,
+        "Economy mobilized for war; military about 7% of GDP"
+      ],
+      "partners": [
+        "BLR",
+        "CHN",
+        "IRN",
+        "PRK"
+      ],
+      "rivals": [
+        "USA",
+        "UKR",
+        "GBR",
+        "POL"
+      ]
+    },
+    "RWA": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with COD"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 968 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "COD"
+      ],
+      "derived": true
+    },
+    "SAU": {
+      "interventionism": [
+        55,
+        "War in Yemen since 2015; Bahrain 2011"
+      ],
+      "sanctions": [
+        35,
+        "Blockade of Qatar 2017-2021"
+      ],
+      "pressure": [
+        45,
+        "Pressure on Qatar and Lebanon"
+      ],
+      "expansionism": [
+        10,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        35,
+        "Air war in Yemen; avoids war with Iran"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        55,
+        "Gulf Cooperation Council; 2025 pact with Pakistan"
+      ],
+      "economy": [
+        70,
+        "Vision 2030 investment program"
+      ],
+      "partners": [
+        "ARE",
+        "USA",
+        "PAK"
+      ],
+      "rivals": [
+        "IRN"
+      ]
+    },
+    "SDN": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 2,116 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "SEN": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,638 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "SGP": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 82,051 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "SLB": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,945 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "SLE": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 432 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "SLV": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 5,344 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "SMR": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 54,396 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "SOM": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with XSL"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 594 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "XSL"
+      ],
+      "derived": true
+    },
+    "SRB": {
+      "interventionism": [
+        10,
+        "Military neutrality since 2007"
+      ],
+      "sanctions": [
+        5,
+        "Refused to join sanctions on Russia"
+      ],
+      "pressure": [
+        25,
+        "Pressure on Kosovo"
+      ],
+      "expansionism": [
+        25,
+        "Does not recognize Kosovo's independence"
+      ],
+      "risk": [
+        20,
+        "Avoids open conflict"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "Militarily neutral; partner of both the EU and Russia"
+      ],
+      "economy": [
+        65,
+        "EU candidate; Chinese and Western investment"
+      ],
+      "partners": [
+        "HUN",
+        "CHN",
+        "RUS"
+      ],
+      "rivals": [
+        "XKX"
+      ]
+    },
+    "SSD": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 984 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "STP": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 2,511 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "SUR": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 5,911 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "SVK": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 24,529 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "SVN": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 32,012 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "SWE": {
+      "interventionism": [
+        20,
+        "Member of NATO; No reliable military spending data"
+      ],
+      "sanctions": [
+        45,
+        "Applies the EU common sanctions"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of NATO, the EU"
+      ],
+      "economy": [
+        67,
+        "GDP per person 55,987 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "SWZ": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 3,660 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "SYC": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 17,448 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "SYR": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 351 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "TCD": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 626 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "TGO": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,067 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "THA": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 7,190 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "TJK": {
+      "interventionism": [
+        20,
+        "Member of the CSTO; No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Member of the CSTO"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,118 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "TKM": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 7,860 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "TLS": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,581 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "TON": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 4,822 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "TTO": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 20,574 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "TUN": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 3,930 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "TUR": {
+      "interventionism": [
+        70,
+        "Operations in Syria, Iraq, Libya; support for Azerbaijan"
+      ],
+      "sanctions": [
+        15,
+        "Rarely sanctions"
+      ],
+      "pressure": [
+        55,
+        "Pressure on Greece and Cyprus; operations against Kurdish groups"
+      ],
+      "expansionism": [
+        45,
+        "Keeps forces in northern Syria and Cyprus"
+      ],
+      "risk": [
+        55,
+        "Cross-border operations since 2016"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        55,
+        "NATO member with independent policy"
+      ],
+      "economy": [
+        60,
+        "Large manufacturing base; drone exports"
+      ],
+      "partners": [
+        "AZE",
+        "PAK",
+        "QAT"
+      ],
+      "rivals": [
+        "GRC"
+      ]
+    },
+    "TUV": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 6,561 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "TWN": {
+      "interventionism": [
+        5,
+        "Defensive"
+      ],
+      "sanctions": [
+        20,
+        "Export controls on chip technology"
+      ],
+      "pressure": [
+        5,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        0,
+        "Status quo policy"
+      ],
+      "risk": [
+        10,
+        "Deterrence only"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        60,
+        "Relies on US support"
+      ],
+      "economy": [
+        95,
+        "World's leading chipmaker"
+      ],
+      "partners": [
+        "USA",
+        "JPN"
+      ],
+      "rivals": [
+        "CHN"
+      ]
+    },
+    "TZA": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,122 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "UGA": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 959 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "UKR": {
+      "interventionism": [
+        15,
+        "Focused on its own defense"
+      ],
+      "sanctions": [
+        55,
+        "Sanctions on Russia and Belarus"
+      ],
+      "pressure": [
+        10,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        5,
+        "Seeks return of its own territory"
+      ],
+      "risk": [
+        60,
+        "Fights Russia; incursion into Kursk in 2024"
+      ],
+      "nuclear": [
+        0,
+        "Gave up nuclear weapons in 1994"
+      ],
+      "loyalty": [
+        60,
+        "Seeks NATO and EU membership"
+      ],
+      "economy": [
+        35,
+        "Economy at war"
+      ],
+      "partners": [
+        "POL",
+        "GBR",
+        "USA"
+      ],
+      "rivals": [
+        "RUS"
+      ]
+    },
+    "URY": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        67,
+        "GDP per person 22,821 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "USA": {
+      "interventionism": [
+        90,
+        "Military operations in Iraq, Afghanistan, Syria, Libya and strikes on Iran since 2001; about 750 bases abroad"
+      ],
+      "sanctions": [
+        95,
+        "Runs the largest sanctions programs (OFAC: Russia, Iran, North Korea, Cuba, Venezuela and others)"
+      ],
+      "pressure": [
+        75,
+        "Frequent public demands backed by tariffs or force (Venezuela, Iran, Panama, Greenland statements)"
+      ],
+      "expansionism": [
+        25,
+        "No annexations since 1945; territorial claims only in rhetoric"
+      ],
+      "risk": [
+        60,
+        "Uses direct force against weaker states but avoids war with nuclear powers"
+      ],
+      "nuclear": [
+        35,
+        "Declared policy of deterrence; rare explicit threats"
+      ],
+      "loyalty": [
+        70,
+        "Leads NATO and treaty alliances with Japan, Korea, Australia, Philippines; occasional burden-sharing disputes"
+      ],
+      "economy": [
+        70,
+        "Largest economy and outward investor"
+      ],
+      "partners": [
+        "GBR",
+        "CAN",
+        "AUS",
+        "JPN",
+        "KOR",
+        "ISR"
+      ],
+      "rivals": [
+        "CHN",
+        "RUS",
+        "IRN",
+        "PRK",
+        "CUB",
+        "VEN"
+      ]
+    },
+    "UZB": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 2,453 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "VAT": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "VCT": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 10,668 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "VEN": {
+      "interventionism": [
+        10,
+        "No foreign operations"
+      ],
+      "sanctions": [
+        5,
+        "No sanctions policy"
+      ],
+      "pressure": [
+        50,
+        "Claims and threats over Guyana's Essequibo (2023 referendum)"
+      ],
+      "expansionism": [
+        55,
+        "Claims two-thirds of Guyana"
+      ],
+      "risk": [
+        30,
+        "Has not invaded Guyana"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        40,
+        "Close to Russia, Cuba and Iran"
+      ],
+      "economy": [
+        15,
+        "Economy collapsed after 2014"
+      ],
+      "partners": [
+        "CUB",
+        "RUS",
+        "IRN"
+      ],
+      "rivals": [
+        "USA",
+        "GUY"
+      ]
+    },
+    "VNM": {
+      "interventionism": [
+        5,
+        "No foreign operations since 1989"
+      ],
+      "sanctions": [
+        5,
+        "No sanctions policy"
+      ],
+      "pressure": [
+        10,
+        "Defends its claims in the South China Sea"
+      ],
+      "expansionism": [
+        15,
+        "Claims in the Spratly Islands"
+      ],
+      "risk": [
+        15,
+        "Avoids war with China"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "'Four nos' policy: no alliances"
+      ],
+      "economy": [
+        80,
+        "Manufacturing exporter"
+      ],
+      "partners": [
+        "RUS",
+        "IND"
+      ],
+      "rivals": [
+        "CHN"
+      ]
+    },
+    "VUT": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 3,360 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "WSM": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 4,259 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "XAB": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with GEO"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "GEO"
+      ],
+      "derived": true
+    },
+    "XKX": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with SRB"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "GDP per person 6,620 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "SRB"
+      ],
+      "derived": true
+    },
+    "XNC": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with CYP"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "CYP"
+      ],
+      "derived": true
+    },
+    "XSL": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with SOM"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "SOM"
+      ],
+      "derived": true
+    },
+    "XSO": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with GEO"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "GEO"
+      ],
+      "derived": true
+    },
+    "XTR": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        20,
+        "Documented rivalries with MDA"
+      ],
+      "expansionism": [
+        15,
+        "Has territorial or political disputes with rivals"
+      ],
+      "risk": [
+        19,
+        "No reliable military spending data; Mandatory military service"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        47,
+        "No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [
+        "MDA"
+      ],
+      "derived": true
+    },
+    "YEM": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 517 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "ZAF": {
+      "interventionism": [
+        15,
+        "Peacekeeping in Africa"
+      ],
+      "sanctions": [
+        5,
+        "Opposes unilateral sanctions"
+      ],
+      "pressure": [
+        10,
+        "No coercive diplomacy"
+      ],
+      "expansionism": [
+        0,
+        "No territorial ambitions"
+      ],
+      "risk": [
+        5,
+        "Avoids war"
+      ],
+      "nuclear": [
+        0,
+        "Dismantled its nuclear weapons in 1989-1991"
+      ],
+      "loyalty": [
+        35,
+        "BRICS; non-aligned"
+      ],
+      "economy": [
+        55,
+        "Mining economy"
+      ],
+      "partners": [
+        "CHN",
+        "BRA"
+      ],
+      "rivals": []
+    },
+    "ZMB": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,285 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    },
+    "ZWE": {
+      "interventionism": [
+        10,
+        "No reliable military spending data"
+      ],
+      "sanctions": [
+        10,
+        "No sanctions regime of its own"
+      ],
+      "pressure": [
+        10,
+        "No documented rivalries"
+      ],
+      "expansionism": [
+        5,
+        "No territorial claims documented"
+      ],
+      "risk": [
+        14,
+        "No reliable military spending data"
+      ],
+      "nuclear": [
+        0,
+        "No nuclear weapons"
+      ],
+      "loyalty": [
+        30,
+        "No alliances or defense pacts"
+      ],
+      "economy": [
+        32,
+        "GDP per person 1,566 USD; No reliable military spending data"
+      ],
+      "partners": [],
+      "rivals": [],
+      "derived": true
+    }
+  }
+}

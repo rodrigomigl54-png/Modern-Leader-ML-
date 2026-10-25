@@ -4,6 +4,8 @@ import type { EconomyRules, SimContext } from '../sim/economy';
 import type { DiplomacyRules, RelationOverride } from '../sim/diplomacy';
 import type { MilitaryRules, SeaLink } from '../sim/military';
 import type { PopulationRules } from '../sim/population';
+import type { ResourcesData } from '../sim/resources';
+import type { AiProfile, AiRules } from '../sim/profiles';
 import type { WeaponsRules } from '../sim/weapons';
 import type { Alliance, CountryStats, Leader, Rivalry, War, World } from '../sim/world';
 
@@ -63,10 +65,22 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     import('../../data/modern/weapons.json?url'),
     import('../../data/modern/diplomacy-rules.json?url'),
     import('../../data/modern/relations.json?url'),
+    import('../../data/modern/resources.json?url'),
+    import('../../data/modern/ai-profiles.json?url'),
+    import('../../data/modern/ai-rules.json?url'),
   ]);
   const [leadersUrl, diplomacyUrl, scenarioUrl, economyUrl, populationUrl] = urls;
-  const [militaryUrl, serviceUrl, seaUrl, weaponsUrl, diplomacyRulesUrl, relationsUrl] =
-    urls.slice(5);
+  const [
+    militaryUrl,
+    serviceUrl,
+    seaUrl,
+    weaponsUrl,
+    diplomacyRulesUrl,
+    relationsUrl,
+    resourcesUrl,
+    profilesUrl,
+    aiRulesUrl,
+  ] = urls.slice(5);
   const statsUrl = Object.values(optionalStats)[0];
   const [
     leaders,
@@ -80,6 +94,9 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     weapons,
     diplomacyRules,
     relations,
+    resources,
+    profiles,
+    aiRules,
     stats,
   ] = await Promise.all([
     fetchJson<LeadersFile>(leadersUrl.default),
@@ -92,7 +109,12 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     fetchJson<SeaRoutesFile>(seaUrl!.default),
     fetchJson<WeaponsRules>(weaponsUrl!.default),
     fetchJson<DiplomacyRules>(diplomacyRulesUrl!.default),
-    fetchJson<{ pairs: RelationOverride[] }>(relationsUrl!.default),
+    fetchJson<{ pairs: RelationOverride[]; sanctions: { from: string; to: string }[] }>(
+      relationsUrl!.default,
+    ),
+    fetchJson<ResourcesData>(resourcesUrl!.default),
+    fetchJson<{ profiles: Record<string, AiProfile> }>(profilesUrl!.default),
+    fetchJson<AiRules>(aiRulesUrl!.default),
     statsUrl ? fetchJson<StatsFile>(statsUrl) : Promise.resolve(null),
   ]);
 
@@ -140,6 +162,10 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
       nuclearBaseCities: nuclearBases(map, weapons),
       diplomacy: diplomacyRules,
       relationOverrides: relations.pairs,
+      startSanctions: relations.sanctions,
+      profiles: profiles.profiles,
+      aiRules,
+      resources,
     },
   };
 }

@@ -14,6 +14,7 @@ import {
   type Army,
 } from './military';
 import type { GameState } from './newGame';
+import { trait } from './profiles';
 import {
   launchDrones,
   launchMissiles,
@@ -255,7 +256,9 @@ export function aiWeaponsOrders(state: GameState, ctx: SimContext): void {
       country.capitalProvinceId,
       ...(land[country.capitalProvinceId] ?? []),
     ].some((p) => state.military.armies.some((a) => a.provinceId === p && enemies.has(a.owner)));
-    if (arsenal.warheads > 0 && nearlyLost && capitalThreatened) {
+    const posture = ctx.aiRules ? trait(state, ctx, country.id, 'nuclear') : 100;
+    const willing = posture >= (ctx.aiRules?.nuclear.lastResortMinPosture ?? 0);
+    if (arsenal.warheads > 0 && nearlyLost && capitalThreatened && willing) {
       const capital = capitals[0];
       const city = capital !== undefined ? citiesOfProvince(ctx, capital)[0] : undefined;
       if (city !== undefined) launchNuclear(state, ctx, country.id, city);

@@ -2,6 +2,7 @@
 // assimilation. All numbers come from data/modern/population.json (PopulationRules).
 import { growthRate, type SimContext } from './economy';
 import { sanctionWeight } from './diplomacy';
+import { foodShortageSupport } from './resources';
 import { armySize, reinforce } from './military';
 import type { GameState } from './newGame';
 import type { Rng } from './rng';
@@ -191,6 +192,7 @@ export function targetSupport(
     target -= rules.debtEffect * Math.max(0, e.debt / Math.max(1, e.gdp) - rules.debtNeutral);
   }
   target -= (rules.sanctionsEffect ?? 0) * sanctionWeight(state, owner);
+  target -= foodShortageSupport(state, ctx, owner);
   let buildings = 0;
   for (const b of state.economy.buildings) {
     if (b.completed && ctx.cityProvince[b.cityId] === provinceId) buildings++;

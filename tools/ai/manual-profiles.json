@@ -1,0 +1,514 @@
+{
+  "meta": {
+    "description": "Hand-written AI profiles (GDD section 11) for countries whose foreign policy is well documented. Each trait is [score 0-100, one-line justification from verifiable behavior]. Traits: interventionism, sanctions, pressure (on weaker states), expansionism, risk (open war vs indirect means), nuclear (posture), loyalty (to allies), economy (economic focus). Countries not listed are derived from data by tools/ai/build-profiles.ts.",
+    "source": "Documented behavior known up to mid-2026: wars and military operations, alliance memberships, foreign bases, sanctions regimes, military spending (SIPRI)",
+    "checked": "2026-10-25",
+    "checkedBy": "draft — needs review by Dario"
+  },
+  "profiles": {
+    "USA": {
+      "interventionism": [
+        90,
+        "Military operations in Iraq, Afghanistan, Syria, Libya and strikes on Iran since 2001; about 750 bases abroad"
+      ],
+      "sanctions": [
+        95,
+        "Runs the largest sanctions programs (OFAC: Russia, Iran, North Korea, Cuba, Venezuela and others)"
+      ],
+      "pressure": [
+        75,
+        "Frequent public demands backed by tariffs or force (Venezuela, Iran, Panama, Greenland statements)"
+      ],
+      "expansionism": [25, "No annexations since 1945; territorial claims only in rhetoric"],
+      "risk": [60, "Uses direct force against weaker states but avoids war with nuclear powers"],
+      "nuclear": [35, "Declared policy of deterrence; rare explicit threats"],
+      "loyalty": [
+        70,
+        "Leads NATO and treaty alliances with Japan, Korea, Australia, Philippines; occasional burden-sharing disputes"
+      ],
+      "economy": [70, "Largest economy and outward investor"],
+      "partners": ["GBR", "CAN", "AUS", "JPN", "KOR", "ISR"],
+      "rivals": ["CHN", "RUS", "IRN", "PRK", "CUB", "VEN"]
+    },
+    "CHN": {
+      "interventionism": [25, "No foreign wars since 1979; one overseas base (Djibouti)"],
+      "sanctions": [
+        55,
+        "Economic coercion of Lithuania (2021), Australia (2020) and counter-sanctions on US firms"
+      ],
+      "pressure": [70, "Military pressure on Taiwan, the Philippines and Japan in disputed seas"],
+      "expansionism": [
+        65,
+        "Claims Taiwan and most of the South China Sea; island building since 2013"
+      ],
+      "risk": [35, "Prefers gray-zone pressure to open war"],
+      "nuclear": [25, "No-first-use policy; arsenal growing"],
+      "loyalty": [40, "Only treaty ally is North Korea (1961)"],
+      "economy": [90, "Belt and Road Initiative; largest trading nation"],
+      "partners": ["RUS", "PAK", "PRK", "SRB"],
+      "rivals": ["USA", "TWN", "JPN", "IND", "PHL"]
+    },
+    "RUS": {
+      "interventionism": [
+        80,
+        "Wars in Georgia (2008), Ukraine (2014, 2022), Syria intervention (2015); Wagner/Africa Corps in Africa"
+      ],
+      "sanctions": [45, "Energy cut-offs to Ukraine and Europe; counter-sanctions on Western food"],
+      "pressure": [85, "Ultimatums to NATO (December 2021) and pressure on neighbors"],
+      "expansionism": [90, "Annexed Crimea (2014) and four Ukrainian regions (2022)"],
+      "risk": [85, "Full-scale invasion of Ukraine in 2022"],
+      "nuclear": [85, "Repeated nuclear threats since 2022; changed doctrine in 2024"],
+      "loyalty": [55, "Leads CSTO but did not help Armenia in 2022-2023"],
+      "economy": [35, "Economy mobilized for war; military about 7% of GDP"],
+      "partners": ["BLR", "CHN", "IRN", "PRK"],
+      "rivals": ["USA", "UKR", "GBR", "POL"]
+    },
+    "GBR": {
+      "interventionism": [65, "Iraq, Afghanistan, Libya; strikes in Syria and Yemen"],
+      "sanctions": [75, "Own sanctions regime since Brexit; large Russia packages"],
+      "pressure": [30, "Acts mostly through alliances"],
+      "expansionism": [5, "No territorial ambitions"],
+      "risk": [45, "Joins US-led operations; avoids wars alone"],
+      "nuclear": [20, "Minimum deterrent (Trident)"],
+      "loyalty": [85, "NATO founding member; AUKUS; Five Eyes"],
+      "economy": [70, "Financial center; large outward investor"],
+      "partners": ["USA", "UKR", "AUS", "CAN"],
+      "rivals": ["RUS"]
+    },
+    "FRA": {
+      "interventionism": [
+        65,
+        "Operations in Mali, Libya, the Sahel; bases in Djibouti and the UAE"
+      ],
+      "sanctions": [65, "Drives EU sanctions packages"],
+      "pressure": [30, "Acts mostly through the EU"],
+      "expansionism": [5, "No territorial ambitions"],
+      "risk": [40, "Expeditionary operations against weak opponents only"],
+      "nuclear": [30, "Independent deterrent with 'final warning' doctrine"],
+      "loyalty": [80, "NATO and EU core member"],
+      "economy": [70, "Large economy and investor"],
+      "partners": ["DEU", "GBR", "IND"],
+      "rivals": []
+    },
+    "DEU": {
+      "interventionism": [20, "Post-war restraint; limited missions (Afghanistan, Mali)"],
+      "sanctions": [55, "Applies EU sanctions; cautious until 2022"],
+      "pressure": [10, "No coercive diplomacy"],
+      "expansionism": [0, "Constitutional and political rejection of expansion"],
+      "risk": [10, "Avoids combat roles"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [80, "Hosts US forces; second-largest aid donor to Ukraine"],
+      "economy": [90, "Export-oriented industrial economy"],
+      "partners": ["FRA", "POL", "USA"],
+      "rivals": []
+    },
+    "JPN": {
+      "interventionism": [10, "Constitution Article 9; no combat deployments since 1945"],
+      "sanctions": [50, "Joins G7 sanctions on Russia and North Korea"],
+      "pressure": [10, "No coercive diplomacy"],
+      "expansionism": [5, "Disputes over islands only"],
+      "risk": [10, "Self-defense posture"],
+      "nuclear": [0, "Three non-nuclear principles"],
+      "loyalty": [75, "Treaty ally of the United States"],
+      "economy": [90, "Major investor in Asia"],
+      "partners": ["USA", "AUS", "KOR"],
+      "rivals": ["CHN", "PRK"]
+    },
+    "IND": {
+      "interventionism": [25, "Regional operations only (Sri Lanka 1987, Maldives 1988)"],
+      "sanctions": [10, "Opposes unilateral sanctions"],
+      "pressure": [45, "Pressure on Pakistan and Nepal; strikes in Pakistan in 2019 and 2025"],
+      "expansionism": [30, "Disputes with Pakistan and China over Kashmir and Ladakh"],
+      "risk": [45, "Limited strikes across the Line of Control"],
+      "nuclear": [25, "No-first-use doctrine"],
+      "loyalty": [35, "Non-aligned; Quad member without defense treaty"],
+      "economy": [75, "Fast-growing economy"],
+      "partners": ["RUS", "FRA", "USA"],
+      "rivals": ["PAK", "CHN"]
+    },
+    "PAK": {
+      "interventionism": [30, "Support for armed groups in Afghanistan and Kashmir"],
+      "sanctions": [5, "No sanctions policy"],
+      "pressure": [30, "Pressure on Afghanistan (2024-2025 strikes)"],
+      "expansionism": [40, "Claims all of Kashmir"],
+      "risk": [55, "Wars of 1965, 1971 and 1999 with India; 2025 clashes"],
+      "nuclear": [65, "First-use posture; tactical nuclear weapons"],
+      "loyalty": [60, "Close to China and Saudi Arabia (2025 defense pact)"],
+      "economy": [35, "IMF programs; weak economy"],
+      "partners": ["CHN", "SAU", "TUR"],
+      "rivals": ["IND", "AFG"]
+    },
+    "ISR": {
+      "interventionism": [70, "Operations in Gaza, Lebanon, Syria, Yemen and Iran"],
+      "sanctions": [15, "Uses military means instead"],
+      "pressure": [55, "Demands backed by strikes on neighbors"],
+      "expansionism": [55, "Occupation of the West Bank and Golan; settlements"],
+      "risk": [80, "Direct strikes on Iran in 2024 and 2025"],
+      "nuclear": [30, "Policy of nuclear ambiguity"],
+      "loyalty": [45, "No formal alliances; close to the United States"],
+      "economy": [70, "High-tech economy"],
+      "partners": ["USA", "ARE"],
+      "rivals": ["IRN", "LBN"]
+    },
+    "IRN": {
+      "interventionism": [75, "Network of armed partners in Iraq, Syria, Lebanon, Yemen"],
+      "sanctions": [10, "Is mostly the target of sanctions"],
+      "pressure": [55, "Threats to close the Strait of Hormuz; seizure of tankers"],
+      "expansionism": [40, "Regional influence through proxies rather than annexation"],
+      "risk": [60, "Direct missile attacks on Israel in 2024"],
+      "nuclear": [35, "Threshold nuclear program; no weapons"],
+      "loyalty": [55, "Supports its 'axis of resistance' partners"],
+      "economy": [30, "Economy weakened by sanctions"],
+      "partners": ["RUS", "CHN", "VEN"],
+      "rivals": ["USA", "ISR", "SAU"]
+    },
+    "PRK": {
+      "interventionism": [20, "Troops sent to Russia in 2024"],
+      "sanctions": [0, "No sanctions policy"],
+      "pressure": [70, "Missile tests and threats against South Korea and Japan"],
+      "expansionism": [50, "Constitution declares South Korea a hostile state; claims unification"],
+      "risk": [55, "Artillery and border provocations"],
+      "nuclear": [95, "Constant nuclear threats; laws allowing pre-emptive use"],
+      "loyalty": [60, "Treaties with China (1961) and Russia (2024)"],
+      "economy": [10, "Closed command economy"],
+      "partners": ["RUS", "CHN"],
+      "rivals": ["KOR", "USA", "JPN"]
+    },
+    "KOR": {
+      "interventionism": [10, "Self-defense focus"],
+      "sanctions": [40, "Joins US sanctions on North Korea and Russia"],
+      "pressure": [10, "No coercive diplomacy"],
+      "expansionism": [5, "Seeks peaceful unification"],
+      "risk": [15, "Defensive posture"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [75, "Treaty ally of the United States; sent troops to Vietnam and Iraq"],
+      "economy": [85, "Export economy (chips, ships, cars)"],
+      "partners": ["USA", "JPN"],
+      "rivals": ["PRK"]
+    },
+    "TUR": {
+      "interventionism": [70, "Operations in Syria, Iraq, Libya; support for Azerbaijan"],
+      "sanctions": [15, "Rarely sanctions"],
+      "pressure": [55, "Pressure on Greece and Cyprus; operations against Kurdish groups"],
+      "expansionism": [45, "Keeps forces in northern Syria and Cyprus"],
+      "risk": [55, "Cross-border operations since 2016"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [55, "NATO member with independent policy"],
+      "economy": [60, "Large manufacturing base; drone exports"],
+      "partners": ["AZE", "PAK", "QAT"],
+      "rivals": ["GRC"]
+    },
+    "SAU": {
+      "interventionism": [55, "War in Yemen since 2015; Bahrain 2011"],
+      "sanctions": [35, "Blockade of Qatar 2017-2021"],
+      "pressure": [45, "Pressure on Qatar and Lebanon"],
+      "expansionism": [10, "No territorial ambitions"],
+      "risk": [35, "Air war in Yemen; avoids war with Iran"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [55, "Gulf Cooperation Council; 2025 pact with Pakistan"],
+      "economy": [70, "Vision 2030 investment program"],
+      "partners": ["ARE", "USA", "PAK"],
+      "rivals": ["IRN"]
+    },
+    "UKR": {
+      "interventionism": [15, "Focused on its own defense"],
+      "sanctions": [55, "Sanctions on Russia and Belarus"],
+      "pressure": [10, "No coercive diplomacy"],
+      "expansionism": [5, "Seeks return of its own territory"],
+      "risk": [60, "Fights Russia; incursion into Kursk in 2024"],
+      "nuclear": [0, "Gave up nuclear weapons in 1994"],
+      "loyalty": [60, "Seeks NATO and EU membership"],
+      "economy": [35, "Economy at war"],
+      "partners": ["POL", "GBR", "USA"],
+      "rivals": ["RUS"]
+    },
+    "POL": {
+      "interventionism": [30, "Iraq and Afghanistan missions; main hub for aid to Ukraine"],
+      "sanctions": [70, "Pushes for tougher sanctions on Russia and Belarus"],
+      "pressure": [15, "No coercive diplomacy"],
+      "expansionism": [0, "No territorial ambitions"],
+      "risk": [30, "Defensive build-up; spending over 4% of GDP"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [85, "Strongly committed NATO member"],
+      "economy": [65, "Fast-growing EU economy"],
+      "partners": ["UKR", "USA", "DEU"],
+      "rivals": ["RUS", "BLR"]
+    },
+    "BLR": {
+      "interventionism": [25, "Allowed its territory for the 2022 invasion of Ukraine"],
+      "sanctions": [10, "Counter-sanctions only"],
+      "pressure": [35, "Migrant pressure on Poland and Lithuania (2021)"],
+      "expansionism": [5, "No territorial ambitions"],
+      "risk": [25, "Did not send its own troops to Ukraine"],
+      "nuclear": [40, "Hosts Russian nuclear weapons"],
+      "loyalty": [85, "Union State with Russia; CSTO"],
+      "economy": [30, "State-run economy dependent on Russia"],
+      "partners": ["RUS"],
+      "rivals": ["POL", "LTU"]
+    },
+    "SRB": {
+      "interventionism": [10, "Military neutrality since 2007"],
+      "sanctions": [5, "Refused to join sanctions on Russia"],
+      "pressure": [25, "Pressure on Kosovo"],
+      "expansionism": [25, "Does not recognize Kosovo's independence"],
+      "risk": [20, "Avoids open conflict"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [30, "Militarily neutral; partner of both the EU and Russia"],
+      "economy": [65, "EU candidate; Chinese and Western investment"],
+      "partners": ["HUN", "CHN", "RUS"],
+      "rivals": ["XKX"]
+    },
+    "HUN": {
+      "interventionism": [5, "No foreign operations beyond NATO missions"],
+      "sanctions": [20, "Applies EU sanctions but blocks or delays some"],
+      "pressure": [15, "Disputes over minority rights with Ukraine"],
+      "expansionism": [5, "No territorial ambitions"],
+      "risk": [5, "Avoids involvement in the Ukraine war"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [50, "NATO and EU member with independent policy"],
+      "economy": [65, "Open EU economy"],
+      "partners": ["SRB", "SVK"],
+      "rivals": []
+    },
+    "AZE": {
+      "interventionism": [15, "Regional focus"],
+      "sanctions": [5, "No sanctions policy"],
+      "pressure": [70, "Blockade of the Lachin corridor (2022-2023)"],
+      "expansionism": [60, "Retook Nagorno-Karabakh in 2020 and 2023"],
+      "risk": [70, "Offensives in 2020 and 2023"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [65, "2021 Shusha declaration with Turkey"],
+      "economy": [45, "Oil and gas economy"],
+      "partners": ["TUR", "ISR"],
+      "rivals": ["ARM"]
+    },
+    "ARM": {
+      "interventionism": [5, "Defensive"],
+      "sanctions": [5, "No sanctions policy"],
+      "pressure": [5, "No coercive diplomacy"],
+      "expansionism": [10, "Gave up claims to Nagorno-Karabakh in 2023-2025"],
+      "risk": [15, "Avoids new war"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [30, "Froze its CSTO participation in 2024"],
+      "economy": [55, "Small open economy"],
+      "partners": ["FRA", "IND"],
+      "rivals": ["AZE"]
+    },
+    "TWN": {
+      "interventionism": [5, "Defensive"],
+      "sanctions": [20, "Export controls on chip technology"],
+      "pressure": [5, "No coercive diplomacy"],
+      "expansionism": [0, "Status quo policy"],
+      "risk": [10, "Deterrence only"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [60, "Relies on US support"],
+      "economy": [95, "World's leading chipmaker"],
+      "partners": ["USA", "JPN"],
+      "rivals": ["CHN"]
+    },
+    "EGY": {
+      "interventionism": [30, "Air strikes in Libya; involvement in Sudan"],
+      "sanctions": [10, "Rarely sanctions"],
+      "pressure": [35, "Dispute with Ethiopia over the Nile dam"],
+      "expansionism": [5, "No territorial ambitions"],
+      "risk": [25, "Avoids open war"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [50, "Close to Saudi Arabia and the UAE"],
+      "economy": [40, "IMF programs"],
+      "partners": ["SAU", "ARE", "USA"],
+      "rivals": ["ETH"]
+    },
+    "ARE": {
+      "interventionism": [55, "Operations in Yemen and Libya; support for parties in Sudan"],
+      "sanctions": [30, "Blockade of Qatar 2017-2021"],
+      "pressure": [30, "Regional pressure through allies"],
+      "expansionism": [10, "No territorial ambitions"],
+      "risk": [30, "Indirect means preferred"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [50, "Gulf Cooperation Council"],
+      "economy": [90, "Large sovereign wealth funds and foreign investment"],
+      "partners": ["SAU", "USA", "ISR"],
+      "rivals": ["IRN"]
+    },
+    "VEN": {
+      "interventionism": [10, "No foreign operations"],
+      "sanctions": [5, "No sanctions policy"],
+      "pressure": [50, "Claims and threats over Guyana's Essequibo (2023 referendum)"],
+      "expansionism": [55, "Claims two-thirds of Guyana"],
+      "risk": [30, "Has not invaded Guyana"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [40, "Close to Russia, Cuba and Iran"],
+      "economy": [15, "Economy collapsed after 2014"],
+      "partners": ["CUB", "RUS", "IRN"],
+      "rivals": ["USA", "GUY"]
+    },
+    "CUB": {
+      "interventionism": [15, "Military advisers abroad (Venezuela)"],
+      "sanctions": [0, "No sanctions policy"],
+      "pressure": [5, "No coercive diplomacy"],
+      "expansionism": [0, "No territorial ambitions"],
+      "risk": [10, "Defensive"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [50, "Close to Venezuela and Russia"],
+      "economy": [15, "Planned economy under embargo"],
+      "partners": ["VEN", "RUS"],
+      "rivals": ["USA"]
+    },
+    "BRA": {
+      "interventionism": [10, "UN peacekeeping only (Haiti)"],
+      "sanctions": [5, "Opposes unilateral sanctions"],
+      "pressure": [10, "Regional leadership by diplomacy"],
+      "expansionism": [0, "No territorial ambitions"],
+      "risk": [5, "No wars since 1945"],
+      "nuclear": [0, "Renounced nuclear weapons (1988 constitution)"],
+      "loyalty": [35, "BRICS; no defense alliances"],
+      "economy": [75, "Agricultural and industrial exporter"],
+      "partners": ["ARG", "CHN"],
+      "rivals": []
+    },
+    "AUS": {
+      "interventionism": [50, "Joined US operations in Iraq and Afghanistan"],
+      "sanctions": [60, "Own autonomous sanctions; Russia packages"],
+      "pressure": [20, "Pacific diplomacy"],
+      "expansionism": [0, "No territorial ambitions"],
+      "risk": [35, "Joins coalitions only"],
+      "nuclear": [0, "No nuclear weapons; AUKUS submarines conventionally armed"],
+      "loyalty": [85, "ANZUS; AUKUS; Five Eyes"],
+      "economy": [75, "Resource exporter"],
+      "partners": ["USA", "GBR", "JPN"],
+      "rivals": ["CHN"]
+    },
+    "CAN": {
+      "interventionism": [35, "Afghanistan; NATO missions in Latvia"],
+      "sanctions": [70, "Special Economic Measures Act sanctions on Russia, Iran and others"],
+      "pressure": [10, "No coercive diplomacy"],
+      "expansionism": [0, "No territorial ambitions"],
+      "risk": [20, "Joins coalitions only"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [80, "NATO founding member; NORAD"],
+      "economy": [75, "Resource and trade economy"],
+      "partners": ["USA", "GBR"],
+      "rivals": ["RUS"]
+    },
+    "ITA": {
+      "interventionism": [30, "Missions in Lebanon, Libya, Iraq"],
+      "sanctions": [55, "Applies EU sanctions"],
+      "pressure": [10, "No coercive diplomacy"],
+      "expansionism": [0, "No territorial ambitions"],
+      "risk": [15, "Coalition operations only"],
+      "nuclear": [0, "Hosts US nuclear weapons under NATO sharing"],
+      "loyalty": [75, "NATO and EU founding member"],
+      "economy": [70, "Industrial exporter"],
+      "partners": ["FRA", "DEU", "USA"],
+      "rivals": []
+    },
+    "ESP": {
+      "interventionism": [20, "NATO and EU missions"],
+      "sanctions": [55, "Applies EU sanctions"],
+      "pressure": [10, "No coercive diplomacy"],
+      "expansionism": [5, "Dispute over Gibraltar"],
+      "risk": [10, "Avoids combat"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [65, "NATO and EU member; lowest NATO spender"],
+      "economy": [70, "Tourism and services economy"],
+      "partners": ["FRA", "PRT"],
+      "rivals": []
+    },
+    "VNM": {
+      "interventionism": [5, "No foreign operations since 1989"],
+      "sanctions": [5, "No sanctions policy"],
+      "pressure": [10, "Defends its claims in the South China Sea"],
+      "expansionism": [15, "Claims in the Spratly Islands"],
+      "risk": [15, "Avoids war with China"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [30, "'Four nos' policy: no alliances"],
+      "economy": [80, "Manufacturing exporter"],
+      "partners": ["RUS", "IND"],
+      "rivals": ["CHN"]
+    },
+    "IDN": {
+      "interventionism": [5, "Non-aligned"],
+      "sanctions": [5, "Opposes unilateral sanctions"],
+      "pressure": [10, "No coercive diplomacy"],
+      "expansionism": [5, "No territorial ambitions"],
+      "risk": [10, "Avoids war"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [30, "Non-aligned; ASEAN"],
+      "economy": [75, "Nickel processing and growing economy"],
+      "partners": ["MYS", "SGP"],
+      "rivals": []
+    },
+    "ZAF": {
+      "interventionism": [15, "Peacekeeping in Africa"],
+      "sanctions": [5, "Opposes unilateral sanctions"],
+      "pressure": [10, "No coercive diplomacy"],
+      "expansionism": [0, "No territorial ambitions"],
+      "risk": [5, "Avoids war"],
+      "nuclear": [0, "Dismantled its nuclear weapons in 1989-1991"],
+      "loyalty": [35, "BRICS; non-aligned"],
+      "economy": [55, "Mining economy"],
+      "partners": ["CHN", "BRA"],
+      "rivals": []
+    },
+    "NGA": {
+      "interventionism": [25, "ECOWAS missions"],
+      "sanctions": [25, "ECOWAS sanctions on Niger (2023)"],
+      "pressure": [20, "Pressure on the Sahel juntas through ECOWAS"],
+      "expansionism": [0, "No territorial ambitions"],
+      "risk": [15, "Did not intervene in Niger"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [40, "ECOWAS"],
+      "economy": [40, "Oil economy"],
+      "partners": ["GHA"],
+      "rivals": []
+    },
+    "MEX": {
+      "interventionism": [0, "Estrada doctrine of non-intervention"],
+      "sanctions": [5, "No sanctions policy"],
+      "pressure": [5, "No coercive diplomacy"],
+      "expansionism": [0, "No territorial ambitions"],
+      "risk": [5, "No foreign wars"],
+      "nuclear": [0, "Tlatelolco Treaty"],
+      "loyalty": [35, "No defense alliances"],
+      "economy": [75, "USMCA manufacturing"],
+      "partners": ["USA", "CAN"],
+      "rivals": []
+    },
+    "ARG": {
+      "interventionism": [5, "No foreign operations"],
+      "sanctions": [10, "Rarely sanctions"],
+      "pressure": [15, "Claims the Falklands by diplomacy"],
+      "expansionism": [25, "Claims the Falkland Islands"],
+      "risk": [10, "No war since 1982"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [30, "Major non-NATO ally of the US; no defense treaty"],
+      "economy": [55, "Agricultural exporter"],
+      "partners": ["BRA", "USA"],
+      "rivals": ["GBR"]
+    },
+    "ETH": {
+      "interventionism": [30, "Troops in Somalia"],
+      "sanctions": [5, "No sanctions policy"],
+      "pressure": [40, "Seeks sea access; pressure on Eritrea and Somalia"],
+      "expansionism": [35, "2024 port deal with Somaliland; talk of Red Sea access"],
+      "risk": [45, "Tigray war 2020-2022"],
+      "nuclear": [0, "No nuclear weapons"],
+      "loyalty": [30, "No alliances"],
+      "economy": [40, "Fast-growing but poor economy"],
+      "partners": ["ARE"],
+      "rivals": ["ERI", "EGY"]
+    },
+    "KAZ": {
+      "interventionism": [5, "No foreign operations"],
+      "sanctions": [5, "Did not join sanctions on Russia"],
+      "pressure": [5, "No coercive diplomacy"],
+      "expansionism": [0, "No territorial ambitions"],
+      "risk": [5, "Avoids conflict"],
+      "nuclear": [0, "Gave up nuclear weapons in 1995"],
+      "loyalty": [55, "CSTO member; multi-vector policy"],
+      "economy": [65, "Oil and uranium exporter"],
+      "partners": ["RUS", "CHN"],
+      "rivals": []
+    }
+  }
+}
