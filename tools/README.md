@@ -60,6 +60,12 @@ map as a neutral, uninhabited territory.
 7. Sea routes connect ports whose nearest-port sea areas touch, following the water.
 8. Borders are traced from the ID map, so they match it exactly, and simplified.
 
+## Country statistics and debt
+
+- `npm run data:stats` builds `data/modern/country-stats.json` from the World Bank API (GDP, population, armed forces, military spending, political stability) with the IMF for economies the World Bank lacks; gaps and `override: true` entries come from `tools/countries/estimates.json`.
+- `npm run data:debt` builds `data/modern/debt.json` from the IMF WEO series `GGXWDG_NGDP`.
+- Both need `api.worldbank.org` and `www.imf.org`; behind a proxy run them with `NODE_USE_ENV_PROXY=1`.
+
 ## AI profiles
 
 `npm run data:profiles` builds `data/modern/ai-profiles.json` (GDD section 11) from the hand-written profiles in `tools/ai/manual-profiles.json` and, for every other country, scores derived from the game data (alliances, rivalries, wars, sanctions, SIPRI spending, mandatory service, nuclear weapons). Every score has a one-line justification. Edit the manual file and rerun; never edit the generated file by hand.

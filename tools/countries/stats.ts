@@ -39,8 +39,8 @@ const INDICATORS: Indicator[] = [
   },
   {
     key: 'stability',
-    code: 'PV.EST',
-    source: 3,
+    // The WGI series moved to its own code in 2025 (it was PV.EST in source 3).
+    code: 'GOV_WGI_PV.EST',
     description: 'Political Stability and Absence of Violence/Terrorism: Estimate (WGI)',
   },
 ];
@@ -66,7 +66,10 @@ const LAST_ACTUAL_YEAR = 2025;
 
 interface Estimates {
   sources: Record<string, string>;
-  military: Record<string, { activePersonnel: number; expenditureUsd?: number; rough?: boolean }>;
+  military: Record<
+    string,
+    { activePersonnel: number; expenditureUsd?: number; rough?: boolean; override?: boolean }
+  >;
   economy: Record<
     string,
     { gdpUsd: number; gdpYear: number; population: number; populationYear: number }
@@ -83,9 +86,12 @@ const countries = (
   }
 ).countries.map((c) => c.id);
 
+const USER_AGENT = 'Mozilla/5.0 (modern-leader data tool)';
+
 async function get(url: string): Promise<Response> {
   for (let attempt = 1; ; attempt++) {
-    const response = await fetch(url);
+    // The IMF rejects requests without a browser-like user agent.
+    const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
     if (response.ok) return response;
     if (attempt >= 3) throw new Error(`Request failed (${response.status}): ${url}`);
     await new Promise((r) => setTimeout(r, 1000 * attempt));
@@ -201,6 +207,9 @@ for (const id of countries) {
   const entry: Record<string, unknown> = {};
   for (const indicator of INDICATORS) {
     let v = series.get(indicator.key)!.get(id) ?? null;
+    // A war changed the forces since the last World Bank year: the newer estimate wins.
+    if (indicator.key === 'militaryPersonnel' && estimates.military[id]?.override)
+      v = estimate(indicator.key, id);
     const fallback = IMF[indicator.key];
     if (!v && fallback && !mirror)
       v = await imf(fallback.code, id, fallback.scale).catch(() => null);

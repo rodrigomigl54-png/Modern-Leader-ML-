@@ -404,6 +404,17 @@ Done:
 - 8-year runs on Realistic and Chaos: stable world; in one Realistic run Russia lost a war against Ukraine joined by the UK and Poland, made peace when exhausted, and then faced a revolution (support 28%), as the GDD's escalation ladder intends.
 - Checked in Chromium with phone emulation: 12 turns as Ukraine, no errors.
 
+## Phase 20 — Real World Bank and IMF data
+
+Done:
+
+- `npm run data:stats` now reaches the World Bank API and the IMF (Dario opened `api.worldbank.org` and `www.imf.org`): `data/modern/country-stats.json` has real GDP (2024–2025, e.g. US $30.8T, Russia $2.6T, Serbia $100bn), population, military spending (SIPRI) and political stability (WGI, series now `GOV_WGI_PV.EST`) for 204 countries; Taiwan comes from the IMF. The IMF needs a browser-like user agent (it answered 403 before, so the IMF fallback silently failed).
+- Political stability now counts in the difficulty rating.
+- New `npm run data:debt` (`tools/countries/debt.ts`): `data/modern/debt.json` from IMF WEO `GGXWDG_NGDP` (latest value up to 2025) for 190 countries; Cuba and Venezuela keep the earlier draft (no IMF data), the rest start with 50%.
+- The World Bank armed-forces series ends in 2020 and counts paramilitary forces, so Russia and Ukraine (`override: true` in `tools/countries/estimates.json`) both use active forces (1.13M and 0.9M); without that, Russia had 1.45M and took Poland in some runs.
+- 10-year runs on Realistic, Peaceful and Aggressive (seeds 1–2): stable world, growth ~2%, no runaway conquests.
+- Behind a proxy, Node needs `NODE_USE_ENV_PROXY=1` for both commands.
+
 ## Next
 
 - Dario: merge the PR, review the new AI profiles, and test the game; changes come from that testing.
@@ -412,7 +423,7 @@ Done:
 ## What is left (to finish the whole game)
 
 1. **Dario's testing** of the Modern World on phone and PC, and the changes that come out of it (balance, clarity, bugs).
-2. **Data refresh when the network allows it:** World Bank and IMF data (GDP, population, military, stability, debt) replace the drafted estimates; then `npm run sim:balance` again.
+2. **Ukraine war balance:** in most AI runs Russia takes most of Ukraine within half a year (already so before the real data); the defender, aid and front lines need tuning so the war can stall as in reality.
 3. **Data review by Dario:** leaders and wars as of the start date, AI profiles (133 still derived from data), starting arsenals, mandatory service list, remaining dated province names.
 4. **Post-demo roadmap (GDD section 15, in order):** historical modes starting with the Cold War; intelligence and espionage (hidden nuclear bases, enemy plans); UN Security Council with resolution votes; a full navy (fleets, naval battles, blockades); refugees and migration; mod support; Steam and mobile builds; ads and in-app purchases (no pay-to-win); multiplayer.
 5. **Release** (only when Dario says the game is finished): GitHub Pages is live already; the itch.io zip is built by CI.
@@ -439,11 +450,12 @@ Done:
 
 - Rural population is spread by area, not by real density (deserts and mountains get as many people per km² as farmland).
 
-- Starting debt is drafted from the IMF WEO 2024 (recalled); to be replaced by the IMF API data.
+- Starting debt for Cuba and Venezuela is drafted (no IMF data).
 - Economy numbers are first design values; they are tuned in Phase 13.
 
 - Leaders and wars are drafted from information known up to mid-2026. Elections and events before the start date need a check.
-- Military figures are drafted estimates until the World Bank API is allowed. Political stability is missing, so it does not affect the difficulty yet.
+- World Bank armed-forces figures are from 2020 and include paramilitary forces; Russia, Ukraine and countries without data use drafted IISS estimates. Military spending is missing for 30 small states.
+- After the opening war Ukraine often loses part of its land to a secession (week ~70): the escalation ladder working on a beaten country, but more often than in reality.
 - No GDP data: North Korea, Vatican, and the disputed territories except Kosovo and Palestine.
 - Disputed territories use simplified flags drawn for the game (Abkhazia, South Ossetia, Transnistria, Northern Cyprus, Somaliland).
 
