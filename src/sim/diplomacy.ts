@@ -6,7 +6,7 @@ import type { SimContext } from './economy';
 import { armyStrength, militaryRules, provinceSeat } from './military';
 import type { GameState } from './newGame';
 import { joinThreshold } from './profiles';
-import { shiftSupport, transferProvince } from './population';
+import { nationalSupport, shiftSupport, transferProvince } from './population';
 import type { TurnEvent } from './turn';
 import { cachedDistanceKm } from './geo';
 import { weaponsRules, type WeaponKind } from './weapons';
@@ -94,6 +94,9 @@ export interface DiplomacyRules {
     aiStalemateTurns: number;
     aiOfferEvery: number;
     peaceRelation: number;
+    /** Below this national support, or above this inflation, a country seeks peace. */
+    exhaustedSupport?: number;
+    exhaustedInflation?: number;
   };
   nuclear: { relation: number; alliesRelation: number };
 }
@@ -727,7 +730,21 @@ export function aiAcceptsPeace(
   terms: PeaceTerms,
 ): boolean {
   const c = peaceCost(state, ctx, proposer, target, terms);
-  return c !== null && c.cost <= c.available;
+  if (c === null) return false;
+  // An exhausted country takes a peace that costs it nothing.
+  if (warExhausted(state, ctx, target) && c.cost <= 0) return true;
+  return c.cost <= c.available;
+}
+
+/** The home front is collapsing: support or inflation past the limits of the peace rules. */
+export function warExhausted(state: GameState, ctx: SimContext, id: string): boolean {
+  const r = diplomacyRules(ctx).peace;
+  if (r.exhaustedSupport === undefined || r.exhaustedInflation === undefined) return false;
+  const e = state.economy.countries[id];
+  return (
+    (state.population ? nationalSupport(state, ctx, id) < r.exhaustedSupport : false) ||
+    (e?.inflation ?? 0) > r.exhaustedInflation
+  );
 }
 
 // ---- Vassals ----
@@ -1428,10 +1445,14 @@ export function diplomacyPhase(
     const b = war.sides[1][0];
     if (!a || !b) continue;
     const score = warScore(state, war.id, a);
-    const [winner, loser] = score >= 0 ? [a, b] : [b, a];
+    let [winner, loser] = score >= 0 ? [a, b] : [b, a];
     const decisive = Math.abs(score) >= rules.peace.aiPeaceScore;
     const stalemate = turns >= rules.peace.aiStalemateTurns;
-    if (!decisive && !stalemate) continue;
+    // A country whose home front is collapsing (unrest or runaway inflation) seeks peace even
+    // when the war is not lost on the battlefield.
+    const tired = [a, b].filter((x) => x !== player && warExhausted(state, ctx, x));
+    if (!decisive && !stalemate && tired.length === 0) continue;
+    if (!decisive && tired.length === 1) [winner, loser] = tired[0] === a ? [b, a] : [a, b];
     if (winner === player || loser === player) {
       if (state.turn - record.lastOffer < rules.peace.aiOfferEvery) continue;
       if (d.requests.some((r) => r.type === 'peace' && r.warId === war.id)) continue;

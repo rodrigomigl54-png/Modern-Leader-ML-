@@ -356,3 +356,24 @@ describe('situational summit questions', () => {
     expect(done.state.economy.countries.PLR!.debt).toBeLessThan(before);
   });
 });
+
+describe('war exhaustion', () => {
+  it('a country whose home front collapses makes peace before the war is decided', () => {
+    const run = (inflation: number): boolean => {
+      const declared = applyCommand(
+        newGame(),
+        { type: 'declareWar', countryId: 'BBB', targetId: 'FAR' },
+        sim,
+      );
+      if (!declared.ok) throw new Error(declared.error);
+      const game = declared.state;
+      const war = game.world.wars.find((w) => w.sides[0][0] === 'BBB')!;
+      game.diplomacy.wars[war.id]!.startTurn = game.turn - 30;
+      game.economy.countries.BBB!.inflation = inflation;
+      const next = advanceTurn(game, sim).state;
+      return enemiesAtWar(next.world, 'BBB').includes('FAR');
+    };
+    expect(run(0.02)).toBe(true);
+    expect(run(0.5)).toBe(false);
+  });
+});
