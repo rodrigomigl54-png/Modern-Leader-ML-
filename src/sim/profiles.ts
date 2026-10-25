@@ -69,6 +69,10 @@ export interface AiRules {
     minServices: number;
     debtLimit: number;
     lowSupport: number;
+    /** Services the AI restores when the people are angry and the budget allows. */
+    targetServices: number;
+    /** Treasury, in weeks of spending, that counts as money in the bank. */
+    reserveWeeks: number;
   };
   nuclear: { lastResortMinPosture: number; threatPosture: number; threatScore: number };
 }

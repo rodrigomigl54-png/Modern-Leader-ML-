@@ -1,7 +1,7 @@
 // Simple AI orders until the real AI with country profiles (Phase 11): countries at war recruit
 // toward the army they can pay for, move armies to the front and attack weak neighboring enemy
 // provinces. Countries at peace keep their armies where they are. Turn step 1 (GDD section 5).
-import type { SimContext } from './economy';
+import { weeklyBudget, type SimContext } from './economy';
 import {
   armyStrength,
   citiesOfProvince,
@@ -60,7 +60,10 @@ export function aiMilitaryOrders(state: GameState, ctx: SimContext): void {
   for (const country of state.world.countries) {
     if (country.id === state.player.countryId || country.provinceIds.length === 0) continue;
     const enemies = new Set(enemiesAtWar(state.world, country.id));
-    if (enemies.size === 0) continue;
+    if (enemies.size === 0) {
+      if (country.status !== 'rebels') demobilize(state, ctx, country.id);
+      continue;
+    }
 
     if (country.status !== 'rebels') recruit(state, ctx, country.id);
 
@@ -84,6 +87,7 @@ export function aiMilitaryOrders(state: GameState, ctx: SimContext): void {
     }
     const assigned = new Map<number, number>();
     const mine = state.military.armies.filter((a) => a.owner === country.id);
+    const totalStrength = mine.reduce((sum, a) => sum + armyStrength(rules, a), 0);
     for (const a of mine) {
       const at = a.path.at(-1) ?? a.provinceId;
       assigned.set(at, (assigned.get(at) ?? 0) + armyStrength(rules, a));
@@ -132,11 +136,15 @@ export function aiMilitaryOrders(state: GameState, ctx: SimContext): void {
         );
         continue;
       }
-      // The capital's garrison stays home.
-      if (army.provinceId === country.capitalProvinceId) continue;
-      if (onFront) {
-        // Send the surplus to a front province that needs it.
-        const surplus = (assigned.get(army.provinceId) ?? 0) - need(army.provinceId);
+      // The capital keeps a share of the army; a front province keeps what covers its threat.
+      // The rest goes where the front needs it.
+      const isCapital = army.provinceId === country.capitalProvinceId;
+      if (isCapital || onFront) {
+        const keep = Math.max(
+          need(army.provinceId),
+          isCapital ? rules.ai.capitalShare * totalStrength : 0,
+        );
+        const surplus = (assigned.get(army.provinceId) ?? 0) - keep;
         const target = neediest();
         if (target === undefined || surplus <= strength * 0.2 || target === army.provinceId)
           continue;
@@ -169,6 +177,32 @@ function splitOff(state: GameState, army: Army, share: number, min: number): Arm
   const part: Army = { ...army, id: state.military.nextArmyId++, regulars, special, path: [] };
   state.military.armies.push(part);
   return part;
+}
+
+/**
+ * At peace, a country whose budget is in deficit sends soldiers above the army it can pay for
+ * in peacetime home to the reserves, a little every week.
+ */
+function demobilize(state: GameState, ctx: SimContext, countryId: string): void {
+  const rules = militaryRules(ctx);
+  const m = state.military.countries[countryId];
+  const e = state.economy.countries[countryId];
+  if (!m || !e || m.upkeepPerSoldier <= 0) return;
+  // At peace a country pays for at most a peacetime share of its GDP.
+  const share = Math.min(e.militaryShare, rules.ai.peaceMilitaryShare);
+  const affordable = (e.gdp * share) / 52 / m.upkeepPerSoldier;
+  const armies = state.military.armies.filter((a) => a.owner === countryId);
+  const soldiers = armies.reduce((s, a) => s + a.regulars, 0);
+  const excess = soldiers - affordable;
+  if (excess <= 0 || weeklyBudget(state, countryId, ctx).balance >= 0) return;
+  const sentShare = Math.min(excess, soldiers * rules.ai.demobilizeShare) / soldiers;
+  for (const a of armies) {
+    const sent = Math.floor(a.regulars * sentShare);
+    a.regulars -= sent;
+    if (state.world.provinceOwners[a.provinceId] === countryId)
+      state.military.reservists[a.provinceId]! += sent;
+  }
+  state.military.armies = state.military.armies.filter((a) => a.regulars + a.special > 0);
 }
 
 /** Recruits part of the gap to the army the country can pay for at war. */
@@ -233,7 +267,10 @@ export function aiWeaponsOrders(state: GameState, ctx: SimContext): void {
     const arsenal = state.weapons.countries[country.id];
     if (!arsenal) continue;
     const enemies = new Set(enemiesAtWar(state.world, country.id));
-    if (enemies.size === 0) continue;
+    if (enemies.size === 0) {
+      if (country.status !== 'rebels') demobilize(state, ctx, country.id);
+      continue;
+    }
 
     // Targets: enemy provinces next to ours, biggest enemy armies first; then enemy capitals.
     const near = new Set<number>();

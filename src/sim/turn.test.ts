@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { addDays, dateOfTurn } from './calendar';
-import { createNewGame, type GameState } from './newGame';
+import { cloneState, createNewGame, type GameState } from './newGame';
 import { createRng } from './rng';
 import { createSave, parseSave, serializeSave } from './save';
 import economyRules from '../../data/modern/economy.json';
@@ -98,6 +98,18 @@ describe('advanceTurn', () => {
     expect(state.date).toBe('2027-01-08');
     expect(game.turn).toBe(0);
     expect(game.date).toBe('2027-01-01');
+  });
+
+  it('copies the state deeply: the copy equals it and shares nothing', () => {
+    const game = play(newGame(), 3);
+    const copy = cloneState(game);
+    expect(copy).toEqual(structuredClone(game));
+    copy.world.provinceOwners[0] = 'XXX';
+    copy.economy.countries[game.player.countryId]!.treasury = -1;
+    copy.population.support[0] = -1;
+    expect(game.world.provinceOwners[0]).not.toBe('XXX');
+    expect(game.economy.countries[game.player.countryId]!.treasury).not.toBe(-1);
+    expect(game.population.support[0]).not.toBe(-1);
   });
 
   it('runs the phases in the GDD order', () => {

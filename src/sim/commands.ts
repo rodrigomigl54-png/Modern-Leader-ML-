@@ -29,7 +29,7 @@ import {
   type PeaceTerms,
   type Threat,
 } from './diplomacy';
-import type { GameState } from './newGame';
+import { cloneState, type GameState } from './newGame';
 import { attendSummit, skipSummit } from './summits';
 import {
   airDefenseQuote,
@@ -260,7 +260,7 @@ export function applyCommand(
     case 'setTax': {
       if (!(command.rate >= limits.taxRateMin && command.rate <= limits.taxRateMax))
         return { ok: false, error: 'outOfRange' };
-      const state = structuredClone(previous);
+      const state = cloneState(previous);
       state.economy.countries[command.countryId]!.taxRate = command.rate;
       return { ok: true, state };
     }
@@ -268,12 +268,12 @@ export function applyCommand(
       if (!(command.share >= limits.servicesShareMin && command.share <= limits.servicesShareMax)) {
         return { ok: false, error: 'outOfRange' };
       }
-      const state = structuredClone(previous);
+      const state = cloneState(previous);
       state.economy.countries[command.countryId]!.servicesShare = command.share;
       return { ok: true, state };
     }
     case 'printMoney': {
-      const state = structuredClone(previous);
+      const state = cloneState(previous);
       const e = state.economy.countries[command.countryId]!;
       const amount = printAmount(previous, command.countryId, ctx.economy);
       e.treasury += amount;
@@ -293,7 +293,7 @@ export function applyCommand(
       if (quote.cities.length === 0) return { ok: false, error: 'noCities' };
       if (quote.buildable.length === 0) return { ok: false, error: 'allRefused' };
       if (!quote.affordable) return { ok: false, error: 'notEnoughMoney' };
-      const state = structuredClone(previous);
+      const state = cloneState(previous);
       const e = state.economy.countries[command.countryId]!;
       e.treasury -= quote.totalCost;
       for (const city of quote.cities) {
@@ -316,14 +316,14 @@ export function applyCommand(
       const quote = assimilationQuote(previous, ctx, command.countryId, command.provinceIds);
       if (quote.provinceIds.length === 0) return { ok: false, error: 'nothingToAssimilate' };
       if (!quote.affordable) return { ok: false, error: 'notEnoughMoney' };
-      const state = structuredClone(previous);
+      const state = cloneState(previous);
       state.economy.countries[command.countryId]!.treasury -= quote.totalCost;
       for (const p of quote.provinceIds)
         state.population.assimilateUntil[p] = state.turn + quote.turns;
       return { ok: true, state };
     }
     case 'moveArmies': {
-      const state = structuredClone(previous);
+      const state = cloneState(previous);
       const armies = state.military.armies.filter(
         (a) =>
           command.armyIds.includes(a.id) &&
@@ -342,7 +342,7 @@ export function applyCommand(
       return { ok: true, state };
     }
     case 'splitArmy': {
-      const state = structuredClone(previous);
+      const state = cloneState(previous);
       const army = state.military.armies.find(
         (a) => a.id === command.armyId && a.owner === command.countryId,
       );
@@ -378,14 +378,14 @@ export function applyCommand(
         return { ok: false, error: command.kind === 'special' ? 'needsBase' : 'noCities' };
       if (quote.total === 0) return { ok: false, error: 'nothingToRecruit' };
       if (!quote.affordable) return { ok: false, error: 'notEnoughMoney' };
-      const state = structuredClone(previous);
+      const state = cloneState(previous);
       startRecruitment(state, command.countryId, ctx, quote);
       return { ok: true, state };
     }
     case 'setService': {
       const m = previous.military.countries[command.countryId];
       if (!m) return { ok: false, error: 'unknownCountry' };
-      const state = structuredClone(previous);
+      const state = cloneState(previous);
       const next = state.military.countries[command.countryId]!;
       if (command.enabled && !next.service) {
         // Introducing service is unpopular (GDD section 8).
@@ -401,7 +401,7 @@ export function applyCommand(
     case 'launchDrones':
     case 'launchNuclear':
     case 'produceWeapons': {
-      const state = structuredClone(previous);
+      const state = cloneState(previous);
       const c = command;
       const error =
         c.type === 'launchMissiles'
@@ -416,7 +416,7 @@ export function applyCommand(
     case 'buildAirDefense': {
       const quote = airDefenseQuote(previous, ctx, command.countryId, command.cityId);
       if (quote.allowed || !quote.level) return { ok: false, error: quote.allowed ?? 'maxLevel' };
-      const state = structuredClone(previous);
+      const state = cloneState(previous);
       state.economy.countries[command.countryId]!.treasury -= quote.level.costUsd;
       state.weapons.airDefenseBuilds.push({
         owner: command.countryId,
@@ -433,7 +433,7 @@ export function applyCommand(
       if (a.warheads > 0) return { ok: false, error: 'hasNuclear' };
       if (a.nuclearProgramUntil >= 0) return { ok: false, error: 'programRunning' };
       if (economy.treasury < n.programCostUsd) return { ok: false, error: 'notEnoughMoney' };
-      const state = structuredClone(previous);
+      const state = cloneState(previous);
       state.economy.countries[command.countryId]!.treasury -= n.programCostUsd;
       state.weapons.countries[command.countryId]!.nuclearProgramUntil = state.turn + n.programTurns;
       return { ok: true, state };
@@ -452,14 +452,14 @@ export function applyCommand(
         return { ok: false, error: 'alreadyAtWar' };
       if (alliesOf(previous.world, countryId).includes(targetId))
         return { ok: false, error: 'allied' };
-      const state = structuredClone(previous);
+      const state = cloneState(previous);
       startWar(state, ctx, countryId, targetId);
       return { ok: true, state };
     }
     case 'summit': {
       if (command.countryId !== previous.player.countryId || !ctx.summits)
         return { ok: false, error: 'noSummit' };
-      const state = structuredClone(previous);
+      const state = cloneState(previous);
       const done = command.answers
         ? attendSummit(state, ctx, command.summitId, command.answers)
         : skipSummit(state, ctx, command.summitId);
@@ -475,7 +475,7 @@ function diplomacyCommand(
   c: DiplomacyCommand,
   ctx: SimContext,
 ): CommandResult {
-  const state = structuredClone(previous);
+  const state = cloneState(previous);
   const id = c.countryId;
   let result: ActionResult;
   switch (c.type) {

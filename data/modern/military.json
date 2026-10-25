@@ -77,6 +77,9 @@
     "maxTreasuryShare": 0.25,
     "frontCover": 0.8,
     "minGarrison": 2000,
-    "minDetachment": 1000
+    "minDetachment": 1000,
+    "capitalShare": 0.2,
+    "demobilizeShare": 0.01,
+    "peaceMilitaryShare": 0.05
   }
 }

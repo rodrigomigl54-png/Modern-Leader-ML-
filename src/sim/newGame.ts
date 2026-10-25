@@ -109,3 +109,31 @@ export function createNewGame(world: World, options: NewGameOptions, sim: SimCon
   markReport(game, sim);
   return game;
 }
+
+/** Deep copy of plain data (objects, arrays, primitives), as saves hold. */
+function copyData<T>(value: T): T {
+  if (typeof value !== 'object' || value === null) return value;
+  if (Array.isArray(value)) {
+    const n = value.length;
+    const out = new Array<unknown>(n);
+    for (let i = 0; i < n; i++) {
+      const x: unknown = value[i];
+      out[i] = typeof x === 'object' && x !== null ? copyData(x) : x;
+    }
+    return out as T;
+  }
+  const out: Record<string, unknown> = {};
+  for (const key of Object.keys(value)) {
+    const x = (value as Record<string, unknown>)[key];
+    out[key] = typeof x === 'object' && x !== null ? copyData(x) : x;
+  }
+  return out as T;
+}
+
+/**
+ * Copies a state for the next turn or a command. The state is plain data, so a direct copy
+ * is several times faster than structuredClone (most of it is long arrays of numbers).
+ */
+export function cloneState(state: GameState): GameState {
+  return copyData(state);
+}

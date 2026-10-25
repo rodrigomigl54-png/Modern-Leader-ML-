@@ -102,8 +102,13 @@ export function aiPolicyOrders(
         if (e.taxRate < r.fiscal.maxTax && support > r.fiscal.lowSupport)
           e.taxRate += r.fiscal.step;
         else if (e.servicesShare > r.fiscal.minServices) e.servicesShare -= r.fiscal.step;
-      } else if (support < r.fiscal.lowSupport && e.taxRate > r.fiscal.minTax && b.balance > 0) {
-        e.taxRate -= r.fiscal.step;
+      } else if (
+        support < r.fiscal.lowSupport &&
+        (b.balance > 0 || e.treasury > b.spending * r.fiscal.reserveWeeks)
+      ) {
+        // An angry people with money in the bank: better services first, then lower taxes.
+        if (e.servicesShare < r.fiscal.targetServices) e.servicesShare += r.fiscal.step;
+        else if (e.taxRate > r.fiscal.minTax) e.taxRate -= r.fiscal.step;
       }
     }
 

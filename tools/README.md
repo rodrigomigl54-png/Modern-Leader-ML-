@@ -63,3 +63,16 @@ map as a neutral, uninhabited territory.
 ## AI profiles
 
 `npm run data:profiles` builds `data/modern/ai-profiles.json` (GDD section 11) from the hand-written profiles in `tools/ai/manual-profiles.json` and, for every other country, scores derived from the game data (alliances, rivalries, wars, sanctions, SIPRI spending, mandatory service, nuclear weapons). Every score has a one-line justification. Edit the manual file and rerun; never edit the generated file by hand.
+
+## Balance simulations
+
+`npm run sim:balance` plays the Modern World with AI countries only (the player's country, Iceland
+by default, gives no orders) for several years on every aggressiveness level and prints one line of
+world statistics per year: wars, conquests, revolutions, secessions, nuclear strikes, sanctions,
+median GDP growth, inflation and debt crises, median support, soldiers, milliseconds per turn and
+save size, plus the notable events of the year. It uses the game's own code (through Vite) and the
+same data as the browser.
+
+Options: `--years 10`, `--levels peaceful,realistic,aggressive,chaos`, `--seed 1`, `--player ISL`,
+`--watch RUS,UKR` (yearly economy and army lines for these countries), `--trace 229-260` (weekly
+army lines for the watched countries between two turns) and `--out file.json`.

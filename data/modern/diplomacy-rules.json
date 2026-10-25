@@ -56,8 +56,8 @@
     "relation": -30,
     "targetAlliesRelation": -10,
     "senderRivalsRelation": 10,
-    "growthPerWorldShare": 0.2,
-    "maxGrowthPenalty": 0.08
+    "growthPerWorldShare": 0.06,
+    "maxGrowthPenalty": 0.025
   },
   "war": {
     "declaredRelation": -50,

@@ -210,6 +210,51 @@ describe('AI actions follow the profile', () => {
     }
   });
 
+  it('an angry people and money in the bank bring better services', () => {
+    const ctx = sim({ BIG: profile({}) });
+    const game = newGame(ctx);
+    const e = game.economy.countries.BIG!;
+    e.servicesShare = 0.05;
+    e.treasury = 1e12;
+    for (const p of [0, 1]) game.population.support[p] = 20;
+    const later = play(game, ctx, 12);
+    expect(later.economy.countries.BIG!.servicesShare).toBeGreaterThan(0.05);
+  });
+
+  it('demobilizes at peace when the army is more than the budget can pay', () => {
+    const ctx = sim({ BIG: profile({ expansionism: 0, risk: 0 }) });
+    const game = newGame(ctx, 'peaceful');
+    for (const a of game.military.armies) if (a.owner === 'BIG') a.regulars *= 20;
+    game.economy.countries.BIG!.treasury = 0;
+    const soldiers = (s: GameState): number =>
+      s.military.armies.filter((a) => a.owner === 'BIG').reduce((t, a) => t + a.regulars, 0);
+    const reserves = (s: GameState): number =>
+      s.military.reservists[0]! + s.military.reservists[1]!;
+    const later = play(game, ctx, 10);
+    expect(soldiers(later)).toBeLessThan(soldiers(game));
+    expect(reserves(later)).toBeGreaterThan(reserves(game));
+  });
+
+  it('at war the capital keeps only part of the army; the rest goes to the front', () => {
+    const ctx = sim({ BIG: profile({}) });
+    const game = newGame(ctx);
+    // The whole army stands in the capital (province 0); the front is province 1.
+    const army = game.military.armies.filter((a) => a.owner === 'BIG');
+    for (const a of army) {
+      a.provinceId = 0;
+      a.path = [];
+    }
+    const declared = applyCommand(
+      game,
+      { type: 'declareWar', countryId: 'SML', targetId: 'BIG' } as Command,
+      ctx,
+    );
+    if (!declared.ok) throw new Error(declared.error);
+    const later = play(declared.state, ctx, 3);
+    const outside = later.military.armies.filter((a) => a.owner === 'BIG' && a.provinceId !== 0);
+    expect(outside.length).toBeGreaterThan(0);
+  });
+
   it('is deterministic', () => {
     const ctx = sim({ BIG: profile({ expansionism: 80, risk: 80, pressure: 80, sanctions: 80 }) });
     const start = newGame(ctx, 'chaos');

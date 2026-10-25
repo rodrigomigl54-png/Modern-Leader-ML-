@@ -128,6 +128,72 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     statsUrl ? fetchJson<StatsFile>(statsUrl) : Promise.resolve(null),
   ]);
 
+  return assembleWorld(map, {
+    leaders,
+    diplomacy,
+    scenario,
+    economy,
+    population,
+    military,
+    service,
+    sea,
+    weapons,
+    diplomacyRules,
+    relations,
+    resources,
+    profiles,
+    aiRules,
+    summits,
+    goals,
+    stats,
+  });
+}
+
+/** Parsed data/modern files the world is built from. */
+export interface WorldFiles {
+  leaders: LeadersFile;
+  diplomacy: DiplomacyFile;
+  scenario: ScenarioFile;
+  economy: EconomyRules;
+  population: PopulationRules;
+  military: MilitaryRules;
+  service: ServiceFile;
+  sea: SeaRoutesFile;
+  weapons: WeaponsRules;
+  diplomacyRules: DiplomacyRules;
+  relations: { pairs: RelationOverride[]; sanctions: { from: string; to: string }[] };
+  resources: ResourcesData;
+  profiles: { profiles: Record<string, AiProfile> };
+  aiRules: AiRules;
+  summits: SummitRules;
+  goals: GoalRules;
+  stats: StatsFile | null;
+}
+
+/** The map facts the simulation needs (tiles are not needed). */
+export type MapFacts = Pick<MapData, 'provinces' | 'countries' | 'cities'>;
+
+/** Builds the World and the simulation context; shared by the game and tools/balance. */
+export function assembleWorld(map: MapFacts, files: WorldFiles): WorldBundle {
+  const {
+    leaders,
+    diplomacy,
+    scenario,
+    economy,
+    population,
+    military,
+    service,
+    sea,
+    weapons,
+    diplomacyRules,
+    relations,
+    resources,
+    profiles,
+    aiRules,
+    summits,
+    goals,
+    stats,
+  } = files;
   const world: World = {
     startDate: scenario.startDate,
     countries: map.countries.map((c) => {
@@ -183,14 +249,14 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
 }
 
 /** Inhabitants per province: the sum of its cities' populations. */
-function provincePopulation(map: MapData): number[] {
+function provincePopulation(map: MapFacts): number[] {
   const totals = new Array<number>(map.provinces.length).fill(0);
   for (const c of map.cities) totals[c.provinceId]! += c.population;
   return totals;
 }
 
 /** Sea routes between port cities, as links between their provinces. */
-function seaLinks(map: MapData, file: SeaRoutesFile): SeaLink[] {
+function seaLinks(map: MapFacts, file: SeaRoutesFile): SeaLink[] {
   const links: SeaLink[] = [];
   for (const r of file.routes) {
     const a = map.cities[r.a]?.provinceId;
@@ -202,7 +268,7 @@ function seaLinks(map: MapData, file: SeaRoutesFile): SeaLink[] {
 }
 
 /** Nuclear base cities by name, within the country (data/modern/weapons.json). */
-function nuclearBases(map: MapData, rules: WeaponsRules): Record<string, number[]> {
+function nuclearBases(map: MapFacts, rules: WeaponsRules): Record<string, number[]> {
   const result: Record<string, number[]> = {};
   for (const [country, { bases }] of Object.entries(rules.nuclear.countries)) {
     result[country] = bases
