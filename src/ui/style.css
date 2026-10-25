@@ -8,6 +8,13 @@
   --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   color-scheme: dark;
+  --danger-text: #e0786b;
+  --danger-soft: #f0a197;
+  --good-text: #6fbf73;
+  --good-soft: #9fd3aa;
+  --panel-solid: #101d2d;
+  --line-soft: rgba(42, 62, 85, 0.5);
+  --ui-scale: 1;
 }
 
 html,
@@ -37,7 +44,26 @@ body {
 #ui-root {
   position: fixed;
   inset: 0;
+  /* UI scale setting (GDD section 13). */
+  zoom: var(--ui-scale);
   pointer-events: none;
+}
+
+/* Day theme (GDD section 13): warm off-white map paper, ink-dark lines. */
+:root[data-theme='day'] {
+  --bg: #e9e1cf;
+  --panel-bg: rgba(250, 246, 237, 0.97);
+  --panel-border: #c6b99c;
+  --text: #1f2630;
+  --text-muted: #5d6470;
+  --accent: #c27a12;
+  --danger-text: #a8352a;
+  --danger-soft: #9c3328;
+  --good-text: #2f7a3c;
+  --good-soft: #2f7a3c;
+  --panel-solid: #f7f2e7;
+  --line-soft: rgba(120, 100, 70, 0.25);
+  color-scheme: light;
 }
 
 #ui-root > * {
@@ -159,7 +185,7 @@ body {
 }
 
 .loading-failed .loading-message {
-  color: #e0786b;
+  color: var(--danger-text);
 }
 
 /* Province dossier: bottom sheet on phones, side card on wide screens */
@@ -285,7 +311,7 @@ body {
   align-items: center;
   gap: 6px;
   padding: 6px 0;
-  border-bottom: 1px solid rgba(42, 62, 85, 0.5);
+  border-bottom: 1px solid var(--line-soft);
 }
 
 .city-name {
@@ -525,7 +551,7 @@ body {
 
 .setup-warning {
   margin: 8px 0 0;
-  color: #e0786b;
+  color: var(--danger-text);
 }
 
 .option-list {
@@ -576,7 +602,7 @@ body {
   padding: 12px 12px calc(env(safe-area-inset-bottom) + 12px);
   border-top: 3px solid var(--accent);
   border-radius: 12px 12px 0 0;
-  background: #101d2d;
+  background: var(--panel-solid);
   box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
   pointer-events: auto;
 }
@@ -661,7 +687,7 @@ body {
   min-height: 44px;
   padding: 4px 6px;
   border: 0;
-  border-bottom: 1px solid rgba(42, 62, 85, 0.5);
+  border-bottom: 1px solid var(--line-soft);
   background: none;
   color: var(--text);
   font: inherit;
@@ -762,7 +788,7 @@ body {
   border: 1px solid #3f6f55;
   border-radius: 4px;
   font-size: 12px;
-  color: #9fd2b2;
+  color: var(--good-soft);
 }
 
 .chip-rival {
@@ -772,7 +798,7 @@ body {
 
 .chip-war {
   border-color: #c4473a;
-  color: #f0a197;
+  color: var(--danger-soft);
 }
 
 .summary-country {
@@ -981,7 +1007,7 @@ body {
 .btn-danger-outline {
   border-color: #c4473a;
   background: none;
-  color: #f0a197;
+  color: var(--danger-soft);
 }
 
 .slot-list {
@@ -1037,7 +1063,7 @@ body {
 
 /* Economy */
 .danger {
-  color: #f0a197;
+  color: var(--danger-soft);
 }
 
 .hud-stats {
@@ -1239,7 +1265,7 @@ body {
 }
 
 .dossier {
-  background: #101d2d;
+  background: var(--panel-solid);
 }
 
 .modal-footer {
@@ -1248,7 +1274,7 @@ body {
   margin: 12px -18px -18px;
   padding: 12px 18px 18px;
   border-top: 1px solid var(--panel-border);
-  background: #101d2d;
+  background: var(--panel-solid);
 }
 
 .modal-footer .modal-actions {
@@ -1321,8 +1347,8 @@ body {
 }
 
 .badge-danger {
-  border-color: #f0a197;
-  color: #f0a197;
+  border-color: var(--danger-soft);
+  color: var(--danger-soft);
 }
 
 .dossier .btn + .dossier-subtitle,
@@ -1507,7 +1533,7 @@ body {
 
 .chip-ally {
   border-color: #4e9a5e;
-  color: #9fd3aa;
+  color: var(--good-soft);
 }
 
 /* Resources (Phase 10) */
@@ -1705,7 +1731,7 @@ body {
 }
 
 .good {
-  color: #6fbf73;
+  color: var(--good-text);
 }
 
 .summit-question {
@@ -1734,12 +1760,12 @@ body {
 }
 
 .goal-done .goal-status {
-  color: #6fbf73;
+  color: var(--good-text);
 }
 
 .goal-failed .goal-status,
 .goal-failed .goal-name {
-  color: #e0786b;
+  color: var(--danger-text);
 }
 
 .goal-bar {
@@ -1756,5 +1782,56 @@ body {
 }
 
 .goal-done .goal-fill {
-  background: #6fbf73;
+  background: var(--good-text);
+}
+
+/* Leader seals (Phase 13) */
+.country-leader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.country-leader:empty {
+  display: none;
+}
+
+.leader-seal {
+  flex: none;
+}
+
+.leader-seal-text {
+  fill: #fff;
+  font-family: var(--font-mono);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.settings-panel {
+  /* Opened from the menus too: above every screen and dialog, below the toasts. */
+  z-index: 25;
+  max-height: calc(100% - 80px);
+  overflow-y: auto;
+}
+
+.settings-panel input[type='range'] {
+  width: 140px;
+  accent-color: var(--accent);
+}
+
+.settings-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  text-decoration: none;
+}
+
+@media (max-width: 480px) {
+  .hud .leader-seal {
+    display: none;
+  }
 }

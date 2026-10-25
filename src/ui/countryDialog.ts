@@ -24,6 +24,7 @@ import type { GameState } from '../sim/newGame';
 import { TRAITS } from '../sim/profiles';
 import { weaponsRules, type WeaponKind } from '../sim/weapons';
 import { alliesOf, enemiesAtWar } from '../sim/world';
+import { leaderSeal } from './leaderSeal';
 import { button, el } from './dom';
 
 export interface CountryDialogOptions {
@@ -163,9 +164,22 @@ export class CountryDialog {
     chip(t('dip.credibility', { value: Math.round(game.diplomacy.credibility[id] ?? 0) }));
     for (const al of game.world.alliances)
       if (al.members.includes(id) && al.type !== 'vassal') chip(this.options.allianceName(al.id));
+    const country = game.world.countries.find((c) => c.id === id);
+    const leader = el('div', 'country-leader');
+    if (country?.leader.name) {
+      leader.append(
+        leaderSeal(country.leader.name, id, 36),
+        el(
+          'span',
+          '',
+          `${t(`leaderTitle.${country.leader.title}` as TranslationKey)} ${country.leader.name}`,
+        ),
+      );
+    }
     const wrap = el('div');
     wrap.append(
       head,
+      leader,
       chips,
       el(
         'p',

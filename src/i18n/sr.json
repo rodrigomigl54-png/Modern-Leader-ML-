@@ -644,5 +644,12 @@
   "tip.interior": "Pratite podršku naroda. Ispod granice nemira provincije se bune, a duga kriza može da se završi revolucijom. Dodirnite podršku u gornjoj traci za Ministarstvo unutrašnjih poslova.",
   "tip.defence": "Otvorite provinciju i dodirnite + pored njenih armija da ih izaberete, zatim otvorite ciljnu provinciju i dodirnite Pomeri ovde. Dodirnite broj vojnika u gornjoj traci za regrutaciju i arsenal.",
   "tip.foreign": "Svaka akcija u inostranstvu košta diplomatske poene. Dodirnite stranu zemlju na mapi za saveze, sankcije, ultimatume, pomoć i trgovinu.",
-  "tip.goals": "Vaša zemlja ima ciljeve za naredne godine. Pratite ih u meniju pod Ciljevi; vesti iz sveta idu u traci na dnu ekrana."
+  "tip.goals": "Vaša zemlja ima ciljeve za naredne godine. Pratite ih u meniju pod Ciljevi; vesti iz sveta idu u traci na dnu ekrana.",
+  "settings.theme": "Tema",
+  "settings.theme.night": "Noć",
+  "settings.theme.day": "Dan",
+  "settings.uiScale": "Veličina interfejsa",
+  "settings.music": "Muzika",
+  "settings.effects": "Zvučni efekti",
+  "settings.feedback": "Pošalji utiske"
 }

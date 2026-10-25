@@ -5,3 +5,5 @@ coverage/
 .DS_Store
 .vite/
 tools/.cache/
+dist-itch
+modern-leader-demo.zip

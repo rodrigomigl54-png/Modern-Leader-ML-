@@ -27,6 +27,13 @@ export function confirmDialog(
   });
 }
 
+let telegramListener: (() => void) | null = null;
+
+/** Called whenever a telegram opens (the alert sound). */
+export function onTelegram(listener: () => void): void {
+  telegramListener = listener;
+}
+
 /** Urgent message from a minister (GDD sections 6 and 12), with a single button. */
 export function noticeDialog(
   root: HTMLElement,
@@ -36,6 +43,7 @@ export function noticeDialog(
 ): Promise<void> {
   return new Promise((resolve) => {
     const backdrop = el('div', 'modal-backdrop');
+    telegramListener?.();
     const dialog = el('div', 'modal modal-telegram');
     dialog.setAttribute('role', 'alertdialog');
     const actions = el('div', 'modal-actions');

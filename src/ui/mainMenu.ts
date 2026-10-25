@@ -17,6 +17,7 @@ export interface MainMenuActions {
   onNewGame: () => void;
   onLoadGame: () => void;
   onSettings: () => void;
+  onFeedback: () => void;
 }
 
 /** Main menu (GDD section 13) over the dimmed world map. */
@@ -78,6 +79,7 @@ export class MainMenu {
     card.lastElementChild!.append(
       load,
       button('btn btn-secondary', t('menu.settings'), this.actions.onSettings),
+      button('btn btn-secondary', t('settings.feedback'), this.actions.onFeedback),
     );
     this.root.replaceChildren(card);
   }

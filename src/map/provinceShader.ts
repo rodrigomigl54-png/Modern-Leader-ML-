@@ -175,6 +175,15 @@ export class ProvinceShaderShared {
     });
   }
 
+  /** Changes the theme colors (unowned land, borders). */
+  setColors(style: Pick<MapStyle, 'unowned' | 'countryBorder' | 'provinceBorder'>): void {
+    const u = this.uniforms.uniforms;
+    (u.uUnownedColor as Float32Array).set(rgbToVec(style.unowned));
+    (u.uCountryBorderColor as Float32Array).set(rgbToVec(style.countryBorder));
+    (u.uProvinceBorderColor as Float32Array).set(rgbToVec(style.provinceBorder));
+    this.uniforms.update();
+  }
+
   /** Call after changing the palette data. */
   paletteChanged(): void {
     this.paletteSource.update();

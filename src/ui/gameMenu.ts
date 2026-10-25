@@ -9,6 +9,7 @@ export interface GameMenuActions {
   onSettings: () => void;
   onGoals: () => void;
   onNews: () => void;
+  onFeedback: () => void;
   onExit: () => void;
 }
 
@@ -48,6 +49,7 @@ export class GameMenu {
       item(t('menu.export'), this.actions.onExport),
       item(t('menu.import'), this.actions.onImport),
       item(t('menu.settings'), this.actions.onSettings),
+      item(t('settings.feedback'), this.actions.onFeedback),
       item(t('menu.exit'), this.actions.onExit, 'btn btn-danger-outline'),
     );
     card.append(el('h2', 'setup-title', t('menu.gameMenu')), list);

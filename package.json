@@ -20,7 +20,8 @@
     "data:flags": "node tools/countries/flags.ts",
     "data:stats": "node tools/countries/stats.ts",
     "data:profiles": "node tools/ai/build-profiles.ts",
-    "sim:balance": "node tools/balance/simulate.ts"
+    "sim:balance": "node tools/balance/simulate.ts",
+    "build:itch": "npm run typecheck && vite build --base ./ --outDir dist-itch && cd dist-itch && zip -qr ../modern-leader-demo.zip ."
   },
   "dependencies": {
     "pixi.js": "^8.22.0"

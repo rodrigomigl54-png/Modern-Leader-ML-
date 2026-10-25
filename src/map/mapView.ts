@@ -8,12 +8,36 @@ import { loadMapData, type MapData } from './mapData';
 import { countryAnchors } from './labelLayout';
 import { MapLabels, type LabelCountry } from './mapLabels';
 import { MAP_MODES, type MapMode } from './mapModes';
-import { hexToRgb, PaletteData } from './palette';
+import { hexToRgb, PaletteData, type RGB } from './palette';
 import { ProvincePicker } from './picker';
 import { ProvinceShaderShared } from './provinceShader';
 import { TileLayer } from './tileLayer';
 
-const WATER = hexToRgb('#0b1522');
+export type MapTheme = 'night' | 'day';
+
+/** Map colors per theme (GDD section 13). Day mixes land colors with map paper. */
+const THEMES: Record<
+  MapTheme,
+  { water: RGB; unowned: RGB; countryBorder: RGB; provinceBorder: RGB; paper: RGB | null }
+> = {
+  night: {
+    water: hexToRgb('#0b1522'),
+    unowned: hexToRgb('#3d434c'),
+    countryBorder: hexToRgb('#0f1b2a'),
+    provinceBorder: hexToRgb('#1d2b3b'),
+    paper: null,
+  },
+  day: {
+    water: hexToRgb('#bccbd2'),
+    unowned: hexToRgb('#d6d0c2'),
+    countryBorder: hexToRgb('#2a2e35'),
+    provinceBorder: hexToRgb('#8d8676'),
+    paper: hexToRgb('#efe6d0'),
+  },
+};
+
+const toPaper = (c: RGB, paper: RGB): RGB =>
+  [0, 1, 2].map((i) => Math.round(c[i]! + (paper[i]! - c[i]!) * 0.5)) as RGB;
 
 /** Political state shown on the map; it comes from the game (the simulation), not from the map data. */
 export interface MapPolitics {
@@ -37,6 +61,8 @@ export interface MapView {
   /** Public support per province for the support map mode (null outside a game). */
   setSupport(support: readonly number[] | null): void;
   setPolitics(politics: MapPolitics): void;
+  /** Night (default) or Day colors. */
+  setTheme(theme: MapTheme): void;
   /** Draws a country in the signature amber with a glowing border (null for none). */
   setFocusCountry(countryId: string | null): void;
   /**
@@ -94,7 +120,8 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
   // Palette: colors from the map mode, owners as indices for the border shader. Owner indices
   // are fixed per country id in the map data, so they survive any change of ownership.
   const palette = new PaletteData();
-  palette.setColor(0, WATER);
+  let theme: MapTheme = 'night';
+  palette.setColor(0, THEMES.night.water);
   const ownerIndex = new Map(countries.map((c, i) => [c.id, i + 1]));
   let politics: MapPolitics = {
     owners: provinces.map((p) => p.owner),
@@ -137,7 +164,10 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
         blocs,
         exports,
       })
-      .forEach((c, id) => palette.setColor(id + 1, c));
+      .forEach((c, id) => {
+        const paper = THEMES[theme].paper;
+        palette.setColor(id + 1, paper ? toPaper(c, paper) : c);
+      });
     shared.paletteChanged();
   };
   applyMode();
@@ -222,6 +252,15 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       applyMode();
       labels.setCountries(labelCountries());
       shared.setFocusOwner(focusCountry ? (ownerIndex.get(focusCountry) ?? 0) : 0);
+      requestRender();
+    },
+    setTheme: (next) => {
+      theme = next;
+      const colors = THEMES[next];
+      palette.setColor(0, colors.water);
+      app.renderer.background.color = colors.water;
+      shared.setColors(colors);
+      applyMode();
       requestRender();
     },
     setFocusCountry: (id) => {
