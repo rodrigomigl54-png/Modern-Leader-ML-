@@ -425,6 +425,18 @@ Done (Dario's requests):
 - **New font:** Inter (SIL OFL), bundled with the game (`@fontsource-variable/inter`), for the whole interface and the map labels; numbers use tabular figures instead of the monospace face. GDD section 13 updated.
 - Checked in Chromium with Pixel 7 emulation (landscape and portrait): map pick, confirm, start, rotate screen; no errors.
 
+## Phase 22 — Ukraine war balance
+
+Done:
+
+- **Front line at the start:** a country already at war starts with 60% of its army spread over its front provinces (`military.json` `army.frontShareAtWar`). Before, both armies started in the big cities, the border provinces were empty, and Russia simply walked into them (and took most of Ukraine in half a year).
+- **War aid** (`ai-rules.json` `warAid`): a country that sanctions the attacker and is not hostile to the attacked country sends it 0.1% of its GDP a year, weekly (more for interventionist countries): about $40–60 bn a year for Ukraine from the West, close to the real budget and arms aid. Half of it continues for a year after the war (reconstruction). Deficits covered by aid do not drive inflation (`CountryEconomy.aid`).
+- **Rally around the flag** (`population.json` `support.war.defenderRally` 12): the attacked country's people back their government while the war lasts.
+- **AI budget:** no recruiting while the deficit after aid is above 5% of GDP (`ai.maxDeficitToRecruit`); when support nears the riot threshold, the AI restores public services first, even on borrowed money (`fiscal.crisisMargin`, `crisisDebtLimit`), instead of cutting them into a revolution; faster demobilization at peace (5% a week).
+- **Nuclear fix:** an AI country about to lose fired a nuclear weapon every week (135 strikes in one Aggressive run), even at rebels on its own land. Now at most once a year (`nuclear.aiCooldownTurns` 52) and never at rebels.
+- `npm run sim:balance -- --trace a-b` now also prints the watched countries' economy every 4 turns.
+- Results (10-year runs): the Russia–Ukraine front holds for about two years and the war ends in a peace with little land changing hands; Ukraine then has a hard post-war period (in some runs it loses a few provinces to rebels, in others it recovers fully). The rest of the world is stable (Realistic: 5 wars, 2 revolutions, growth 2.1%).
+
 ## Next
 
 - Dario: merge the PR, review the new AI profiles, and test the game; changes come from that testing.
@@ -433,7 +445,7 @@ Done (Dario's requests):
 ## What is left (to finish the whole game)
 
 1. **Dario's testing** of the Modern World on phone and PC, and the changes that come out of it (balance, clarity, bugs).
-2. **Ukraine war balance:** in most AI runs Russia takes most of Ukraine within half a year (already so before the real data); the defender, aid and front lines need tuning so the war can stall as in reality.
+2. **Balance by Dario's play-testing**, especially wars between large powers (see Known issues).
 3. **Data review by Dario:** leaders and wars as of the start date, AI profiles (133 still derived from data), starting arsenals, mandatory service list, remaining dated province names.
 4. **Post-demo roadmap (GDD section 15, in order):** historical modes starting with the Cold War; intelligence and espionage (hidden nuclear bases, enemy plans); UN Security Council with resolution votes; a full navy (fleets, naval battles, blockades); refugees and migration; mod support; Steam and mobile builds; ads and in-app purchases (no pay-to-win); multiplayer.
 5. **Release** (only when Dario says the game is finished): GitHub Pages is live already; the itch.io zip is built by CI.
@@ -465,7 +477,7 @@ Done (Dario's requests):
 
 - Leaders and wars are drafted from information known up to mid-2026. Elections and events before the start date need a check.
 - World Bank armed-forces figures are from 2020 and include paramilitary forces; Russia, Ukraine and countries without data use drafted IISS estimates. Military spending is missing for 30 small states.
-- After the opening war Ukraine often loses part of its land to a secession (week ~70): the escalation ladder working on a beaten country, but more often than in reality.
+- After the war Ukraine often goes through riots and loses a few provinces to rebels; on Aggressive, Russia sometimes attacks again, loses, and breaks apart.
 - No GDP data: North Korea, Vatican, and the disputed territories except Kosovo and Palestine.
 - Disputed territories use simplified flags drawn for the game (Abkhazia, South Ossetia, Transnistria, Northern Cyprus, Somaliland).
 

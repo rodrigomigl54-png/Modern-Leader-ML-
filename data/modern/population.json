@@ -26,7 +26,8 @@
     "riotAftermathPenalty": 10,
     "sanctionsEffect": 20,
     "war": {
-      "comment": "Points of support for the whole country. Battles and provinces: per event, at most maxPerTurn a turn. A peace counts as won or lost from peaceScore war score.",
+      "comment": "Points of support for the whole country. Battles and provinces: per event, at most maxPerTurn a turn. A peace counts as won or lost from peaceScore war score. defenderRally: target support for the attacked country while the war lasts (rallying around the flag).",
+      "defenderRally": 12,
       "battleWon": 0.3,
       "battleLost": 0.5,
       "provinceTaken": 1,

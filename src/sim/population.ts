@@ -42,6 +42,8 @@ export interface PopulationRules {
       peaceLost: number;
       /** War score from which a peace counts as won or lost. */
       peaceScore: number;
+      /** Target support of the attacked country while the war lasts. */
+      defenderRally?: number;
     };
   };
   riots: { threshold: number; endThreshold: number; productionPenalty: number };
@@ -244,6 +246,9 @@ export function targetSupport(
   }
   target -= (rules.sanctionsEffect ?? 0) * sanctionWeight(state, ctx, owner);
   target -= foodShortageSupport(state, ctx, owner);
+  // A country defending against an invasion rallies around its government.
+  if (rules.war?.defenderRally && state.world.wars.some((w) => w.sides[1][0] === owner))
+    target += rules.war.defenderRally;
   let buildings = 0;
   for (const b of state.economy.buildings) {
     if (b.completed && ctx.cityProvince[b.cityId] === provinceId) buildings++;

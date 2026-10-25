@@ -110,6 +110,19 @@ try {
     let counts: Record<string, number> = {};
     let notes: string[] = [];
     let ms = 0;
+    const printWatched = (): void => {
+      for (const id of watch) {
+        const e = state.economy.countries[id];
+        const c = state.world.countries.find((x: { id: string }) => x.id === id);
+        if (!e || !c) continue;
+        const b = weeklyBudget(state, id, sim);
+        const targets = c.provinceIds.map((p: number) => targetSupport(state, sim, p));
+        const pct = (x: number): string => (x * 100).toFixed(1);
+        console.log(
+          `  ${id}: prov ${c.provinceIds.length} gdp ${(e.gdp / 1e9).toFixed(0)}bn growth ${pct(growthRate(e, sim.economy))}% tax ${pct(e.taxRate)} serv ${pct(e.servicesShare)} infl ${pct(e.inflation)} debt/gdp ${pct(e.debt / e.gdp)} treas ${(e.treasury / 1e9).toFixed(1)}bn bal/wk ${(b.balance / 1e6).toFixed(0)}m support ${nationalSupport(state, sim, id).toFixed(0)} target ${Math.min(...targets).toFixed(0)}-${Math.max(...targets).toFixed(0)} riots ${c.provinceIds.filter((p: number) => state.population.riotTurns[p] > 0).length} foreign ${c.provinceIds.filter((p: number) => state.population.culture[p] !== id).length} soldiers ${Math.round(militaryTotals(state, id).regulars / 1000)}k sanctions ${state.diplomacy.sanctions.filter((x: { to: string }) => x.to === id).length}`,
+        );
+      }
+    };
     for (let turn = 1; turn <= years * 52; turn++) {
       const t0 = performance.now();
       const r = advanceTurn(state, sim);
@@ -145,6 +158,8 @@ try {
           );
         }
       }
+      if (trace.length === 2 && turn >= trace[0]! && turn <= trace[1]! && turn % 4 === 0)
+        printWatched();
       if (turn % 52 !== 0) continue;
 
       const ids = live()
@@ -194,17 +209,7 @@ try {
       rows.push(row);
       console.log(JSON.stringify(row));
       if (notes.length) console.log('  ' + notes.join('; '));
-      for (const id of watch) {
-        const e = state.economy.countries[id];
-        const c = state.world.countries.find((x: { id: string }) => x.id === id);
-        if (!e || !c) continue;
-        const b = weeklyBudget(state, id, sim);
-        const targets = c.provinceIds.map((p: number) => targetSupport(state, sim, p));
-        const pct = (x: number): string => (x * 100).toFixed(1);
-        console.log(
-          `  ${id}: prov ${c.provinceIds.length} gdp ${(e.gdp / 1e9).toFixed(0)}bn growth ${pct(growthRate(e, sim.economy))}% tax ${pct(e.taxRate)} serv ${pct(e.servicesShare)} infl ${pct(e.inflation)} debt/gdp ${pct(e.debt / e.gdp)} treas ${(e.treasury / 1e9).toFixed(1)}bn bal/wk ${(b.balance / 1e6).toFixed(0)}m support ${nationalSupport(state, sim, id).toFixed(0)} target ${Math.min(...targets).toFixed(0)}-${Math.max(...targets).toFixed(0)} riots ${c.provinceIds.filter((p: number) => state.population.riotTurns[p] > 0).length} foreign ${c.provinceIds.filter((p: number) => state.population.culture[p] !== id).length} soldiers ${Math.round(militaryTotals(state, id).regulars / 1000)}k sanctions ${state.diplomacy.sanctions.filter((x: { to: string }) => x.to === id).length}`,
-        );
-      }
+      printWatched();
       (row as Record<string, unknown>).notes = notes;
       notes = [];
       counts = {};

@@ -21,6 +21,7 @@ import type { MilitaryRules } from './military';
 import { createNewGame, type GameState } from './newGame';
 import {
   nationalSupport,
+  targetSupport,
   transferProvince,
   warSupportPhase,
   type PopulationRules,
@@ -375,5 +376,37 @@ describe('war exhaustion', () => {
     };
     expect(run(0.02)).toBe(true);
     expect(run(0.5)).toBe(false);
+  });
+});
+
+describe('war aid and the rally around the flag', () => {
+  const invaded = (): GameState => {
+    const declared = applyCommand(
+      newGame(),
+      { type: 'declareWar', countryId: 'BBB', targetId: 'FAR' },
+      sim,
+    );
+    if (!declared.ok) throw new Error(declared.error);
+    return declared.state;
+  };
+
+  it('a country that sanctions the attacker sends weekly aid to the attacked country', () => {
+    const game = invaded();
+    game.diplomacy.sanctions.push({ from: 'AAA', to: 'BBB', since: 0 });
+    game.economy.countries.AAA!.treasury = 1e11;
+    const next = advanceTurn(game, sim).state;
+    expect(next.economy.countries.FAR!.aid).toBeGreaterThan(0);
+    // Without sanctions on the attacker there is no aid.
+    const none = advanceTurn(invaded(), sim).state;
+    expect(none.economy.countries.FAR!.aid ?? 0).toBe(0);
+  });
+
+  it('the attacked country rallies around its government', () => {
+    const game = newGame();
+    const calm = targetSupport(game, sim, 3);
+    expect(targetSupport(invaded(), sim, 3)).toBeCloseTo(
+      calm + (populationRules as PopulationRules).support.war!.defenderRally!,
+      0,
+    );
   });
 });

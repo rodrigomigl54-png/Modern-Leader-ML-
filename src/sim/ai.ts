@@ -254,6 +254,9 @@ function recruit(state: GameState, ctx: SimContext, countryId: string): void {
   const m = state.military.countries[countryId];
   const e = state.economy.countries[countryId];
   if (!m || !e || m.upkeepPerSoldier <= 0) return;
+  // A budget already deep in deficit (after foreign aid) pays for no more soldiers.
+  const balance = weeklyBudget(state, countryId, ctx).balance + (e.aid ?? 0);
+  if ((-balance * 52) / Math.max(1, e.gdp) > rules.ai.maxDeficitToRecruit) return;
   const affordable = (e.gdp * e.militaryShare) / 52 / m.upkeepPerSoldier;
   const t = militaryTotals(state, countryId);
   const gap = affordable * rules.ai.targetArmyAtWar - (t.regulars + t.special + t.trainees);
@@ -336,10 +339,16 @@ export function aiWeaponsOrders(state: GameState, ctx: SimContext): void {
     ].some((p) => state.military.armies.some((a) => a.provinceId === p && enemies.has(a.owner)));
     const posture = ctx.aiRules ? trait(state, ctx, country.id, 'nuclear') : 100;
     const willing = posture >= (ctx.aiRules?.nuclear.lastResortMinPosture ?? 0);
-    if (arsenal.warheads > 0 && nearlyLost && capitalThreatened && willing) {
-      const capital = capitals[0];
+    // Never on rebels (its own people), and at most once per cooldown.
+    const cooled =
+      state.turn - (arsenal.lastNuclearTurn ?? -Infinity) >= (rules.nuclear.aiCooldownTurns ?? 0);
+    if (arsenal.warheads > 0 && nearlyLost && capitalThreatened && willing && cooled) {
+      const capital = state.world.countries.find(
+        (c) => enemies.has(c.id) && c.status !== 'rebels' && c.provinceIds.length > 0,
+      )?.capitalProvinceId;
       const city = capital !== undefined ? citiesOfProvince(ctx, capital)[0] : undefined;
-      if (city !== undefined) launchNuclear(state, ctx, country.id, city);
+      if (city !== undefined && !launchNuclear(state, ctx, country.id, city))
+        arsenal.lastNuclearTurn = state.turn;
     }
 
     for (let tier = rules.missiles.length; tier >= 1; tier--) {

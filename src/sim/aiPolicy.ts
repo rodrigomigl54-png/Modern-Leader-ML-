@@ -87,6 +87,8 @@ export function aiPolicyOrders(
   const sidePower = (x: string): number =>
     strengthOf(x) + 0.5 * alliesOf(state.world, x).reduce((s, a) => s + strengthOf(a), 0);
   const nuclearPower = (x: string): boolean => (state.weapons?.countries[x]?.warheads ?? 0) > 0;
+  // War aid is counted afresh every week.
+  for (const e of Object.values(state.economy.countries)) if (e.aid) e.aid = 0;
 
   for (const country of countries) {
     const id = country.id;
@@ -105,7 +107,18 @@ export function aiPolicyOrders(
       const b = weeklyBudget(state, id, ctx);
       const support = nationalSupport(state, ctx, id);
       const debtLimit = r.fiscal.debtLimit * (g && pursues('lowDebt') ? g.debtLimitFactor : 1);
-      if (b.balance < 0 && e.debt / Math.max(1, e.gdp) > debtLimit) {
+      const riots = ctx.population?.riots.threshold ?? 0;
+      const f = r.fiscal;
+      if (
+        f.crisisMargin !== undefined &&
+        support < riots + f.crisisMargin &&
+        e.servicesShare < f.targetServices &&
+        e.debt / Math.max(1, e.gdp) < f.crisisDebtLimit!
+      ) {
+        // Riots are near: services first, even on borrowed money (cutting them would feed the
+        // unrest that ends governments).
+        e.servicesShare += f.step;
+      } else if (b.balance < 0 && e.debt / Math.max(1, e.gdp) > debtLimit) {
         if (e.taxRate < r.fiscal.maxTax && support > r.fiscal.lowSupport)
           e.taxRate += r.fiscal.step;
         else if (e.servicesShare > r.fiscal.minServices) e.servicesShare -= r.fiscal.step;
@@ -278,6 +291,35 @@ export function aiPolicyOrders(
         }
       } else if (chance(state, ctx, rng, T('interventionism'), r.rates.aid)) {
         sendAid(state, ctx, id, partner, Math.min(e.treasury * 0.1, e.gdp * 0.001));
+      }
+    }
+
+    // War aid: a steady budget and arms program for a country at war with a country this one
+    // sanctions, unless the two are on bad terms (Western aid to Ukraine). Paid every week, and
+    // at a reduced rate for a while after the war (reconstruction).
+    const w = r.warAid;
+    if (w) {
+      for (const other of [...live].sort()) {
+        if (other === id) continue;
+        const to = state.economy.countries[other];
+        if (!to) continue;
+        const enemies = enemiesAtWar(state.world, other);
+        if (enemies.includes(id)) continue;
+        const atWar =
+          relation(state, ctx, id, other) >= w.minRelation &&
+          enemies.some((x) => sanctioned(state, id, x));
+        if (atWar) (to.aidFrom ??= {})[id] = state.turn + w.afterWarTurns;
+        else if ((to.aidFrom?.[id] ?? -1) < state.turn) continue;
+        const amount =
+          ((atWar ? 1 : w.afterWarShare) *
+            e.gdp *
+            w.gdpSharePerYear *
+            (0.5 + T('interventionism') / 100)) /
+          52;
+        if (amount <= 0 || e.treasury < amount * w.reserveWeeks) continue;
+        e.treasury -= amount;
+        to.treasury += amount;
+        to.aid = (to.aid ?? 0) + amount;
       }
     }
 

@@ -48,9 +48,10 @@
     "introduceSupportPenalty": 8
   },
   "army": {
-    "comment": "Starting regulars are split between the capital province and the most populous other provinces.",
+    "comment": "Starting regulars are split between the capital province and the most populous other provinces. A country already at war first puts frontShareAtWar of them on its front provinces.",
     "startGarrisons": 6,
-    "capitalShare": 0.4
+    "capitalShare": 0.4,
+    "frontShareAtWar": 0.6
   },
   "combat": {
     "defenderBonus": 0.25,
@@ -81,7 +82,8 @@
     "minGarrison": 2000,
     "minDetachment": 1000,
     "capitalShare": 0.2,
-    "demobilizeShare": 0.02,
-    "peaceMilitaryShare": 0.05
+    "demobilizeShare": 0.05,
+    "peaceMilitaryShare": 0.05,
+    "maxDeficitToRecruit": 0.05
   }
 }

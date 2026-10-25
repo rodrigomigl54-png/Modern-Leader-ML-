@@ -92,6 +92,8 @@ export interface WeaponsRules {
     userGdpLoss: number;
     pariahGrowthPenalty: number;
     aiLastResortShare: number;
+    /** Turns between two last-resort nuclear strikes of an AI country. */
+    aiCooldownTurns?: number;
     countries: Record<string, { warheads: number; bases: string[] }>;
   };
 }
@@ -112,6 +114,8 @@ export interface CountryArsenal {
   /** Used nuclear weapons: the world treats it as a pariah. */
   nuclearUser: boolean;
   startProvinces: number;
+  /** Turn of the AI's last nuclear strike (last-resort strikes are at least a cooldown apart). */
+  lastNuclearTurn?: number;
 }
 
 export interface Production {
