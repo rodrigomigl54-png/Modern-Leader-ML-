@@ -133,9 +133,16 @@ export class TileLayer {
     detail.sort((a, b) => a[1].lastUsed - b[1].lastUsed);
     for (const [file, t] of detail.slice(0, detail.length - this.maxDetailTiles)) {
       if (wanted.has(file)) continue;
+      // Take the bitmap before destroying its texture (that clears the reference), and destroy
+      // the tile's own shader so no shader keeps the destroyed texture bound.
+      const bitmap = t.source.resource as ImageBitmap | null;
+      const shader = t.mesh.shader;
+      const geometry = t.mesh.geometry;
       t.mesh.destroy({ children: true });
+      shader?.destroy();
+      geometry.destroy();
       t.source.destroy();
-      (t.source.resource as ImageBitmap).close?.();
+      bitmap?.close?.();
       this.loaded.delete(file);
     }
   }

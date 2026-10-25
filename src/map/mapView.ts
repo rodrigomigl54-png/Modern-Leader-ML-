@@ -261,7 +261,9 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       theme = next;
       const colors = THEMES[next];
       palette.setColor(0, colors.water);
-      app.renderer.background.color = colors.water;
+      // Pixi reads color arrays as 0-1 floats: pass the color as a number.
+      const [r, g, b] = colors.water;
+      app.renderer.background.color = (r << 16) | (g << 8) | b;
       shared.setColors(colors);
       applyMode();
       requestRender();
@@ -339,6 +341,8 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
   // Render only when something changed, so an idle map costs no battery.
   let last = performance.now();
   const frame = (now: number): void => {
+    // Schedule the next frame first: an error in one frame must never stop the map for good.
+    requestAnimationFrame(frame);
     const dt = Math.min(100, now - last);
     last = now;
     if (controls.update(dt)) dirty = true;
@@ -363,7 +367,6 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       app.render();
       view.onFrame?.(dt);
     }
-    requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
   return view;
