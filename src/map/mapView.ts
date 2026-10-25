@@ -11,6 +11,7 @@ import { MAP_MODES, type MapMode } from './mapModes';
 import { hexToRgb, PaletteData, type RGB } from './palette';
 import { ProvincePicker } from './picker';
 import { ProvinceShaderShared } from './provinceShader';
+import { smallProvinceNear } from './tapTarget';
 import { TileLayer } from './tileLayer';
 
 export type MapTheme = 'night' | 'day';
@@ -218,7 +219,10 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
     const [wx, wy] = camera.screenToWorld(sx, sy);
     void picker.pick(wx, wy).then((id) => {
       if (request !== selectionRequest) return;
-      options.onSelect(id >= 0 ? id : null);
+      // A province too small for a finger is chosen when the tap lands next to it.
+      const small = smallProvinceNear(provinces, camera, sx, sy);
+      const picked = small ?? id;
+      options.onSelect(picked >= 0 ? picked : null);
     });
   });
 
@@ -265,6 +269,7 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       const [r, g, b] = colors.water;
       app.renderer.background.color = (r << 16) | (g << 8) | b;
       shared.setColors(colors);
+      labels.setTheme(next);
       applyMode();
       requestRender();
     },

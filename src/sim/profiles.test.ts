@@ -255,6 +255,16 @@ describe('AI actions follow the profile', () => {
     expect(outside.length).toBeGreaterThan(0);
   });
 
+  it('pays back debt with money beyond its reserve', () => {
+    const ctx = sim({ BIG: profile({}) });
+    const game = newGame(ctx);
+    const e = game.economy.countries.BIG!;
+    e.debt = e.gdp;
+    e.treasury = e.gdp * 0.5;
+    const later = play(game, ctx, 8);
+    expect(later.economy.countries.BIG!.debt).toBeLessThan(e.debt);
+  });
+
   it('is deterministic', () => {
     const ctx = sim({ BIG: profile({ expansionism: 80, risk: 80, pressure: 80, sanctions: 80 }) });
     const start = newGame(ctx, 'chaos');

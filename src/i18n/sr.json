@@ -670,5 +670,6 @@
   "dip.ties": "Ekonomske veze: oni zavise od vas {theirs}%, vi od njih {ours}% (koliko bi sankcije presekle).",
   "res.from": "Uvoz iz: {list}",
   "res.partners": "Glavni trgovinski partneri (resursi, godišnje): {list}",
-  "res.noPartners": "Nema trgovine resursima sa drugim zemljama."
+  "res.noPartners": "Nema trgovine resursima sa drugim zemljama.",
+  "res.prices": "Svetske cene od početka: {list}"
 }

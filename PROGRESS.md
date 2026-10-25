@@ -22,7 +22,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 13  | Balance, polish, demo release                                  | Done (release on hold until the game is finished) |
 | 14  | Complete the Modern World (Dario's choice after the demo)      | Done                                              |
 | 15  | Complete the Modern World, part 2                              | Done                                              |
-| 16  | Trade between partner countries, map fix                       | Done in code — waiting for the check on the phone |
+| 16  | Trade between partner countries, map fix                       | Done                                              |
+| 17  | Debt, prices, taps, names, Day labels                          | Done in code — waiting for the check on the phone |
 
 ## Phase 0 — Project setup
 
@@ -368,6 +369,21 @@ Done:
 - Faster turns: world GDP is computed once per turn (it was summed again for every country and resource), and the trade works on country indexes. A turn now takes about 30 ms on a PC (was 60).
 - Checked in Chromium with phone emulation: repeated zooming out and in with pinch, no errors and the map keeps drawing; Serbia's economy panel with suppliers and partners.
 
+## Phase 17 — Debt, prices, taps, names, Day labels
+
+Done:
+
+- Public debt at the start (`data/modern/debt.json`): general government debt from the IMF World Economic Outlook 2024 for 102 countries (recalled and rounded, drafted until the IMF API can be reached), 50% of GDP for the rest — Japan 250%, Italy 137%, the US 121%, Serbia 47%, Russia 20%. Interest is 2% a year (+0.2% per 100% of GDP); the starting public services leave room for it, so budgets start roughly balanced. Debt weighs less on growth and support than before (it now starts high for many countries).
+- The AI pays back debt with money beyond 8 weeks of spending. A country that loses land loses that land's share of its debt too (a rump state no longer drowns in debt).
+- Resource prices follow the market (`resources.json` `rules.prices`): up when importers cannot get enough (up to 3×), down when exporters cannot sell (down to half), 10% of the way each week. The economy panel shows world prices against the start.
+- Provinces too small for a finger: a tap next to one selects it (`src/map/tapTarget.ts`).
+- Province names: 25 out-of-date names replaced at display time (`data/modern/province-names.json`): Kyiv, Lviv, Odesa, Zaporizhzhia, Moscow, Belgrade, Russian names without soft-sign apostrophes, …
+- Day theme: map labels in dark ink with a paper outline.
+- A crushed or successful revolution gives a country 26 calm weeks (Lebanon's government fell every 17 weeks in one run).
+- "No riots" goal only for countries that start well above the riot line (Ukraine at war failed it in week 2).
+- 6-year runs, seeds 1–3, Peaceful and Realistic: 11–15 countries above 100% debt, median growth 2.1–2.2%, median support 63; Japan grows about 1% a year with support near 40–50.
+- Checked in Chromium with phone emulation as Ukraine in the Day theme: labels, prices and debt (90% of GDP) in the economy panel, Kyiv; no errors.
+
 ## Next
 
 - Dario: merge the PR and check on the phone: zoom out and in several times; the economy panel (imports from, main partners).
@@ -376,7 +392,6 @@ Done:
 
 ## Known issues
 
-- Map labels keep light text with a dark outline in the Day theme.
 - The interface size uses CSS `zoom` (supported by current browsers; very old ones ignore it).
 
 - Summit questions come from a fixed set of eleven templates.
@@ -386,7 +401,7 @@ Done:
 - In Chaos, a country at war can spiral (inflation and debt keep rising, endless rebels): the AI cannot fix its budget during a war.
 
 - Resource shares are rounded estimates.
-- Resource prices are fixed; trade partners are chosen by surplus and distance only (no trade agreements or tariffs yet).
+- Trade partners are chosen by surplus and distance only (no trade agreements or tariffs yet).
 
 - Peace with a side's leader ends the war with its allies; a member that is not the leader still makes a separate peace.
 
@@ -397,7 +412,7 @@ Done:
 
 - Province population is the sum of its Natural Earth cities, so provinces without a listed city weigh little.
 
-- Debt starts at 0 for every country until IMF debt data can be loaded; trade income comes in Phase 10.
+- Starting debt is drafted from the IMF WEO 2024 (recalled); to be replaced by the IMF API data.
 - Economy numbers are first design values; they are tuned in Phase 13.
 
 - Leaders and wars are drafted from information known up to mid-2026. Elections and events before the start date need a check.
@@ -405,11 +420,10 @@ Done:
 - No GDP data: North Korea, Vatican, and the disputed territories except Kosovo and Palestine.
 - Disputed territories use simplified flags drawn for the game (Abkhazia, South Ossetia, Transnistria, Northern Cyprus, Somaliland).
 
-- Province names come from Natural Earth's `name` field (local romanization; some are dated, e.g. "Kiev City", "L'viv"). They need a review before release.
+- Province names come from Natural Earth's `name` field (local romanization); the most visible dated names are replaced by `data/modern/province-names.json`, the rest need a review before release.
 - Disputed territories use short names for now. The self-used names (GDD section 4, Neutral mode) belong to Phase 3.
 - Generated cities have population 0 until Phase 3 data.
 - 55 coastal provinces have no port: no city within 50 km of the sea.
-- 408 provinces are under 10 px on the full map. They can be tapped when zoomed in, but they have no enlarged tap target yet.
 - Borders are drawn from the ID map pixels, so at maximum zoom they show a slight pixel staircase. The vector borders in `map/borders.json` are available if smoother lines are needed later.
 - A border running exactly along a tile edge can miss a 1-pixel segment (the shader does not sample across tiles).
 - Frame rate was not measured on a real phone (the test browser uses software rendering). Please check with the FPS counter.

@@ -19,7 +19,12 @@ import type { EconomyRules, SimContext } from './economy';
 import type { GoalRules } from './goals';
 import type { MilitaryRules } from './military';
 import { createNewGame, type GameState } from './newGame';
-import { nationalSupport, warSupportPhase, type PopulationRules } from './population';
+import {
+  nationalSupport,
+  transferProvince,
+  warSupportPhase,
+  type PopulationRules,
+} from './population';
 import type { AiRules } from './profiles';
 import type { SummitRules } from './summits';
 import { advanceTurn, type TurnEvent } from './turn';
@@ -316,5 +321,16 @@ describe('AI countries follow their goals', () => {
   it('a country that wants to stay neutral proposes no pacts; one that wants an alliance does', () => {
     expect(pacts('neutrality')).toBe(0);
     expect(pacts('joinAlliance')).toBeGreaterThan(0);
+  });
+});
+
+describe('debt and lost land', () => {
+  it("a lost province takes its share of the country's debt with it", () => {
+    const game = newGame();
+    const e = game.economy.countries.BBB!;
+    e.debt = e.gdp;
+    transferProvince(game, sim, 4, 'AAA');
+    expect(e.debt / e.gdp).toBeCloseTo(1, 6);
+    expect(game.economy.countries.AAA!.debt).toBe(newGame().economy.countries.AAA!.debt);
   });
 });

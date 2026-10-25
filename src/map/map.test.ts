@@ -10,6 +10,7 @@ import {
   supportMode,
 } from './mapModes';
 import { PaletteData } from './palette';
+import { smallProvinceNear } from './tapTarget';
 import { chooseLevel, decodeProvince, visibleTiles, type TileLevel } from './tileMath';
 
 describe('Camera', () => {
@@ -221,5 +222,39 @@ describe('placeLabels', () => {
       10,
     );
     expect(placed.map((p) => p.key)).toEqual(['a', 'c']);
+  });
+});
+
+describe('smallProvinceNear', () => {
+  it('a tap next to a province too small for a finger selects it', () => {
+    const camera = new Camera(1000, 1000);
+    camera.setViewport(400, 400);
+    camera.lookAt(500, 500, 1);
+    const big = {
+      ...province(0, 'AAA', []),
+      centroid: [500, 500] as [number, number],
+      pixels: 10000,
+    };
+    const tiny = { ...province(1, 'BBB', []), centroid: [510, 505] as [number, number], pixels: 4 };
+    const [sx, sy] = camera.worldToScreen(500, 500);
+    expect(smallProvinceNear([big, tiny], camera, sx, sy)).toBe(1);
+    // Far away, or zoomed in so the province is big enough: no change.
+    expect(smallProvinceNear([big, tiny], camera, sx + 200, sy)).toBeNull();
+    camera.lookAt(500, 500, 3);
+    const [zx, zy] = camera.worldToScreen(500, 500);
+    expect(smallProvinceNear([big, { ...tiny, pixels: 400 }], camera, zx, zy)).toBeNull();
+  });
+});
+
+describe('province renames', () => {
+  it('every renamed province exists', async () => {
+    const { renames } = (await import('../../data/modern/province-names.json')).default as {
+      renames: Record<string, string>;
+    };
+    const { provinces } = (await import('../../data/modern/provinces.json')).default as {
+      provinces: { key: string }[];
+    };
+    const keys = new Set(provinces.map((p) => p.key));
+    for (const key of Object.keys(renames)) expect(keys.has(key), key).toBe(true);
   });
 });

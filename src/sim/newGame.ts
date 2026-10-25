@@ -69,7 +69,7 @@ export function createNewGame(world: World, options: NewGameOptions, sim: SimCon
   if (error) throw new Error(`Cannot start a new game: ${error}`);
   const effective = applyDisputedSetting(world, options.disputedMode);
   const leaderName = normalizeLeaderName(options.leaderName);
-  const economy = initEconomy(effective, sim.economy);
+  const economy = initEconomy(effective, sim.economy, sim.startDebt);
   if (!sim.population) throw new Error('Population rules missing from the simulation context');
   const population = initPopulation({ world: effective }, sim.population);
   const military = sim.military

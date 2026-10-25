@@ -73,6 +73,8 @@ export interface AiRules {
     targetServices: number;
     /** Treasury, in weeks of spending, that counts as money in the bank. */
     reserveWeeks: number;
+    /** Treasury, in weeks of spending, above which the AI pays back debt. */
+    repayAboveWeeks: number;
   };
   nuclear: { lastResortMinPosture: number; threatPosture: number; threatScore: number };
   /** How a country's goals change its choices. */

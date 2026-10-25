@@ -282,6 +282,9 @@ export function transferProvince(
     const amount = eFrom.gdp * share;
     eFrom.gdp -= amount;
     eTo.gdp += amount;
+    // The lost land's share of the public debt goes with it (it is not paid any more), so a
+    // shrinking country keeps its debt ratio instead of drowning in debt.
+    eFrom.debt *= 1 - share;
   }
   from.provinceIds = from.provinceIds.filter((p) => p !== provinceId);
   to.provinceIds = [...to.provinceIds, provinceId].sort((a, b) => a - b);
@@ -445,6 +448,8 @@ function resolveFaction(
     return;
   }
   if (!government || government.provinceIds.length === 0) {
+    // A new government also gets time before the next revolution.
+    (state.population.calmUntil ??= {})[faction.parent] = state.turn + rules.calmTurns;
     emit({ type: 'revolutionSucceeded', countryId: faction.parent, factionId: faction.id });
     if (state.player.countryId === faction.parent) {
       state.gameOver = { reason: 'revolution', turn: state.turn };

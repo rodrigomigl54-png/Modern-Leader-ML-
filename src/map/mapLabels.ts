@@ -10,13 +10,20 @@ import {
 import type { MapData } from './mapData';
 
 const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
-const STYLES: Record<
-  LabelKind,
-  { fill: number; stroke: number; weight: 'normal' | 'bold'; spacing: number }
-> = {
-  country: { fill: 0xd7e0ea, stroke: 0x0b1522, weight: 'bold', spacing: 2 },
-  province: { fill: 0xe8eef5, stroke: 0x0b1522, weight: 'normal', spacing: 0 },
-  city: { fill: 0xffffff, stroke: 0x0b1522, weight: 'normal', spacing: 0 },
+type LabelTheme = 'night' | 'day';
+type LabelStyle = { fill: number; stroke: number; weight: 'normal' | 'bold'; spacing: number };
+/** Light text on the night map; ink on paper for the day map (GDD section 13). */
+const STYLES: Record<LabelTheme, Record<LabelKind, LabelStyle>> = {
+  night: {
+    country: { fill: 0xd7e0ea, stroke: 0x0b1522, weight: 'bold', spacing: 2 },
+    province: { fill: 0xe8eef5, stroke: 0x0b1522, weight: 'normal', spacing: 0 },
+    city: { fill: 0xffffff, stroke: 0x0b1522, weight: 'normal', spacing: 0 },
+  },
+  day: {
+    country: { fill: 0x3a3226, stroke: 0xf3ecdc, weight: 'bold', spacing: 2 },
+    province: { fill: 0x2b2f36, stroke: 0xf3ecdc, weight: 'normal', spacing: 0 },
+    city: { fill: 0x1f2630, stroke: 0xf6f1e6, weight: 'normal', spacing: 0 },
+  },
 };
 export interface LabelCountry {
   id: string;
@@ -26,28 +33,29 @@ export interface LabelCountry {
 }
 
 const COUNTRY_SIZES = [12, 14, 17, 21];
-const fontName = (kind: LabelKind): string => `ml-label-${kind}`;
+const fontName = (kind: LabelKind, theme: LabelTheme): string => `ml-label-${kind}-${theme}`;
 
 /**
  * One bitmap font per label kind, rendered large and scaled down; glyphs outside the basic set
  * (č, ș, ŏ, ...) are added on demand by Pixi.
  */
 function installFonts(resolution: number): void {
-  for (const kind of Object.keys(STYLES) as LabelKind[]) {
-    const style = STYLES[kind];
-    BitmapFont.install({
-      name: fontName(kind),
-      style: {
-        fontFamily: FONT,
-        fontSize: 24,
-        fontWeight: style.weight,
-        fill: style.fill,
-        stroke: { color: style.stroke, width: 5, join: 'round' },
-      },
-      resolution,
-      chars: [['a', 'z'], ['A', 'Z'], ['0', '9'], " .,'-()"],
-    });
-  }
+  for (const theme of Object.keys(STYLES) as LabelTheme[])
+    for (const kind of Object.keys(STYLES[theme]) as LabelKind[]) {
+      const style = STYLES[theme][kind];
+      BitmapFont.install({
+        name: fontName(kind, theme),
+        style: {
+          fontFamily: FONT,
+          fontSize: 24,
+          fontWeight: style.weight,
+          fill: style.fill,
+          stroke: { color: style.stroke, width: 5, join: 'round' },
+        },
+        resolution,
+        chars: [['a', 'z'], ['A', 'Z'], ['0', '9'], " .,'-()"],
+      });
+    }
 }
 const MAX_LABELS = 140;
 
@@ -65,6 +73,7 @@ export class MapLabels {
   private readonly citiesByRank: number[];
   /** Provinces named like one of their cities; their name is shown once the cities appear. */
   private readonly namedLikeCity = new Set<number>();
+  private theme: LabelTheme = 'night';
 
   constructor(
     private readonly data: MapData,
@@ -108,6 +117,14 @@ export class MapLabels {
     this.cache.clear();
   }
 
+  /** Switches between night and day colors; labels are rebuilt on the next update. */
+  setTheme(theme: LabelTheme): void {
+    if (theme === this.theme) return;
+    this.theme = theme;
+    for (const text of this.cache.values()) text.destroy();
+    this.cache.clear();
+  }
+
   update(camera: Camera): void {
     const placed = placeLabels(
       this.candidates(camera),
@@ -124,11 +141,11 @@ export class MapLabels {
       used.add(id);
       let text = this.cache.get(id);
       if (!text) {
-        const style = STYLES[label.kind];
+        const style = STYLES[this.theme][label.kind];
         text = new BitmapText({
           text: label.text,
           style: {
-            fontFamily: fontName(label.kind),
+            fontFamily: fontName(label.kind, this.theme),
             fontSize: label.fontSize,
             letterSpacing: style.spacing,
           },
@@ -144,8 +161,8 @@ export class MapLabels {
         const [dx, dy] = camera.worldToScreen(label.wx, label.wy);
         this.dots
           .circle(dx, dy, label.fontSize > 11 ? 3.5 : 2.5)
-          .fill(0xffffff)
-          .stroke({ color: 0x0b1522, width: 1.5 });
+          .fill(STYLES[this.theme].city.fill)
+          .stroke({ color: STYLES[this.theme].city.stroke, width: 1.5 });
       }
     }
     for (const [id, text] of this.cache) {

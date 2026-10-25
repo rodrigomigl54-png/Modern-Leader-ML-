@@ -670,5 +670,6 @@
   "dip.ties": "Economic ties: they depend on you for {theirs}%, you on them for {ours}% (what sanctions would cut).",
   "res.from": "Imports from: {list}",
   "res.partners": "Main trade partners (resources, per year): {list}",
-  "res.noPartners": "No resource trade with other countries."
+  "res.noPartners": "No resource trade with other countries.",
+  "res.prices": "World prices since the start: {list}"
 }
