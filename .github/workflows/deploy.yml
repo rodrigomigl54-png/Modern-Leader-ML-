@@ -33,6 +33,14 @@ jobs:
         if: github.event_name != 'pull_request'
         with:
           path: dist
+      # The same game with relative paths, zipped for itch.io (download it from the run page).
+      - run: npm run build:itch
+        if: github.event_name != 'pull_request'
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
+        with:
+          name: modern-leader-demo-itch
+          path: modern-leader-demo.zip
 
   deploy:
     # Pull requests only run the checks above; the live game is published from main.

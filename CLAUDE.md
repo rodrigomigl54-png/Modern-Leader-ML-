@@ -34,6 +34,8 @@ Modern Leader (code name ML) is a turn-based geopolitical grand-strategy web gam
 - `npm test` — Vitest
 - `npm run lint` / `npm run format` — ESLint / Prettier
 - `npm run build` — typecheck + production build into `dist/`
+- `npm run build:itch` — the same game with relative paths, zipped for itch.io (`modern-leader-demo.zip`)
+- `npm run sim:balance` — long AI-only simulations for balancing (`tools/README.md`)
 - `npm run data:download` / `npm run data:build` / `npm run data:validate` — map data pipeline (`tools/README.md`). Generated files in `data/modern/` are never edited by hand.
 
 Deployment: GitHub Actions (`.github/workflows/deploy.yml`) tests, builds and deploys to GitHub Pages on every push to `main`. Pull requests run the checks without deploying. Vite `base` is `/Modern-Leader-ML-/` (the repository name).

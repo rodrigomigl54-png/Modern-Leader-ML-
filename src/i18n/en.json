@@ -644,5 +644,12 @@
   "tip.interior": "Watch public support. Below the riot line provinces rise up, and a long crisis can end in revolution. Tap support in the top bar for the Ministry of the Interior.",
   "tip.defence": "Open a province and tap + next to its armies to select them, then open the target province and tap Move here. Tap the army count in the top bar for recruitment and the arsenal.",
   "tip.foreign": "Every action abroad costs diplomatic points. Tap a foreign country on the map for alliances, sanctions, ultimatums, aid and trade.",
-  "tip.goals": "Your country has goals for the coming years. Follow them in the menu under Goals; the world news runs in the strip at the bottom of the screen."
+  "tip.goals": "Your country has goals for the coming years. Follow them in the menu under Goals; the world news runs in the strip at the bottom of the screen.",
+  "settings.theme": "Theme",
+  "settings.theme.night": "Night",
+  "settings.theme.day": "Day",
+  "settings.uiScale": "Interface size",
+  "settings.music": "Music",
+  "settings.effects": "Sound effects",
+  "settings.feedback": "Send feedback"
 }

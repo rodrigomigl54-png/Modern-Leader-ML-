@@ -39,7 +39,7 @@ import {
 import { createSave, type SaveError, type SaveFile } from './sim/save';
 import { advanceTurn, type TurnEvent } from './sim/turn';
 import { alliesOf, applyDisputedSetting, enemiesAtWar } from './sim/world';
-import { confirmDialog, noticeDialog } from './ui/confirmDialog';
+import { confirmDialog, noticeDialog, onTelegram } from './ui/confirmDialog';
 import { flagImage } from './ui/dom';
 import { CountryDialog } from './ui/countryDialog';
 import { DefencePanel } from './ui/defencePanel';
@@ -63,7 +63,16 @@ import { ProvincePanel } from './ui/provincePanel';
 import { RecruitDialog } from './ui/recruitDialog';
 import { SaveSlots, slotName } from './ui/saveSlots';
 import { SelectionBar } from './ui/selectionBar';
-import { defaultDisputedMode, mountSettingsStub, restoreLanguage } from './ui/settings';
+import {
+  applyAppearance,
+  defaultDisputedMode,
+  FEEDBACK_URL,
+  mountSettings,
+  restoreLanguage,
+  savedTheme,
+  savedUiScale,
+} from './ui/settings';
+import { Sound } from './app/sound';
 import { politicsFor, SetupWizard } from './ui/setupWizard';
 import { StrikeDialog } from './ui/strikeDialog';
 import { Toasts } from './ui/toast';
@@ -110,6 +119,17 @@ async function start(): Promise<void> {
   if (!mapRoot || !uiRoot) throw new Error('Missing #map-root or #ui-root in index.html');
 
   restoreLanguage();
+  applyAppearance(savedTheme(), savedUiScale());
+  const sound = new Sound();
+  onTelegram(() => sound.play('alert'));
+  // Every button click gets the UI click sound.
+  document.addEventListener(
+    'click',
+    (e) => {
+      if ((e.target as HTMLElement | null)?.closest?.('button')) sound.play('click');
+    },
+    true,
+  );
   // iOS Safari ignores user-scalable=no; stop its page pinch-zoom so pinch zooms the map.
   document.addEventListener('gesturestart', (e) => e.preventDefault());
 
@@ -438,6 +458,7 @@ async function start(): Promise<void> {
       },
     });
     const fps = new FpsCounter(uiRoot);
+    map.setTheme(savedTheme());
     map.onFrame = () => fps.frame();
     mountVersionLabel(uiRoot);
 
@@ -495,6 +516,7 @@ async function start(): Promise<void> {
       }
       game = result.state;
       showState();
+      if (command.type.startsWith('launch')) sound.play('launch');
       return { accepted: result.accepted };
     };
     const issue = (command: Command): boolean => issueResult(command) !== null;
@@ -626,6 +648,7 @@ async function start(): Promise<void> {
       map.lookAtCountry(state.player.countryId);
       hud.show(state);
       modeBar.show();
+      sound.startMusic();
       ticker.show();
       ticker.update(headlines(state));
       if (state.gameOver) void showGameOver();
@@ -847,7 +870,10 @@ async function start(): Promise<void> {
         if (e.type === 'weaponsReady' && e.owner === player)
           toasts.show(t(`arsenal.ready.${e.weapon}`, { count: formatCount(e.count) }));
       }
-      if (hitCities.length) map.pulseCities(hitCities.slice(0, 30));
+      if (hitCities.length) {
+        map.pulseCities(hitCities.slice(0, 30));
+        sound.play('impact');
+      }
       if (launched)
         toasts.show(t('strike.result', { launched, stopped, killed: formatCount(killed) }));
       for (const e of events) {
@@ -968,6 +994,7 @@ async function start(): Promise<void> {
     };
 
     const leaveGame = (): void => {
+      sound.stopMusic();
       game = null;
       hud.hide();
       hud.setBusy(false);
@@ -1307,7 +1334,24 @@ async function start(): Promise<void> {
       riotThreshold: population.riots.threshold,
     });
 
-    const settings = mountSettingsStub(uiRoot, (show) => fps.setVisible(show));
+    const settings = mountSettings(uiRoot, {
+      onShowFps: (show) => fps.setVisible(show),
+      onTheme: (theme) => map.setTheme(theme),
+      sound: {
+        get musicVolume() {
+          return sound.musicVolume;
+        },
+        get effectsVolume() {
+          return sound.effectsVolume;
+        },
+        setMusicVolume: (v) => {
+          sound.setMusicVolume(v);
+          if (game) sound.startMusic();
+        },
+        setEffectsVolume: (v) => sound.setEffectsVolume(v),
+      },
+    });
+    const openFeedback = (): void => void window.open(FEEDBACK_URL, '_blank', 'noopener');
     const gameMenu = new GameMenu(uiRoot, {
       onSave: () => void slots.show('save'),
       onLoad: () => void slots.show('load'),
@@ -1329,6 +1373,7 @@ async function start(): Promise<void> {
         goalsPanel.open(game);
       },
       onNews: () => void openNews(),
+      onFeedback: openFeedback,
       onExit: exitToMenu,
     });
 
@@ -1350,6 +1395,7 @@ async function start(): Promise<void> {
     });
 
     const menu = new MainMenu(uiRoot, {
+      onFeedback: openFeedback,
       onNewGame: () => {
         menu.hide();
         wizard.open();

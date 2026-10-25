@@ -19,7 +19,7 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 10  | Resources and trade                                            | Done in code — waiting for the check on the phone |
 | 11  | AI                                                             | Done in code — waiting for the check on the phone |
 | 12  | Summits, events, notifications, reports, news, advisors, goals | Done in code — waiting for the check on the phone |
-| 13  | Balance, polish, demo release                                  | In progress — balance done, polish next           |
+| 13  | Balance, polish, demo release                                  | Done in code — waiting for the check and itch.io  |
 
 ## Phase 0 — Project setup
 
@@ -315,12 +315,26 @@ Part 1 — balance (done):
 - Faster turns: the state is copied with a direct copy instead of `structuredClone` (most of it is long arrays of numbers), saving about a quarter of the turn time; a turn takes 50–70 ms on a PC.
 - Checked in Chromium with phone emulation as Ukraine: 12 turns without errors.
 
+Part 2 — polish and release build (done):
+
+- Settings screen (corner button and both menus): language, theme (Night / Day), interface size (90–130%), music and sound-effect volumes, the default for disputed territories, the FPS counter, and "Send feedback". Choices are remembered on the device. Fixed: settings opened from the main menu appeared under it.
+- Day theme (GDD section 13): warm map paper, light sea, ink borders; panels and dialogs in light colors. Night stays the default.
+- Sound (`src/app/sound.ts`), synthesized with Web Audio, so there are no audio files and no licenses: UI clicks, an alert with every minister's telegram, missile/drone launch and impact sounds, and a calm ambient music track during a game. Muted by default on phones (turn it on in Settings); on a PC music 30%, effects 60%.
+- Leader seals (GDD section 13): initials inside a geometric emblem in a color of the country — in the top bar (wider screens) and in the country dialog with the leader's title and name.
+- Feedback: "Send feedback" opens a short GitHub form (`.github/ISSUE_TEMPLATE/feedback.yml`: what was fun, what was confusing, device, country and level). Testers need a GitHub account; the link is `FEEDBACK_URL` in `src/ui/settings.ts` if another form is preferred.
+- itch.io package: `npm run build:itch` builds the game with relative paths into `dist-itch/` and zips it into `modern-leader-demo.zip` (about 5 MB). GitHub Actions builds the same zip on every push to `main` (artifact `modern-leader-demo-itch` on the run page). To publish: on itch.io create a new project, kind "HTML", upload the zip, tick "This file will be played in the browser", set the viewport (for example 1280×720) and enable "Mobile friendly" and "Fullscreen button".
+- Checked in Chromium: the itch package served from another path, Day theme at 115% on a phone, a leader seal (Viktor Orbán), and the sounds on a PC (no errors).
+
 ## Next
 
-- Dario: merge the PR. Then Phase 13 part 2 — polish: settings screen (sound, UI scale, theme), sound effects and ambient music, the Day theme, leader seals, the feedback link, and the demo release build (GitHub Pages + an itch.io package).
+- Dario: merge the PR, check on the phone (Settings: Day theme, interface size, sound) and publish the itch.io zip (steps above) if you want the demo there.
 - Fresh World Bank/IMF data when the network allows it (it is still blocked), then rerun `npm run sim:balance`.
+- Then: testing by Dario and the changes that come out of it.
 
 ## Known issues
+
+- Map labels keep light text with a dark outline in the Day theme.
+- The interface size uses CSS `zoom` (supported by current browsers; very old ones ignore it).
 
 - Summit questions come from a fixed set of eight templates; the player's own war declarations do not call an emergency summit (only AI ones do).
 - Goals are for the player only; AI countries do not pursue goals.

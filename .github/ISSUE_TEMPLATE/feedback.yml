@@ -1,0 +1,30 @@
+name: Demo feedback
+description: Tell us how the Modern Leader demo felt (no account data is collected by the game).
+title: 'Feedback: '
+labels: [feedback]
+body:
+  - type: textarea
+    id: fun
+    attributes:
+      label: What was fun?
+    validations:
+      required: false
+  - type: textarea
+    id: confusing
+    attributes:
+      label: What was confusing or annoying?
+    validations:
+      required: false
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser
+      placeholder: e.g. Samsung Galaxy A52, Chrome
+    validations:
+      required: false
+  - type: input
+    id: country
+    attributes:
+      label: Country you played and aggressiveness level
+    validations:
+      required: false

@@ -4,6 +4,7 @@ import type { GameState } from '../sim/newGame';
 import type { World } from '../sim/world';
 import { button, el, flagImage } from './dom';
 import { formatGameDate } from './format';
+import { leaderSeal } from './leaderSeal';
 
 export interface GameHudActions {
   onMenu: () => void;
@@ -126,6 +127,7 @@ export class GameHud {
     diplomacy.append(stat(t('foreign.pointsShort'), this.actions.pointsOf(game)));
     this.bar.replaceChildren(
       flagImage(countryFlag(this.baseWorld, id, mode), 'flag hud-flag'),
+      leaderSeal(game.player.leaderName, id, 34),
       who,
       el('span', 'hud-break'),
       stats,
