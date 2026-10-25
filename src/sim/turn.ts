@@ -9,13 +9,14 @@ import { aiPolicyOrders, type AiPolicyEvent } from './aiPolicy';
 import { diplomacyPhase, type DiplomacyEvent } from './diplomacy';
 import { resourcesPhase, type ResourcesEvent } from './resources';
 import {
+  convoyInterceptionPhase,
   droneMovementPhase,
   missileImpactPhase,
   weaponsProductionPhase,
   type WeaponsEvent,
 } from './weapons';
 import { cloneState, type GameState } from './newGame';
-import { populationPhase, type PopulationEvent } from './population';
+import { populationPhase, warSupportPhase, type PopulationEvent } from './population';
 import { createRng, type Rng } from './rng';
 import { buildReport, markReport, recordNews, type ReportData } from './chronicle';
 import { goalsPhase, type GoalEvent } from './goals';
@@ -86,7 +87,10 @@ const PHASES: Record<TurnPhaseId, Phase> = {
   },
   movement: (ctx) => {
     if (ctx.sim.military) movementPhase(ctx.state, ctx.sim);
-    if (ctx.sim.weapons) droneMovementPhase(ctx.state, ctx.sim, ctx.rng, (e) => ctx.events.push(e));
+    if (ctx.sim.weapons) {
+      droneMovementPhase(ctx.state, ctx.sim, ctx.rng, (e) => ctx.events.push(e));
+      convoyInterceptionPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e));
+    }
   },
   battles: (ctx) => {
     if (ctx.sim.military) battlePhase(ctx.state, ctx.sim, ctx.rng, (e) => ctx.events.push(e));
@@ -102,7 +106,10 @@ const PHASES: Record<TurnPhaseId, Phase> = {
     economyPhase(ctx.state, ctx.sim, (e) => ctx.events.push(e));
   },
   population: (ctx) => {
-    if (ctx.sim.population) populationPhase(ctx.state, ctx.sim, ctx.rng, (e) => ctx.events.push(e));
+    if (ctx.sim.population) {
+      warSupportPhase(ctx.state, ctx.sim, ctx.events);
+      populationPhase(ctx.state, ctx.sim, ctx.rng, (e) => ctx.events.push(e));
+    }
   },
   diplomacy: (ctx) => {
     if (ctx.sim.diplomacy)

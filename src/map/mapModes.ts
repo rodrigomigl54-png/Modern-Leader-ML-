@@ -24,6 +24,8 @@ export interface MapModeContext {
   blocs?: ReadonlyMap<string, number> | null;
   /** Main resource each country exports (index into the resources), for the resources mode. */
   exports?: ReadonlyMap<string, number> | null;
+  /** Overlord of each vassal (political mode). */
+  overlords?: ReadonlyMap<string, string> | null;
 }
 
 export interface MapMode {
@@ -120,9 +122,17 @@ export const politicalMode: MapMode = {
       FOCUS_COLOR,
       0.55,
     );
+    const colorOf = (id: string): RGB =>
+      id === context.focusCountry ? focus : countryColors.get(id)!;
     return context.provinces.map((p) => {
       const owner = context.owners[p.id]!;
-      return vary(owner === context.focusCountry ? focus : countryColors.get(owner)!, p.id);
+      // A vassal takes a shade of its overlord's color (GDD section 10).
+      const overlord = context.overlords?.get(owner);
+      const color =
+        overlord && countryColors.has(overlord)
+          ? mix(colorOf(overlord), colorOf(owner), 0.3)
+          : colorOf(owner);
+      return vary(color, p.id);
     });
   },
 };

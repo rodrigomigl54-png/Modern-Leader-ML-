@@ -21,6 +21,7 @@ import {
 import type { SimContext } from '../sim/economy';
 import { provinceSeat } from '../sim/military';
 import type { GameState } from '../sim/newGame';
+import type { Goal } from '../sim/goals';
 import { TRAITS } from '../sim/profiles';
 import { weaponsRules, type WeaponKind } from '../sim/weapons';
 import { alliesOf, enemiesAtWar } from '../sim/world';
@@ -40,6 +41,8 @@ export interface CountryDialogOptions {
   issue: (command: Command) => { accepted?: boolean } | null;
   /** Asks first and declares war. */
   declareWar: (countryId: string) => void;
+  /** Text of a country's goal. */
+  describeGoal: (goal: Goal, countryId: string) => string;
 }
 
 type View = 'main' | 'ultimatum' | 'peace' | 'aid' | 'trade';
@@ -214,6 +217,27 @@ export class CountryDialog {
         el('p', 'setup-hint', `${t('profile.rivals')}: ${names(profile.rivals)}`),
       );
       if (profile.derived) details.append(el('p', 'setup-hint', t('profile.derived')));
+      wrap.append(details);
+    }
+    // The country's own goals (GDD section 13).
+    const goals = game.aiGoals?.[id] ?? [];
+    if (goals.length && id !== me) {
+      const details = el('details', 'profile');
+      details.append(el('summary', '', t('goals.title')));
+      const list = el('ul', 'goal-list');
+      for (const g of goals) {
+        const item = el('li', `goal goal-${g.status}`);
+        item.append(
+          el('span', 'goal-name', this.options.describeGoal(g, id)),
+          el(
+            'span',
+            'goal-status mono',
+            g.status === 'active' ? '…' : t(`goals.${g.status}` as TranslationKey),
+          ),
+        );
+        list.append(item);
+      }
+      details.append(list);
       wrap.append(details);
     }
     return wrap;
@@ -602,6 +626,15 @@ export class CountryDialog {
         t('dip.warScore', { score: Math.round(score) }),
       ),
       el('p', 'setup-hint', t('dip.peaceHint')),
+      ...(war.sides.some((side) => side[0] === id && side.length > 1)
+        ? [
+            el(
+              'p',
+              'setup-hint',
+              t('peace.alliesFollow', { country: this.options.countryName(id) }),
+            ),
+          ]
+        : []),
       toggle(
         t('dip.keepProvinces', { count: all.keep.length }),
         terms.keepProvinces,

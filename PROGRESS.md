@@ -19,7 +19,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 10  | Resources and trade                                            | Done in code — waiting for the check on the phone |
 | 11  | AI                                                             | Done in code — waiting for the check on the phone |
 | 12  | Summits, events, notifications, reports, news, advisors, goals | Done in code — waiting for the check on the phone |
-| 13  | Balance, polish, demo release                                  | Done in code — waiting for the check and itch.io  |
+| 13  | Balance, polish, demo release                                  | Done (release on hold until the game is finished) |
+| 14  | Complete the Modern World (Dario's choice after the demo)      | Done in code — waiting for the check on the phone |
 
 ## Phase 0 — Project setup
 
@@ -325,19 +326,38 @@ Part 2 — polish and release build (done):
 - itch.io package: `npm run build:itch` builds the game with relative paths into `dist-itch/` and zips it into `modern-leader-demo.zip` (about 5 MB). GitHub Actions builds the same zip on every push to `main` (artifact `modern-leader-demo-itch` on the run page). To publish: on itch.io create a new project, kind "HTML", upload the zip, tick "This file will be played in the browser", set the viewport (for example 1280×720) and enable "Mobile friendly" and "Fullscreen button".
 - Checked in Chromium: the itch package served from another path, Day theme at 115% on a phone, a leader seal (Viktor Orbán), and the sounds on a PC (no errors).
 
+## Phase 14 — Complete the Modern World
+
+Dario chose to finish the Modern World mode before new modes or mechanics; nothing is published until the whole game is done.
+
+Done:
+
+- Support follows the course of wars (GDD section 7, `population.json` `support.war`): won battles +0.3, lost −0.5, taken provinces +1, lost −2 (at most ±5 a turn); a won peace (war score 15+) +8, a lost one −8. Skipping a summit costs 3 points of support at home. (Missile damage and introducing mandatory service already lowered it.)
+- Naval crossings can be intercepted (GDD section 8): a convoy sailing to enemy land loses 3% of its soldiers per turn at sea, plus up to 20% × the interception rate of enemy air defense covering the landing city (`military.json` `naval`). Telegram-style toasts for our losses and for convoys we hit.
+- The AI builds air defense: a country at war, or with a hostile country that has missiles, builds or upgrades air defense in its capital and largest cities when it costs at most 15% of its treasury (`weapons.json` `ai.airDefense`).
+- Emergency summits also follow the player's own war declarations on a large power (found by the war's start turn).
+- Three more summit questions: a ceasefire in a distant war, the player's nuclear program, a climate agreement (eleven templates).
+- Peace with a whole side: when the leader of a side makes peace, its allies in that war make peace with the same country too, each keeping what it holds (no more separate peace with each NATO member). The peace screen says so.
+- Vassals are drawn in a shade of their overlord's color on the political map.
+- Every AI country has its own 3–5 goals (GDD section 13), checked every turn and shown in its country dialog.
+- Fixed: AI demobilization ran twice a turn (now once, at the same 2% a week the balance runs used).
+- A country that crushed a revolution gets 26 calm weeks before the next one (`population.json` `revolution.calmTurns`); Armenia had 25 revolutions in one year on Aggressive.
+- 10-year runs on all levels after these changes: no collapses outside wars on Peaceful/Realistic; Russia–Ukraine ends in about two years; on Chaos a losing great power can still fall apart.
+- Checked in Chromium with phone emulation: Hungary's goals in its country dialog, no errors.
+
 ## Next
 
-- Dario: merge the PR, check on the phone (Settings: Day theme, interface size, sound) and publish the itch.io zip (steps above) if you want the demo there.
-- Fresh World Bank/IMF data when the network allows it (it is still blocked), then rerun `npm run sim:balance`.
-- Then: testing by Dario and the changes that come out of it.
+- Dario: merge the PR and check on the phone (a war: support and the summit; the peace screen with an alliance; a country dialog: goals).
+- Fresh World Bank/IMF data when the network allows it, then rerun `npm run sim:balance`.
+- Nothing is published (itch.io) until the whole game is finished.
 
 ## Known issues
 
 - Map labels keep light text with a dark outline in the Day theme.
 - The interface size uses CSS `zoom` (supported by current browsers; very old ones ignore it).
 
-- Summit questions come from a fixed set of eight templates; the player's own war declarations do not call an emergency summit (only AI ones do).
-- Goals are for the player only; AI countries do not pursue goals.
+- Summit questions come from a fixed set of eleven templates.
+- AI countries have goals, but their decisions do not yet follow them.
 
 - 163 of 203 AI profiles are derived from data rather than written by hand; their justifications are generic.
 - A turn takes 50–70 ms on a PC; to watch on slow phones.
@@ -346,17 +366,13 @@ Part 2 — polish and release build (done):
 - Resource shares are rounded estimates; the shortage alert is not shown for shortages that exist at the very start (e.g. Russia's chips) — the economy panel shows them.
 - Resource trade is a world market, not per-partner deals; prices are fixed.
 
-- A separate peace ends the war with one country at a time; with many enemies (for example NATO) each needs its own peace.
-- Vassals are not shown on the political map in their overlord's colors yet.
+- Peace with a side's leader ends the war with its allies; a member that is not the leader still makes a separate peace.
 
 - Starting arsenals are estimated from military spending, not real inventories; nuclear base locations are approximate.
-- The AI does not build air defense.
-- Naval crossings still cannot be intercepted.
 
 - The player's empty provinces fall to any enemy army, so garrisons matter.
 - Mandatory service list and reserve sizes are drafted estimates; reservists without a base do not defend (as in the GDD).
 
-- Support does not react to wars, sanctions, missile damage or summits yet (later phases). Population numbers are first design values; they are tuned in Phase 13.
 - Province population is the sum of its Natural Earth cities, so provinces without a listed city weigh little.
 
 - Debt starts at 0 for every country until IMF debt data can be loaded; trade income comes in Phase 10.

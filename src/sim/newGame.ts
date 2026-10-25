@@ -6,7 +6,7 @@ import { initPopulation, type PopulationState } from './population';
 import { emptyResources, initResources, resourcesPhase, type ResourcesState } from './resources';
 import { emptyWeapons, initWeapons, type WeaponsState } from './weapons';
 import { emptyChronicle, markReport, type ChronicleState } from './chronicle';
-import { createGoals, type Goal } from './goals';
+import { createAiGoals, createGoals, type Goal } from './goals';
 import { emptySummits, type SummitState } from './summits';
 import { applyDisputedSetting, type Aggressiveness, type DisputedMode, type World } from './world';
 
@@ -43,6 +43,8 @@ export interface GameState {
   summits: SummitState;
   /** The player's goals (GDD section 13). */
   goals: Goal[];
+  /** Goals of the AI countries. */
+  aiGoals: Record<string, Goal[]>;
   /** Set when the player's government has fallen or the country was conquered. */
   gameOver?: { reason: 'revolution' | 'conquered'; turn: number };
 }
@@ -100,12 +102,16 @@ export function createNewGame(world: World, options: NewGameOptions, sim: SimCon
     chronicle: emptyChronicle({ world: effective }),
     summits: emptySummits(),
     goals: [],
+    aiGoals: {},
   };
   if (sim.resources) {
     game.resources = initResources(game, sim);
     resourcesPhase(game, sim, () => undefined, false);
   }
-  if (sim.goals) game.goals = createGoals(game, sim);
+  if (sim.goals) {
+    game.goals = createGoals(game, sim);
+    game.aiGoals = createAiGoals(game, sim);
+  }
   markReport(game, sim);
   return game;
 }

@@ -30,10 +30,25 @@ export interface PopulationRules {
     /** Points lost when the whole world economy sanctions the country. */
     sanctionsEffect: number;
     riotAftermathPenalty: number;
+    /** Support points from the course of wars (GDD section 7: won wars, war losses). */
+    war?: {
+      battleWon: number;
+      battleLost: number;
+      provinceTaken: number;
+      provinceLost: number;
+      /** Largest change from battles and provinces in one turn. */
+      maxPerTurn: number;
+      peaceWon: number;
+      peaceLost: number;
+      /** War score from which a peace counts as won or lost. */
+      peaceScore: number;
+    };
   };
   riots: { threshold: number; endThreshold: number; productionPenalty: number };
   revolution: {
     nationalThreshold: number;
+    /** Turns without a new revolution after one was crushed. */
+    calmTurns: number;
     /** Largest share of the country's provinces the rebels take when they rise. */
     initialShare: number;
     minRiotTurns: number;
@@ -77,6 +92,8 @@ export interface PopulationState {
   assimilateUntil: number[];
   factions: Faction[];
   nextFactionId: number;
+  /** Turn until which a country that crushed a revolution cannot face a new one. */
+  calmUntil?: Record<string, number>;
 }
 
 export type PopulationEvent =
@@ -170,6 +187,40 @@ export function productionFactor(state: GameState, ctx: SimContext, countryId: s
     0.1,
     1,
   );
+}
+
+/** Adds support points to every province a country holds. */
+export function shiftSupport(state: GameState, countryId: string, points: number): void {
+  if (!state.population || points === 0) return;
+  const country = state.world.countries.find((c) => c.id === countryId);
+  for (const p of country?.provinceIds ?? [])
+    state.population.support[p] = clamp(state.population.support[p]! + points, 0, 100);
+}
+
+/** Won battles and taken provinces raise support, lost ones lower it (GDD section 7). */
+export function warSupportPhase(
+  state: GameState,
+  ctx: SimContext,
+  events: readonly object[],
+): void {
+  const war = ctx.population?.support.war;
+  if (!war || !state.population) return;
+  const change = new Map<string, number>();
+  const add = (id: unknown, points: number): void => {
+    if (typeof id === 'string') change.set(id, (change.get(id) ?? 0) + points);
+  };
+  for (const e of events as Record<string, unknown>[]) {
+    if (e.type === 'battle') {
+      const attackerWon = e.winner === 'attacker';
+      add(e.attacker, attackerWon ? war.battleWon : -war.battleLost);
+      add(e.defender, attackerWon ? -war.battleLost : war.battleWon);
+    } else if (e.type === 'provinceCaptured') {
+      add(e.to, war.provinceTaken);
+      add(e.from, -war.provinceLost);
+    }
+  }
+  for (const [id, points] of change)
+    shiftSupport(state, id, clamp(points, -war.maxPerTurn, war.maxPerTurn));
 }
 
 /** Support a province is moving toward. */
@@ -388,6 +439,8 @@ function resolveFaction(
       e.debt += e.gdp * rules.crushedDebtShareOfGdp;
     }
     removeFaction(state, faction);
+    // A crushed revolution leaves a calm period: the next one needs time to build up.
+    (state.population.calmUntil ??= {})[faction.parent] = state.turn + rules.calmTurns;
     emit({ type: 'revolutionCrushed', countryId: faction.parent, factionId: faction.id });
     return;
   }
@@ -462,6 +515,7 @@ export function populationPhase(
 
   for (const country of [...state.world.countries]) {
     if (country.status !== 'full' || pop.factions.some((f) => f.parent === country.id)) continue;
+    if (state.turn < (pop.calmUntil?.[country.id] ?? -1)) continue;
     if (nationalSupport(state, ctx, country.id) >= rules.revolution.nationalThreshold) continue;
     const share = populationShare(
       state,

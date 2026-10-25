@@ -358,6 +358,13 @@
     "missileMax": 8,
     "droneShare": 0.2,
     "droneMax": 25,
-    "productionTreasuryShare": 0.1
+    "productionTreasuryShare": 0.1,
+    "airDefense": {
+      "comment": "Every everyTurns weeks a country at war, or with a hostile (relation at most threatRelation) country that has missiles, builds or upgrades air defense in its capital and largest cities (up to sites) if the level costs at most treasuryShare of its treasury.",
+      "everyTurns": 8,
+      "threatRelation": -40,
+      "sites": 3,
+      "treasuryShare": 0.15
+    }
   }
 }

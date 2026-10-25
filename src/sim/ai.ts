@@ -9,18 +9,22 @@ import {
   militaryRules,
   militaryTotals,
   provinceBaseLevel,
+  provinceSeat,
   recruitQuote,
   startRecruitment,
   type Army,
 } from './military';
+import { relation } from './diplomacy';
 import type { GameState } from './newGame';
 import { trait } from './profiles';
 import {
+  airDefenseQuote,
   launchDrones,
   launchMissiles,
   launchNuclear,
   launchSiteFor,
   productionQuote,
+  startAirDefense,
   startProduction,
   weaponsRules,
 } from './weapons';
@@ -205,6 +209,45 @@ function demobilize(state: GameState, ctx: SimContext, countryId: string): void 
   state.military.armies = state.military.armies.filter((a) => a.regulars + a.special > 0);
 }
 
+/**
+ * Air defense: a country at war, or one with a hostile neighbor or rival that has missiles,
+ * builds or upgrades air defense in its capital and largest cities when it can afford it.
+ */
+function aiAirDefense(state: GameState, ctx: SimContext, id: string, atWar: boolean): void {
+  const r = weaponsRules(ctx).ai.airDefense;
+  if (!r || (state.turn + id.charCodeAt(0) + id.charCodeAt(1)) % r.everyTurns !== 0) return;
+  const e = state.economy.countries[id];
+  const country = state.world.countries.find((c) => c.id === id);
+  if (!e || !country) return;
+  const threatened =
+    atWar ||
+    state.world.countries.some((c) => {
+      if (c.id === id || c.provinceIds.length === 0) return false;
+      const w = state.weapons.countries[c.id];
+      if (!w || !w.missiles.some((n) => n > 0)) return false;
+      return relation(state, ctx, id, c.id) <= r.threatRelation;
+    });
+  if (!threatened) return;
+  const sites = [
+    country.capitalProvinceId,
+    ...[...country.provinceIds]
+      .sort(
+        (a, b) => (ctx.provincePopulation?.[b] ?? 0) - (ctx.provincePopulation?.[a] ?? 0) || a - b,
+      )
+      .slice(0, r.sites),
+  ]
+    .map((p) => provinceSeat(ctx, p))
+    .filter((c, i, all) => c >= 0 && all.indexOf(c) === i)
+    .slice(0, r.sites);
+  for (const cityId of sites) {
+    const quote = airDefenseQuote(state, ctx, id, cityId);
+    if (quote.allowed || !quote.level) continue;
+    if (quote.level.costUsd > e.treasury * r.treasuryShare) continue;
+    startAirDefense(state, ctx, id, cityId);
+    return;
+  }
+}
+
 /** Recruits part of the gap to the army the country can pay for at war. */
 function recruit(state: GameState, ctx: SimContext, countryId: string): void {
   const rules = militaryRules(ctx);
@@ -267,10 +310,8 @@ export function aiWeaponsOrders(state: GameState, ctx: SimContext): void {
     const arsenal = state.weapons.countries[country.id];
     if (!arsenal) continue;
     const enemies = new Set(enemiesAtWar(state.world, country.id));
-    if (enemies.size === 0) {
-      if (country.status !== 'rebels') demobilize(state, ctx, country.id);
-      continue;
-    }
+    if (country.status !== 'rebels') aiAirDefense(state, ctx, country.id, enemies.size > 0);
+    if (enemies.size === 0) continue;
 
     // Targets: enemy provinces next to ours, biggest enemy armies first; then enemy capitals.
     const near = new Set<number>();
