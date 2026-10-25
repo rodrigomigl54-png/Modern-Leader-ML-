@@ -11,7 +11,7 @@ import type { SummitRules } from '../sim/summits';
 import type { GoalRules } from '../sim/goals';
 import type { Alliance, CountryStats, Leader, Rivalry, War, World } from '../sim/world';
 
-interface StatsFile {
+export interface StatsFile {
   stats: Record<string, Partial<Record<keyof CountryStats, number | null>>>;
 }
 interface LeadersFile {
@@ -234,7 +234,7 @@ export function assembleWorld(map: MapFacts, files: WorldFiles): WorldBundle {
       economy,
       population,
       cityProvince: map.cities.map((c) => c.provinceId),
-      provincePopulation: provincePopulation(map),
+      provincePopulation: provincePopulation(map, stats),
       provinceNeighbors: map.provinces.map((p) => p.neighbors),
       military,
       cityPopulation: map.cities.map((c) => c.population),
@@ -257,9 +257,25 @@ export function assembleWorld(map: MapFacts, files: WorldFiles): WorldBundle {
 }
 
 /** Inhabitants per province: the sum of its cities' populations. */
-function provincePopulation(map: MapFacts): number[] {
+export function provincePopulation(map: MapFacts, stats: StatsFile | null): number[] {
   const totals = new Array<number>(map.provinces.length).fill(0);
   for (const c of map.cities) totals[c.provinceId]! += c.population;
+  // Natural Earth lists the larger cities only: the rest of a country's people (towns and the
+  // countryside) are spread over its provinces by area, so no province is left empty.
+  const byCountry = new Map<string, { cities: number; area: number; ids: number[] }>();
+  for (const p of map.provinces) {
+    const c = byCountry.get(p.owner) ?? { cities: 0, area: 0, ids: [] };
+    c.cities += totals[p.id]!;
+    c.area += p.areaKm2;
+    c.ids.push(p.id);
+    byCountry.set(p.owner, c);
+  }
+  for (const [owner, c] of byCountry) {
+    const population = stats?.stats[owner]?.population ?? null;
+    const rest = population !== null ? population - c.cities : 0;
+    if (rest <= 0 || c.area <= 0) continue;
+    for (const id of c.ids) totals[id]! += (rest * map.provinces[id]!.areaKm2) / c.area;
+  }
   return totals;
 }
 

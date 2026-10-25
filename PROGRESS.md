@@ -24,7 +24,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 15  | Complete the Modern World, part 2                              | Done                                              |
 | 16  | Trade between partner countries, map fix                       | Done                                              |
 | 17  | Debt, prices, taps, names, Day labels                          | Done                                              |
-| 18  | PC multi-select, AI profiles, summit questions                 | Done in code — waiting for the check              |
+| 18  | PC multi-select, AI profiles, summit questions                 | Done                                              |
+| 19  | Rural population, war exhaustion                               | Done in code — waiting for the check              |
 
 ## Phase 0 — Project setup
 
@@ -394,6 +395,15 @@ Done:
 - Three more situational summit questions (14 templates): debt relief when the player's debt passes 100% of GDP (accepting cuts the debt by 10% of GDP, with austerity), criticism of the handling of protests when support is below 35%, and a joint release of reserves when a resource price rose 30% or more.
 - Checked in Chromium on a 1366×800 desktop: Shift-click selected a city, a Shift-drag box selected 4 armies; no errors.
 
+## Phase 19 — Rural population, war exhaustion
+
+Done:
+
+- Province population now counts the people outside the listed cities: Natural Earth lists only larger cities (India's cities hold 210 of 1,464 million people, and 1,818 of 4,603 provinces had nobody), so each country's remaining population is spread over its provinces by area (`provincePopulation` in `src/app/worldData.ts`). Rural provinces now weigh in support, production and the value of conquests.
+- War exhaustion (`diplomacy-rules.json` `peace.exhaustedSupport` 25, `exhaustedInflation` 30%): an AI country whose national support falls below 25% or whose inflation passes 30% seeks peace even when the war is not decided, and accepts a peace that costs it nothing. Wars no longer drag a collapsing country to ruin.
+- 8-year runs on Realistic and Chaos: stable world; in one Realistic run Russia lost a war against Ukraine joined by the UK and Poland, made peace when exhausted, and then faced a revolution (support 28%), as the GDD's escalation ladder intends.
+- Checked in Chromium with phone emulation: 12 turns as Ukraine, no errors.
+
 ## Next
 
 - Dario: merge the PR, review the new AI profiles, and test the game; changes come from that testing.
@@ -415,7 +425,7 @@ Done:
 
 - 133 of 203 AI profiles are derived from data rather than written by hand; their justifications are generic.
 - A turn takes about 30 ms on a PC; to watch on slow phones.
-- In Chaos, a country at war can spiral (inflation and debt keep rising, endless rebels): the AI cannot fix its budget during a war.
+- In Chaos, a country at war can still spiral before war exhaustion makes it seek peace.
 
 - Resource shares are rounded estimates.
 - Trade partners are chosen by surplus and distance only (no trade agreements or tariffs yet).
@@ -427,7 +437,7 @@ Done:
 - The player's empty provinces fall to any enemy army, so garrisons matter.
 - Mandatory service list and reserve sizes are drafted estimates; reservists without a base do not defend (as in the GDD).
 
-- Province population is the sum of its Natural Earth cities, so provinces without a listed city weigh little.
+- Rural population is spread by area, not by real density (deserts and mountains get as many people per km² as farmland).
 
 - Starting debt is drafted from the IMF WEO 2024 (recalled); to be replaced by the IMF API data.
 - Economy numbers are first design values; they are tuned in Phase 13.

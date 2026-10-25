@@ -119,7 +119,9 @@
     "aiStalemateTurns": 104,
     "aiOfferEvery": 8,
     "peaceRelation": 20,
-    "minTurns": 4
+    "minTurns": 4,
+    "exhaustedSupport": 25,
+    "exhaustedInflation": 0.3
   },
   "nuclear": {
     "relation": -60,
