@@ -8,8 +8,9 @@ import {
   type LabelKind,
 } from './labelLayout';
 import type { MapData } from './mapData';
+import { FONT_FAMILY } from '../app/fonts';
 
-const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+const FONT = FONT_FAMILY;
 type LabelTheme = 'night' | 'day';
 type LabelStyle = { fill: number; stroke: number; weight: 'normal' | 'bold'; spacing: number };
 /** Light text on the night map; ink on paper for the day map (GDD section 13). */

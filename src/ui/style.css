@@ -5,8 +5,9 @@
   --text: #dbe4ee;
   --text-muted: #8798ab;
   --accent: #f2a93b;
-  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --font-ui: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Numbers use the same clean face with tabular figures, so columns still line up. */
+  --font-mono: var(--font-ui);
   color-scheme: dark;
   --danger-text: #e0786b;
   --danger-soft: #f0a197;
@@ -27,8 +28,16 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-ui);
+  font-feature-settings: 'cv11', 'ss01';
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 
 #map-root {
@@ -288,6 +297,7 @@ body {
 
 .mono {
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .dossier-subtitle {
@@ -376,7 +386,7 @@ body {
   background: rgba(7, 14, 23, 0.72);
 }
 
-.setup.setup-map {
+#ui-root > .setup.setup-map {
   /* The map stays usable while choosing a country; only the sheet takes input. */
   background: none;
   pointer-events: none;
@@ -590,32 +600,117 @@ body {
   font-size: 13px;
 }
 
-.setup-sheet {
+/* Step 2: the whole map with a small top bar, a country card and an optional list. */
+.pick-bar,
+.pick-card,
+.pick-list {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  max-height: 62vh;
-  display: flex;
-  flex-direction: column;
   box-sizing: border-box;
-  padding: 12px 12px calc(env(safe-area-inset-bottom) + 12px);
-  border-top: 3px solid var(--accent);
-  border-radius: 12px 12px 0 0;
-  background: var(--panel-solid);
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: var(--panel-bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   pointer-events: auto;
 }
 
-@media (min-width: 900px) {
-  .setup-sheet {
-    top: calc(env(safe-area-inset-top) + 8px);
-    left: 8px;
-    right: auto;
-    bottom: 8px;
-    width: 400px;
-    max-height: none;
-    border-radius: 8px;
+.pick-bar {
+  top: calc(env(safe-area-inset-top) + 8px);
+  left: calc(env(safe-area-inset-left) + 8px);
+  max-width: calc(55vw - 16px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+}
+
+.pick-heading {
+  min-width: 0;
+}
+
+.pick-heading .setup-title {
+  margin: 0;
+  font-size: 18px;
+}
+
+.pick-heading .setup-step {
+  margin: 0;
+}
+
+.pick-hint {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.pick-back,
+.pick-search {
+  flex: none;
+}
+
+.pick-card {
+  top: calc(env(safe-area-inset-top) + 8px);
+  right: calc(env(safe-area-inset-right) + 8px);
+  bottom: calc(env(safe-area-inset-bottom) + 8px);
+  width: min(340px, 42vw);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  animation: pick-in 0.2s ease-out;
+}
+
+.pick-card .country-details {
+  flex: 1;
+  margin: 0;
+  overflow-y: auto;
+}
+
+.pick-confirm {
+  flex: none;
+  width: 100%;
+  min-height: 48px;
+  font-size: 16px;
+}
+
+.pick-list {
+  top: calc(env(safe-area-inset-top) + 84px);
+  left: calc(env(safe-area-inset-left) + 8px);
+  bottom: calc(env(safe-area-inset-bottom) + 8px);
+  width: min(360px, 50vw);
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.pick-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pick-list-head .setup-subtitle {
+  margin: 0;
+}
+
+@media (max-height: 480px) {
+  .pick-bar {
+    padding: 6px 8px;
+  }
+
+  .pick-heading .setup-step {
+    display: none;
+  }
+
+  .pick-list {
+    top: calc(env(safe-area-inset-top) + 72px);
+  }
+}
+
+@keyframes pick-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
   }
 }
 
@@ -1833,5 +1928,122 @@ body {
 @media (max-width: 480px) {
   .hud .leader-seal {
     display: none;
+  }
+}
+
+/* End of a game: a full-screen victory or defeat. */
+.end-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(5, 10, 18, 0.92);
+  backdrop-filter: blur(6px);
+  animation: end-fade 0.6s ease-out;
+}
+
+.end-card {
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+}
+
+.end-title {
+  margin: 0 0 12px;
+  font-size: clamp(44px, 12vmin, 88px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  animation: end-rise 0.8s ease-out;
+}
+
+.end-victory .end-title {
+  color: var(--accent);
+  text-shadow: 0 0 32px rgba(242, 169, 59, 0.45);
+}
+
+.end-defeat .end-title {
+  color: var(--danger-text);
+  text-shadow: 0 0 32px rgba(224, 120, 107, 0.4);
+}
+
+.end-text {
+  margin: 0 0 8px;
+  color: #e8eef5;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.end-details {
+  margin: 0 0 24px;
+  color: #a9b6c4;
+  font-size: 14px;
+}
+
+.end-button {
+  min-width: 200px;
+}
+
+@keyframes end-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes end-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+}
+
+/* Phones play in landscape: upright phones see a "rotate your phone" screen. */
+.rotate-overlay {
+  display: none;
+}
+
+@media (orientation: portrait) and (pointer: coarse) and (max-width: 600px) {
+  .rotate-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 24px;
+    background: var(--bg);
+    text-align: center;
+  }
+}
+
+.rotate-icon {
+  width: 44px;
+  height: 76px;
+  border: 3px solid var(--accent);
+  border-radius: 9px;
+  animation: rotate-phone 2.4s ease-in-out infinite;
+}
+
+.rotate-text {
+  max-width: 280px;
+  margin: 0;
+  color: var(--text);
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+@keyframes rotate-phone {
+  0%,
+  25% {
+    transform: rotate(0deg);
+  }
+  60%,
+  100% {
+    transform: rotate(-90deg);
   }
 }

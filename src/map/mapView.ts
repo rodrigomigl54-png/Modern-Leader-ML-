@@ -72,7 +72,12 @@ export interface MapView {
    * Moves the camera to show a country inside the part of the screen not covered by panels
    * (insets in CSS pixels).
    */
-  lookAtCountry(countryId: string, insets?: { left?: number; bottom?: number }): void;
+  lookAtCountry(
+    countryId: string,
+    insets?: { left?: number; right?: number; bottom?: number },
+  ): void;
+  /** Zooms out to the whole world (country selection). */
+  lookAtWorld(): void;
   /** Army counters and routes. */
   setArmies(markers: ArmyMarker[]): void;
   /** Missiles, drones, nuclear bases and air-defense rings. */
@@ -316,6 +321,11 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       shared.setFocusOwner(id ? (ownerIndex.get(id) ?? 0) : 0);
       requestRender();
     },
+    lookAtWorld: () => {
+      // The full width of the map, centered a little north (Antarctica needs no room).
+      camera.lookAt(map.width / 2, map.height * 0.44, camera.viewportWidth / map.width);
+      requestRender();
+    },
     lookAtCountry: (id, insets = {}) => {
       const country = politics.countries.find((c) => c.id === id);
       if (!country) return;
@@ -327,13 +337,14 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       if (!anchor) return;
       // Show the country's main land area at about a third of the free screen area.
       const left = insets.left ?? 0;
+      const right = insets.right ?? 0;
       const bottom = insets.bottom ?? 0;
-      const freeW = Math.max(100, camera.viewportWidth - left);
+      const freeW = Math.max(100, camera.viewportWidth - left - right);
       const freeH = Math.max(100, camera.viewportHeight - bottom);
       const target = Math.min(freeW, freeH) * 0.4;
       camera.lookAt(anchor.wx, anchor.wy, target / Math.sqrt(anchor.pixels));
       // Shift so the country sits in the middle of the free area, not under the panel.
-      camera.panBy(left / 2, -bottom / 2);
+      camera.panBy((left - right) / 2, -bottom / 2);
       requestRender();
     },
     setStrikes: (overlay) => {

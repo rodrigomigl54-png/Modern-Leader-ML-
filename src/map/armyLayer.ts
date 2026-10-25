@@ -1,6 +1,7 @@
 import { BitmapFont, BitmapText, Container, Graphics } from 'pixi.js';
 import type { Camera } from './camera';
 import type { MapData } from './mapData';
+import { FONT_FAMILY } from '../app/fonts';
 
 /** How an army relates to the player: drawn in different colors. */
 export type ArmyRelation = 'own' | 'ally' | 'enemy' | 'other';
@@ -51,7 +52,7 @@ export class ArmyLayer {
     BitmapFont.install({
       name: FONT,
       style: {
-        fontFamily: 'ui-monospace, Menlo, Consolas, monospace',
+        fontFamily: FONT_FAMILY,
         fontSize: 24,
         fontWeight: 'bold',
         fill: 0xffffff,
