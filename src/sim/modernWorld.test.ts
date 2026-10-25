@@ -334,3 +334,25 @@ describe('debt and lost land', () => {
     expect(game.economy.countries.AAA!.debt).toBe(newGame().economy.countries.AAA!.debt);
   });
 });
+
+describe('situational summit questions', () => {
+  it('heavy debt brings a debt-relief offer; accepting it cuts the debt', () => {
+    let game = newGame();
+    const e = game.economy.countries.PLR!;
+    e.debt = e.gdp * 2;
+    for (let i = 0; i < (summitsData as { firstTurn: number }).firstTurn; i++)
+      game = advanceTurn(game, sim).state;
+    const s = game.summits.pending!;
+    const i = s.questions.findIndex((q) => q.id === 'debtRelief');
+    expect(i).toBeGreaterThanOrEqual(0);
+    const answers = s.questions.map((q, k) => (k === i ? 'accept' : q.answers[0]!));
+    const before = game.economy.countries.PLR!.debt;
+    const done = applyCommand(
+      game,
+      { type: 'summit', countryId: 'PLR', summitId: s.id, answers },
+      sim,
+    );
+    if (!done.ok) throw new Error(done.error);
+    expect(done.state.economy.countries.PLR!.debt).toBeLessThan(before);
+  });
+});

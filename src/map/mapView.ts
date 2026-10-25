@@ -1,4 +1,4 @@
-import { Application, Container } from 'pixi.js';
+import { Application, Container, Graphics } from 'pixi.js';
 import type { CountryStatus } from '../sim/world';
 import { ArmyLayer, type ArmyMarker } from './armyLayer';
 import { Camera } from './camera';
@@ -100,6 +100,10 @@ export interface MapViewOptions {
   onProgress: (fraction: number) => void;
   /** Province id, or null when the selection was cleared (tap on water). */
   onSelect: (provinceId: number | null) => void;
+  /** Shift-click on a province (PC multi-select). */
+  onShiftSelect?: (provinceId: number) => void;
+  /** Shift-drag box: the provinces whose center is inside it (PC multi-select). */
+  onBoxSelect?: (provinceIds: number[]) => void;
 }
 
 export async function createMapView(root: HTMLElement, options: MapViewOptions): Promise<MapView> {
@@ -193,7 +197,8 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
   const labels = new MapLabels(data, deviceRatio(), labelCountries());
   const armies = new ArmyLayer(data, Math.min(2, deviceRatio()));
   const strikes = new StrikeLayer(data);
-  app.stage.addChild(world, labels.container, strikes.container, armies.container);
+  const selectionBox = new Graphics();
+  app.stage.addChild(world, labels.container, strikes.container, armies.container, selectionBox);
   await tiles.loadBase((f) => options.onProgress(0.5 + f * 0.5));
 
   const camera = new Camera(map.width, map.height);
@@ -214,17 +219,49 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
     shared.setSelected(id);
     requestRender();
   };
-  const controls = new MapControls(app.canvas, camera, requestRender, (sx, sy) => {
-    const request = ++selectionRequest;
-    const [wx, wy] = camera.screenToWorld(sx, sy);
-    void picker.pick(wx, wy).then((id) => {
-      if (request !== selectionRequest) return;
-      // A province too small for a finger is chosen when the tap lands next to it.
-      const small = smallProvinceNear(provinces, camera, sx, sy);
-      const picked = small ?? id;
-      options.onSelect(picked >= 0 ? picked : null);
-    });
-  });
+  const controls = new MapControls(
+    app.canvas,
+    camera,
+    requestRender,
+    (sx, sy, shift) => {
+      const request = ++selectionRequest;
+      const [wx, wy] = camera.screenToWorld(sx, sy);
+      void picker.pick(wx, wy).then((id) => {
+        if (request !== selectionRequest) return;
+        // A province too small for a finger is chosen when the tap lands next to it.
+        const small = smallProvinceNear(provinces, camera, sx, sy);
+        const picked = small ?? id;
+        if (shift && picked >= 0 && options.onShiftSelect) options.onShiftSelect(picked);
+        else options.onSelect(picked >= 0 ? picked : null);
+      });
+    },
+    (box, done) => {
+      selectionBox.clear();
+      if (box && !done) {
+        const [x0, y0, x1, y1] = box;
+        selectionBox
+          .rect(Math.min(x0, x1), Math.min(y0, y1), Math.abs(x1 - x0), Math.abs(y1 - y0))
+          .fill({ color: 0xf2a93b, alpha: 0.12 })
+          .stroke({ color: 0xf2a93b, width: 1.5 });
+      }
+      if (box && done && options.onBoxSelect) {
+        const [ax, ay] = camera.screenToWorld(Math.min(box[0], box[2]), Math.min(box[1], box[3]));
+        const [bx, by] = camera.screenToWorld(Math.max(box[0], box[2]), Math.max(box[1], box[3]));
+        options.onBoxSelect(
+          provinces
+            .filter(
+              (p) =>
+                p.centroid[0] >= ax &&
+                p.centroid[0] <= bx &&
+                p.centroid[1] >= ay &&
+                p.centroid[1] <= by,
+            )
+            .map((p) => p.id),
+        );
+      }
+      requestRender();
+    },
+  );
 
   const view: MapView = {
     data,

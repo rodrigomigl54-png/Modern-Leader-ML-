@@ -180,6 +180,53 @@
         "members": -4,
         "support": 1
       }
+    },
+    "debtRelief": {
+      "accept": {
+        "debtGdp": -0.1,
+        "support": -4,
+        "members": 3
+      },
+      "negotiate": {
+        "debtGdp": -0.05,
+        "support": -2,
+        "members": 1
+      },
+      "refuse": {
+        "members": -2,
+        "credibility": 2
+      }
+    },
+    "unrest": {
+      "reforms": {
+        "members": 4,
+        "support": 3,
+        "treasuryGdp": -0.005
+      },
+      "deny": {
+        "members": -4
+      },
+      "foreignHand": {
+        "members": -2,
+        "support": 1
+      }
+    },
+    "priceSpike": {
+      "joinRelease": {
+        "members": 3,
+        "treasuryGdp": -0.001
+      },
+      "stayOut": {},
+      "blameProducers": {
+        "members": -1,
+        "support": 1
+      }
     }
+  },
+  "situations": {
+    "comment": "Debt relief is asked when the player's debt is above debtReliefShare of GDP; unrest when national support is below unrestSupport; a price spike when a resource costs priceSpike more than at the start.",
+    "debtReliefShare": 1.0,
+    "unrestSupport": 35,
+    "priceSpike": 0.3
   }
 }

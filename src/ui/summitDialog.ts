@@ -25,6 +25,10 @@ export function effectText(e: AnswerEffect): string {
     parts.push(
       `${t('summit.fx.money')} ${e.treasuryGdp > 0 ? '+' : '−'}${Math.abs(e.treasuryGdp * 100)}% ${t('econ.gdp')}`,
     );
+  if (e.debtGdp)
+    parts.push(
+      `${t('summit.fx.debt')} ${e.debtGdp > 0 ? '+' : '−'}${Math.abs(e.debtGdp * 100)}% ${t('econ.gdp')}`,
+    );
   if (e.sanction) parts.push(t('summit.fx.sanction'));
   return parts.join(' · ');
 }

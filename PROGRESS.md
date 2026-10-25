@@ -23,7 +23,8 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 14  | Complete the Modern World (Dario's choice after the demo)      | Done                                              |
 | 15  | Complete the Modern World, part 2                              | Done                                              |
 | 16  | Trade between partner countries, map fix                       | Done                                              |
-| 17  | Debt, prices, taps, names, Day labels                          | Done in code — waiting for the check on the phone |
+| 17  | Debt, prices, taps, names, Day labels                          | Done                                              |
+| 18  | PC multi-select, AI profiles, summit questions                 | Done in code — waiting for the check              |
 
 ## Phase 0 — Project setup
 
@@ -384,19 +385,35 @@ Done:
 - 6-year runs, seeds 1–3, Peaceful and Realistic: 11–15 countries above 100% debt, median growth 2.1–2.2%, median support 63; Japan grows about 1% a year with support near 40–50.
 - Checked in Chromium with phone emulation as Ukraine in the Day theme: labels, prices and debt (90% of GDP) in the economy panel, Kyiv; no errors.
 
+## Phase 18 — PC multi-select, AI profiles, summit questions
+
+Done:
+
+- PC multi-select (GDD section 13: "drag/Shift-click (PC)"): Shift-click a province adds or removes its cities from the selection; Shift-drag draws a box that selects our armies inside it (or our cities when there are none). Phones keep tap selection.
+- 30 more hand-written AI profiles (`tools/ai/manual-profiles.json`, 70 of 203 now): the Netherlands, Belgium, Sweden, Norway, Finland, Denmark, Greece, Romania, Czechia, Portugal, Switzerland, Austria, Iraq, Syria, Qatar, Kuwait, Thailand, Malaysia, the Philippines, Singapore, New Zealand, Chile, Colombia, Peru, Morocco, Algeria, Kenya, Sudan, Afghanistan and Myanmar, each trait justified by documented behavior. Draft — needs Dario's review.
+- Three more situational summit questions (14 templates): debt relief when the player's debt passes 100% of GDP (accepting cuts the debt by 10% of GDP, with austerity), criticism of the handling of protests when support is below 35%, and a joint release of reserves when a resource price rose 30% or more.
+- Checked in Chromium on a 1366×800 desktop: Shift-click selected a city, a Shift-drag box selected 4 armies; no errors.
+
 ## Next
 
-- Dario: merge the PR and check on the phone: zoom out and in several times; the economy panel (imports from, main partners).
-- Then, as Dario decides: Cold War mode, espionage, UN Security Council, or more work on the Modern World.
-- Fresh World Bank/IMF data when the network allows it.
+- Dario: merge the PR, review the new AI profiles, and test the game; changes come from that testing.
+- See "What is left" below.
+
+## What is left (to finish the whole game)
+
+1. **Dario's testing** of the Modern World on phone and PC, and the changes that come out of it (balance, clarity, bugs).
+2. **Data refresh when the network allows it:** World Bank and IMF data (GDP, population, military, stability, debt) replace the drafted estimates; then `npm run sim:balance` again.
+3. **Data review by Dario:** leaders and wars as of the start date, AI profiles (133 still derived from data), starting arsenals, mandatory service list, remaining dated province names.
+4. **Post-demo roadmap (GDD section 15, in order):** historical modes starting with the Cold War; intelligence and espionage (hidden nuclear bases, enemy plans); UN Security Council with resolution votes; a full navy (fleets, naval battles, blockades); refugees and migration; mod support; Steam and mobile builds; ads and in-app purchases (no pay-to-win); multiplayer.
+5. **Release** (only when Dario says the game is finished): GitHub Pages is live already; the itch.io zip is built by CI.
 
 ## Known issues
 
 - The interface size uses CSS `zoom` (supported by current browsers; very old ones ignore it).
 
-- Summit questions come from a fixed set of eleven templates.
+- Summit questions come from a fixed set of fourteen templates.
 
-- 163 of 203 AI profiles are derived from data rather than written by hand; their justifications are generic.
+- 133 of 203 AI profiles are derived from data rather than written by hand; their justifications are generic.
 - A turn takes about 30 ms on a PC; to watch on slow phones.
 - In Chaos, a country at war can spiral (inflation and debt keep rising, endless rebels): the AI cannot fix its budget during a war.
 
