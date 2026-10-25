@@ -5,6 +5,9 @@ import { emptyMilitary, initMilitary, type MilitaryState } from './military';
 import { initPopulation, type PopulationState } from './population';
 import { emptyResources, initResources, resourcesPhase, type ResourcesState } from './resources';
 import { emptyWeapons, initWeapons, type WeaponsState } from './weapons';
+import { emptyChronicle, markReport, type ChronicleState } from './chronicle';
+import { createGoals, type Goal } from './goals';
+import { emptySummits, type SummitState } from './summits';
 import { applyDisputedSetting, type Aggressiveness, type DisputedMode, type World } from './world';
 
 export const LEADER_NAME_MAX = 40;
@@ -35,6 +38,11 @@ export interface GameState {
   weapons: WeaponsState;
   diplomacy: DiplomacyState;
   resources: ResourcesState;
+  /** News headlines and the snapshot for the next general report. */
+  chronicle: ChronicleState;
+  summits: SummitState;
+  /** The player's goals (GDD section 13). */
+  goals: Goal[];
   /** Set when the player's government has fallen or the country was conquered. */
   gameOver?: { reason: 'revolution' | 'conquered'; turn: number };
 }
@@ -89,10 +97,15 @@ export function createNewGame(world: World, options: NewGameOptions, sim: SimCon
       ? initDiplomacy({ world: effective, turn: 0, economy }, sim)
       : emptyDiplomacy(),
     resources: emptyResources({ world: effective }),
+    chronicle: emptyChronicle({ world: effective }),
+    summits: emptySummits(),
+    goals: [],
   };
   if (sim.resources) {
     game.resources = initResources(game, sim);
     resourcesPhase(game, sim, () => undefined, false);
   }
+  if (sim.goals) game.goals = createGoals(game, sim);
+  markReport(game, sim);
   return game;
 }

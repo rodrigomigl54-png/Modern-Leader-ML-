@@ -7,6 +7,8 @@ import type { PopulationRules } from '../sim/population';
 import type { ResourcesData } from '../sim/resources';
 import type { AiProfile, AiRules } from '../sim/profiles';
 import type { WeaponsRules } from '../sim/weapons';
+import type { SummitRules } from '../sim/summits';
+import type { GoalRules } from '../sim/goals';
 import type { Alliance, CountryStats, Leader, Rivalry, War, World } from '../sim/world';
 
 interface StatsFile {
@@ -68,6 +70,8 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     import('../../data/modern/resources.json?url'),
     import('../../data/modern/ai-profiles.json?url'),
     import('../../data/modern/ai-rules.json?url'),
+    import('../../data/modern/summits.json?url'),
+    import('../../data/modern/goals.json?url'),
   ]);
   const [leadersUrl, diplomacyUrl, scenarioUrl, economyUrl, populationUrl] = urls;
   const [
@@ -80,6 +84,8 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     resourcesUrl,
     profilesUrl,
     aiRulesUrl,
+    summitsUrl,
+    goalsUrl,
   ] = urls.slice(5);
   const statsUrl = Object.values(optionalStats)[0];
   const [
@@ -97,6 +103,8 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     resources,
     profiles,
     aiRules,
+    summits,
+    goals,
     stats,
   ] = await Promise.all([
     fetchJson<LeadersFile>(leadersUrl.default),
@@ -115,6 +123,8 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     fetchJson<ResourcesData>(resourcesUrl!.default),
     fetchJson<{ profiles: Record<string, AiProfile> }>(profilesUrl!.default),
     fetchJson<AiRules>(aiRulesUrl!.default),
+    fetchJson<SummitRules>(summitsUrl!.default),
+    fetchJson<GoalRules>(goalsUrl!.default),
     statsUrl ? fetchJson<StatsFile>(statsUrl) : Promise.resolve(null),
   ]);
 
@@ -166,6 +176,8 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
       profiles: profiles.profiles,
       aiRules,
       resources,
+      summits,
+      goals,
     },
   };
 }

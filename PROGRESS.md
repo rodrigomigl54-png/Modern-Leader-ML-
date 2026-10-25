@@ -18,7 +18,7 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 9   | Diplomacy                                                      | Done                                              |
 | 10  | Resources and trade                                            | Done in code — waiting for the check on the phone |
 | 11  | AI                                                             | Done in code — waiting for the check on the phone |
-| 12  | Summits, events, notifications, reports, news, advisors, goals | Not started                                       |
+| 12  | Summits, events, notifications, reports, news, advisors, goals | Done in code — waiting for the check on the phone |
 | 13  | Balance, polish, demo release                                  | Not started                                       |
 
 ## Phase 0 — Project setup
@@ -286,12 +286,30 @@ Done:
 - Two years on real data: Peaceful no new wars, Realistic one (Pakistan–Afghanistan, late), Aggressive one early, Chaos several (Cyprus, Georgia, Morocco…). A turn takes about 53 ms.
 - Checked in Chromium with phone emulation as Serbia: Croatia's profile; ten turns without errors.
 
+## Phase 12 — Summits, events, reports, news, advisors, goals
+
+Done:
+
+- Summits (`data/modern/summits.json`, `src/sim/summits.ts`, turn step 9): a regular summit every 52 turns from week 27, rotating UN General Assembly → G20 → regional summit (capitals within 2,500 km) → alliance summit (UN if the player has no alliance). Emergency summits after a war between two of the 15 largest economies, a nuclear threat or strike, or a revolution in a large country (at most one per 13 turns).
+- Questions are templates filled with live data, most pressing first (2 at emergency summits, 3 at regular ones): our war or occupation, high inflation and an aid package, an accusation of arming a friend's war, joint sanctions on an aggressor, a no-first-use pledge, recognizing rebels, a trade agreement, a refugee crisis. Each has 3–4 answers that change relations (members, host, the country in question), support, credibility, money, or join sanctions; the effect is shown under each answer.
+- Skipping (or not answering within 2 turns) lowers relations with every member and the host, costs credibility, and an aggressor that skips gets sanctions from the hostile members. `summit` command (answers or skip).
+- News (`src/sim/chronicle.ts`): headlines for new wars and alliances, countries joining wars, peace, conquests, revolutions, secessions, nuclear strikes, sanctions and summits; the last 40 are kept in the save.
+- General report every 10 turns: GDP change, treasury, weekly balance, debt, support change, wars started/ended, new sanctions and alliances in the world, the three biggest changes of relations with the player.
+- Goals (`data/modern/goals.json`, `src/sim/goals.ts`): 4–5 goals chosen from the starting situation — grow GDP 15% in 5 years, no riots for 5 years, inflation under 5% for a year, stay in the current alliance / stay neutral (low loyalty) / join an alliance, and lower debt for indebted countries. Checked every turn; done/failed events.
+- UI: wire-service news strip at the bottom (tap for all headlines with dates), report telegram, summit dialog with answers and the cost of skipping, goals panel with progress bars and deadlines (game menu: Goals, World news), toasts for achieved and failed goals and missed summits. The four ministers give a tip in each of the first five turns (economy, interior, defence, foreign affairs, goals) as the tutorial.
+- Older saves get the news, summits and goals on load.
+- Two years on real data as Serbia: UN Assembly in week 27 (hosted by the US) and a G20 summit in week 79 (hosted by China); reports every 10 turns; the inflation goal achieved after a year.
+- Checked in Chromium with phone emulation as Serbia: the five ministers' tips, two reports, the UN Assembly (joint sanctions on Russia, trade, refugees) answered, the news strip and list, the goals panel; no errors.
+
 ## Next
 
-- Dario: merge the PR and check on the phone: open a foreign country (Diplomacy) → AI profile; play some turns on different aggressiveness levels. Please review the hand-written profiles in `tools/ai/manual-profiles.json`.
-- Then Phase 12 — summits, events, notifications, reports, news, advisors, goals.
+- Dario: merge the PR and check on the phone: the ministers' tips at the start, the news strip, the report every 10 weeks, the first summit in week 27 (answer or skip), Goals in the game menu.
+- Then Phase 13 — balance, polish, demo release (and fresh World Bank/IMF data when the network allows it).
 
 ## Known issues
+
+- Summit questions come from a fixed set of eight templates; the player's own war declarations do not call an emergency summit (only AI ones do).
+- Goals are for the player only; AI countries do not pursue goals.
 
 - 163 of 203 AI profiles are derived from data rather than written by hand; their justifications are generic.
 - A turn takes about 53 ms on a PC with all AI systems; to watch on slow phones.

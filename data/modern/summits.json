@@ -1,0 +1,146 @@
+{
+  "meta": {
+    "description": "Summits (GDD section 12): one regular summit a year (type rotates) and emergency summits after major events. Questions are templates filled with live data; each answer changes relations with groups of countries, support, credibility or money. Texts are in the i18n files (summit.q.<id>, summit.a.<id>.<answer>). Game-design defaults to be tuned in Phase 13.",
+    "source": "Game design (GDD section 12)",
+    "checked": "2026-10-25"
+  },
+  "regularEvery": 52,
+  "firstTurn": 26,
+  "rotation": [
+    "un",
+    "g20",
+    "regional",
+    "alliance"
+  ],
+  "g20Size": 20,
+  "regionalKm": 2500,
+  "emergency": {
+    "largePowers": 15,
+    "minTurnsBetween": 13
+  },
+  "answerTurns": 2,
+  "questions": {
+    "regular": 3,
+    "emergency": 2
+  },
+  "skip": {
+    "members": -5,
+    "hosts": -10,
+    "credibility": -5,
+    "resolutionSanctionsRelation": 0
+  },
+  "templates": {
+    "occupation": {
+      "defend": {
+        "members": -8,
+        "target": -10,
+        "support": 3
+      },
+      "withdraw": {
+        "members": 5,
+        "credibility": -5
+      },
+      "peaceTalks": {
+        "members": 5,
+        "target": 10,
+        "support": -2
+      },
+      "silence": {
+        "members": -5,
+        "credibility": 2
+      }
+    },
+    "inflationAid": {
+      "accept": {
+        "treasuryGdp": 0.02,
+        "support": -4,
+        "members": 5
+      },
+      "decline": {
+        "support": 2
+      },
+      "negotiate": {
+        "treasuryGdp": 0.01,
+        "members": 2
+      }
+    },
+    "weaponsAccusation": {
+      "deny": {
+        "rival": -5,
+        "credibility": -3
+      },
+      "justify": {
+        "rival": -10,
+        "side": 10,
+        "members": -2
+      },
+      "stop": {
+        "side": -10,
+        "rival": 5
+      }
+    },
+    "jointSanctions": {
+      "join": {
+        "members": 6,
+        "target": -20,
+        "sanction": true
+      },
+      "abstain": {
+        "members": -3
+      },
+      "oppose": {
+        "target": 10,
+        "members": -8
+      }
+    },
+    "noFirstUse": {
+      "pledge": {
+        "members": 5
+      },
+      "conditional": {
+        "members": 1
+      },
+      "refuse": {
+        "members": -5,
+        "support": 2
+      }
+    },
+    "rebels": {
+      "recognize": {
+        "target": -20,
+        "members": -2
+      },
+      "government": {
+        "target": 10
+      },
+      "neutral": {}
+    },
+    "trade": {
+      "sign": {
+        "members": 4,
+        "treasuryGdp": 0.002
+      },
+      "conditions": {
+        "members": 1,
+        "treasuryGdp": 0.001
+      },
+      "decline": {
+        "members": -2
+      }
+    },
+    "refugees": {
+      "accept": {
+        "members": 4,
+        "support": -3
+      },
+      "limited": {
+        "members": 1,
+        "support": -1
+      },
+      "refuse": {
+        "members": -3,
+        "support": 2
+      }
+    }
+  }
+}
