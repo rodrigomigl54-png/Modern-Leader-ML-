@@ -6,7 +6,8 @@
 import { changeRelation, relation, sanctioned, type DiplomacyEvent } from './diplomacy';
 import type { SimContext } from './economy';
 import type { GameState } from './newGame';
-import { shiftSupport } from './population';
+import { nationalSupport, shiftSupport } from './population';
+import { RESOURCES } from './resources';
 import { cityDistanceKm } from './weapons';
 import { alliesOf, enemiesAtWar } from './world';
 import type { TurnEvent } from './turn';
@@ -23,6 +24,8 @@ export interface AnswerEffect {
   support?: number;
   credibility?: number;
   treasuryGdp?: number;
+  /** Change of the public debt, as a share of GDP (debt relief). */
+  debtGdp?: number;
   /** The player joins sanctions on the question's country. */
   sanction?: boolean;
 }
@@ -35,6 +38,8 @@ export interface SummitRules {
   regionalKm: number;
   emergency: { largePowers: number; minTurnsBetween: number };
   answerTurns: number;
+  /** When situational questions come up. */
+  situations: { debtReliefShare: number; unrestSupport: number; priceSpike: number };
   questions: { regular: number; emergency: number };
   skip: {
     members: number;
@@ -54,6 +59,8 @@ export interface SummitQuestion {
   rival?: string;
   side?: string;
   value?: number;
+  /** Resource id for questions about one resource. */
+  resource?: string;
   answers: string[];
 }
 
@@ -213,6 +220,21 @@ function questionsFor(
   if ((state.weapons?.countries[player]?.warheads ?? 0) > 0) push({ id: 'noFirstUse' });
   if ((state.weapons?.countries[player]?.nuclearProgramUntil ?? -1) > state.turn)
     push({ id: 'nuclearProgram' });
+  // Pressing domestic troubles: heavy debt and unrest.
+  const econ = state.economy.countries[player];
+  if (econ && econ.debt > econ.gdp * r.situations.debtReliefShare)
+    push({ id: 'debtRelief', value: Math.round((econ.debt / econ.gdp) * 100) });
+  if (state.population && nationalSupport(state, ctx, player) < r.situations.unrestSupport)
+    push({ id: 'unrest' });
+  // A resource whose world price soared.
+  const res = state.resources;
+  if (res?.basePrice) {
+    const spike = res.price
+      .map((p, i) => ({ i, rise: p / Math.max(1e-9, res.basePrice![i]!) - 1 }))
+      .sort((a, b) => b.rise - a.rise || a.i - b.i)[0];
+    if (spike && spike.rise >= r.situations.priceSpike)
+      push({ id: 'priceSpike', resource: RESOURCES[spike.i], value: Math.round(spike.rise * 100) });
+  }
   push({ id: 'climate' });
   push({ id: 'trade' });
   push({ id: 'refugees' });
@@ -279,6 +301,7 @@ function applyEffect(
     );
   const econ = state.economy.countries[player];
   if (e.treasuryGdp && econ) econ.treasury += econ.gdp * e.treasuryGdp;
+  if (e.debtGdp && econ) econ.debt = Math.max(0, econ.debt + econ.gdp * e.debtGdp);
   if (e.sanction && q.country && !sanctioned(state, player, q.country) && state.diplomacy)
     state.diplomacy.sanctions.push({ from: player, to: q.country, since: state.turn });
 }

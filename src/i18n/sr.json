@@ -671,5 +671,18 @@
   "res.from": "Uvoz iz: {list}",
   "res.partners": "Glavni trgovinski partneri (resursi, godišnje): {list}",
   "res.noPartners": "Nema trgovine resursima sa drugim zemljama.",
-  "res.prices": "Svetske cene od početka: {list}"
+  "res.prices": "Svetske cene od početka: {list}",
+  "summit.fx.debt": "Dug",
+  "summit.q.debtRelief": "Vaš javni dug je dostigao {value}% BDP-a. Poverioci nude otpis dela duga u zamenu za mere štednje.",
+  "summit.a.debtRelief.accept": "Prihvatamo program",
+  "summit.a.debtRelief.negotiate": "Prihvatamo blaži program",
+  "summit.a.debtRelief.refuse": "Vraćaćemo dug pod svojim uslovima",
+  "summit.q.unrest": "Članice kritikuju kako vaša vlada postupa sa protestima u zemlji.",
+  "summit.a.unrest.reforms": "Najavljujemo reforme",
+  "summit.a.unrest.deny": "To je naša unutrašnja stvar",
+  "summit.a.unrest.foreignHand": "Iza protesta stoje strane sile",
+  "summit.q.priceSpike": "Svetska cena resursa {resource} je porasla {value}%. Članice predlažu zajedničko puštanje rezervi.",
+  "summit.a.priceSpike.joinRelease": "Puštamo naše rezerve",
+  "summit.a.priceSpike.stayOut": "Ne mešamo se",
+  "summit.a.priceSpike.blameProducers": "Krivi su proizvođači"
 }

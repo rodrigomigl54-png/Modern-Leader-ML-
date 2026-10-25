@@ -20,6 +20,7 @@ import { ensureSummits, summitRules, type SummitQuestion } from './sim/summits';
 import { dateOfTurn } from './sim/calendar';
 import {
   armySize,
+  citiesOfProvince,
   ensureMilitary,
   militaryTotals,
   pathTurns,
@@ -135,10 +136,14 @@ async function start(): Promise<void> {
 
   const loading = showLoadingScreen(uiRoot);
   let onMapTap: (provinceId: number | null) => void = () => undefined;
+  let onShiftSelect: (provinceId: number) => void = () => undefined;
+  let onBoxSelect: (provinceIds: number[]) => void = () => undefined;
   try {
     const map = await createMapView(mapRoot, {
       onProgress: (f) => loading.setProgress(f * 0.9),
       onSelect: (id) => onMapTap(id),
+      onShiftSelect: (id) => onShiftSelect(id),
+      onBoxSelect: (ids) => onBoxSelect(ids),
     });
     const [bundle, store] = await Promise.all([loadWorld(map.data), openSaveStore()]);
     loading.setProgress(1);
@@ -713,6 +718,7 @@ async function start(): Promise<void> {
       rival: q.rival ? nameOf(q.rival) : '',
       side: q.side ? nameOf(q.side) : '',
       value: q.value ?? 0,
+      resource: q.resource ? t(`res.${q.resource}` as TranslationKey) : '',
     });
     const summitQuestion = (q: SummitQuestion): string =>
       t(`summit.q.${q.id}` as TranslationKey, summitParams(q));
@@ -1457,6 +1463,37 @@ async function start(): Promise<void> {
           panel.show(id);
         }
       }
+    };
+
+    // PC multi-select (GDD section 13): Shift-click a province toggles its cities; a Shift-drag
+    // box selects our armies inside it, or our cities when there are none.
+    onShiftSelect = (id) => {
+      if (!game || wizard.isChoosingCountry) return;
+      if (game.world.provinceOwners[id] !== game.player.countryId) return onMapTap(id);
+      const cities = citiesOfProvince(sim, id);
+      const all = cities.every((c) => selection.has(c));
+      for (const c of cities) {
+        if (all) selection.delete(c);
+        else selection.add(c);
+      }
+      selectionBar.update(selection.size, armySelection.size);
+      panel.refresh();
+    };
+    onBoxSelect = (ids) => {
+      if (!game || wizard.isChoosingCountry) return;
+      const player = game.player.countryId;
+      const inBox = new Set(ids);
+      const armies = game.military.armies.filter(
+        (a) => a.owner === player && inBox.has(a.provinceId) && a.arriveTurn === undefined,
+      );
+      if (armies.length) for (const a of armies) armySelection.add(a.id);
+      else
+        for (const p of ids)
+          if (game.world.provinceOwners[p] === player)
+            for (const c of citiesOfProvince(sim, p)) selection.add(c);
+      selectionBar.update(selection.size, armySelection.size);
+      showArmies();
+      panel.refresh();
     };
 
     onLanguageChange(() => {

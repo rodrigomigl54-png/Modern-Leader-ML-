@@ -22,12 +22,20 @@ export class MapControls {
   private velocity: [number, number] = [0, 0];
   private pinchDistance = 0;
   private pinchMid: [number, number] = [0, 0];
+  /** Start of a Shift-drag selection box (PC multi-select, GDD section 13). */
+  private boxStart: [number, number] | null = null;
+  private shiftTap = false;
 
   constructor(
     private readonly element: HTMLElement,
     private readonly camera: Camera,
     private readonly onChange: () => void,
-    private readonly onTap: (sx: number, sy: number) => void,
+    private readonly onTap: (sx: number, sy: number, shift: boolean) => void,
+    /** Shift-drag with a mouse: a selection box in screen coordinates (null when it ends). */
+    private readonly onBox: (
+      box: [number, number, number, number] | null,
+      done: boolean,
+    ) => void = () => undefined,
   ) {
     element.addEventListener('pointerdown', this.down);
     element.addEventListener('pointermove', this.move);
@@ -65,7 +73,10 @@ export class MapControls {
     if (this.pointers.size === 1) {
       this.tapStart = { x, y, time: performance.now(), id: e.pointerId };
       this.moved = false;
+      this.shiftTap = e.shiftKey;
+      this.boxStart = e.shiftKey && e.pointerType === 'mouse' ? [x, y] : null;
     } else {
+      this.boxStart = null;
       this.tapStart = null;
       this.startPinch();
     }
@@ -85,6 +96,10 @@ export class MapControls {
         this.moved = true;
       }
       if (!this.moved) return;
+      if (this.boxStart) {
+        this.onBox([this.boxStart[0], this.boxStart[1], x, y], false);
+        return;
+      }
       this.camera.panBy(dx, dy);
       const now = performance.now();
       this.samples.push({ t: now, dx, dy });
@@ -110,13 +125,17 @@ export class MapControls {
 
     if (this.pointers.size === 0) {
       const start = this.tapStart;
-      if (
+      const box = this.boxStart;
+      this.boxStart = null;
+      if (box && this.moved) {
+        this.onBox([box[0], box[1], x, y], true);
+      } else if (
         start &&
         start.id === e.pointerId &&
         !this.moved &&
         performance.now() - start.time < TAP_MAX_MS
       ) {
-        this.onTap(x, y);
+        this.onTap(x, y, this.shiftTap);
       } else if (this.samples.length >= 2 && e.type === 'pointerup') {
         const span = Math.max(16, this.samples[this.samples.length - 1]!.t - this.samples[0]!.t);
         const sx = this.samples.reduce((t, s) => t + s.dx, 0);

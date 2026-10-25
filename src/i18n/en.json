@@ -671,5 +671,18 @@
   "res.from": "Imports from: {list}",
   "res.partners": "Main trade partners (resources, per year): {list}",
   "res.noPartners": "No resource trade with other countries.",
-  "res.prices": "World prices since the start: {list}"
+  "res.prices": "World prices since the start: {list}",
+  "summit.fx.debt": "Debt",
+  "summit.q.debtRelief": "Your public debt reached {value}% of GDP. Creditors offer to cut it in exchange for austerity.",
+  "summit.a.debtRelief.accept": "We accept the program",
+  "summit.a.debtRelief.negotiate": "We accept a milder program",
+  "summit.a.debtRelief.refuse": "We will repay on our own terms",
+  "summit.q.unrest": "Members criticize how your government handles the protests at home.",
+  "summit.a.unrest.reforms": "We announce reforms",
+  "summit.a.unrest.deny": "This is our internal matter",
+  "summit.a.unrest.foreignHand": "Foreign powers are behind the protests",
+  "summit.q.priceSpike": "The world price of {resource} rose {value}%. Members propose releasing emergency reserves together.",
+  "summit.a.priceSpike.joinRelease": "We release our reserves",
+  "summit.a.priceSpike.stayOut": "We stay out of it",
+  "summit.a.priceSpike.blameProducers": "The producers are to blame"
 }
