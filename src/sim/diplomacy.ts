@@ -5,6 +5,7 @@
 import type { SimContext } from './economy';
 import { armyStrength, militaryRules, provinceSeat } from './military';
 import type { GameState } from './newGame';
+import { joinThreshold } from './profiles';
 import { transferProvince } from './population';
 import type { TurnEvent } from './turn';
 import { weaponsRules, type WeaponKind } from './weapons';
@@ -147,7 +148,15 @@ export const WHITE_PEACE: PeaceTerms = {
 export type PlayerRequest =
   | { id: number; type: 'joinWar'; from: string; enemy: string; warId: string; until: number }
   | { id: number; type: 'peace'; from: string; warId: string; terms: PeaceTerms; until: number }
-  | { id: number; type: 'ultimatum'; ultimatumId: number; until: number };
+  | { id: number; type: 'ultimatum'; ultimatumId: number; until: number }
+  | {
+      id: number;
+      type: 'investment';
+      from: string;
+      cityId: number;
+      category: string;
+      until: number;
+    };
 
 export interface WarRecord {
   startTurn: number;
@@ -156,6 +165,8 @@ export interface WarRecord {
   /** Inhabitants of each country when the war began (for province value). */
   startPopulation: Record<string, number>;
   lastOffer: number;
+  /** A nuclear threat was made in this war. */
+  threatened?: boolean;
 }
 
 export interface DiplomacyState {
@@ -447,8 +458,12 @@ export function startWar(
         defenders.add(m);
         continue;
       }
+      // Alliance loyalty from the AI profile decides how friendly the member must be.
       const min =
-        al.type === 'alliance' ? rules.war.joinAllianceMinRelation : rules.war.joinPactMinRelation;
+        joinThreshold(state, ctx, m, al.type) ??
+        (al.type === 'alliance'
+          ? rules.war.joinAllianceMinRelation
+          : rules.war.joinPactMinRelation);
       if (relation(state, ctx, m, target) < min) continue;
       if (relation(state, ctx, m, attacker) > rules.war.joinMaxRelationWithAttacker) continue;
       defenders.add(m);
@@ -1194,6 +1209,9 @@ export function answerRequest(
     } else {
       changeRelation(state, ctx, player, request.from, rules.war.refusedJoinRelation);
     }
+  } else if (request.type === 'investment') {
+    // A foreign country builds in our city at its own cost (GDD section 6).
+    if (accept) investAbroad(state, ctx, request.from, request.cityId, request.category);
   } else if (request.type === 'peace') {
     if (accept && warBetween(state.world, request.from, player))
       applyPeace(state, ctx, request.from, player, request.terms, emit);
@@ -1380,3 +1398,30 @@ export function demilitarizedFor(state: GameState, id: string): Set<number> {
 /** Main city of a province, for base requests from the UI. */
 export const baseCityOf = (ctx: SimContext, provinceId: number): number =>
   provinceSeat(ctx, provinceId);
+
+/** An investment by one country in another's city, paid by the investor. */
+export function investAbroad(
+  state: GameState,
+  ctx: SimContext,
+  investor: string,
+  cityId: number,
+  categoryId: string,
+): boolean {
+  const cat = ctx.economy.investment.categories.find((c) => c.id === categoryId);
+  const host = state.world.provinceOwners[ctx.cityProvince[cityId] ?? -1];
+  const e = state.economy.countries[investor];
+  if (!cat || !host || !e || e.treasury < cat.costUsd) return false;
+  e.treasury -= cat.costUsd;
+  state.economy.buildings.push({
+    id: state.economy.nextBuildingId++,
+    category: cat.id,
+    cityId,
+    owner: investor,
+    host,
+    costUsd: cat.costUsd,
+    startedTurn: state.turn,
+    completeTurn: state.turn + cat.buildTurns,
+    completed: false,
+  });
+  return true;
+}

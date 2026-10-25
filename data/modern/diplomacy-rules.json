@@ -69,7 +69,7 @@
     "requestTurns": 3
   },
   "aid": {
-    "relationPerGdpShare": 2000,
+    "relationPerGdpShare": 500,
     "maxRelation": 30,
     "enemyRelation": -8
   },

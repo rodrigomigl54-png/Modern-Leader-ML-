@@ -8,6 +8,7 @@ import {
   type RelationOverride,
 } from './diplomacy';
 import type { GameState } from './newGame';
+import type { AiProfile, AiRules } from './profiles';
 import { shortageLoss, type ResourcesData } from './resources';
 import { pariahPenalty, type WeaponsRules } from './weapons';
 import { productionFactor, type PopulationRules } from './population';
@@ -97,6 +98,9 @@ export interface SimContext {
   /** Sanctions in force at the start. */
   startSanctions?: readonly { from: string; to: string }[];
   resources?: ResourcesData;
+  /** AI behavior profiles per country and the rules that turn them into actions. */
+  profiles?: Readonly<Record<string, AiProfile>>;
+  aiRules?: AiRules;
 }
 
 export interface CountryEconomy {

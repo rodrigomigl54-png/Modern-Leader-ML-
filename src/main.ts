@@ -511,6 +511,12 @@ async function start(): Promise<void> {
       if (r.type === 'joinWar')
         return t('foreign.joinWarRequest', { ally: nameOf(r.from), enemy: nameOf(r.enemy) });
       if (r.type === 'peace') return t('foreign.peaceRequest', { country: nameOf(r.from) });
+      if (r.type === 'investment')
+        return t('foreign.investmentRequest', {
+          country: nameOf(r.from),
+          building: t(`building.${r.category}` as TranslationKey),
+          city: cityName(r.cityId),
+        });
       const u = state.diplomacy.ultimatums.find((x) => x.id === r.ultimatumId);
       return u
         ? t('foreign.ultimatumRequest', {
@@ -655,7 +661,29 @@ async function start(): Promise<void> {
         noticeDialog(uiRoot, t('minister.foreign'), text, t('minister.understood'));
       const joinedAgainst: string[] = [];
       const joinedFor: string[] = [];
+      const playerAllies = new Set(alliesOf(game.world, player));
       for (const e of events) {
+        if (e.type === 'warDeclared') {
+          if (e.target === player)
+            await foreign(t('minister.warDeclared', { country: nameOf(e.attacker) }));
+          else if (playerAllies.has(e.target))
+            await foreign(
+              t('minister.allyAttacked', { country: nameOf(e.attacker), ally: nameOf(e.target) }),
+            );
+          else
+            toasts.show(
+              t('news.warDeclared', { attacker: nameOf(e.attacker), target: nameOf(e.target) }),
+            );
+        }
+        if (e.type === 'sanctionsImposed' && e.to === player)
+          toasts.show(t('news.sanctionsOnUs', { country: nameOf(e.from) }), 'error');
+        if (e.type === 'nuclearThreat' && e.to === player)
+          await noticeDialog(
+            uiRoot,
+            t('minister.defence'),
+            t('minister.nuclearThreat', { country: nameOf(e.from) }),
+            t('minister.understood'),
+          );
         if (e.type === 'warJoined') {
           if (e.enemy === player) joinedAgainst.push(e.countryId);
           else if (e.ally === player) joinedFor.push(e.countryId);

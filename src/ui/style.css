@@ -1560,3 +1560,41 @@ body {
   height: 12px;
   border-radius: 3px;
 }
+
+/* AI profiles (Phase 11) */
+.profile {
+  margin-top: 8px;
+}
+
+.profile summary {
+  min-height: 44px;
+  line-height: 44px;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.profile-traits dt {
+  display: grid;
+  grid-template-columns: 1fr 80px 28px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.profile-traits dd {
+  margin: 2px 0 0;
+  font-size: 12px;
+}
+
+.trait-bar {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--panel-border);
+}
+
+.trait-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}

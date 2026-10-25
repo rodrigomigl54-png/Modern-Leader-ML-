@@ -5,6 +5,7 @@ import type { Command } from './commands';
 import { constructionPhase, economyPhase, type EconomyEvent, type SimContext } from './economy';
 import { battlePhase, movementPhase, trainingPhase, type MilitaryEvent } from './military';
 import { aiMilitaryOrders, aiWeaponsOrders } from './ai';
+import { aiPolicyOrders, type AiPolicyEvent } from './aiPolicy';
 import { diplomacyPhase, type DiplomacyEvent } from './diplomacy';
 import { resourcesPhase, type ResourcesEvent } from './resources';
 import {
@@ -50,6 +51,7 @@ export type TurnEvent =
   | WeaponsEvent
   | DiplomacyEvent
   | ResourcesEvent
+  | AiPolicyEvent
   /** The 10-turn general report is due (GDD section 12). */
   | { type: 'report'; turn: number }
   /** A new year began. */
@@ -69,6 +71,8 @@ type Phase = (ctx: TurnContext) => void;
 // Each system fills in its phase as it is built (Phase 5 economy, Phase 6 population, ...).
 const PHASES: Record<TurnPhaseId, Phase> = {
   aiOrders: (ctx) => {
+    // Policy first (budget, diplomacy, wars), then armies and weapons for the wars it leads to.
+    if (ctx.sim.aiRules) aiPolicyOrders(ctx.state, ctx.sim, ctx.rng, (e) => ctx.events.push(e));
     if (ctx.sim.military) aiMilitaryOrders(ctx.state, ctx.sim);
     if (ctx.sim.weapons) aiWeaponsOrders(ctx.state, ctx.sim);
   },

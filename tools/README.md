@@ -59,3 +59,7 @@ map as a neutral, uninhabited territory.
    gets its closest city (up to 50 km) as port.
 7. Sea routes connect ports whose nearest-port sea areas touch, following the water.
 8. Borders are traced from the ID map, so they match it exactly, and simplified.
+
+## AI profiles
+
+`npm run data:profiles` builds `data/modern/ai-profiles.json` (GDD section 11) from the hand-written profiles in `tools/ai/manual-profiles.json` and, for every other country, scores derived from the game data (alliances, rivalries, wars, sanctions, SIPRI spending, mandatory service, nuclear weapons). Every score has a one-line justification. Edit the manual file and rerun; never edit the generated file by hand.

@@ -17,7 +17,7 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 8   | Missiles, drones, air defense, nuclear                         | Done                                              |
 | 9   | Diplomacy                                                      | Done                                              |
 | 10  | Resources and trade                                            | Done in code — waiting for the check on the phone |
-| 11  | AI                                                             | Not started                                       |
+| 11  | AI                                                             | Done in code — waiting for the check on the phone |
 | 12  | Summits, events, notifications, reports, news, advisors, goals | Not started                                       |
 | 13  | Balance, polish, demo release                                  | Not started                                       |
 
@@ -267,32 +267,52 @@ Done:
 - Two years on real data: a turn takes about 32 ms. Russia exports about 390 bn a year under sanctions (500 bn without) and gets 79% of the chips it needs; Germany is a little short of oil and gas.
 - Checked in Chromium with phone emulation as Russia: economy panel with resources, resources map. No console errors.
 
+## Phase 11 — AI behavior profiles
+
+Done:
+
+- Profiles in `data/modern/ai-profiles.json` for all 203 inhabited countries, built by `npm run data:profiles` (`tools/ai/build-profiles.ts`): 40 hand-written profiles (`tools/ai/manual-profiles.json`: United States, China, Russia, the UK, France, Germany, Japan, India, Pakistan, Israel, Iran, North Korea, South Korea, Turkey, Saudi Arabia, Ukraine, Poland, Belarus, Serbia, Hungary, Azerbaijan, Armenia, Taiwan, Egypt, the UAE, Venezuela, Cuba, Brazil, Australia, Canada, Italy, Spain, Vietnam, Indonesia, South Africa, Nigeria, Mexico, Argentina, Ethiopia, Kazakhstan); the rest derived from data. Every trait has a one-line justification from documented behavior; partners and rivals listed. Draft — needs Dario's review.
+- Rules in `data/modern/ai-rules.json`: chances per turn, thresholds, aggressiveness multipliers (Peaceful ×0.5, Realistic ×1, Aggressive ×1.5 on hostile traits; Chaos at the maximum with random timing).
+- Simulation (`src/sim/profiles.ts`, `src/sim/aiPolicy.ts`, turn step 1), for every AI country, by its traits:
+  - Budget: closes deficits when debt is high, lowers taxes when the people are angry.
+  - Economic focus: invests at home; friendly countries offer to invest in the player's cities (the player accepts or refuses).
+  - Sanctions on hostile rivals; ultimatums to much weaker hostile neighbors (tribute, a province for expansionists, lifting sanctions), and carries out the threat when it dares — or loses credibility.
+  - Rare wars of expansion against much weaker hostile neighbors (expansionism × risk tolerance).
+  - Interventionism: joins partners' wars (needs high relations and risk tolerance, much more against nuclear powers) or sends them aid; proposes pacts to partners.
+  - Alliance loyalty decides how readily allies join a war.
+  - Nuclear posture: losing nuclear powers threaten the player; last-resort use only above a minimum posture.
+- Aid now raises relations more gently (it made partners' relations climb too fast).
+- UI: "AI profile" in the country dialog (traits with bars and justifications, partners, rivals); telegrams when a country declares war on us or attacks an ally, nuclear threats; toasts for other wars and sanctions on us; questions for AI ultimatums and investment offers.
+- Two years on real data: Peaceful no new wars, Realistic one (Pakistan–Afghanistan, late), Aggressive one early, Chaos several (Cyprus, Georgia, Morocco…). A turn takes about 53 ms.
+- Checked in Chromium with phone emulation as Serbia: Croatia's profile; ten turns without errors.
+
 ## Next
 
-- Dario: merge the PR and check on the phone: tap the numbers in the top bar (Ministry of Finance → Resources); switch the map to Resources.
-- Then Phase 11 — AI behavior profiles (traits from documented behavior, aggressiveness multipliers, AI starting diplomacy and wars).
+- Dario: merge the PR and check on the phone: open a foreign country (Diplomacy) → AI profile; play some turns on different aggressiveness levels. Please review the hand-written profiles in `tools/ai/manual-profiles.json`.
+- Then Phase 12 — summits, events, notifications, reports, news, advisors, goals.
 
 ## Known issues
+
+- 163 of 203 AI profiles are derived from data rather than written by hand; their justifications are generic.
+- A turn takes about 53 ms on a PC with all AI systems; to watch on slow phones.
 
 - Resource shares are rounded estimates; the shortage alert is not shown for shortages that exist at the very start (e.g. Russia's chips) — the economy panel shows them.
 - Resource trade is a world market, not per-partner deals; prices are fixed.
 
-- AI countries do not start diplomacy on their own yet (no ultimatums, sanctions or alliance proposals from the AI); they only answer and join wars. This comes with AI profiles in Phase 11.
 - A separate peace ends the war with one country at a time; with many enemies (for example NATO) each needs its own peace.
 - Vassals are not shown on the political map in their overlord's colors yet.
 
 - Starting arsenals are estimated from military spending, not real inventories; nuclear base locations are approximate.
-- The AI does not threaten with nuclear weapons yet (profiles, Phase 11) and does not build air defense.
+- The AI does not build air defense.
 - Naval crossings still cannot be intercepted.
 
-- AI only fights wars that already exist; it does not declare wars (Phase 11). The player's empty provinces fall to any enemy army, so garrisons matter.
+- The player's empty provinces fall to any enemy army, so garrisons matter.
 - Mandatory service list and reserve sizes are drafted estimates; reservists without a base do not defend (as in the GDD).
 
 - Support does not react to wars, sanctions, missile damage or summits yet (later phases). Population numbers are first design values; they are tuned in Phase 13.
 - Province population is the sum of its Natural Earth cities, so provinces without a listed city weigh little.
 
 - Debt starts at 0 for every country until IMF debt data can be loaded; trade income comes in Phase 10.
-- AI countries do not invest or change taxes yet (Phase 11). Foreign consent is a simple rule until diplomacy and AI profiles exist.
 - Economy numbers are first design values; they are tuned in Phase 13.
 
 - Leaders and wars are drafted from information known up to mid-2026. Elections and events before the start date need a check.
