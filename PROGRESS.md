@@ -19,7 +19,7 @@ Live game: https://rodrigomigl54-png.github.io/Modern-Leader-ML-/
 | 10  | Resources and trade                                            | Done in code — waiting for the check on the phone |
 | 11  | AI                                                             | Done in code — waiting for the check on the phone |
 | 12  | Summits, events, notifications, reports, news, advisors, goals | Done in code — waiting for the check on the phone |
-| 13  | Balance, polish, demo release                                  | Not started                                       |
+| 13  | Balance, polish, demo release                                  | In progress — balance done, polish next           |
 
 ## Phase 0 — Project setup
 
@@ -301,10 +301,24 @@ Done:
 - Two years on real data as Serbia: UN Assembly in week 27 (hosted by the US) and a G20 summit in week 79 (hosted by China); reports every 10 turns; the inflation goal achieved after a year.
 - Checked in Chromium with phone emulation as Serbia: the five ministers' tips, two reports, the UN Assembly (joint sanctions on Russia, trade, refugees) answered, the news strip and list, the goals panel; no errors.
 
+## Phase 13 — Balance, polish, demo release
+
+Part 1 — balance (done):
+
+- `npm run sim:balance` (`tools/balance/simulate.ts`, described in `tools/README.md`): plays the Modern World with AI countries only for years on every aggressiveness level and prints world statistics per year, notable events, and yearly or weekly lines for watched countries. The game and the tool build the world with the same function (`assembleWorld` in `src/app/worldData.ts`).
+- What the 10-year runs found and what changed:
+  - At war the AI kept its whole army in the capital (Russia held ~800k soldiers in Moscow and sent ~190k to the front), so Ukraine took 65 Russian provinces in half a year and Russia collapsed into endless revolutions. Now the capital keeps 20% of the army (`military.json` `ai.capitalShare`) and the rest goes where the front needs it. The Russia–Ukraine war now usually ends in a stalemate peace after about two years.
+  - Countries never demobilized after a war and ran deficits for years. At peace, an AI country in deficit now sends 1% of its regulars to the reserves each week until its army costs at most 5% of GDP (`ai.demobilizeShare`, `ai.peaceMilitaryShare`).
+  - Angry people with money in the bank: the AI now first raises public services toward 20% of GDP, then lowers taxes (`ai-rules.json` `fiscal.targetServices`, `fiscal.reserveWeeks`). Ukraine kept services at 5% of GDP after the war and stayed near riots.
+  - Sanctions cut growth too much (Russia lost 7% of GDP a year). Now at most 2.5% a year (`diplomacy-rules.json` `sanctions`).
+- Result (seed 1–2, 10 years, a passive player): Peaceful 2–3 wars in 10 years, Realistic 6–8, Aggressive ~10, Chaos 2–3 a year; median growth about 2.2% a year; no country collapses outside wars except in Chaos. A passive Serbia keeps 64% support and grows 2.2% a year, so the GDP goal needs investment.
+- Faster turns: the state is copied with a direct copy instead of `structuredClone` (most of it is long arrays of numbers), saving about a quarter of the turn time; a turn takes 50–70 ms on a PC.
+- Checked in Chromium with phone emulation as Ukraine: 12 turns without errors.
+
 ## Next
 
-- Dario: merge the PR and check on the phone: the ministers' tips at the start, the news strip, the report every 10 weeks, the first summit in week 27 (answer or skip), Goals in the game menu.
-- Then Phase 13 — balance, polish, demo release (and fresh World Bank/IMF data when the network allows it).
+- Dario: merge the PR. Then Phase 13 part 2 — polish: settings screen (sound, UI scale, theme), sound effects and ambient music, the Day theme, leader seals, the feedback link, and the demo release build (GitHub Pages + an itch.io package).
+- Fresh World Bank/IMF data when the network allows it (it is still blocked), then rerun `npm run sim:balance`.
 
 ## Known issues
 
@@ -312,7 +326,8 @@ Done:
 - Goals are for the player only; AI countries do not pursue goals.
 
 - 163 of 203 AI profiles are derived from data rather than written by hand; their justifications are generic.
-- A turn takes about 53 ms on a PC with all AI systems; to watch on slow phones.
+- A turn takes 50–70 ms on a PC; to watch on slow phones.
+- In Chaos, a country at war can spiral (inflation and debt keep rising, endless rebels): the AI cannot fix its budget during a war.
 
 - Resource shares are rounded estimates; the shortage alert is not shown for shortages that exist at the very start (e.g. Russia's chips) — the economy panel shows them.
 - Resource trade is a world market, not per-partner deals; prices are fixed.

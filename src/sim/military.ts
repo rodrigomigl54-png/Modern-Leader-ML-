@@ -74,6 +74,12 @@ export interface MilitaryRules {
     minGarrison: number;
     /** Smallest army the AI splits off. */
     minDetachment: number;
+    /** Share of its army the AI keeps in the capital at war. */
+    capitalShare: number;
+    /** Share of its regulars an AI country in deficit sends to the reserves each week at peace. */
+    demobilizeShare: number;
+    /** Largest share of GDP an AI country spends on soldiers at peace before it demobilizes. */
+    peaceMilitaryShare: number;
   };
 }
 

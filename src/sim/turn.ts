@@ -14,7 +14,7 @@ import {
   weaponsProductionPhase,
   type WeaponsEvent,
 } from './weapons';
-import type { GameState } from './newGame';
+import { cloneState, type GameState } from './newGame';
 import { populationPhase, type PopulationEvent } from './population';
 import { createRng, type Rng } from './rng';
 import { buildReport, markReport, recordNews, type ReportData } from './chronicle';
@@ -138,7 +138,7 @@ export function advanceTurn(
   sim: SimContext,
   commands: readonly Command[] = [],
 ): TurnResult {
-  const state = structuredClone(previous);
+  const state = cloneState(previous);
   state.turn += 1;
   state.date = dateOfTurn(state.world.startDate, state.turn);
   const ctx: TurnContext = { state, commands, sim, rng: createRng(state.rngState), events: [] };
