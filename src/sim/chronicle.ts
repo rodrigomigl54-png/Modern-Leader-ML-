@@ -114,9 +114,6 @@ export function recordNews(state: GameState, events: readonly TurnEvent[]): void
       case 'warJoined':
         add('warJoined', e.countryId, e.ally);
         break;
-      case 'peace':
-        add('peace', e.a, e.b);
-        break;
       case 'countryConquered':
         add('conquered', e.countryId, e.by);
         break;

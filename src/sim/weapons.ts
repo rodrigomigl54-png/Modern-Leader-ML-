@@ -3,7 +3,7 @@
 // turn; nuclear weapons cannot be intercepted and bring catastrophic consequences for the user.
 // All numbers come from data/modern/weapons.json (WeaponsRules).
 import { category, type SimContext } from './economy';
-import { armySize, citiesOfProvince, entryRule, findPath, provinceSeat } from './military';
+import { armySize, atSea, citiesOfProvince, entryRule, findPath, provinceSeat } from './military';
 import type { GameState } from './newGame';
 import { factoriesStopped } from './resources';
 import type { Rng } from './rng';
@@ -70,6 +70,12 @@ export interface WeaponsRules {
     droneShare: number;
     droneMax: number;
     productionTreasuryShare: number;
+    airDefense?: {
+      everyTurns: number;
+      threatRelation: number;
+      sites: number;
+      treasuryShare: number;
+    };
   };
   nuclear: {
     programCostUsd: number;
@@ -174,6 +180,8 @@ export interface StrikeReport {
 export type WeaponsEvent =
   | ({ type: 'strike' } & StrikeReport)
   | { type: 'nuclearStrike'; attacker: string; defender: string; cityId: number }
+  /** A convoy at sea lost soldiers to the enemy (GDD section 8). */
+  | { type: 'convoyIntercepted'; owner: string; by: string; provinceId: number; lost: number }
   | {
       type: 'weaponsReady';
       owner: string;
@@ -569,6 +577,25 @@ export function airDefenseQuote(
   return { level, allowed: null };
 }
 
+/** Pays for and starts the next air-defense level in a city (checked by airDefenseQuote). */
+export function startAirDefense(
+  state: GameState,
+  ctx: SimContext,
+  countryId: string,
+  cityId: number,
+): boolean {
+  const quote = airDefenseQuote(state, ctx, countryId, cityId);
+  if (quote.allowed || !quote.level) return false;
+  state.economy.countries[countryId]!.treasury -= quote.level.costUsd;
+  state.weapons.airDefenseBuilds.push({
+    owner: countryId,
+    cityId,
+    level: quote.level.level,
+    readyTurn: state.turn + quote.level.buildTurns,
+  });
+  return true;
+}
+
 // ---- Damage ----
 
 function destroyBuilding(state: GameState, ctx: SimContext, index: number): void {
@@ -950,4 +977,38 @@ export function airDefenseMap(state: GameState, ctx: SimContext, viewer: string)
     }
   });
   return result;
+}
+
+/**
+ * Turn step 3: convoys sailing to enemy land are intercepted on the way (GDD section 8), more
+ * where enemy air defense covers the landing city.
+ */
+export function convoyInterceptionPhase(
+  state: GameState,
+  ctx: SimContext,
+  emit: (e: WeaponsEvent) => void,
+): void {
+  const naval = ctx.military?.naval;
+  if (!naval) return;
+  for (const army of state.military.armies) {
+    if (!atSea(state, army)) continue;
+    const by = state.world.provinceOwners[army.provinceId]!;
+    if (!enemiesAtWar(state.world, army.owner).includes(by)) continue;
+    const seat = provinceSeat(ctx, army.provinceId);
+    const best = seat >= 0 ? (coverageOf(state, ctx, by, seat)[0]?.level.intercept ?? 0) : 0;
+    const share = Math.min(1, naval.interceptBase + naval.interceptAirDefense * best);
+    const regulars = Math.floor(army.regulars * share);
+    const special = Math.floor(army.special * share);
+    if (regulars + special <= 0) continue;
+    army.regulars -= regulars;
+    army.special -= special;
+    emit({
+      type: 'convoyIntercepted',
+      owner: army.owner,
+      by,
+      provinceId: army.provinceId,
+      lost: regulars + special,
+    });
+  }
+  state.military.armies = state.military.armies.filter((a) => a.regulars + a.special > 0);
 }

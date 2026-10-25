@@ -651,5 +651,20 @@
   "settings.uiScale": "Veličina interfejsa",
   "settings.music": "Muzika",
   "settings.effects": "Zvučni efekti",
-  "settings.feedback": "Pošalji utiske"
+  "settings.feedback": "Pošalji utiske",
+  "summit.q.ceasefire": "{country} i {side} su u ratu. Samit poziva na primirje.",
+  "summit.a.ceasefire.support": "Podržavamo primirje",
+  "summit.a.ceasefire.backVictim": "Stojimo uz zemlju {side}",
+  "summit.a.ceasefire.stayOut": "Ne mešamo se",
+  "summit.q.nuclearProgram": "Članice su uznemirene vašim programom nuklearnog naoružanja i traže da ga obustavite.",
+  "summit.a.nuclearProgram.continue": "O našoj bezbednosti se ne pregovara",
+  "summit.a.nuclearProgram.pause": "Pauziraćemo program",
+  "summit.a.nuclearProgram.inspections": "Prihvatamo međunarodne inspekcije",
+  "summit.q.climate": "Članice predlažu obavezujući klimatski sporazum sa troškovima za svaku privredu.",
+  "summit.a.climate.sign": "Potpisujemo",
+  "summit.a.climate.delay": "Tražimo više vremena",
+  "summit.a.climate.refuse": "Odbijamo",
+  "war.convoyLost": "Naš konvoj ka {place} izgubio je {count} vojnika od vatre zemlje {country} na moru.",
+  "war.convoyHit": "Naše snage su pogodile konvoj zemlje {country} ka {place}: {count} vojnika izgubljeno.",
+  "peace.alliesFollow": "Ako {country} predvodi svoju stranu, i njeni saveznici u ovom ratu sklapaju mir sa vama, svako zadržava ono što drži."
 }

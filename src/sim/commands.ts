@@ -36,6 +36,7 @@ import {
   launchDrones,
   launchMissiles,
   launchNuclear,
+  startAirDefense,
   startProduction,
   weaponsRules,
   type WeaponKind,
@@ -417,13 +418,7 @@ export function applyCommand(
       const quote = airDefenseQuote(previous, ctx, command.countryId, command.cityId);
       if (quote.allowed || !quote.level) return { ok: false, error: quote.allowed ?? 'maxLevel' };
       const state = cloneState(previous);
-      state.economy.countries[command.countryId]!.treasury -= quote.level.costUsd;
-      state.weapons.airDefenseBuilds.push({
-        owner: command.countryId,
-        cityId: command.cityId,
-        level: quote.level.level,
-        readyTurn: state.turn + quote.level.buildTurns,
-      });
+      startAirDefense(state, ctx, command.countryId, command.cityId);
       return { ok: true, state };
     }
     case 'startNuclearProgram': {

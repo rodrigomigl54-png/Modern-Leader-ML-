@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { Camera } from './camera';
 import { countryAnchors, placeLabels, type LabelCandidate } from './labelLayout';
 import type { CountryData, ProvinceData } from './mapData';
-import { assignCountryColors, REBEL_COLOR, supportColor, supportMode } from './mapModes';
+import {
+  assignCountryColors,
+  politicalMode,
+  REBEL_COLOR,
+  supportColor,
+  supportMode,
+} from './mapModes';
 import { PaletteData } from './palette';
 import { chooseLevel, decodeProvince, visibleTiles, type TileLevel } from './tileMath';
 
@@ -134,6 +140,29 @@ describe('assignCountryColors', () => {
     });
     const unique = new Set([...colors.values()].map((c) => c.join(',')));
     expect(unique.size).toBe(3);
+  });
+});
+
+describe('politicalMode', () => {
+  it("draws a vassal in a shade of its overlord's color", () => {
+    const provinces = [
+      province(0, 'AAA', [1]),
+      province(1, 'BBB', [0, 2]),
+      province(2, 'CCC', [1]),
+    ];
+    const context = {
+      provinces,
+      countries: [country('AAA', [0]), country('BBB', [1]), country('CCC', [2])],
+      owners: ['AAA', 'BBB', 'CCC'],
+      focusCountry: null,
+      support: null,
+    };
+    const free = politicalMode.colors(context);
+    const vassal = politicalMode.colors({ ...context, overlords: new Map([['BBB', 'AAA']]) });
+    const distance = (x: number[], y: number[]): number =>
+      x.reduce((sum, v, i) => sum + Math.abs(v - y[i]!), 0);
+    expect(vassal[1]).not.toEqual(free[1]);
+    expect(distance(vassal[1]!, free[0]!)).toBeLessThan(distance(free[1]!, free[0]!));
   });
 });
 

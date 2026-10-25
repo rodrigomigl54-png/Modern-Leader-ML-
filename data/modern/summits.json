@@ -27,7 +27,8 @@
     "members": -5,
     "hosts": -10,
     "credibility": -5,
-    "resolutionSanctionsRelation": 0
+    "resolutionSanctionsRelation": 0,
+    "support": -3
   },
   "templates": {
     "occupation": {
@@ -140,6 +141,44 @@
       "refuse": {
         "members": -3,
         "support": 2
+      }
+    },
+    "ceasefire": {
+      "support": {
+        "members": 4,
+        "target": -3
+      },
+      "backVictim": {
+        "side": 10,
+        "target": -10,
+        "members": 1
+      },
+      "stayOut": {}
+    },
+    "nuclearProgram": {
+      "continue": {
+        "members": -6,
+        "support": 2
+      },
+      "pause": {
+        "members": 5,
+        "credibility": -3
+      },
+      "inspections": {
+        "members": 3
+      }
+    },
+    "climate": {
+      "sign": {
+        "members": 3,
+        "treasuryGdp": -0.002
+      },
+      "delay": {
+        "members": -1
+      },
+      "refuse": {
+        "members": -4,
+        "support": 1
       }
     }
   }

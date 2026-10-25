@@ -6,6 +6,7 @@
 import { changeRelation, relation, sanctioned, type DiplomacyEvent } from './diplomacy';
 import type { SimContext } from './economy';
 import type { GameState } from './newGame';
+import { shiftSupport } from './population';
 import { cityDistanceKm } from './weapons';
 import { alliesOf, enemiesAtWar } from './world';
 import type { TurnEvent } from './turn';
@@ -40,6 +41,8 @@ export interface SummitRules {
     hosts: number;
     credibility: number;
     resolutionSanctionsRelation: number;
+    /** Support points lost at home. */
+    support?: number;
   };
   templates: Record<string, Record<string, AnswerEffect>>;
 }
@@ -188,6 +191,16 @@ function questionsFor(
     }
   }
 
+  // A call for a ceasefire in a war far from the player.
+  const distant = state.world.wars.find(
+    (w) =>
+      !w.id.startsWith('revolution-') &&
+      !w.sides[0].includes(player) &&
+      !w.sides[1].includes(player),
+  );
+  if (distant?.sides[0][0] && distant.sides[1][0])
+    push({ id: 'ceasefire', country: distant.sides[0][0], side: distant.sides[1][0] });
+
   // Joint sanctions on an aggressor (or the cause of an emergency summit).
   const aggressor =
     cause?.kind === 'war' || cause?.kind === 'nuclear'
@@ -198,6 +211,9 @@ function questionsFor(
   if (aggressor && aggressor !== player && !sanctioned(state, player, aggressor))
     push({ id: 'jointSanctions', country: aggressor });
   if ((state.weapons?.countries[player]?.warheads ?? 0) > 0) push({ id: 'noFirstUse' });
+  if ((state.weapons?.countries[player]?.nuclearProgramUntil ?? -1) > state.turn)
+    push({ id: 'nuclearProgram' });
+  push({ id: 'climate' });
   push({ id: 'trade' });
   push({ id: 'refugees' });
   return q;
@@ -305,6 +321,8 @@ export function skipSummit(state: GameState, ctx: SimContext, summitId: number):
       0,
       (state.diplomacy.credibility[player] ?? 50) + r.credibility,
     );
+  // The people notice an ignored summit (GDD section 7).
+  if (r.support) shiftSupport(state, player, r.support);
   // An aggressor that does not show up faces a resolution: the hostile members sanction it.
   const aggressor =
     state.world.wars.some((w) => w.sides[0][0] === player) ||
@@ -339,9 +357,15 @@ export function summitPhase(
   // Emergency: war between large powers, nuclear use or threat, a large country in revolution.
   const powers = new Set(byGdp(state, live(state)).slice(0, r.emergency.largePowers));
   let cause: Summit['cause'] | undefined;
+  // New wars between large powers, the player's own declarations included (they happen as
+  // commands before the turn, so they are found by their start turn, not by an event).
+  for (const w of state.world.wars) {
+    const started = state.diplomacy?.wars[w.id]?.startTurn ?? -Infinity;
+    const [a, b] = [w.sides[0][0], w.sides[1][0]];
+    if (started >= state.turn - 1 && a && b && powers.has(a) && powers.has(b))
+      cause = { kind: 'war', a, b };
+  }
   for (const e of events) {
-    if (e.type === 'warDeclared' && powers.has(e.attacker) && powers.has(e.target))
-      cause = { kind: 'war', a: e.attacker, b: e.target };
     if (e.type === 'nuclearStrike' || e.type === 'nuclearThreat')
       cause = { kind: 'nuclear', a: e.type === 'nuclearStrike' ? e.attacker : e.from };
     if (e.type === 'revolution' && powers.has(e.countryId))

@@ -46,10 +46,13 @@ const inAlliance = (state: GameState, id: string): string | undefined =>
     .filter((a) => a.type !== 'vassal' && a.members.includes(id))
     .sort((a, b) => b.members.length - a.members.length)[0]?.id;
 
-/** The player's goals at the start of a game. */
-export function createGoals(state: GameState, ctx: SimContext): Goal[] {
+/** A country's goals at the start of a game (the player's by default). */
+export function createGoals(
+  state: GameState,
+  ctx: SimContext,
+  id: string = state.player.countryId,
+): Goal[] {
   const r = goalRules(ctx);
-  const id = state.player.countryId;
   const e = state.economy.countries[id];
   const at = (turns: number): number => state.turn + turns;
   const goals: Goal[] = [
@@ -83,18 +86,32 @@ export function createGoals(state: GameState, ctx: SimContext): Goal[] {
   return goals;
 }
 
-/** Adds goals to games saved before Phase 12. */
+/** Goals of every AI country (GDD section 13: each country has 3-5 goals). */
+export function createAiGoals(state: GameState, ctx: SimContext): Record<string, Goal[]> {
+  const result: Record<string, Goal[]> = {};
+  for (const c of state.world.countries)
+    if (c.id !== state.player.countryId && c.status === 'full' && c.provinceIds.length > 0)
+      result[c.id] = createGoals(state, ctx, c.id);
+  return result;
+}
+
+/** Adds goals to games saved before they existed. */
 export function ensureGoals(state: GameState, ctx: SimContext): GameState {
-  if (Array.isArray(state.goals)) return state;
-  const next = { ...state, goals: [] as Goal[] };
-  if (ctx.goals) next.goals = createGoals(next, ctx);
+  if (Array.isArray(state.goals) && state.aiGoals) return state;
+  const next = { ...state, goals: state.goals ?? [], aiGoals: state.aiGoals ?? {} };
+  if (ctx.goals && !Array.isArray(state.goals)) next.goals = createGoals(next, ctx);
+  if (ctx.goals && !state.aiGoals) next.aiGoals = createAiGoals(next, ctx);
   return next;
 }
 
 /** Progress toward a goal, 0-1. */
-export function goalProgress(state: GameState, ctx: SimContext, g: Goal): number {
+export function goalProgress(
+  state: GameState,
+  ctx: SimContext,
+  g: Goal,
+  id: string = state.player.countryId,
+): number {
   const r = goalRules(ctx);
-  const id = state.player.countryId;
   const e = state.economy.countries[id];
   if (g.status !== 'active') return g.status === 'done' ? 1 : 0;
   switch (g.kind) {
@@ -120,13 +137,24 @@ export function goalProgress(state: GameState, ctx: SimContext, g: Goal): number
   }
 }
 
-/** Turn step 9: checks the player's goals. */
+/** Turn step 9: checks the goals of the player (with events) and of every AI country. */
 export function goalsPhase(state: GameState, ctx: SimContext, emit: (e: GoalEvent) => void): void {
+  checkGoals(state, ctx, state.player.countryId, state.goals, emit);
+  for (const [id, goals] of Object.entries(state.aiGoals ?? {}))
+    checkGoals(state, ctx, id, goals, () => undefined);
+}
+
+function checkGoals(
+  state: GameState,
+  ctx: SimContext,
+  id: string,
+  goals: Goal[],
+  emit: (e: GoalEvent) => void,
+): void {
   const r = goalRules(ctx);
-  const id = state.player.countryId;
   const e = state.economy.countries[id];
   const country = state.world.countries.find((c) => c.id === id);
-  for (const g of state.goals) {
+  for (const g of goals) {
     if (g.status !== 'active') continue;
     const finish = (status: 'done' | 'failed'): void => {
       g.status = status;

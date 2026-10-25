@@ -35,6 +35,11 @@ export function politicsFor(effective: World, mode: DisputedMode): MapPolitics {
       provinceIds: c.provinceIds,
     })),
     nameOf: (id) => countryName(effective, id, mode),
+    overlords: new Map(
+      effective.alliances
+        .filter((a) => a.type === 'vassal' && a.members.length === 2)
+        .map((a) => [a.members[1]!, a.members[0]!]),
+    ),
   };
 }
 

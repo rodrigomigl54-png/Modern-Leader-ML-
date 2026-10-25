@@ -476,7 +476,13 @@ async function start(): Promise<void> {
     let shownOwners = '';
     /** Shows ownership on the map when it changed (revolutions, secessions). */
     const showPolitics = (state: GameState): void => {
-      const owners = state.world.provinceOwners.join();
+      // Vassals change the colors too.
+      const owners =
+        state.world.provinceOwners.join() +
+        state.world.alliances
+          .filter((a) => a.type === 'vassal')
+          .map((a) => a.members.join('>'))
+          .join();
       if (owners === shownOwners) return;
       shownOwners = owners;
       map.setPolitics(politicsFor(state.world, state.settings.disputedMode));
@@ -702,13 +708,14 @@ async function start(): Promise<void> {
         debt: formatPercent(sim.goals?.lowDebt.maxShare ?? 0, 0),
         years: Math.round((sim.goals?.noRiots.turns ?? 0) / 52),
       });
+    const summitParams = (q: SummitQuestion): Record<string, string | number> => ({
+      country: q.country ? nameOf(q.country) : '',
+      rival: q.rival ? nameOf(q.rival) : '',
+      side: q.side ? nameOf(q.side) : '',
+      value: q.value ?? 0,
+    });
     const summitQuestion = (q: SummitQuestion): string =>
-      t(`summit.q.${q.id}` as TranslationKey, {
-        country: q.country ? nameOf(q.country) : '',
-        rival: q.rival ? nameOf(q.rival) : '',
-        side: q.side ? nameOf(q.side) : '',
-        value: q.value ?? 0,
-      });
+      t(`summit.q.${q.id}` as TranslationKey, summitParams(q));
     /** The four ministers double as the tutorial in the first turns (GDD section 13). */
     const ADVISOR_TIPS: [TranslationKey, TranslationKey][] = [
       ['minister.finance', 'tip.economy'],
@@ -867,6 +874,15 @@ async function start(): Promise<void> {
             incoming.buildings += e.buildingsDestroyed;
           }
         }
+        if (e.type === 'convoyIntercepted' && (e.owner === player || e.by === player))
+          toasts.show(
+            t(e.owner === player ? 'war.convoyLost' : 'war.convoyHit', {
+              count: formatCount(e.lost),
+              place: provinceName(e.provinceId),
+              country: nameOf(e.owner === player ? e.by : e.owner),
+            }),
+            e.owner === player ? 'error' : 'info',
+          );
         if (e.type === 'weaponsReady' && e.owner === player)
           toasts.show(t(`arsenal.ready.${e.weapon}`, { count: formatCount(e.count) }));
       }
@@ -972,7 +988,7 @@ async function start(): Promise<void> {
             host: nameOf(s.host),
           }),
           question: summitQuestion,
-          answer: (q, a) => t(`summit.a.${q.id}.${a}` as TranslationKey),
+          answer: (q, a) => t(`summit.a.${q.id}.${a}` as TranslationKey, summitParams(q)),
         });
         if (game)
           issue({ type: 'summit', countryId: game.player.countryId, summitId: s.id, answers });
@@ -1248,6 +1264,7 @@ async function start(): Promise<void> {
     const countryDialog = new CountryDialog({
       parent: uiRoot,
       sim,
+      describeGoal: (g) => describeGoal(g),
       countryName: nameOf,
       flag: (id) =>
         flagImage(

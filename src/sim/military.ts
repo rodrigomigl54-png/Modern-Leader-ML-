@@ -58,7 +58,13 @@ export interface MilitaryRules {
     supplyInEnemyLand: number;
     supplyCutOff: number;
   };
-  naval: { kmPerTurn: number };
+  naval: {
+    kmPerTurn: number;
+    /** Share of a convoy lost per turn at sea when it sails to enemy land. */
+    interceptBase: number;
+    /** Extra share per point of the best enemy air-defense interception at the landing city. */
+    interceptAirDefense: number;
+  };
   rebels: {
     startShareOfPopulation: number;
     recruitPerTurnOfPopulation: number;
@@ -351,7 +357,7 @@ export function armyStrength(
 export const armySize = (army: Pick<Army, 'regulars' | 'special'>): number =>
   army.regulars + army.special;
 
-const atSea = (state: GameState, army: Army): boolean =>
+export const atSea = (state: GameState, army: Army): boolean =>
   army.arriveTurn !== undefined && army.arriveTurn > state.turn;
 
 export interface MilitaryTotals {

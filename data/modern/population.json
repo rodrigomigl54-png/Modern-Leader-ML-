@@ -24,7 +24,18 @@
     "assimilatingPenalty": 15,
     "rebelNeighborPenalty": 5,
     "riotAftermathPenalty": 10,
-    "sanctionsEffect": 20
+    "sanctionsEffect": 20,
+    "war": {
+      "comment": "Points of support for the whole country. Battles and provinces: per event, at most maxPerTurn a turn. A peace counts as won or lost from peaceScore war score.",
+      "battleWon": 0.3,
+      "battleLost": 0.5,
+      "provinceTaken": 1,
+      "provinceLost": 2,
+      "maxPerTurn": 5,
+      "peaceWon": 8,
+      "peaceLost": 8,
+      "peaceScore": 15
+    }
   },
   "riots": {
     "threshold": 30,
@@ -34,6 +45,7 @@
   "revolution": {
     "comment": "A revolution breaks out when national support is below the threshold while riots have lasted long enough in a large enough share of the population.",
     "nationalThreshold": 30,
+    "calmTurns": 26,
     "minRiotTurns": 6,
     "minRiotPopulationShare": 0.15,
     "initialShare": 0.25,

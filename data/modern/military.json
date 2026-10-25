@@ -61,8 +61,10 @@
     "supplyCutOff": 0.7
   },
   "naval": {
-    "comment": "Armies cross the sea between port cities; a crossing takes one turn per kmPerTurn of sea.",
-    "kmPerTurn": 1200
+    "comment": "Armies cross the sea between port cities; a crossing takes one turn per kmPerTurn of sea. A convoy sailing to enemy land loses interceptBase of its soldiers per turn at sea, plus interceptAirDefense times the interception rate of enemy air defense covering the landing city (GDD section 8: a crossing can be intercepted).",
+    "kmPerTurn": 1200,
+    "interceptBase": 0.03,
+    "interceptAirDefense": 0.2
   },
   "rebels": {
     "comment": "Rebels raise fighters from the population of the land they hold; more while national support is low, deserters when it recovers.",
@@ -79,7 +81,7 @@
     "minGarrison": 2000,
     "minDetachment": 1000,
     "capitalShare": 0.2,
-    "demobilizeShare": 0.01,
+    "demobilizeShare": 0.02,
     "peaceMilitaryShare": 0.05
   }
 }

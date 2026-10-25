@@ -46,6 +46,8 @@ export interface MapPolitics {
   countries: { id: string; status: CountryStatus; provinceIds: number[] }[];
   /** Display name per country, or null for no label. */
   nameOf: (countryId: string) => string | null;
+  /** Overlord of each vassal: vassals are drawn in a shade of their overlord's color. */
+  overlords?: ReadonlyMap<string, string>;
 }
 
 export interface MapView {
@@ -156,6 +158,7 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       .colors({
         provinces,
         countries: politics.countries,
+        overlords: politics.overlords ?? null,
         owners: politics.owners,
         focusCountry,
         support,

@@ -651,5 +651,20 @@
   "settings.uiScale": "Interface size",
   "settings.music": "Music",
   "settings.effects": "Sound effects",
-  "settings.feedback": "Send feedback"
+  "settings.feedback": "Send feedback",
+  "summit.q.ceasefire": "{country} and {side} are at war. The summit calls for a ceasefire.",
+  "summit.a.ceasefire.support": "We support the ceasefire",
+  "summit.a.ceasefire.backVictim": "We stand with {side}",
+  "summit.a.ceasefire.stayOut": "We stay out of it",
+  "summit.q.nuclearProgram": "Members are alarmed by your nuclear weapons program and ask you to stop it.",
+  "summit.a.nuclearProgram.continue": "Our security is not negotiable",
+  "summit.a.nuclearProgram.pause": "We will pause the program",
+  "summit.a.nuclearProgram.inspections": "We accept international inspections",
+  "summit.q.climate": "Members propose a binding climate agreement with costs for every economy.",
+  "summit.a.climate.sign": "We sign",
+  "summit.a.climate.delay": "We ask for more time",
+  "summit.a.climate.refuse": "We refuse",
+  "war.convoyLost": "Our convoy to {place} lost {count} soldiers to {country}'s fire at sea.",
+  "war.convoyHit": "Our forces hit a convoy of {country} sailing to {place}: {count} soldiers lost.",
+  "peace.alliesFollow": "If {country} leads its side, its allies in this war make peace with you too, each keeping what it holds."
 }

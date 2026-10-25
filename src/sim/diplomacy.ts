@@ -6,7 +6,7 @@ import type { SimContext } from './economy';
 import { armyStrength, militaryRules, provinceSeat } from './military';
 import type { GameState } from './newGame';
 import { joinThreshold } from './profiles';
-import { transferProvince } from './population';
+import { shiftSupport, transferProvince } from './population';
 import type { TurnEvent } from './turn';
 import { weaponsRules, type WeaponKind } from './weapons';
 import { alliesOf, enemiesAtWar, rivalsOf, type War, type World } from './world';
@@ -587,6 +587,14 @@ export function applyPeace(
   const cost = peaceCost(state, ctx, proposer, target, terms);
   const war = warBetween(state.world, proposer, target);
   if (!cost || !war) return;
+  // A won war raises support, a lost one lowers it (GDD section 7).
+  const support = ctx.population?.support.war;
+  const score = warScore(state, war.id, proposer);
+  if (support && Math.abs(score) >= support.peaceScore) {
+    const [winner, loser] = score > 0 ? [proposer, target] : [target, proposer];
+    shiftSupport(state, winner, support.peaceWon);
+    shiftSupport(state, loser, -support.peaceLost);
+  }
   // Provinces not kept go back to the people who live there.
   const owners = state.world.provinceOwners;
   owners.forEach((o, p) => {
@@ -629,6 +637,7 @@ export function applyPeace(
   }
   // The target leaves the war; armies in each other's land return home.
   const side = sideOf(war, target);
+  const leader = war.sides[side]![0] === target;
   war.sides[side] = war.sides[side]!.filter((x) => x !== target);
   if (war.sides[0].length === 0 || war.sides[1].length === 0) {
     state.world.wars = state.world.wars.filter((w) => w !== war);
@@ -650,6 +659,14 @@ export function applyPeace(
     100,
   );
   emit({ type: 'peace', a: proposer, b: target });
+  // The news is written here: the player's own peace happens outside the turn's events.
+  state.chronicle?.news.push({ turn: state.turn, kind: 'peace', a: proposer, b: target });
+  // When the leader of a side makes peace, its allies in that war make peace with the proposer
+  // too, each keeping what it holds.
+  if (leader)
+    for (const ally of [...war.sides[side]!])
+      if (warBetween(state.world, proposer, ally) === war)
+        applyPeace(state, ctx, proposer, ally, WHITE_PEACE, emit);
 }
 
 /** AI answer to a peace proposal. */
