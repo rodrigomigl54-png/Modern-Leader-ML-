@@ -1,4 +1,6 @@
 import './ui/style.css';
+import { loadFonts } from './app/fonts';
+import { setupLandscape } from './app/orientation';
 import { onLanguageChange, t, type TranslationKey } from './i18n';
 import {
   countryFlag,
@@ -43,6 +45,7 @@ import { alliesOf, applyDisputedSetting, enemiesAtWar } from './sim/world';
 import { confirmDialog, noticeDialog, onTelegram } from './ui/confirmDialog';
 import { flagImage } from './ui/dom';
 import { CountryDialog } from './ui/countryDialog';
+import { endScreen } from './ui/endScreen';
 import { DefencePanel } from './ui/defencePanel';
 import { EconomyPanel } from './ui/economyPanel';
 import { ForeignPanel } from './ui/foreignPanel';
@@ -120,6 +123,7 @@ async function start(): Promise<void> {
   if (!mapRoot || !uiRoot) throw new Error('Missing #map-root or #ui-root in index.html');
 
   restoreLanguage();
+  setupLandscape(document.body);
   applyAppearance(savedTheme(), savedUiScale());
   const sound = new Sound();
   onTelegram(() => sound.play('alert'));
@@ -139,6 +143,7 @@ async function start(): Promise<void> {
   let onShiftSelect: (provinceId: number) => void = () => undefined;
   let onBoxSelect: (provinceIds: number[]) => void = () => undefined;
   try {
+    await loadFonts();
     const map = await createMapView(mapRoot, {
       onProgress: (f) => loading.setProgress(f * 0.9),
       onSelect: (id) => onMapTap(id),
@@ -667,20 +672,26 @@ async function start(): Promise<void> {
       else if (state.summits.pending) void openSummit();
     };
 
-    /** The rebels took the whole country (GDD section 7). */
+    /** The end of the game: a defeat (conquered, revolution) or the victory over the whole world. */
     const showGameOver = async (): Promise<void> => {
       if (!game?.gameOver) return;
       hud.setBusy(true);
-      await noticeDialog(
-        uiRoot,
-        t('gameOver.title'),
-        t(game.gameOver.reason === 'conquered' ? 'gameOver.conquered' : 'gameOver.revolution', {
-          leader: game.player.leaderName,
-          country: nameOf(game.player.countryId),
-          weeks: game.gameOver.turn + 1,
-        }),
-        t('game.mainMenu'),
-      );
+      const { reason, turn } = game.gameOver;
+      const victory = reason === 'victory';
+      const vars = {
+        leader: game.player.leaderName,
+        country: nameOf(game.player.countryId),
+        weeks: turn + 1,
+        date: formatGameDate(game.date),
+      };
+      sound.play(victory ? 'launch' : 'impact');
+      await endScreen(uiRoot, {
+        victory,
+        title: t(victory ? 'gameOver.victoryTitle' : 'gameOver.defeatTitle'),
+        text: t(`gameOver.${reason}`, vars),
+        details: t('gameOver.details', vars),
+        buttonLabel: t('game.mainMenu'),
+      });
       leaveGame();
     };
 

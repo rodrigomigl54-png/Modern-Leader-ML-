@@ -58,7 +58,7 @@ A new game takes three choices: AI aggressiveness, country, and the player's lea
 | Aggressive | Hostile traits ×1.5; faster escalation from threats to sanctions to war |
 | Chaos | Hostile traits at maximum; more unpredictable decisions |
 
-**Step 2 — Country selection** on the map or from a searchable list. Each country shows: flag, GDP, population, army size, allies, rivals and an **automatic difficulty rating (1–5 stars)**. Difficulty is computed from data, never set by hand or by the player: GDP per capita, total GDP, military strength, stability, number and strength of allies versus rivals, and active wars. Example: the United States ≈ 1 star, Montenegro ≈ 5 stars.
+**Step 2 — Country selection** on the whole world map: tap a country, check its card, confirm (a searchable list stays one tap away). Each country shows: flag, GDP, population, army size, allies, rivals and an **automatic difficulty rating (1–5 stars)**. Difficulty is computed from data, never set by hand or by the player: GDP per capita, total GDP, military strength, stability, number and strength of allies versus rivals, and active wars. Example: the United States ≈ 1 star, Montenegro ≈ 5 stars.
 
 Only countries with full status are selectable (see section 4, disputed territories).
 
@@ -279,6 +279,10 @@ A diplomatic summit happens once a year (every 52 turns) plus emergency summits;
 
 The interface must work equally on a phone (touch, small screen) and on a PC (mouse, large screen).
 
+**Phones play in landscape:** on the first tap the game goes full screen and locks to landscape where the browser allows it; otherwise an upright phone sees a "turn your phone" screen. (Added by Dario in Phase 21.)
+
+**End of the game:** a full-screen **Defeat** when the player loses the last province (to an enemy or to the rebels), a full-screen **Victory** when the player owns every inhabited province of the world; both in the chosen language. (Added by Dario in Phase 21.)
+
 **Main screen:** the map fills the screen; a top bar shows money, GDP, inflation, support, manpower, diplomatic points and the date; the "Next Turn" button sits bottom right; panels open over the map and close with one tap.
 
 **Map modes:** political, economy (GDP per province), public support, alliances, relations toward the player (green to red), military, air-defense coverage, resources.
@@ -306,7 +310,7 @@ The interface must work equally on a phone (touch, small screen) and on a PC (mo
 - **Two themes:** Day (warm off-white "map paper", ink-dark lines) and Night (deep navy "command screen", soft light lines). Night is the default.
 - **Map colors:** countries in a calm, slightly desaturated palette so the map stays readable; the player's country always carries one signature accent color (signal amber) with a soft glow on its border.
 - **Meaning by color, used sparingly:** red only for war, attacks and danger; green for allies; amber for the player; everything else stays quiet.
-- **Typography:** a condensed sans-serif for headings and country names, a monospace face for numbers (money, GDP, troops), so the top bar reads like an instrument panel. Open-license fonts only.
+- **Typography:** one clean sans-serif (Inter, SIL OFL) bundled with the game for all text, headings and map labels; numbers use its tabular figures so columns line up. (Changed by Dario in Phase 21: the earlier monospace numbers felt too robotic.)
 - **Panels as dossiers:** info panels look like layered briefing cards with a thin header strip (country code, date, classification-style label), sliding in over the map.
 - **Leaders without images:** each leader gets a typographic seal (initials inside a geometric emblem in the country's color).
 - **Motion with purpose:** missiles as thin animated arcs with a timer badge until impact; impacts as a short ripple; drones and armies as small chevrons moving along routes; air-defense radius as a faint pulsing ring; urgent notifications slide in like incoming telegrams.

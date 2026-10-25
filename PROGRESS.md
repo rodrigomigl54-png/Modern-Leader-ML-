@@ -415,6 +415,16 @@ Done:
 - 10-year runs on Realistic, Peaceful and Aggressive (seeds 1–2): stable world, growth ~2%, no runaway conquests.
 - Behind a proxy, Node needs `NODE_USE_ENV_PROXY=1` for both commands.
 
+## Phase 21 — Victory and defeat, landscape, map country pick, new font
+
+Done (Dario's requests):
+
+- **Victory and defeat screens:** a full-screen "Victory" / "Defeat" in the chosen language. Defeat: the last province is lost (to an enemy or to the rebels). Victory: the player owns every inhabited province of the world (`src/sim/victory.ts`, checked each turn after the goals; Antarctica does not count). Tests in `src/sim/victory.test.ts`.
+- **Landscape on phones:** on the first tap the game goes full screen and locks to landscape (Android); an upright phone (iPhone, or when the lock is refused) sees a "turn your phone" screen (`src/app/orientation.ts`).
+- **Country selection on the map:** step 2 opens on the whole world; tap a country, its card opens on the right with a big "Confirm" button. The search list (and the disputed-territories setting) open from "Search". Fixed an old bug: the setup screen swallowed taps, so tapping the map never selected anything.
+- **New font:** Inter (SIL OFL), bundled with the game (`@fontsource-variable/inter`), for the whole interface and the map labels; numbers use tabular figures instead of the monospace face. GDD section 13 updated.
+- Checked in Chromium with Pixel 7 emulation (landscape and portrait): map pick, confirm, start, rotate screen; no errors.
+
 ## Next
 
 - Dario: merge the PR, review the new AI profiles, and test the game; changes come from that testing.

@@ -61,6 +61,7 @@ export class SetupWizard {
   private countryId: string | null = null;
   private leaderName = '';
   private search = '';
+  private listOpen = false;
   private sort: Sort = 'difficulty';
   private effective!: World;
   private difficulty = new Map<string, DifficultyResult>();
@@ -80,6 +81,7 @@ export class SetupWizard {
     this.countryId = null;
     this.leaderName = '';
     this.search = '';
+    this.listOpen = false;
     this.setDisputedMode(this.options.defaultDisputedMode());
     this.root.hidden = false;
     this.render();
@@ -133,29 +135,25 @@ export class SetupWizard {
     this.options.map.setFocusCountry(step >= 2 ? this.countryId : null);
     this.render();
     if (step === 2 && this.countryId) this.lookAt(this.countryId);
+    else if (step === 2) this.options.map.lookAtWorld();
   }
 
-  /** Centers the map on a country in the area the setup sheet leaves free. */
+  /** Centers the map on a country in the area the country card leaves free. */
   private lookAt(id: string): void {
-    const sheet = this.root.querySelector('.setup-sheet');
-    const rect = sheet?.getBoundingClientRect();
-    const docked = rect && rect.width < window.innerWidth * 0.8;
-    this.options.map.lookAtCountry(id, {
-      left: docked ? rect.right : 0,
-      bottom: !docked && rect ? window.innerHeight - rect.top : 0,
-    });
+    const rect = this.root.querySelector('.pick-card')?.getBoundingClientRect();
+    this.options.map.lookAtCountry(id, { right: rect ? window.innerWidth - rect.left : 0 });
   }
 
   private render(): void {
     this.root.classList.toggle('setup-map', this.step === 2);
-    const card = el('div', this.step === 2 ? 'setup-sheet' : 'setup-card');
+    if (this.step === 2) {
+      this.root.replaceChildren(...this.renderCountry());
+      return;
+    }
+    const card = el('div', 'setup-card');
     card.append(
       el('div', 'setup-step mono', t('setup.step', { step: this.step, total: 3 })),
-      ...(this.step === 1
-        ? this.renderAggressiveness()
-        : this.step === 2
-          ? this.renderCountry()
-          : this.renderLeader()),
+      ...(this.step === 1 ? this.renderAggressiveness() : this.renderLeader()),
     );
     this.root.replaceChildren(card);
   }
@@ -200,10 +198,42 @@ export class SetupWizard {
     ];
   }
 
+  /**
+   * Step 2 shows the whole world map: tap a country, check its card, confirm. The searchable list
+   * (GDD section 3) and the disputed-territories setting open from the top bar.
+   */
   private renderCountry(): HTMLElement[] {
-    const header = el('div', 'setup-sheet-header');
-    header.append(el('h2', 'setup-title', t('setup.country')));
+    const bar = el('div', 'pick-bar');
+    const heading = el('div', 'pick-heading');
+    heading.append(
+      el('div', 'setup-step mono', t('setup.step', { step: 2, total: 3 })),
+      el('h2', 'setup-title', t('setup.country')),
+    );
+    if (!this.countryId) heading.append(el('p', 'pick-hint', t('setup.countryHint')));
+    bar.append(
+      button('btn btn-secondary pick-back', t('setup.back'), () => this.goTo(1)),
+      heading,
+      button('btn btn-secondary pick-search', t('setup.list'), () => {
+        this.listOpen = !this.listOpen;
+        this.render();
+      }),
+    );
+    const parts: HTMLElement[] = [bar];
+    if (this.listOpen) parts.push(this.renderList());
+    if (this.countryId) {
+      const card = el('div', 'pick-card');
+      const confirm = button('btn btn-primary pick-confirm', t('setup.confirm'), () =>
+        this.goTo(3),
+      );
+      confirm.disabled = !this.isPlayable(this.countryId);
+      card.append(this.renderDetails(this.countryId), confirm);
+      parts.push(card);
+    }
+    return parts;
+  }
 
+  private renderList(): HTMLElement {
+    const panel = el('div', 'pick-list');
     const disputed = el('div', 'segmented');
     disputed.setAttribute('aria-label', t('setup.disputed'));
     for (const mode of DISPUTED_MODES) {
@@ -220,10 +250,6 @@ export class SetupWizard {
     }
     const disputedRow = el('div', 'setup-row');
     disputedRow.append(el('span', 'setup-row-label', t('setup.disputed')), disputed);
-
-    const details = this.countryId
-      ? this.renderDetails(this.countryId)
-      : el('p', 'setup-hint', t('setup.countryHint'));
 
     const tools = el('div', 'setup-tools');
     const search = el('input', 'input');
@@ -251,20 +277,16 @@ export class SetupWizard {
       fillList();
     });
     fillList();
-
-    return [
-      header,
-      disputedRow,
-      details,
-      tools,
-      list,
-      this.footer(
-        () => this.goTo(1),
-        t('setup.next'),
-        () => this.goTo(3),
-        this.isPlayable(this.countryId),
-      ),
-    ];
+    const head = el('div', 'pick-list-head');
+    head.append(
+      el('h3', 'setup-subtitle', t('setup.list')),
+      button('btn btn-secondary', t('setup.close'), () => {
+        this.listOpen = false;
+        this.render();
+      }),
+    );
+    panel.append(head, disputedRow, tools, list);
+    return panel;
   }
 
   private countryRows(): HTMLElement[] {
@@ -292,7 +314,10 @@ export class SetupWizard {
       const row = button(
         `country-row${c.id === this.countryId ? ' country-row-selected' : ''}`,
         '',
-        () => this.selectCountry(c.id, true),
+        () => {
+          this.listOpen = false;
+          this.selectCountry(c.id, true);
+        },
       );
       const stars = this.difficulty.get(c.id)?.stars ?? 3;
       const starsEl = el('span', 'stars', starsText(stars));

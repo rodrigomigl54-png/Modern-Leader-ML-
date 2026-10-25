@@ -45,8 +45,8 @@ export interface GameState {
   goals: Goal[];
   /** Goals of the AI countries. */
   aiGoals: Record<string, Goal[]>;
-  /** Set when the player's government has fallen or the country was conquered. */
-  gameOver?: { reason: 'revolution' | 'conquered'; turn: number };
+  /** The end of the game: a defeat (revolution, conquered) or the player's victory. */
+  gameOver?: { reason: 'revolution' | 'conquered' | 'victory'; turn: number };
 }
 
 export type NewGameError = 'invalidLeaderName' | 'countryNotPlayable';

@@ -25,6 +25,7 @@
     "build:itch": "npm run typecheck && vite build --base ./ --outDir dist-itch && cd dist-itch && zip -qr ../modern-leader-demo.zip ."
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
     "pixi.js": "^8.22.0"
   },
   "devDependencies": {
