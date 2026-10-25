@@ -127,6 +127,31 @@ describe('starting military', () => {
     expect(game.military.countries.AAA!.service).toBe(false);
   });
 
+  it('a country already at war starts with most of its army on the front', () => {
+    const w = world();
+    w.wars = [{ id: 'w', sides: [['AAA'], ['BBB']] }];
+    const game = createNewGame(
+      w,
+      {
+        aggressiveness: 'realistic',
+        disputedMode: 'neutral',
+        countryId: 'CCC',
+        leaderName: 'P',
+        seed: 5,
+      },
+      sim,
+    );
+    const share = rules.army.frontShareAtWar!;
+    // AAA's front is province 2, BBB's is province 3.
+    const at = (owner: string, p: number): number =>
+      armiesOf(game, owner)
+        .filter((a) => a.provinceId === p)
+        .reduce((s, a) => s + a.regulars, 0);
+    expect(at('AAA', 2)).toBeGreaterThanOrEqual(Math.round(30000 * share));
+    expect(at('BBB', 3)).toBeGreaterThanOrEqual(Math.round(10000 * share));
+    expect(militaryTotals(game, 'AAA').regulars).toBeCloseTo(30000, -1);
+  });
+
   it('costs its real military spending', () => {
     const game = newGame();
     expect(armyUpkeep(game, sim, 'AAA') * 52).toBeCloseTo(2e9, -6);

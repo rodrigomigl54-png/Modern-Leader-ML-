@@ -10,6 +10,7 @@ import { militaryTotals } from './military';
 import { createNewGame, type GameState } from './newGame';
 import type { PopulationRules } from './population';
 import { advanceTurn, type TurnEvent } from './turn';
+import { aiWeaponsOrders } from './ai';
 import { cityDistanceKm, nuclearBasesOf, type WeaponsEvent, type WeaponsRules } from './weapons';
 import type { World, WorldCountry } from './world';
 
@@ -298,5 +299,41 @@ describe('AI and determinism', () => {
   it('gives the same result for the same seed', () => {
     const start = atWar();
     expect(play(start, 10)).toEqual(play(start, 10));
+  });
+});
+
+describe('AI last-resort nuclear strike', () => {
+  const desperate = (): GameState => {
+    const game = issue(newGame('CCC'), { type: 'declareWar', countryId: 'AAA', targetId: 'BBB' });
+    // AAA has lost most of its land and an enemy army stands next to its capital.
+    game.weapons.countries.AAA!.startProvinces = 20;
+    game.military.armies.push({
+      id: 999,
+      owner: 'BBB',
+      provinceId: 1,
+      regulars: 50000,
+      special: 0,
+      path: [],
+      from: 1,
+    });
+    return game;
+  };
+
+  it('fires at most once per cooldown', () => {
+    const game = desperate();
+    aiWeaponsOrders(game, sim);
+    expect(game.weapons.countries.AAA!.warheads).toBe(2);
+    aiWeaponsOrders(game, sim);
+    expect(game.weapons.countries.AAA!.warheads).toBe(2);
+    game.turn += rules.nuclear.aiCooldownTurns!;
+    aiWeaponsOrders(game, sim);
+    expect(game.weapons.countries.AAA!.warheads).toBe(1);
+  });
+
+  it('never fires at rebels', () => {
+    const game = desperate();
+    game.world.countries.find((c) => c.id === 'BBB')!.status = 'rebels';
+    aiWeaponsOrders(game, sim);
+    expect(game.weapons.countries.AAA!.warheads).toBe(3);
   });
 });

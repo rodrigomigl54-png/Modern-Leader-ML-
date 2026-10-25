@@ -34,6 +34,14 @@
     "enforceRisk": 50,
     "interveneNuclearRisk": 80
   },
+  "warAid": {
+    "comment": "A country helps a country at war with a country it sanctions, unless their relation is below minRelation: every week gdpSharePerYear / 52 of its GDP, times 0.5 + interventionism / 100, while its treasury holds reserveWeeks of that aid. About $60 bn a year for Ukraine from the West, close to the real 2023-2025 budget and arms aid. After the war, donors keep paying afterWarShare of it for afterWarTurns weeks (reconstruction).",
+    "gdpSharePerYear": 0.001,
+    "minRelation": 0,
+    "reserveWeeks": 4,
+    "afterWarTurns": 52,
+    "afterWarShare": 0.5
+  },
   "loyalty": {
     "joinBase": 70,
     "perLoyalty": 0.6,
@@ -48,6 +56,8 @@
     "debtLimit": 0.6,
     "lowSupport": 45,
     "targetServices": 0.2,
+    "crisisMargin": 8,
+    "crisisDebtLimit": 1.5,
     "reserveWeeks": 26,
     "repayAboveWeeks": 8
   },

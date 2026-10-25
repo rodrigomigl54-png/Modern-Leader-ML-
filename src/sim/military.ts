@@ -49,7 +49,7 @@ export interface MilitaryRules {
     shrinkPerTurn: number;
     introduceSupportPenalty: number;
   };
-  army: { startGarrisons: number; capitalShare: number };
+  army: { startGarrisons: number; capitalShare: number; frontShareAtWar?: number };
   combat: {
     defenderBonus: number;
     lossRate: number;
@@ -86,6 +86,8 @@ export interface MilitaryRules {
     demobilizeShare: number;
     /** Largest share of GDP an AI country spends on soldiers at peace before it demobilizes. */
     peaceMilitaryShare: number;
+    /** No recruiting while the deficit after foreign aid is above this share of GDP. */
+    maxDeficitToRecruit: number;
   };
 }
 
@@ -286,20 +288,34 @@ export function initMilitary(
           : Math.round(reserves / country.provinceIds.length);
     }
 
+    // A country already at war starts with most of its army holding the front line (every
+    // province next to an enemy), spread evenly.
+    const enemies = new Set(enemiesAtWar(world, country.id));
+    const front =
+      enemies.size === 0
+        ? []
+        : country.provinceIds.filter((p) =>
+            (geography(ctx).land[p] ?? []).some((q) => enemies.has(world.provinceOwners[q]!)),
+          );
+    const frontShare = front.length > 0 ? (rules.army.frontShareAtWar ?? 0) : 0;
+    const atFront = personnel * frontShare;
+    const garrisons: [number, number][] = front.map((p) => [p, Math.round(atFront / front.length)]);
+
     // Regulars: a share in the capital, the rest in the most populous other provinces.
+    const rest = personnel - atFront;
     const others = country.provinceIds
       .filter((p) => p !== country.capitalProvinceId)
       .sort((a, b) => provincePop(ctx, b) - provincePop(ctx, a) || a - b)
       .slice(0, rules.army.startGarrisons - 1);
     const capitalShare = others.length === 0 ? 1 : rules.army.capitalShare;
     const othersPop = others.reduce((s, p) => s + Math.max(1, provincePop(ctx, p)), 0);
-    const garrisons: [number, number][] = [
-      [country.capitalProvinceId, Math.round(personnel * capitalShare)],
+    garrisons.push(
+      [country.capitalProvinceId, Math.round(rest * capitalShare)],
       ...others.map((p): [number, number] => [
         p,
-        Math.round((personnel * (1 - capitalShare) * Math.max(1, provincePop(ctx, p))) / othersPop),
+        Math.round((rest * (1 - capitalShare) * Math.max(1, provincePop(ctx, p))) / othersPop),
       ]),
-    ];
+    );
     for (const [provinceId, regulars] of garrisons) {
       if (regulars < 1) continue;
       military.armies.push({

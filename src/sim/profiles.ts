@@ -61,6 +61,15 @@ export interface AiRules {
     enforceRisk: number;
   };
   loyalty: { joinBase: number; perLoyalty: number; pactExtra: number };
+  /** Weekly aid to a country at war with a sanctioned enemy (scaled by interventionism). */
+  warAid?: {
+    gdpSharePerYear: number;
+    minRelation: number;
+    reserveWeeks: number;
+    /** Aid continues this many turns after the war, at afterWarShare of the wartime rate. */
+    afterWarTurns: number;
+    afterWarShare: number;
+  };
   fiscal: {
     everyTurns: number;
     step: number;
@@ -71,6 +80,10 @@ export interface AiRules {
     lowSupport: number;
     /** Services the AI restores when the people are angry and the budget allows. */
     targetServices: number;
+    /** Support within this margin above the riot threshold restores services even on debt... */
+    crisisMargin?: number;
+    /** ...while debt stays below this share of GDP. */
+    crisisDebtLimit?: number;
     /** Treasury, in weeks of spending, that counts as money in the bank. */
     reserveWeeks: number;
     /** Treasury, in weeks of spending, above which the AI pays back debt. */

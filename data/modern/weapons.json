@@ -281,6 +281,7 @@
     "userGdpLoss": 0.08,
     "pariahGrowthPenalty": 0,
     "aiLastResortShare": 0.25,
+    "aiCooldownTurns": 52,
     "countries": {
       "RUS": {
         "warheads": 5460,

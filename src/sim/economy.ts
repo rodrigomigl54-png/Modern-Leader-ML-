@@ -126,6 +126,10 @@ export interface CountryEconomy {
   printed: number;
   /** True after the Minister of Finance warned about high inflation (reset when it falls). */
   inflationAlerted: boolean;
+  /** Foreign war aid received this week (USD); deficits it covers do not drive inflation. */
+  aid?: number;
+  /** Donors of war aid and the last turn of their aid after the war (reconstruction). */
+  aidFrom?: Record<string, number>;
 }
 
 export interface Building {
@@ -299,7 +303,7 @@ export function targetInflation(
 ): number {
   const r = rules.inflation;
   const gdp = Math.max(1, e.gdp);
-  const deficitShare = Math.max(0, -budget.balance * 52) / gdp;
+  const deficitShare = Math.max(0, -(budget.balance + (e.aid ?? 0)) * 52) / gdp;
   const spendingShare = (budget.spending * 52) / gdp;
   return clamp(
     r.base +
