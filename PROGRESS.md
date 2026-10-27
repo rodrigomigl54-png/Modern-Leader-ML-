@@ -467,6 +467,19 @@ Done (Dario's specification, built on the existing systems; GDD sections 5, 6, 8
 - Fixed a flaky AI test (it depended on the order of random draws).
 - Checked: `npm run lint`, `npm run format:check`, `npm test` (198 tests), `npm run build`; 5-year AI run (stable, growth 2.1%); Chromium with Pixel 7 landscape and a 1280×720 desktop: budget, top-bar net, relations, corner notices (access accepted), peace list (6 provinces, select all / clear), factory level and map icon; no errors. A development-only `window.__ml` hook (stripped from builds) prepares such situations for browser tests.
 
+## Phase 25 — New versions reach every device
+
+Dario saw the Phase 24 features on his phone but not on his PC. The deploy had succeeded and the same build showed every new feature in desktop Chromium at 1920×1080, 1366×768 and 1280×720 (rankings, net per week, budget, policy, icons, notices), so the PC was running an older cached copy of the page (GitHub Pages lets browsers cache the page, and an open tab keeps its old code).
+
+Done:
+
+- Every build writes `version.json` (vite plugin in `vite.config.ts`) and knows its own build id (`__BUILD_ID__`).
+- `src/app/updateCheck.ts`: the game asks for `version.json` with no caching at start, every 5 minutes and whenever the tab comes back; when the server has a newer build, a bar offers "Load it" (it reloads with a `?v=` query no cached page matches) or "Later". The game is autosaved every week, so nothing is lost.
+- The corner label shows the build date and time (UTC), to compare devices at a glance.
+- Long dialogs (rankings) now stay inside the screen on 1080p.
+- **Delete saved games** (Dario's request): every saved game in the Save / Load lists (the autosave too) has a trash button; the game asks before deleting it for good (`SaveStore.remove`, which existed but had no button). Checked in Chromium (Pixel 7 landscape): a manual save deleted from the list stays deleted after reloading the page.
+- Checked: changing `version.json` on the server shows the bar, and "Load it" opens the new build; lint, format, 198 tests, build.
+
 ## Next
 
 - Dario: merge the PR, review the new AI profiles, and test the game; changes come from that testing.

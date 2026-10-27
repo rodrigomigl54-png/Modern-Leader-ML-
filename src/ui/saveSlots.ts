@@ -13,6 +13,8 @@ export interface SaveSlotsOptions {
   /** Save into a slot (mode "save"); the caller asks before overwriting. */
   onSave: (slot: SlotId, existing: SaveFile | null) => void;
   onLoad: (save: SaveFile) => void;
+  /** Deletes a saved game; the caller asks first. Resolves true when it was deleted. */
+  onDelete: (slot: SlotId, save: SaveFile) => Promise<boolean>;
   onImport: () => void;
   onClose: () => void;
 }
@@ -47,7 +49,23 @@ export class SaveSlots {
       row.append(el('span', 'slot-name', slotName(slot)));
       if (save) row.append(this.summary(save));
       else row.append(el('span', 'muted', t('saves.empty')));
-      list.append(row);
+      // A saved game can be deleted by hand (the autosave too).
+      const line = el('div', 'slot-row');
+      line.append(row);
+      if (save) {
+        const remove = button('btn btn-danger-outline slot-delete', '', () => {
+          void this.options.onDelete(slot, save).then((deleted) => {
+            if (deleted) void this.show(mode);
+          });
+        });
+        remove.innerHTML =
+          '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" ' +
+          'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>';
+        remove.setAttribute('aria-label', t('saves.delete', { slot: slotName(slot) }));
+        remove.title = t('saves.delete', { slot: slotName(slot) });
+        line.append(remove);
+      }
+      list.append(line);
     }
     if (list.childElementCount === 0) list.append(el('p', 'setup-hint', t('saves.none')));
 

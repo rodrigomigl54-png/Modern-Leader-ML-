@@ -2668,3 +2668,54 @@ textarea {
   margin: 6px 0;
   font-size: 13px;
 }
+
+/* A newer build of the game is on the server. */
+.update-bar {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 36px);
+  z-index: 60;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 24px);
+  padding: 8px 10px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: var(--panel-solid);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  color: var(--text);
+  font-size: 14px;
+  transform: translateX(-50%);
+}
+
+.update-bar[hidden] {
+  display: none;
+}
+
+/* Long dialogs (rankings) stay inside the screen and scroll. */
+.modal-backdrop .modal {
+  max-height: calc(100dvh - 32px);
+  box-sizing: border-box;
+}
+
+/* A save slot with its delete button. */
+.slot-row {
+  display: flex;
+  gap: 6px;
+}
+
+.slot-row .slot {
+  flex: 1;
+  min-width: 0;
+}
+
+.slot-delete {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  padding: 0;
+}
