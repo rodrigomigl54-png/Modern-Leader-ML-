@@ -477,6 +477,7 @@ Done:
 - `src/app/updateCheck.ts`: the game asks for `version.json` with no caching at start, every 5 minutes and whenever the tab comes back; when the server has a newer build, a bar offers "Load it" (it reloads with a `?v=` query no cached page matches) or "Later". The game is autosaved every week, so nothing is lost.
 - The corner label shows the build date and time (UTC), to compare devices at a glance.
 - Long dialogs (rankings) now stay inside the screen on 1080p.
+- **Delete saved games** (Dario's request): every saved game in the Save / Load lists (the autosave too) has a trash button; the game asks before deleting it for good (`SaveStore.remove`, which existed but had no button). Checked in Chromium (Pixel 7 landscape): a manual save deleted from the list stays deleted after reloading the page.
 - Checked: changing `version.json` on the server shows the bar, and "Load it" opens the new build; lint, format, 198 tests, build.
 
 ## Next

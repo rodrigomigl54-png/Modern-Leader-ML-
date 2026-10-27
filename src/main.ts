@@ -1168,6 +1168,28 @@ async function start(): Promise<void> {
         });
       },
       onLoad: (file: SaveFile) => playGame(file.game),
+      onDelete: async (slot, file) => {
+        const ok = await confirmDialog(
+          uiRoot,
+          t('saves.deleteTitle'),
+          t('saves.deleteText', {
+            slot: slotName(slot),
+            country: nameOf(file.summary.countryId),
+            leader: file.summary.leaderName,
+          }),
+          t('saves.deleteConfirm'),
+          t('saves.cancel'),
+        );
+        if (!ok) return false;
+        try {
+          await store.remove(slot);
+        } catch {
+          toasts.show(t('saves.deleteFailed'), 'error');
+          return false;
+        }
+        toasts.show(t('saves.deleted'));
+        return true;
+      },
       onImport: () => void importFromFile(),
       onClose: () => {
         if (!game) menu.show();

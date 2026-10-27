@@ -2699,3 +2699,23 @@ textarea {
   max-height: calc(100dvh - 32px);
   box-sizing: border-box;
 }
+
+/* A save slot with its delete button. */
+.slot-row {
+  display: flex;
+  gap: 6px;
+}
+
+.slot-row .slot {
+  flex: 1;
+  min-width: 0;
+}
+
+.slot-delete {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  padding: 0;
+}
