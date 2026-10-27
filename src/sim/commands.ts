@@ -1,9 +1,11 @@
 // Commands are the only way the presentation layer (and later the AI) changes the game
 // (GDD section 2). They take effect immediately when issued (money is spent at once, a building
 // starts at once); the turn engine then advances everything they set in motion.
-import { investmentQuote, printAmount, type SimContext } from './economy';
+import { investmentQuote, levelCost, printAmount, type SimContext } from './economy';
 import {
   findPath,
+  pathCrossesSea,
+  transportCapacity,
   militaryRules,
   recruitQuote,
   startRecruitment,
@@ -15,6 +17,8 @@ import {
   imposeSanctions,
   improveRelations,
   insult,
+  requestAccess,
+  revokeAccess,
   leaveAlliance,
   liftSanctions,
   proposeAlliance,
@@ -62,6 +66,13 @@ export interface SetServicesCommand {
 export interface PrintMoneyCommand {
   type: 'printMoney';
   countryId: string;
+}
+
+/** Policy: accept or refuse all investment by foreign countries in this country's cities. */
+export interface ForeignInvestmentCommand {
+  type: 'setForeignInvestment';
+  countryId: string;
+  reject: boolean;
 }
 
 export interface InvestCommand {
@@ -172,6 +183,9 @@ export type DiplomacyCommand =
   | { type: 'sanction'; countryId: string; targetId: string }
   | { type: 'improveRelations'; countryId: string; targetId: string }
   | { type: 'insult'; countryId: string; targetId: string }
+  | { type: 'requestAccess'; countryId: string; targetId: string }
+  /** The host (countryId) ends the access it gave the guest (targetId). */
+  | { type: 'revokeAccess'; countryId: string; targetId: string }
   | { type: 'liftSanctions'; countryId: string; targetId: string }
   | { type: 'ultimatum'; countryId: string; targetId: string; demand: Demand; threat: Threat }
   | { type: 'requestBase'; countryId: string; cityId: number; pay: boolean }
@@ -217,6 +231,7 @@ export type Command =
   | SetServicesCommand
   | PrintMoneyCommand
   | InvestCommand
+  | ForeignInvestmentCommand
   | AssimilateCommand
   | MoveArmiesCommand
   | SplitArmyCommand
@@ -240,6 +255,7 @@ export type CommandError =
   | 'nothingToAssimilate'
   | 'unknownArmy'
   | 'noPath'
+  | 'noTransport'
   | 'tooSmall'
   | 'nothingToRecruit'
   | 'needsBase'
@@ -287,6 +303,13 @@ export function applyCommand(
       e.printed += amount;
       return { ok: true, state };
     }
+    case 'setForeignInvestment': {
+      const state = cloneState(previous);
+      const e = state.economy.countries[command.countryId];
+      if (!e) return { ok: false, error: 'unknownCountry' };
+      e.rejectForeignInvestment = command.reject;
+      return { ok: true, state };
+    }
     case 'invest': {
       if (command.cityIds.length === 0) return { ok: false, error: 'noCities' };
       const quote = investmentQuote(
@@ -313,7 +336,7 @@ export function applyCommand(
             cityId: city.cityId,
             owner: command.countryId,
             host: city.host,
-            costUsd: quote.category.costUsd,
+            costUsd: levelCost(ctx, quote.category, city.level + i),
             startedTurn: state.turn,
             completeTurn: state.turn + quote.category.buildTurns,
             completed: false,
@@ -341,13 +364,22 @@ export function applyCommand(
       );
       if (armies.length === 0) return { ok: false, error: 'unknownArmy' };
       let moved = 0;
+      let noTransport = false;
       for (const army of armies) {
         const path = findPath(state, ctx, army.owner, army.provinceId, command.targetProvinceId);
         if (!path) continue;
+        // An army larger than the whole transport fleet can never cross the sea.
+        if (
+          pathCrossesSea(ctx, army.provinceId, path) &&
+          army.regulars + army.special > transportCapacity(state, ctx, army.owner)
+        ) {
+          noTransport = true;
+          continue;
+        }
         army.path = path;
         moved++;
       }
-      if (moved === 0) return { ok: false, error: 'noPath' };
+      if (moved === 0) return { ok: false, error: noTransport ? 'noTransport' : 'noPath' };
       return { ok: true, state };
     }
     case 'splitArmy': {
@@ -496,6 +528,12 @@ function diplomacyCommand(
       break;
     case 'insult':
       result = insult(state, ctx, id, c.targetId);
+      break;
+    case 'requestAccess':
+      result = requestAccess(state, ctx, id, c.targetId);
+      break;
+    case 'revokeAccess':
+      result = revokeAccess(state, id, c.targetId);
       break;
     case 'liftSanctions':
       result = liftSanctions(state, ctx, id, c.targetId);

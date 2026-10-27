@@ -63,6 +63,23 @@ export function formatUsd(value: number | null): string {
   return sign + t('units.millionUsd', { value: numberFormat(v >= 1e7 ? 0 : 1).format(v / 1e6) });
 }
 
+/** A change of money with its sign: "+$1.2 bn", "−$42 m", "±$0". */
+export function formatSignedUsd(value: number): string {
+  if (Math.abs(value) < 5e4) return `±${formatUsd(0)}`;
+  return value > 0 ? `+${formatUsd(value)}` : formatUsd(value);
+}
+
+/** A relation score with its sign (+65, −65, 0) on the game's −100..100 scale. */
+export function formatRelation(value: number): string {
+  const v = Math.round(value);
+  return v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : '0';
+}
+
+/** CSS class for a gain (green), a loss (red) or nothing (neutral). */
+export function signClass(value: number, epsilon = 5e4): string {
+  return value > epsilon ? 'gain' : value < -epsilon ? 'loss' : 'neutral';
+}
+
 /** Whole number with thousands separators (soldiers, people). */
 export function formatCount(value: number): string {
   return numberFormat(0).format(Math.round(value));

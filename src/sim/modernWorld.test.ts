@@ -27,6 +27,8 @@ import {
   type PopulationRules,
 } from './population';
 import type { AiRules } from './profiles';
+import { aiPolicyOrders } from './aiPolicy';
+import { createRng } from './rng';
 import type { SummitRules } from './summits';
 import { advanceTurn, type TurnEvent } from './turn';
 import { convoyInterceptionPhase, type WeaponsRules } from './weapons';
@@ -408,5 +410,46 @@ describe('war aid and the rally around the flag', () => {
       calm + (populationRules as PopulationRules).support.war!.defenderRally!,
       0,
     );
+  });
+});
+
+describe('AI diplomatic initiative', () => {
+  // Every initiative fires at once so the test does not depend on random draws.
+  const eager: SimContext = {
+    ...sim,
+    aiRules: {
+      ...sim.aiRules!,
+      rates: { ...sim.aiRules!.rates, improve: 100, insult: 100, pact: 100 },
+    },
+  };
+  const orders = (game: GameState): GameState => {
+    aiPolicyOrders(game, eager, createRng(1), () => undefined);
+    return game;
+  };
+
+  it('improves relations with a neighbor and insults a rival', () => {
+    const game = newGame();
+    game.world.rivalries.push({ a: 'BBB', b: 'FAR' });
+    for (const id of Object.keys(game.diplomacy.points)) game.diplomacy.points[id] = 10;
+    orders(game);
+    expect(game.diplomacy.missions?.some((m) => m.from === 'AAA' || m.from === 'BBB')).toBe(true);
+    expect(game.diplomacy.insults?.some((x) => x.from === 'BBB' && x.to === 'FAR')).toBe(true);
+  });
+
+  it('offers a friendly player a pact once, and drops a pact gone sour', () => {
+    const game = newGame();
+    for (const id of Object.keys(game.diplomacy.points)) game.diplomacy.points[id] = 10;
+    game.diplomacy.relations['BBB|PLR'] = 90;
+    orders(game);
+    const offers = () =>
+      game.diplomacy.requests.filter((r) => r.type === 'pact' && r.from === 'BBB');
+    expect(offers()).toHaveLength(1);
+    orders(game);
+    expect(offers()).toHaveLength(1);
+    // A pact between AI countries ends when relations sour.
+    game.world.alliances.push({ id: 'p', type: 'pact', members: ['AAA', 'FAR'] });
+    game.diplomacy.relations['AAA|FAR'] = -50;
+    orders(game);
+    expect(game.world.alliances.some((a) => a.id === 'p')).toBe(false);
   });
 });

@@ -19,7 +19,18 @@
     "aid": 0.04,
     "pact": 0.01,
     "invest": 0.05,
-    "investInPlayer": 0.01
+    "investInPlayer": 0.01,
+    "improve": 0.03,
+    "insult": 0.004
+  },
+  "diplomacy": {
+    "comment": "Diplomatic initiative: an AI without a running mission improves relations with its best partner or neighbor whose relation is between improveFrom and improveUpTo (chance rates.improve times 100 - expansionism); insults a rival while relations are above insultDownTo (rates.insult times pressure); leaves a pact when relations fall below cancelPactBelow; offers the player a pact from pactRelation + playerPactMargin (rates.pact times loyalty, answered in a notification); at war with no land front, asks a neighbor bordering the enemy for military access every accessEveryTurns turns.",
+    "improveFrom": 0,
+    "improveUpTo": 60,
+    "insultDownTo": -80,
+    "cancelPactBelow": -10,
+    "playerPactMargin": 10,
+    "accessEveryTurns": 8
   },
   "thresholds": {
     "sanctionRelation": -50,

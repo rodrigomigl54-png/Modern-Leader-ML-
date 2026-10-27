@@ -27,7 +27,21 @@
     "vassal": 4,
     "aid": 1,
     "improve": 1,
-    "insult": 1
+    "insult": 1,
+    "access": 1
+  },
+  "access": {
+    "comment": "Military access: the host lets the guest's armies cross its land. An AI host agrees from askMinRelation (not to a rival, and not for a war against its own allies) and revokes it below revokeBelowRelation. Alliances, foreign bases and wars already open borders (GDD section 5).",
+    "askMinRelation": 20,
+    "revokeBelowRelation": -10,
+    "refusedRelation": -5
+  },
+  "proposals": {
+    "comment": "AI proposals to the player (pacts, military access) wait answerTurns turns in a corner notification; refusing costs refusedRelation, accepting gives acceptedRelation; the same country makes the same proposal again only after cooldownTurns.",
+    "answerTurns": 4,
+    "refusedRelation": -5,
+    "acceptedRelation": 5,
+    "cooldownTurns": 26
   },
   "improve": {
     "comment": "Improve relations: diplomats raise relations by perTurn every turn for turns turns, at most maxActive missions at once. Afterwards relations drift back slowly (relations.driftPerTurn).",

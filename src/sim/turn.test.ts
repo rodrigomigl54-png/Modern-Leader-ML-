@@ -163,6 +163,26 @@ describe('save files', () => {
     }
   });
 
+  it('keeps the new policies and agreements, and loads saves made before them', () => {
+    const game = play(newGame(), 2);
+    game.economy.countries.AAA!.rejectForeignInvestment = true;
+    game.world.militaryAccess = [{ host: 'AAA', guest: 'BBB' }];
+    game.diplomacy.missions = [{ from: 'AAA', to: 'BBB', until: 9 }];
+    const parsed = parseSave(serializeSave(createSave(game, '2026-10-27T12:00:00Z')));
+    expect(parsed.ok && parsed.save.game.economy.countries.AAA!.rejectForeignInvestment).toBe(true);
+    expect(parsed.ok && parsed.save.game.world.militaryAccess).toEqual([
+      { host: 'AAA', guest: 'BBB' },
+    ]);
+    // An older save has none of these fields: it loads and plays on with the defaults.
+    const old = createSave(play(newGame(), 2), '2026-10-01T12:00:00Z');
+    delete old.game.economy.countries.AAA!.rejectForeignInvestment;
+    delete old.game.world.militaryAccess;
+    delete old.game.diplomacy.missions;
+    const loaded = parseSave(JSON.stringify(old));
+    expect(loaded.ok).toBe(true);
+    if (loaded.ok) expect(play(loaded.save.game, 3).turn).toBe(5);
+  });
+
   it('rejects other files, newer versions and damaged saves', () => {
     expect(parseSave('not json')).toEqual({ ok: false, error: 'notASave' });
     expect(parseSave('{"hello":1}')).toEqual({ ok: false, error: 'notASave' });

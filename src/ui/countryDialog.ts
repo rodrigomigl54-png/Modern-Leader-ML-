@@ -1,11 +1,14 @@
 import { t, type TranslationKey } from '../i18n';
-import { formatPercent, formatUsd } from '../app/present';
+import { formatPercent, formatRelation, formatUsd, signClass } from '../app/present';
 import type { Command } from '../sim/commands';
 import {
   basePrice,
   dependenceOn,
   diplomacyRules,
   forSale,
+  bestPeaceProvinces,
+  peaceProvinceOptions,
+  hasAccess,
   insultedBetween,
   missionsOf,
   overlordOf,
@@ -156,7 +159,12 @@ export class CountryDialog {
     fill.style.width = `${Math.abs(r) / 2}%`;
     fill.classList.add(r >= 0 ? 'relation-good' : 'relation-bad');
     bar.append(fill);
-    title.append(el('span', 'country-relation', t('dip.relation', { value: Math.round(r) })), bar);
+    // Relation score with its sign, green when positive and red when negative.
+    const score = el('span', 'country-relation', t('dip.relation', { value: '' }));
+    score.append(
+      el('span', `mono relation-score ${signClass(Math.round(r), 0)}`, formatRelation(r)),
+    );
+    title.append(score, bar);
     head.append(this.options.flag(id), title);
     const chips = el('ul', 'chip-list');
     const chip = (text: string, cls = 'chip'): void => {
@@ -398,6 +406,41 @@ export class CountryDialog {
             'base',
           ),
         );
+      }
+      // Military access through their land (and ours).
+      if (!allied) {
+        if (hasAccess(game, me, id)) {
+          const has = this.plain(t('dip.hasAccess'), () => undefined, 'access');
+          has.disabled = true;
+          list.append(has);
+        } else
+          list.append(
+            this.action(
+              t('dip.askAccess'),
+              rules.costs.access ?? 0,
+              () =>
+                this.toastResult(
+                  { type: 'requestAccess', countryId: me, targetId: id },
+                  'dip.accessAccepted',
+                  'dip.refused',
+                ),
+              undefined,
+              'access',
+            ),
+          );
+        if (hasAccess(game, id, me))
+          list.append(
+            this.plain(
+              t('dip.revokeAccess'),
+              () =>
+                this.toastResult(
+                  { type: 'revokeAccess', countryId: me, targetId: id },
+                  'dip.done',
+                  'dip.refused',
+                ),
+              'access',
+            ),
+          );
       }
       list.append(
         this.action(t('dip.aid'), rules.costs.aid, () => this.go('aid'), undefined, 'aid'),
@@ -686,12 +729,52 @@ export class CountryDialog {
     const rules = diplomacyRules(sim).peace;
     const score = warScore(game, war.id, me);
     const terms = this.terms;
+    // Provinces are chosen one by one; at first, the best set the war score allows.
+    const options = peaceProvinceOptions(game, sim, me, id);
+    terms.keepProvinces = true;
+    if (!terms.provinces) terms.provinces = bestPeaceProvinces(game, sim, me, id, terms);
     const cost = peaceCost(game, sim, me, id, terms)!;
     const all = peaceCost(game, sim, me, id, {
       ...terms,
       keepProvinces: true,
       returnProvinces: true,
+      provinces: undefined,
     })!;
+    const remaining = cost.available - cost.cost;
+    const chosen = new Set(terms.provinces);
+    const provinceList = el('ul', 'peace-provinces');
+    for (const o of options) {
+      const on = chosen.has(o.provinceId);
+      const item = el('li');
+      const b = button(`peace-province${on ? ' peace-province-on' : ''}`, '', () => {
+        terms.provinces = on
+          ? terms.provinces!.filter((p) => p !== o.provinceId)
+          : [...terms.provinces!, o.provinceId];
+        this.render();
+      });
+      // A province that no longer fits in the score cannot be added.
+      b.disabled = !on && o.cost > remaining + 1e-9;
+      b.setAttribute('aria-pressed', String(on));
+      b.append(
+        el('span', 'peace-check', on ? '✓' : ''),
+        provinceIcon(),
+        el('span', 'peace-name', this.options.provinceName(o.provinceId)),
+        el('span', 'peace-cost mono', t('peace.points', { points: o.cost.toFixed(1) })),
+      );
+      item.append(b);
+      provinceList.append(item);
+    }
+    const provinceTools = el('div', 'peace-tools');
+    provinceTools.append(
+      button('btn btn-secondary btn-small', t('peace.selectAll'), () => {
+        terms.provinces = bestPeaceProvinces(game, sim, me, id, terms);
+        this.render();
+      }),
+      button('btn btn-secondary btn-small', t('peace.clear'), () => {
+        terms.provinces = [];
+        this.render();
+      }),
+    );
     const toggle = (label: string, on: boolean, set: (v: boolean) => void): HTMLElement => {
       const row = el('label', 'check-row');
       const box = el('input');
@@ -724,6 +807,15 @@ export class CountryDialog {
       slider,
     );
     const ok = cost.cost <= cost.available;
+    // Demands beyond the war score cannot be sent.
+    const propose = button('btn btn-primary dip-action', t('dip.proposePeace'), () =>
+      this.toastResult(
+        { type: 'proposePeace', countryId: me, targetId: id, terms: { ...terms } },
+        'dip.peaceAccepted',
+        'dip.peaceRefused',
+      ),
+    );
+    propose.disabled = !ok;
     const meter = el(
       'p',
       ok ? 'setup-hint' : 'setup-warning',
@@ -745,11 +837,20 @@ export class CountryDialog {
             ),
           ]
         : []),
-      toggle(
-        t('dip.keepProvinces', { count: all.keep.length }),
-        terms.keepProvinces,
-        (v) => (terms.keepProvinces = v),
+      el('h3', 'setup-subtitle', t('peace.provinces', { count: options.length })),
+      ...(options.length
+        ? [provinceTools, provinceList]
+        : [el('p', 'setup-hint', t('peace.noProvinces'))]),
+      el(
+        'p',
+        'mono peace-remaining',
+        t('peace.remaining', {
+          selected: chosen.size,
+          cost: cost.cost.toFixed(1),
+          left: remaining.toFixed(1),
+        }),
       ),
+      el('h3', 'setup-subtitle', t('peace.otherTerms')),
       toggle(
         t('dip.returnProvinces', { count: all.give.length }),
         terms.returnProvinces,
@@ -759,13 +860,7 @@ export class CountryDialog {
       toggle(t('dip.peaceVassal'), terms.vassal, (v) => (terms.vassal = v)),
       toggle(t('dip.demilitarize'), terms.demilitarize, (v) => (terms.demilitarize = v)),
       meter,
-      button('btn btn-primary dip-action', t('dip.proposePeace'), () =>
-        this.toastResult(
-          { type: 'proposePeace', countryId: me, targetId: id, terms: { ...terms } },
-          'dip.peaceAccepted',
-          'dip.peaceRefused',
-        ),
-      ),
+      propose,
     ];
   }
 
@@ -913,4 +1008,16 @@ export class CountryDialog {
     if (!list.children.length) list.append(el('li', 'muted', t('dip.noTrade')));
     return [row, el('p', 'setup-hint', t('dip.tradeHint')), list];
   }
+}
+
+/** A small map-pin icon for a province demanded in a peace. */
+function provinceIcon(): HTMLElement {
+  const span = document.createElement('span');
+  span.className = 'peace-icon';
+  span.setAttribute('aria-hidden', 'true');
+  span.innerHTML =
+    '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" ' +
+    'stroke-width="1.8" stroke-linejoin="round"><path d="M4 7l5-3 6 3 5-3v13l-5 3-6-3-5 3z"/>' +
+    '<path d="M9 4v13M15 7v13"/></svg>';
+  return span;
 }

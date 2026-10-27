@@ -149,7 +149,11 @@ describe('AI actions follow the profile', () => {
   });
 
   it('an expansionist risk-taker attacks a weak hostile neighbor; a peaceful one does not', () => {
-    const hawk = sim({ BIG: profile({ expansionism: 100, risk: 100, pressure: 0, sanctions: 0 }) });
+    // A high war rate keeps the test independent of the random draws other actions use.
+    const hawk = {
+      ...sim({ BIG: profile({ expansionism: 100, risk: 100, pressure: 0, sanctions: 0 }) }),
+      aiRules: { ...aiRules, rates: { ...aiRules.rates, war: 0.1 } },
+    };
     const dove = sim({ BIG: profile({ expansionism: 0, risk: 0, pressure: 0, sanctions: 0 }) });
     const events: TurnEvent[] = [];
     play(newGame(hawk, 'chaos'), hawk, 120, events);

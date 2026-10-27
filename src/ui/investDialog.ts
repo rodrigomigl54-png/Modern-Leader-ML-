@@ -1,5 +1,5 @@
 import { t, type TranslationKey } from '../i18n';
-import { formatUsd } from '../app/present';
+import { formatSignedUsd, formatUsd, signClass } from '../app/present';
 import { investmentQuote, type SimContext } from '../sim/economy';
 import type { GameState } from '../sim/newGame';
 import { button, el } from './dom';
@@ -28,9 +28,9 @@ export class InvestDialog {
 
   private count = 1;
 
-  open(game: GameState, cityIds: number[]): void {
+  open(game: GameState, cityIds: number[], category: string | null = null): void {
     this.count = 1;
-    this.render(game, cityIds, null);
+    this.render(game, cityIds, category);
     this.backdrop.hidden = false;
   }
 
@@ -99,6 +99,23 @@ export class InvestDialog {
       };
       fact(t('invest.totalCost'), formatUsd(quote.totalCost));
       fact(t('invest.buildTime'), t('invest.weeks', { weeks: quote.buildTurns }));
+      // Building levels: each level in a city costs more than the one before.
+      const built = quote.cities.filter((c) => c.consent !== 'refuses');
+      if (built.length) {
+        const from = Math.min(...built.map((c) => c.level));
+        const to = Math.max(...built.map((c) => c.level)) + quote.count;
+        fact(
+          t('invest.level'),
+          from + 1 === to
+            ? t('invest.levelOne', { level: to })
+            : t('invest.levels', { from: from + 1, to }),
+        );
+      }
+      fact(
+        t('invest.budget'),
+        t('econ.perWeek', { value: formatSignedUsd(quote.budgetPerWeek) }),
+        `mono ${signClass(quote.budgetPerWeek)}`,
+      );
       if (quote.ownGdpPerYear > 0)
         fact(t('invest.ownGdp'), t('invest.perYear', { value: formatUsd(quote.ownGdpPerYear) }));
       if (quote.foreignGdpPerYear > 0) {

@@ -2,8 +2,8 @@
 // pacts, sanctions, ultimatums, joining wars, foreign bases, aid, weapons trade, vassals and peace
 // treaties. Until AI profiles exist (Phase 11) AI answers follow the thresholds in
 // data/modern/diplomacy-rules.json (DiplomacyRules). Everything is deterministic.
-import type { SimContext } from './economy';
-import { armyStrength, militaryRules, provinceSeat } from './military';
+import { buildingLevel, levelCost, type SimContext } from './economy';
+import { armyStrength, atSea, militaryRules, provinceSeat } from './military';
 import type { GameState } from './newGame';
 import { joinThreshold } from './profiles';
 import { nationalSupport, shiftSupport, transferProvince } from './population';
@@ -31,11 +31,22 @@ export interface DiplomacyRules {
     aid: number;
     improve?: number;
     insult?: number;
+    access?: number;
   };
   /** Improve relations: a mission that raises relations every turn for a while. */
   improve?: { turns: number; perTurn: number; maxActive: number };
   /** Insult: an instant drop in relations that blocks improving them for a while. */
   insult?: { relation: number; blockTurns: number };
+  /** Military access: the host lets the guest's armies cross its land. */
+  access?: { askMinRelation: number; revokeBelowRelation: number; refusedRelation: number };
+  /** Answers the player owes to AI proposals (pacts, access). */
+  proposals?: {
+    answerTurns: number;
+    refusedRelation: number;
+    acceptedRelation: number;
+    /** Turns before the same country makes the same proposal again. */
+    cooldownTurns: number;
+  };
   credibility: { start: number; enforced: number; failed: number; enforceTurns: number };
   ultimatum: {
     deadlineTurns: number;
@@ -140,6 +151,11 @@ export interface Ultimatum {
 export interface PeaceTerms {
   /** The proposer keeps the target's provinces it holds. */
   keepProvinces: boolean;
+  /**
+   * Only these of the target's provinces it holds (chosen one by one in the peace talks); all of
+   * them when absent.
+   */
+  provinces?: number[];
   /** The target returns the proposer's provinces it holds. */
   returnProvinces: boolean;
   /** Lump sum as a share of the target's GDP. */
@@ -162,6 +178,8 @@ export type PlayerRequest =
   | { id: number; type: 'joinWar'; from: string; enemy: string; warId: string; until: number }
   | { id: number; type: 'peace'; from: string; warId: string; terms: PeaceTerms; until: number }
   | { id: number; type: 'ultimatum'; ultimatumId: number; until: number }
+  | { id: number; type: 'pact'; from: string; until: number }
+  | { id: number; type: 'access'; from: string; until: number }
   | {
       id: number;
       type: 'investment';
@@ -197,6 +215,8 @@ export interface DiplomacyState {
   missions?: { from: string; to: string; until: number }[];
   /** Insults: improving relations between the two is blocked until the given turn. */
   insults?: { from: string; to: string; until: number }[];
+  /** Last turn each AI proposal to the player was made, keyed "type|from". */
+  proposedAt?: Record<string, number>;
 }
 
 export type DiplomacyEvent =
@@ -415,6 +435,85 @@ export function insult(state: GameState, ctx: SimContext, from: string, to: stri
     (m) => !((m.from === from && m.to === to) || (m.from === to && m.to === from)),
   );
   (state.diplomacy.insults ??= []).push({ from, to, until: state.turn + r.blockTurns });
+  return { accepted: true };
+}
+
+/** True when the host lets the guest's armies cross its land. */
+export function hasAccess(state: GameState, guest: string, host: string): boolean {
+  return (state.world.militaryAccess ?? []).some((a) => a.guest === guest && a.host === host);
+}
+
+/** A proposal from an AI country waiting for the player's answer (one per kind and country). */
+function proposeToPlayer(
+  state: GameState,
+  ctx: SimContext,
+  type: 'pact' | 'access',
+  from: string,
+): void {
+  const d = state.diplomacy;
+  if (d.requests.some((r) => r.type === type && 'from' in r && r.from === from)) return;
+  // No repeat of the same proposal for a while (no spam after a refusal).
+  const k = `${type}|${from}`;
+  const cooldown = diplomacyRules(ctx).proposals?.cooldownTurns ?? 0;
+  if (state.turn - (d.proposedAt?.[k] ?? -Infinity) < cooldown) return;
+  (d.proposedAt ??= {})[k] = state.turn;
+  d.requests.push({
+    id: d.nextId++,
+    type,
+    from,
+    until: state.turn + (diplomacyRules(ctx).proposals?.answerTurns ?? 3),
+  });
+}
+
+/** Asks another country to let our armies cross its land. */
+export function requestAccess(
+  state: GameState,
+  ctx: SimContext,
+  guest: string,
+  host: string,
+): ActionResult {
+  const rules = diplomacyRules(ctx);
+  const r = rules.access;
+  if (!r || !exists(state, host) || guest === host) return { error: 'invalidTarget' };
+  if (enemiesAtWar(state.world, guest).includes(host)) return { error: 'atWar' };
+  if (hasAccess(state, guest, host)) return { error: 'alreadyAllied' };
+  if (!spend(state, guest, rules.costs.access ?? 0)) return { error: 'notEnoughPoints' };
+  if (host === state.player.countryId) {
+    proposeToPlayer(state, ctx, 'access', guest);
+    return { accepted: false };
+  }
+  // A host lets friends through, but not into a war against its own allies.
+  const accepted =
+    relation(state, ctx, guest, host) >= r.askMinRelation &&
+    !rivalsOf(state.world, guest).includes(host) &&
+    !enemiesAtWar(state.world, guest).some((x) => alliesOf(state.world, host).includes(x));
+  if (accepted) grantAccess(state, host, guest);
+  return { accepted };
+}
+
+function grantAccess(state: GameState, host: string, guest: string): void {
+  if (!hasAccess(state, guest, host)) (state.world.militaryAccess ??= []).push({ host, guest });
+}
+
+/**
+ * Ends military access (the host revokes it, or the guest gives it up). The guest's armies in
+ * the host's land go home and its marches through it stop (GDD section 5: no crossing without
+ * permission).
+ */
+export function revokeAccess(state: GameState, host: string, guest: string): ActionResult {
+  if (!hasAccess(state, guest, host)) return { error: 'invalidTarget' };
+  state.world.militaryAccess = (state.world.militaryAccess ?? []).filter(
+    (a) => !(a.guest === guest && a.host === host),
+  );
+  const owners = state.world.provinceOwners;
+  const home = state.world.countries.find((c) => c.id === guest)?.capitalProvinceId;
+  for (const a of state.military.armies) {
+    if (a.owner !== guest) continue;
+    if (owners[a.provinceId] === host && home !== undefined && !atSea(state, a)) {
+      a.provinceId = home;
+      a.path = [];
+    } else if (a.path.some((p) => owners[p] === host)) a.path = [];
+  }
   return { accepted: true };
 }
 
@@ -663,9 +762,11 @@ export function peaceCost(
   if (!war) return null;
   const record = state.diplomacy.wars[war.id];
   const owners = state.world.provinceOwners;
-  const keep = owners
+  const held = owners
     .map((o, p) => (o === proposer && culture(state, p) === target ? p : -1))
     .filter((p) => p >= 0);
+  const chosen = terms.provinces ? new Set(terms.provinces) : null;
+  const keep = chosen ? held.filter((p) => chosen.has(p)) : held;
   const give = owners
     .map((o, p) => (o === target && culture(state, p) === proposer ? p : -1))
     .filter((p) => p >= 0);
@@ -688,6 +789,53 @@ export function peaceCost(
     give: terms.returnProvinces ? give : [],
     reparations: share * gdp,
   };
+}
+
+/**
+ * The target's provinces the proposer may demand in a peace (those it holds, GDD section 10),
+ * with the war score each costs, most valuable first.
+ */
+export function peaceProvinceOptions(
+  state: GameState,
+  ctx: SimContext,
+  proposer: string,
+  target: string,
+): { provinceId: number; cost: number }[] {
+  const war = warBetween(state.world, proposer, target);
+  if (!war) return [];
+  const record = state.diplomacy.wars[war.id];
+  return state.world.provinceOwners
+    .map((o, p) => (o === proposer && culture(state, p) === target ? p : -1))
+    .filter((p) => p >= 0)
+    .map((p) => ({ provinceId: p, cost: provinceValue(state, ctx, record, p) }))
+    .sort((a, b) => b.cost - a.cost || a.provinceId - b.provinceId);
+}
+
+/**
+ * "Select all possible": the most valuable provinces that fit in the war score left after the
+ * other terms (largest first, then smaller ones that still fit). Never exceeds the score.
+ */
+export function bestPeaceProvinces(
+  state: GameState,
+  ctx: SimContext,
+  proposer: string,
+  target: string,
+  terms: PeaceTerms,
+): number[] {
+  const base = peaceCost(state, ctx, proposer, target, {
+    ...terms,
+    keepProvinces: true,
+    provinces: [],
+  });
+  if (!base) return [];
+  let left = base.available - base.cost;
+  const chosen: number[] = [];
+  for (const o of peaceProvinceOptions(state, ctx, proposer, target)) {
+    if (o.cost > left + 1e-9) continue;
+    chosen.push(o.provinceId);
+    left -= o.cost;
+  }
+  return chosen.sort((a, b) => a - b);
 }
 
 /** Ends the war between two countries on the given terms (the target leaves the war). */
@@ -869,9 +1017,12 @@ export function proposeAlliance(
           rivalsOf(state.world, from).includes(m) || enemiesAtWar(state.world, from).includes(m),
       );
     if (accepted) alliance.members.push(from);
+  } else if (to === state.player.countryId) {
+    // The player answers an AI's proposal in a notification (GDD section 12).
+    proposeToPlayer(state, ctx, 'pact', from);
+    accepted = false;
   } else {
     accepted =
-      to !== state.player.countryId &&
       relation(state, ctx, from, to) >= rules.alliance.pactMinRelation &&
       !rivalsOf(state.world, from).includes(to);
     if (accepted)
@@ -1313,6 +1464,13 @@ export function proposePeace(
   terms: PeaceTerms,
 ): ActionResult {
   if (!warBetween(state.world, proposer, target)) return { error: 'notAtWar' };
+  // Only provinces that can be demanded (held by the proposer, the target's people).
+  if (terms.provinces) {
+    const legal = new Set(
+      peaceProvinceOptions(state, ctx, proposer, target).map((o) => o.provinceId),
+    );
+    if (terms.provinces.some((p) => !legal.has(p))) return { error: 'invalidTarget' };
+  }
   if (target === state.player.countryId) {
     const war = warBetween(state.world, proposer, target)!;
     state.diplomacy.requests.push({
@@ -1359,6 +1517,20 @@ export function answerRequest(
   } else if (request.type === 'investment') {
     // A foreign country builds in our city at its own cost (GDD section 6).
     if (accept) investAbroad(state, ctx, request.from, request.cityId, request.category);
+  } else if (request.type === 'pact' || request.type === 'access') {
+    const p = rules.proposals;
+    const valid =
+      exists(state, request.from) && !enemiesAtWar(state.world, player).includes(request.from);
+    if (accept && valid) {
+      if (request.type === 'access') grantAccess(state, player, request.from);
+      else if (!alliesOf(state.world, player).includes(request.from))
+        state.world.alliances.push({
+          id: `pact-${state.turn}-${request.from}-${player}`,
+          type: 'pact',
+          members: [request.from, player],
+        });
+      changeRelation(state, ctx, player, request.from, p?.acceptedRelation ?? 0);
+    } else if (!accept) changeRelation(state, ctx, player, request.from, p?.refusedRelation ?? 0);
   } else if (request.type === 'peace') {
     if (accept && warBetween(state.world, request.from, player))
       applyPeace(state, ctx, request.from, player, request.terms, emit);
@@ -1441,6 +1613,18 @@ export function diplomacyPhase(
     );
     for (const m of d.missions) changeRelation(state, ctx, m.from, m.to, perTurn);
     d.insults = (d.insults ?? []).filter((x) => x.until >= state.turn);
+  }
+
+  // Military access ends with a war between the two, or when an AI host's relations sour.
+  for (const a of [...(state.world.militaryAccess ?? [])]) {
+    const war = enemiesAtWar(state.world, a.host).includes(a.guest);
+    const gone = !exists(state, a.host) || !exists(state, a.guest);
+    const sour =
+      a.host !== player &&
+      relation(state, ctx, a.host, a.guest) < (rules.access?.revokeBelowRelation ?? -Infinity);
+    if (war || gone) {
+      state.world.militaryAccess = (state.world.militaryAccess ?? []).filter((x) => x !== a);
+    } else if (sour) revokeAccess(state, a.host, a.guest);
   }
 
   // Relations drift slowly back toward what alliances, rivalries and wars imply.
@@ -1536,8 +1720,16 @@ export function diplomacyPhase(
       if (d.requests.some((r) => r.type === 'peace' && r.warId === war.id)) continue;
       record.lastOffer = state.turn;
       const proposer = winner === player ? loser : winner;
-      // The AI offers to end the war with each side keeping what it holds.
-      proposePeace(state, ctx, proposer, player, WHITE_PEACE);
+      // The AI offers to end the war with each side keeping what it holds; a winning AI demands
+      // only the provinces its war score pays for (the player's rule in the peace talks).
+      const terms =
+        proposer === winner
+          ? {
+              ...WHITE_PEACE,
+              provinces: bestPeaceProvinces(state, ctx, proposer, player, WHITE_PEACE),
+            }
+          : WHITE_PEACE;
+      proposePeace(state, ctx, proposer, player, terms);
       const request = d.requests.at(-1);
       if (request) emit({ type: 'request', requestId: request.id });
     } else {
@@ -1575,15 +1767,19 @@ export function investAbroad(
   const cat = ctx.economy.investment.categories.find((c) => c.id === categoryId);
   const host = state.world.provinceOwners[ctx.cityProvince[cityId] ?? -1];
   const e = state.economy.countries[investor];
-  if (!cat || !host || !e || e.treasury < cat.costUsd) return false;
-  e.treasury -= cat.costUsd;
+  if (!cat || !host || !e) return false;
+  // A host that refuses foreign investment by policy gets none (GDD section 6).
+  if (host !== investor && state.economy.countries[host]?.rejectForeignInvestment) return false;
+  const cost = levelCost(ctx, cat, buildingLevel(state, cityId, cat.id));
+  if (e.treasury < cost) return false;
+  e.treasury -= cost;
   state.economy.buildings.push({
     id: state.economy.nextBuildingId++,
     category: cat.id,
     cityId,
     owner: investor,
     host,
-    costUsd: cat.costUsd,
+    costUsd: cost,
     startedTurn: state.turn,
     completeTurn: state.turn + cat.buildTurns,
     completed: false,

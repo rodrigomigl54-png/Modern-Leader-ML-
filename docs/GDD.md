@@ -116,7 +116,7 @@ One turn = one week (52 turns per year). The player issues any number of orders,
 - **Economy:** limited by money only. Buildings take several turns to complete.
 - **Recruitment:** limited by available manpower and base capacity.
 
-**Borders:** units may enter another country's territory only if the two countries are at war or are allies (alliance or pact). Any other move is blocked for the player and the AI.
+**Borders:** units may enter another country's territory only if the two countries are at war or are allies (alliance or pact), or if that country hosts their base or has granted them **military access** (a diplomatic agreement it can revoke; then the guest's armies there return home). Any other move is blocked for the player and the AI, also halfway through a march. Access is permission to cross, not to attack. (Military access added by Dario in Phase 24.)
 
 ## 6. Economy, investment, inflation, resources and trade
 
@@ -131,6 +131,8 @@ The economy runs on GDP, a national budget and city-level investment; every bad 
 3. See total cost, build time and expected effect; confirm.
 
 Investing abroad needs the host's consent (AI accepts or refuses based on relations and profile). It earns returns and influence, and the host gains GDP. AI countries invest in the player's cities the same way (the player can accept or refuse). War or sanctions freeze foreign investments.
+
+**Building levels and policy (added by Dario in Phase 24):** buildings of one kind in a city are its levels; each level costs more than the one before (+25%), and its GDP, returns and upkeep follow what was paid. The investment dialog shows the cost, the levels, the GDP added and the change of the weekly budget (taxes on the new GDP and returns, minus upkeep); GDP is not cash. Any country can refuse all foreign investment by policy (its own investments, at home and abroad, are unaffected). The treasury shows total income, total expenses and the net change per week (green gain, red loss).
 
 **Weapons:** buy from other countries (seller must agree; sanctions block it) or produce at home after building the matching factory (drone factory, missile factory, air-defense factory).
 
@@ -181,7 +183,7 @@ Soldiers come only from recruitment; reserves exist only for defense; bases deci
 
 **Movement and combat:** one city per turn; borders rule in section 5. Combat uses strength, numbers, defender bonus, base level and supply.
 
-**Naval transport (simplified):** armies cross the sea along routes between port cities. A crossing takes several turns and can be intercepted. A full navy comes after the demo.
+**Naval transport (simplified):** armies cross the sea along routes between port cities. A crossing takes several turns and can be intercepted. A country can carry a limited number of soldiers at sea at once (per province with a port); an army waits in port while the ships are full, and soldiers at sea cost more upkeep. A full navy comes after the demo.
 
 **Alliances in war:** when an alliance or pact member is attacked, each member decides whether to join (based on its AI profile's alliance loyalty and the situation); it is not automatic.
 
@@ -228,6 +230,11 @@ Every country starts with its real relations, alliances, pacts and rivalries; ev
 | Investment abroad | Section 6 | Needs host consent |
 | Improve relations | Diplomats raise relations a little every turn for a while (no money) | Limited missions at once; relations drift back slowly afterwards (added by Dario in Phase 23) |
 | Insult | Relations drop at once | Neither side can improve relations for a while (added by Dario in Phase 23) |
+| Military access | Ask a country to let your armies cross its land; revoke access you gave | AI hosts agree when friendly and revoke it when relations sour (added by Dario in Phase 24) |
+
+AI countries take the initiative (Phase 24): they improve relations with partners and neighbors, insult rivals, leave pacts that have gone sour, offer pacts to a friendly player and ask for military access when their war has no land front. Proposals to the player arrive as corner notifications (Accept, Refuse, Open) that never block the game; the same proposal is not repeated for half a year.
+
+**Peace talks:** the provinces to keep are chosen one by one, each with its war-score cost; "Select all possible" picks the most valuable set the score allows, and demands beyond the score cannot be sent. A winning AI demands only what its score pays for.
 
 **Ultimatum rules:**
 
@@ -292,6 +299,8 @@ The interface must work equally on a phone (touch, small screen) and on a PC (mo
 **Controls:**
 
 - Tap/click a city or province: info panel with actions.
+- Building icons sit next to the cities that have them (from city zoom on); army counters carry a unit icon that marches while the army moves and becomes a boat at sea.
+- Relations always show their score with a sign (+65 green, −65 red, 0 neutral).
 - Multi-select: a selection mode for tapping several cities (phone) or drag/Shift-click (PC); one action applies to all selected.
 - Pinch/scroll to zoom, drag to pan.
 

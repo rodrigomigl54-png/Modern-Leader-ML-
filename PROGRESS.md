@@ -449,6 +449,24 @@ Done (Dario's requests, inspired by Age of History 2 but drawn our own way):
 - Fixed: the weapons-trade button showed "{value}" (its text key had been reused in Phase 16).
 - Checked in Chromium with Pixel 7 landscape emulation: Belgrade → whole country (25 cities) → 3 factories per city ($38 bn), rankings, country dialog with icons; no errors.
 
+## Phase 24 — Economy, borders, naval transport, AI diplomacy, notifications, peace provinces
+
+Done (Dario's specification, built on the existing systems; GDD sections 5, 6, 8, 10 and 13 updated):
+
+- **Foreign investment policy:** "Accept / Reject all" in the economy panel (`setForeignInvestment`, `CountryEconomy.rejectForeignInvestment`); enforced in `investmentQuote` and `investAbroad`, so AI investment and AI investment offers to the player stop too. Own investments are unaffected.
+- **Building levels:** buildings of a kind in a city are levels; each costs 25% more than the last (`investment.levelCostGrowth`), with GDP, returns and upkeep following the price paid. The province panel shows "Factory · Lv 2" with an ⬆ upgrade button; the investment dialog shows levels and the change of the weekly budget when finished (`budgetPerWeek`: taxes on the new GDP + returns − upkeep, the terms `weeklyBudget` uses).
+- **Treasury:** the economy panel lists income, expenses and net per week from `weeklyBudget` (plus foreign aid received); the top bar shows the net per week under the treasury, green or red.
+- **Building icons on the map** (`src/map/buildingLayer.ts`): a small icon per kind next to the city that has it, dots for extra levels, from city zoom on.
+- **Army icons:** counters carry rank chevrons; moving armies' chevrons march in the travel direction and their routes flow; at sea a bobbing boat. Animated at ~20 fps only while something moves.
+- **Military access** (`requestAccess`, `revokeAccess`, `World.militaryAccess`): part of the border rule; revoking sends the guest's armies home and stops marches; access ends with a war; AI hosts revoke it below −10. Country dialog: ask / revoke; foreign ministry lists access given and received.
+- **Naval transport:** 20,000 soldiers at sea per port province (`naval.transportPerPort`); an army waits in port while ships are full; an army larger than the whole fleet is refused ("noTransport"); soldiers at sea cost 1.5× upkeep, charged once in `armyUpkeep`.
+- **AI diplomatic initiative** (`ai-rules.json` `diplomacy`, rates `improve`, `insult`): improve relations, insult rivals, leave sour pacts, offer pacts to the player, ask for access when no land front. Proposals to the player (pact, access) wait as requests with a 26-turn cooldown (no spam).
+- **Corner notifications** (`src/ui/cornerNotices.ts`): every pending request (pacts, access, investment, peace, joining wars, ultimatums) sits in the top-left corner with Accept / Refuse / Open and a hide button; nothing blocks the game any more (an alert sound plays for new ones).
+- **Relation colors:** +65 green / −65 red / 0 neutral in the country dialog and a new "Relations" list (warmest and coldest) in the foreign ministry.
+- **Peace talks:** provinces chosen one by one with their costs and a map icon, "Select all possible" (`bestPeaceProvinces`, most valuable first within the score) and "Clear"; the score left updates at once; demands beyond the score cannot be sent; illegal provinces are refused by `proposePeace`. A winning AI offering peace to the player demands only what its score pays for.
+- Fixed a flaky AI test (it depended on the order of random draws).
+- Checked: `npm run lint`, `npm run format:check`, `npm test` (198 tests), `npm run build`; 5-year AI run (stable, growth 2.1%); Chromium with Pixel 7 landscape and a 1280×720 desktop: budget, top-bar net, relations, corner notices (access accepted), peace list (6 provinces, select all / clear), factory level and map icon; no errors. A development-only `window.__ml` hook (stripped from builds) prepares such situations for browser tests.
+
 ## Next
 
 - Dario: merge the PR, review the new AI profiles, and test the game; changes come from that testing.
@@ -467,7 +485,9 @@ Done (Dario's requests, inspired by Age of History 2 but drawn our own way):
 - The interface size uses CSS `zoom` (supported by current browsers; very old ones ignore it).
 
 - Summit questions come from a fixed set of fourteen templates.
-- The AI does not use Improve relations or insults yet.
+- Peace talks list only the provinces the winner holds (the existing rule); occupied land cannot be swapped for other land.
+- The map does not highlight the provinces selected in the peace talks.
+- Naval transport has no ships or naval battles: capacity comes from ports (a full navy is post-demo).
 
 - 133 of 203 AI profiles are derived from data rather than written by hand; their justifications are generic.
 - A turn takes about 30 ms on a PC; to watch on slow phones.

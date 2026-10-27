@@ -1,5 +1,12 @@
 import { t, type TranslationKey } from '../i18n';
-import { countryFlag, countryName, formatPercent, formatUsd } from '../app/present';
+import {
+  countryFlag,
+  countryName,
+  formatPercent,
+  formatSignedUsd,
+  formatUsd,
+  signClass,
+} from '../app/present';
 import type { GameState } from '../sim/newGame';
 import type { World } from '../sim/world';
 import { button, el, flagImage } from './dom';
@@ -8,6 +15,8 @@ import { leaderSeal } from './leaderSeal';
 
 export interface GameHudActions {
   onMenu: () => void;
+  /** Net change of the treasury per week (the budget balance plus foreign aid). */
+  netOf: (game: GameState) => number;
   onRankings: () => void;
   onNextTurn: () => void;
   onEconomy: () => void;
@@ -101,8 +110,18 @@ export class GameHud {
       s.append(el('span', 'hud-stat-label', label), el('span', 'hud-stat-value mono', value));
       return s;
     };
+    // Treasury with the net change per week (green gain, red loss).
+    const net = this.actions.netOf(game);
+    const treasury = stat(t('econ.treasury'), formatUsd(e.treasury));
+    treasury.append(
+      el(
+        'span',
+        `hud-stat-net mono ${signClass(net)}`,
+        t('econ.perWeek', { value: formatSignedUsd(net) }),
+      ),
+    );
     stats.append(
-      stat(t('econ.treasury'), formatUsd(e.treasury)),
+      treasury,
       stat(t('econ.gdp'), formatUsd(e.gdp)),
       stat(
         t('econ.inflation'),

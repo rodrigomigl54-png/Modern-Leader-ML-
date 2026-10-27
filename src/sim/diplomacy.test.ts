@@ -6,7 +6,10 @@ import populationRules from '../../data/modern/population.json';
 import weaponsRulesData from '../../data/modern/weapons.json';
 import { applyCommand, type Command } from './commands';
 import {
+  bestPeaceProvinces,
+  hasAccess,
   peaceCost,
+  peaceProvinceOptions,
   pointsIncome,
   relation,
   sanctionsGrowthPenalty,
@@ -18,7 +21,7 @@ import {
 import { investmentQuote, type EconomyRules, type SimContext } from './economy';
 import { findPath, type MilitaryRules } from './military';
 import { createNewGame, type GameState } from './newGame';
-import type { PopulationRules } from './population';
+import { transferProvince, type PopulationRules } from './population';
 import { advanceTurn, type TurnEvent } from './turn';
 import type { WeaponsRules } from './weapons';
 import { enemiesAtWar, type World, type WorldCountry } from './world';
@@ -485,5 +488,142 @@ describe('nuclear use and determinism', () => {
   it('gives the same result for the same seed', () => {
     const start = run(newGame(), { type: 'declareWar', countryId: 'AAA', targetId: 'BBB' }).state;
     expect(play(start, 12)).toEqual(play(start, 12));
+  });
+});
+
+describe('peace talks: provinces chosen one by one', () => {
+  const holding = (): GameState => {
+    const game = run(newGame(), { type: 'declareWar', countryId: 'AAA', targetId: 'BBB' }).state;
+    // AAA holds both of BBB's provinces.
+    transferProvince(game, sim, 2, 'AAA');
+    transferProvince(game, sim, 3, 'AAA');
+    const war = warBetween(game.world, 'AAA', 'BBB')!;
+    game.diplomacy.wars[war.id]!.startTurn = -rules.peace.minTurns;
+    return game;
+  };
+
+  it('lists the provinces that can be demanded and prices only the chosen ones', () => {
+    const game = holding();
+    const options = peaceProvinceOptions(game, sim, 'AAA', 'BBB');
+    expect(options.map((o) => o.provinceId).sort()).toEqual([2, 3]);
+    const one = peaceCost(game, sim, 'AAA', 'BBB', { ...WHITE_PEACE, provinces: [2] })!;
+    const both = peaceCost(game, sim, 'AAA', 'BBB', WHITE_PEACE)!;
+    expect(one.keep).toEqual([2]);
+    expect(one.cost).toBeCloseTo(options.find((o) => o.provinceId === 2)!.cost, 6);
+    expect(both.cost).toBeCloseTo(options[0]!.cost + options[1]!.cost, 6);
+    // A province AAA does not hold cannot be demanded.
+    expect(
+      applyCommand(
+        game,
+        {
+          type: 'proposePeace',
+          countryId: 'AAA',
+          targetId: 'BBB',
+          terms: { ...WHITE_PEACE, provinces: [0] },
+        },
+        sim,
+      ),
+    ).toEqual({ ok: false, error: 'invalidTarget' });
+  });
+
+  it('"Select all possible" fits the war score and never exceeds it', () => {
+    const game = holding();
+    const war = warBetween(game.world, 'AAA', 'BBB')!;
+    const options = peaceProvinceOptions(game, sim, 'AAA', 'BBB');
+    const cheapest = Math.min(...options.map((o) => o.cost));
+    // Enough score for one province but not both.
+    const base = peaceCost(game, sim, 'AAA', 'BBB', { ...WHITE_PEACE, provinces: [] })!;
+    game.diplomacy.wars[war.id]!.gain = [0, 0];
+    const extra = cheapest + 0.01 - (base.available - base.cost);
+    game.diplomacy.wars[war.id]!.gain = [Math.max(0, extra), 0];
+    const picked = bestPeaceProvinces(game, sim, 'AAA', 'BBB', WHITE_PEACE);
+    const cost = peaceCost(game, sim, 'AAA', 'BBB', { ...WHITE_PEACE, provinces: picked })!;
+    expect(picked.length).toBeGreaterThanOrEqual(1);
+    expect(picked.length).toBeLessThan(options.length);
+    expect(cost.cost).toBeLessThanOrEqual(cost.available + 1e-9);
+    // With the full score (capped at 100) more fits, still within the score; the peace keeps
+    // exactly the chosen provinces.
+    game.diplomacy.wars[war.id]!.gain = [500, 0];
+    const most = bestPeaceProvinces(game, sim, 'AAA', 'BBB', WHITE_PEACE);
+    const mostCost = peaceCost(game, sim, 'AAA', 'BBB', { ...WHITE_PEACE, provinces: most })!;
+    expect(most.length).toBeGreaterThanOrEqual(picked.length);
+    expect(mostCost.cost).toBeLessThanOrEqual(mostCost.available + 1e-9);
+    const peace = run(game, {
+      type: 'proposePeace',
+      countryId: 'AAA',
+      targetId: 'BBB',
+      terms: { ...WHITE_PEACE, provinces: [3] },
+    });
+    expect(peace.accepted).toBe(true);
+    expect(peace.state.world.provinceOwners[3]).toBe('AAA');
+    expect(peace.state.world.provinceOwners[2]).toBe('BBB');
+  });
+});
+
+describe('military access', () => {
+  it('borders stay closed without access; access opens them; revoking closes them again', () => {
+    const game = newGame('DDD');
+    expect(findPath(game, sim, 'AAA', 1, 3)).toBeNull();
+    // Not friendly enough yet.
+    expect(run(game, { type: 'requestAccess', countryId: 'AAA', targetId: 'BBB' }).accepted).toBe(
+      false,
+    );
+    game.diplomacy.relations['AAA|BBB'] = rules.access!.askMinRelation;
+    const granted = run(game, { type: 'requestAccess', countryId: 'AAA', targetId: 'BBB' });
+    expect(granted.accepted).toBe(true);
+    expect(findPath(granted.state, sim, 'AAA', 1, 3)).toEqual([2, 3]);
+    // An AAA army marching through BBB; BBB revokes the access.
+    const state = granted.state;
+    state.military.armies.push({
+      id: 901,
+      owner: 'AAA',
+      provinceId: 2,
+      regulars: 1000,
+      special: 0,
+      path: [3],
+      from: 2,
+    });
+    const revoked = run(state, { type: 'revokeAccess', countryId: 'BBB', targetId: 'AAA' }).state;
+    expect(findPath(revoked, sim, 'AAA', 1, 3)).toBeNull();
+    const army = revoked.military.armies.find((a) => a.id === 901)!;
+    expect(revoked.world.provinceOwners[army.provinceId]).toBe('AAA');
+    expect(army.path).toEqual([]);
+    // Movement orders through closed borders are refused.
+    expect(
+      applyCommand(
+        revoked,
+        { type: 'moveArmies', countryId: 'AAA', armyIds: [901], targetProvinceId: 3 },
+        sim,
+      ),
+    ).toEqual({ ok: false, error: 'noPath' });
+  });
+
+  it('an AI asking the player for access or a pact waits for the player’s answer', () => {
+    const game = newGame('AAA');
+    game.diplomacy.relations['AAA|BBB'] = 60;
+    const asked = run(game, { type: 'requestAccess', countryId: 'BBB', targetId: 'AAA' }).state;
+    const request = asked.diplomacy.requests.find((r) => r.type === 'access')!;
+    expect(request).toBeDefined();
+    // No duplicate while it waits, nor right after.
+    const again = run(asked, { type: 'requestAccess', countryId: 'BBB', targetId: 'AAA' }).state;
+    expect(again.diplomacy.requests.filter((r) => r.type === 'access')).toHaveLength(1);
+    const yes = run(asked, {
+      type: 'answerRequest',
+      countryId: 'AAA',
+      requestId: request.id,
+      accept: true,
+    }).state;
+    expect(hasAccess(yes, 'BBB', 'AAA')).toBe(true);
+    const pact = run(game, { type: 'proposeAlliance', countryId: 'BBB', targetId: 'AAA' }).state;
+    const offer = pact.diplomacy.requests.find((r) => r.type === 'pact')!;
+    const allied = run(pact, {
+      type: 'answerRequest',
+      countryId: 'AAA',
+      requestId: offer.id,
+      accept: true,
+    }).state;
+    expect(allied.world.alliances.some((a) => a.type === 'pact' && a.members.includes('AAA'))).toBe(
+      true,
+    );
   });
 });

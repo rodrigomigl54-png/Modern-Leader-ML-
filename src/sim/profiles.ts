@@ -45,6 +45,8 @@ export interface AiRules {
     pact: number;
     invest: number;
     investInPlayer: number;
+    improve?: number;
+    insult?: number;
   };
   thresholds: {
     sanctionRelation: number;
@@ -61,6 +63,20 @@ export interface AiRules {
     enforceRisk: number;
   };
   loyalty: { joinBase: number; perLoyalty: number; pactExtra: number };
+  /** Diplomatic initiative: improving relations, insults, ending pacts, offers to the player. */
+  diplomacy?: {
+    /** Relations an AI tries to improve (from improveFrom up to improveUpTo). */
+    improveFrom: number;
+    improveUpTo: number;
+    /** Rivals are insulted while relations are above this. */
+    insultDownTo: number;
+    /** A pact ends when relations fall below this. */
+    cancelPactBelow: number;
+    /** Relations above pactRelation by this much make an AI offer the player a pact. */
+    playerPactMargin: number;
+    /** How often an AI at war with no land front looks for military access. */
+    accessEveryTurns: number;
+  };
   /** Weekly aid to a country at war with a sanctioned enemy (scaled by interventionism). */
   warAid?: {
     gdpSharePerYear: number;

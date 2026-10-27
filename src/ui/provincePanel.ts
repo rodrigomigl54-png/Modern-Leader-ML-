@@ -2,9 +2,11 @@ import { getLanguage, t, type TranslationKey } from '../i18n';
 import type { MapData } from '../map/mapData';
 import { button, el } from './dom';
 
+/** One kind of building in a city: its level (how many) and the next level under way. */
 export interface CityBuilding {
   category: string;
-  /** Weeks until finished, or null when finished. */
+  level: number;
+  /** Weeks until the newest level is finished, or null when all are finished. */
   weeksLeft: number | null;
 }
 
@@ -59,7 +61,11 @@ export interface ProvincePanelOptions {
   onClose: () => void;
   /** Current owner of a province: id and display name (ownership comes from the game). */
   ownerOf: (provinceId: number) => { id: string; name: string };
+  /** The player's country, or '' outside a game. */
+  playerId: () => string;
   buildingsIn: (cityId: number) => CityBuilding[];
+  /** Opens the investment dialog to add a level to a building in one of our cities. */
+  onUpgrade: (cityId: number, category: string) => void;
   /** City selection for multi-city orders (investment now, military orders later). */
   isSelected: (cityId: number) => boolean;
   toggleSelected: (cityId: number) => void;
@@ -202,17 +208,25 @@ export class ProvincePanel {
       const buildings = this.options.buildingsIn(city.id);
       if (buildings.length) {
         const row = el('span', 'city-buildings');
+        const mine = this.options.ownerOf(province.id).id === this.options.playerId();
         for (const b of buildings) {
-          const name = t(`building.${b.category}` as TranslationKey);
-          row.append(
-            el(
-              'span',
-              b.weeksLeft === null ? 'chip' : 'chip chip-rival',
-              b.weeksLeft === null
-                ? name
-                : `${name} · ${t('econ.weeksLeft', { weeks: b.weeksLeft })}`,
-            ),
+          const name = `${t(`building.${b.category}` as TranslationKey)} · ${t('panel.level', { level: b.level })}`;
+          const chip = el(
+            'span',
+            b.weeksLeft === null ? 'chip' : 'chip chip-rival',
+            b.weeksLeft === null
+              ? name
+              : `${name} · ${t('econ.weeksLeft', { weeks: b.weeksLeft })}`,
           );
+          row.append(chip);
+          if (mine) {
+            const up = button('chip chip-upgrade', '⬆', () =>
+              this.options.onUpgrade(city.id, b.category),
+            );
+            up.setAttribute('aria-label', t('panel.upgrade'));
+            up.title = t('panel.upgrade');
+            row.append(up);
+          }
         }
         item.append(row);
       }

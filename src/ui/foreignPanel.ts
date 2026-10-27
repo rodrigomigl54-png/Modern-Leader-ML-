@@ -1,7 +1,9 @@
 import { t } from '../i18n';
 import type { Command } from '../sim/commands';
+import { formatRelation, signClass } from '../app/present';
 import {
   overlordOf,
+  relation,
   pointsCap,
   pointsIncome,
   vassalsOf,
@@ -160,6 +162,56 @@ export class ForeignPanel {
         }),
       t('defence.peace'),
     );
+
+    // Relations: the warmest and the coldest, with their scores in color.
+    const scored = game.world.countries
+      .filter((c) => c.id !== me && c.provinceIds.length > 0 && c.status !== 'uninhabited')
+      .map((c) => ({ id: c.id, r: relation(game, sim, me, c.id) }))
+      .filter((x) => Math.round(x.r) !== 0)
+      .sort((a, b) => b.r - a.r || (a.id < b.id ? -1 : 1));
+    const relationRow = (x: { id: string; r: number }): HTMLElement => {
+      const li = el('li');
+      li.append(
+        link(x.id),
+        el(
+          'span',
+          `badge mono relation-score ${signClass(Math.round(x.r), 0)}`,
+          formatRelation(x.r),
+        ),
+      );
+      return li;
+    };
+    const best = scored.filter((x) => x.r > 0).slice(0, 8);
+    const worst = scored
+      .filter((x) => x.r < 0)
+      .slice(-8)
+      .reverse();
+    section(t('foreign.relations'), [...best, ...worst].map(relationRow), t('foreign.noRelations'));
+
+    // Military access given and received.
+    const access = game.world.militaryAccess ?? [];
+    section(t('foreign.access'), [
+      ...access
+        .filter((a) => a.host === me)
+        .map((a) =>
+          row(
+            t('foreign.accessGiven', { country: countryName(a.guest) }),
+            button('btn btn-secondary btn-small', t('foreign.revoke'), () =>
+              this.options.issue({ type: 'revokeAccess', countryId: me, targetId: a.guest }),
+            ),
+          ),
+        ),
+      ...access
+        .filter((a) => a.guest === me)
+        .map((a) =>
+          row(
+            t('foreign.accessReceived', { country: countryName(a.host) }),
+            button('btn btn-secondary btn-small', t('foreign.giveUp'), () =>
+              this.options.issue({ type: 'revokeAccess', countryId: a.host, targetId: me }),
+            ),
+          ),
+        ),
+    ]);
 
     section(
       t('foreign.alliances'),
