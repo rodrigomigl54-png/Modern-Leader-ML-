@@ -70,7 +70,12 @@ export interface EconomyRules {
     max: number;
   };
   printing: { shareOfGdp: number };
-  investment: { foreignReturnShare: number; categories: InvestmentCategory[] };
+  investment: {
+    foreignReturnShare: number;
+    /** Most buildings of one kind a single order can place in each city. */
+    maxPerCity?: number;
+    categories: InvestmentCategory[];
+  };
 }
 
 /** Static facts the simulation needs besides the game state. */
@@ -391,6 +396,8 @@ export interface InvestmentQuote {
   cities: { cityId: number; host: string; consent: Consent }[];
   /** Cities that will actually be built in (own or consenting hosts). */
   buildable: number[];
+  /** Buildings per city (1 to investment.maxPerCity). */
+  count: number;
   totalCost: number;
   buildTurns: number;
   /** GDP added per year once finished: to the investor's own economy and to foreign hosts. */
@@ -412,10 +419,15 @@ export function investmentQuote(
   investor: string,
   cityIds: readonly number[],
   categoryId: string,
+  perCity = 1,
 ): InvestmentQuote | null {
   const cat = category(ctx.economy, categoryId);
   const economy = state.economy.countries[investor];
   if (!cat || !economy) return null;
+  const count = Math.max(
+    1,
+    Math.min(ctx.economy.investment.maxPerCity ?? 1, Math.floor(perCity) || 1),
+  );
   const cities = [...new Set(cityIds)].flatMap((cityId) => {
     const host = cityOwner(state, ctx, cityId);
     if (!host) return [];
@@ -428,16 +440,17 @@ export function investmentQuote(
   const buildable = cities.filter((c) => c.consent !== 'refuses');
   const own = buildable.filter((c) => c.consent === 'own').length;
   const foreign = buildable.length - own;
-  const totalCost = cat.costUsd * buildable.length;
+  const totalCost = cat.costUsd * buildable.length * count;
   return {
     category: cat,
     cities,
     buildable: buildable.map((c) => c.cityId),
+    count,
     totalCost,
     buildTurns: cat.buildTurns,
-    ownGdpPerYear: cat.costUsd * cat.gdpPerYearShare * own,
-    foreignGdpPerYear: cat.costUsd * cat.gdpPerYearShare * foreign,
-    returnPerYear: cat.costUsd * ctx.economy.investment.foreignReturnShare * foreign,
+    ownGdpPerYear: cat.costUsd * cat.gdpPerYearShare * own * count,
+    foreignGdpPerYear: cat.costUsd * cat.gdpPerYearShare * foreign * count,
+    returnPerYear: cat.costUsd * ctx.economy.investment.foreignReturnShare * foreign * count,
     affordable: buildable.length > 0 && totalCost <= economy.treasury,
   };
 }

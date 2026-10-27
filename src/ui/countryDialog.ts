@@ -6,6 +6,8 @@ import {
   dependenceOn,
   diplomacyRules,
   forSale,
+  insultedBetween,
+  missionsOf,
   overlordOf,
   peaceCost,
   relation,
@@ -28,6 +30,7 @@ import { weaponsRules, type WeaponKind } from '../sim/weapons';
 import { alliesOf, enemiesAtWar } from '../sim/world';
 import { leaderSeal } from './leaderSeal';
 import { button, el } from './dom';
+import { dipIcon, type DipIcon } from './dipIcons';
 
 export interface CountryDialogOptions {
   parent: HTMLElement;
@@ -272,6 +275,7 @@ export class CountryDialog {
     cost: number,
     onTap: () => void,
     cls = 'btn btn-secondary',
+    icon?: DipIcon,
   ): HTMLButtonElement {
     const game = this.game!;
     const have = game.diplomacy.points[game.player.countryId] ?? 0;
@@ -280,7 +284,15 @@ export class CountryDialog {
       cost > 0 ? `${label} · ${t('dip.cost', { points: cost })}` : label,
       onTap,
     );
+    if (icon) b.prepend(dipIcon(icon));
     b.disabled = cost > have + 1e-9;
+    return b;
+  }
+
+  /** A plain action button (no point cost) with its animated icon. */
+  private plain(label: string, onTap: () => void, icon: DipIcon, cls = 'btn btn-secondary') {
+    const b = button(`${cls} dip-action`, label, onTap);
+    b.prepend(dipIcon(icon));
     return b;
   }
 
@@ -311,17 +323,22 @@ export class CountryDialog {
     const out: HTMLElement[] = [];
     if (atWar) {
       list.append(
-        button('btn btn-primary dip-action', t('dip.peaceTalks'), () => this.go('peace')),
+        this.plain(t('dip.peaceTalks'), () => this.go('peace'), 'peace', 'btn btn-primary'),
       );
     } else {
       if (!allied)
         list.append(
-          this.action(t('dip.proposePact'), rules.costs.alliance, () =>
-            this.toastResult(
-              { type: 'proposeAlliance', countryId: me, targetId: id },
-              'dip.pactAccepted',
-              'dip.refused',
-            ),
+          this.action(
+            t('dip.proposePact'),
+            rules.costs.alliance,
+            () =>
+              this.toastResult(
+                { type: 'proposeAlliance', countryId: me, targetId: id },
+                'dip.pactAccepted',
+                'dip.refused',
+              ),
+            undefined,
+            'pact',
           ),
         );
       for (const al of game.world.alliances) {
@@ -336,11 +353,19 @@ export class CountryDialog {
                 'dip.joinAccepted',
                 'dip.refused',
               ),
+            undefined,
+            'join',
           ),
         );
       }
       list.append(
-        this.action(t('dip.ultimatum'), rules.costs.ultimatum, () => this.go('ultimatum')),
+        this.action(
+          t('dip.ultimatum'),
+          rules.costs.ultimatum,
+          () => this.go('ultimatum'),
+          undefined,
+          'ultimatum',
+        ),
       );
       const city = this.baseCity();
       if (city >= 0) {
@@ -354,6 +379,8 @@ export class CountryDialog {
                 'dip.baseAccepted',
                 'dip.refused',
               ),
+            undefined,
+            'base',
           ),
           this.action(
             t('dip.payBase', {
@@ -367,38 +394,53 @@ export class CountryDialog {
                 'dip.baseAccepted',
                 'dip.refused',
               ),
+            undefined,
+            'base',
           ),
         );
       }
       list.append(
-        this.action(t('dip.aid'), rules.costs.aid, () => this.go('aid')),
-        button('btn btn-secondary dip-action', t('dip.trade'), () => this.go('trade')),
+        this.action(t('dip.aid'), rules.costs.aid, () => this.go('aid'), undefined, 'aid'),
+        this.plain(t('dip.weaponsTrade'), () => this.go('trade'), 'trade'),
       );
       if (overlordOf(game.world, id) === me) {
         list.append(
-          button('btn btn-secondary dip-action', t('dip.release'), () =>
-            this.toastResult(
-              { type: 'vassal', countryId: me, mode: 'release', targetId: id },
-              'dip.released',
-              'dip.refused',
-            ),
+          this.plain(
+            t('dip.release'),
+            () =>
+              this.toastResult(
+                { type: 'vassal', countryId: me, mode: 'release', targetId: id },
+                'dip.released',
+                'dip.refused',
+              ),
+            'release',
           ),
         );
       } else {
         list.append(
-          this.action(t('dip.askVassal'), rules.costs.vassal, () =>
-            this.toastResult(
-              { type: 'vassal', countryId: me, mode: 'ask', targetId: id },
-              'dip.vassalAccepted',
-              'dip.refused',
-            ),
+          this.action(
+            t('dip.askVassal'),
+            rules.costs.vassal,
+            () =>
+              this.toastResult(
+                { type: 'vassal', countryId: me, mode: 'ask', targetId: id },
+                'dip.vassalAccepted',
+                'dip.refused',
+              ),
+            undefined,
+            'vassal',
           ),
-          this.action(t('dip.offerVassal'), rules.costs.vassal, () =>
-            this.toastResult(
-              { type: 'vassal', countryId: me, mode: 'offer', targetId: id },
-              'dip.offerAccepted',
-              'dip.refused',
-            ),
+          this.action(
+            t('dip.offerVassal'),
+            rules.costs.vassal,
+            () =>
+              this.toastResult(
+                { type: 'vassal', countryId: me, mode: 'offer', targetId: id },
+                'dip.offerAccepted',
+                'dip.refused',
+              ),
+            undefined,
+            'vassal',
           ),
         );
         for (const v of vassalsOf(game.world, me)) {
@@ -413,20 +455,64 @@ export class CountryDialog {
                   'dip.transferAccepted',
                   'dip.refused',
                 ),
+              undefined,
+              'vassal',
             ),
           );
         }
       }
     }
+    // Improving relations (not at war) and insults, with no money involved.
+    const mission = missionsOf(game, me).find((m) => m.to === id);
+    if (!atWar) {
+      const improve = mission
+        ? this.plain(
+            t('dip.improving', { weeks: mission.until - game.turn + 1 }),
+            () => undefined,
+            'improve',
+          )
+        : this.action(
+            t('dip.improve'),
+            rules.costs.improve ?? 0,
+            () =>
+              this.toastResult(
+                { type: 'improveRelations', countryId: me, targetId: id },
+                'dip.improveStarted',
+                'dip.refused',
+              ),
+            undefined,
+            'improve',
+          );
+      if (mission || insultedBetween(game, me, id)) improve.disabled = true;
+      list.prepend(improve);
+    }
+    const insultButton = this.action(
+      t('dip.insult'),
+      rules.costs.insult ?? 0,
+      () =>
+        this.toastResult(
+          { type: 'insult', countryId: me, targetId: id },
+          'dip.insulted',
+          'dip.refused',
+        ),
+      'btn btn-danger-outline',
+      'insult',
+    );
+    if (insultedBetween(game, me, id)) insultButton.disabled = true;
+    list.append(insultButton);
+
     // Sanctions work in war and peace.
     list.append(
       sanctioned(game, me, id)
-        ? button('btn btn-secondary dip-action', t('dip.liftSanctions'), () =>
-            this.toastResult(
-              { type: 'liftSanctions', countryId: me, targetId: id },
-              'dip.sanctionsLifted',
-              'dip.refused',
-            ),
+        ? this.plain(
+            t('dip.liftSanctions'),
+            () =>
+              this.toastResult(
+                { type: 'liftSanctions', countryId: me, targetId: id },
+                'dip.sanctionsLifted',
+                'dip.refused',
+              ),
+            'unsanction',
           )
         : this.action(
             t('dip.sanction'),
@@ -438,11 +524,12 @@ export class CountryDialog {
                 'dip.refused',
               ),
             'btn btn-danger-outline',
+            'sanction',
           ),
     );
     if (!atWar && !allied)
       list.append(
-        button('btn btn-danger dip-action', t('war.declare'), () => this.options.declareWar(id)),
+        this.plain(t('war.declare'), () => this.options.declareWar(id), 'war', 'btn btn-danger'),
       );
     out.push(list);
     return out;

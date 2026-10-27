@@ -226,6 +226,8 @@ Every country starts with its real relations, alliances, pacts and rivalries; ev
 | Weapons trade | Buy or sell weapons | Blocked by sanctions |
 | Vassals | Ask a country to become your vassal, offer to become one, transfer a vassal to another country | Vassals pay tribute and follow their overlord in war |
 | Investment abroad | Section 6 | Needs host consent |
+| Improve relations | Diplomats raise relations a little every turn for a while (no money) | Limited missions at once; relations drift back slowly afterwards (added by Dario in Phase 23) |
+| Insult | Relations drop at once | Neither side can improve relations for a while (added by Dario in Phase 23) |
 
 **Ultimatum rules:**
 
@@ -292,6 +294,8 @@ The interface must work equally on a phone (touch, small screen) and on a PC (mo
 - Tap/click a city or province: info panel with actions.
 - Multi-select: a selection mode for tapping several cities (phone) or drag/Shift-click (PC); one action applies to all selected.
 - Pinch/scroll to zoom, drag to pan.
+
+**World rankings:** a table of every country by overall power, GDP, GDP per person, population, army, provinces and support, with the player's place always shown (added by Dario in Phase 23).
 
 **Advisors:** four ministers (Finance, Defense, Foreign Affairs, Interior) deliver warnings and tips. They double as the tutorial in the first turns.
 

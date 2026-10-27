@@ -63,6 +63,10 @@ export interface ProvincePanelOptions {
   /** City selection for multi-city orders (investment now, military orders later). */
   isSelected: (cityId: number) => boolean;
   toggleSelected: (cityId: number) => void;
+  /** Selects (or clears) several cities at once: a whole province or the whole country. */
+  setSelected: (cityIds: number[], selected: boolean) => void;
+  /** Cities of the player's whole country, or null when the province is not the player's. */
+  countryCitiesOf: (provinceId: number) => number[] | null;
   /** Population status, or null outside a game. */
   statusOf: (provinceId: number) => ProvinceStatus | null;
   onAssimilate: (provinceId: number) => void;
@@ -311,6 +315,31 @@ export class ProvincePanel {
       }
     }
 
+    // One tap selects every city of the province (or of the whole country) for an order.
+    const bulk = el('div', 'select-all');
+    const bulkButton = (ids: number[], label: string, clearLabel: string): void => {
+      if (ids.length < 2) return;
+      const all = ids.every((id) => this.options.isSelected(id));
+      bulk.append(
+        button('btn btn-secondary btn-small', all ? clearLabel : label, () => {
+          this.options.setSelected(ids, !all);
+          this.render();
+        }),
+      );
+    };
+    bulkButton(
+      cities.map((c) => c.id),
+      t('panel.selectProvince', { count: cities.length }),
+      t('panel.clearProvince'),
+    );
+    const countryCities = this.options.countryCitiesOf(province.id);
+    if (countryCities)
+      bulkButton(
+        countryCities,
+        t('panel.selectCountry', { count: countryCities.length }),
+        t('panel.clearCountry'),
+      );
+
     this.panel.replaceChildren(
       header,
       el('h2', 'dossier-title', province.name),
@@ -318,6 +347,7 @@ export class ProvincePanel {
       ...extra,
       ...army,
       el('h3', 'dossier-subtitle', t('panel.cities')),
+      ...(bulk.childElementCount ? [bulk] : []),
       list,
     );
   }

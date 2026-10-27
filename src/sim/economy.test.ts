@@ -180,6 +180,26 @@ describe('investment', () => {
     expect(weeklyBudget(after, 'AAA', sim).investmentReturns).toBeGreaterThan(0);
   });
 
+  it('places several buildings per city in one order, up to the limit', () => {
+    const game = newGame();
+    const quote = investmentQuote(game, sim, 'AAA', [0, 1], 'factory', 3)!;
+    expect(quote.count).toBe(3);
+    expect(quote.totalCost).toBe(6 * 5e8);
+    expect(quote.ownGdpPerYear).toBe(6 * 5e8 * 0.25);
+    expect(investmentQuote(game, sim, 'AAA', [0], 'factory', 999)!.count).toBe(
+      rules.investment.maxPerCity,
+    );
+    game.economy.countries.AAA!.treasury = 1e10;
+    const invested = run(game, {
+      type: 'invest',
+      countryId: 'AAA',
+      cityIds: [0, 1],
+      category: 'factory',
+      count: 2,
+    });
+    expect(invested.economy.buildings.map((b) => b.cityId)).toEqual([0, 0, 1, 1]);
+  });
+
   it('freezes returns from a country at war with the investor', () => {
     let game = run(newGame(), {
       type: 'invest',

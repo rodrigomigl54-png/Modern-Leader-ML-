@@ -8,6 +8,7 @@ import { leaderSeal } from './leaderSeal';
 
 export interface GameHudActions {
   onMenu: () => void;
+  onRankings: () => void;
   onNextTurn: () => void;
   onEconomy: () => void;
   onInterior: () => void;
@@ -125,6 +126,14 @@ export class GameHud {
     const diplomacy = button('hud-stats hud-people', '', this.actions.onForeign);
     diplomacy.setAttribute('aria-label', t('foreign.title'));
     diplomacy.append(stat(t('foreign.pointsShort'), this.actions.pointsOf(game)));
+    // World rankings: a small podium.
+    const ranks = button('btn btn-secondary hud-menu hud-ranks', '', this.actions.onRankings);
+    ranks.setAttribute('aria-label', t('rank.title'));
+    ranks.title = t('rank.title');
+    ranks.innerHTML =
+      '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.6" stroke-linejoin="round"><path d="M3 20h18M9 20V9h6v11M3 20v-6h6M15 20v-8h6v8"/>' +
+      '<path d="M12 3.5l.9 1.8 2 .3-1.45 1.4.35 2-1.8-.95-1.8.95.35-2L9.1 5.6l2-.3z" fill="currentColor"/></svg>';
     this.bar.replaceChildren(
       flagImage(countryFlag(this.baseWorld, id, mode), 'flag hud-flag'),
       leaderSeal(game.player.leaderName, id, 34),
@@ -135,6 +144,7 @@ export class GameHud {
       army,
       diplomacy,
       when,
+      ranks,
       button('btn btn-secondary hud-menu', t('menu.gameMenu'), this.actions.onMenu),
     );
     this.next.textContent = t('turn.next');

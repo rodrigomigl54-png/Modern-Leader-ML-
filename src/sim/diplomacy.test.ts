@@ -132,6 +132,64 @@ describe('relations and points', () => {
   });
 });
 
+describe('improving relations and insults', () => {
+  it('a mission raises relations every turn for its length', () => {
+    const game = newGame();
+    const started = run(game, { type: 'improveRelations', countryId: 'AAA', targetId: 'BBB' });
+    expect(started.state.diplomacy.points.AAA).toBe(10 - rules.costs.improve!);
+    const r = rules.improve!;
+    const after = play(started.state, r.turns + 3);
+    // perTurn for each mission turn, minus the drift back once it is over.
+    expect(relation(after, sim, 'AAA', 'BBB')).toBeGreaterThan(r.perTurn * (r.turns - 3));
+    expect(after.diplomacy.missions).toEqual([]);
+    // One mission per country, and a limit on missions at once.
+    expect(
+      applyCommand(
+        started.state,
+        { type: 'improveRelations', countryId: 'AAA', targetId: 'BBB' },
+        sim,
+      ),
+    ).toEqual({ ok: false, error: 'alreadyRunning' });
+  });
+
+  it('allows only a few missions at once', () => {
+    let game = newGame();
+    game.diplomacy.missions = [
+      { from: 'AAA', to: 'XXX', until: 99 },
+      { from: 'AAA', to: 'YYY', until: 99 },
+      { from: 'AAA', to: 'ZZZ', until: 99 },
+    ].slice(0, rules.improve!.maxActive);
+    expect(
+      applyCommand(game, { type: 'improveRelations', countryId: 'AAA', targetId: 'BBB' }, sim),
+    ).toEqual({ ok: false, error: 'tooMany' });
+    game = newGame();
+    expect(
+      run(game, { type: 'improveRelations', countryId: 'AAA', targetId: 'BBB' }).state.diplomacy
+        .missions,
+    ).toHaveLength(1);
+  });
+
+  it('an insult lowers relations at once and blocks improving them for a while', () => {
+    const game = newGame();
+    const improving = run(game, { type: 'improveRelations', countryId: 'BBB', targetId: 'AAA' });
+    const insulted = run(improving.state, { type: 'insult', countryId: 'AAA', targetId: 'BBB' });
+    expect(relation(insulted.state, sim, 'AAA', 'BBB')).toBe(-rules.insult!.relation);
+    expect(insulted.state.diplomacy.missions).toEqual([]);
+    expect(
+      applyCommand(
+        insulted.state,
+        { type: 'improveRelations', countryId: 'AAA', targetId: 'BBB' },
+        sim,
+      ),
+    ).toEqual({ ok: false, error: 'insulted' });
+    const later = play(insulted.state, rules.insult!.blockTurns + 1);
+    later.diplomacy.points.AAA = 10;
+    expect(
+      applyCommand(later, { type: 'improveRelations', countryId: 'AAA', targetId: 'BBB' }, sim).ok,
+    ).toBe(true);
+  });
+});
+
 describe('war and alliances', () => {
   it('allies decide to join when one of them is attacked', () => {
     const { state } = run(newGame(), { type: 'declareWar', countryId: 'AAA', targetId: 'BBB' });

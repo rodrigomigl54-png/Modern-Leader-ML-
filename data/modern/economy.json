@@ -56,8 +56,9 @@
     "shareOfGdp": 0.01
   },
   "investment": {
-    "comment": "costUsd at price level 1; gdpPerYearShare = GDP added to the host country per year, as a share of the cost; returnShare = yearly return to a foreign investor; upkeepShare = yearly upkeep paid by the owner.",
+    "comment": "costUsd at price level 1; gdpPerYearShare = GDP added to the host country per year, as a share of the cost; returnShare = yearly return to a foreign investor; upkeepShare = yearly upkeep paid by the owner. One order can place up to maxPerCity buildings of a kind in each selected city.",
     "foreignReturnShare": 0.08,
+    "maxPerCity": 10,
     "categories": [
       {
         "id": "factory",

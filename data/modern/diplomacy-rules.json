@@ -25,7 +25,20 @@
     "alliance": 4,
     "base": 3,
     "vassal": 4,
-    "aid": 1
+    "aid": 1,
+    "improve": 1,
+    "insult": 1
+  },
+  "improve": {
+    "comment": "Improve relations: diplomats raise relations by perTurn every turn for turns turns, at most maxActive missions at once. Afterwards relations drift back slowly (relations.driftPerTurn).",
+    "turns": 10,
+    "perTurn": 2,
+    "maxActive": 3
+  },
+  "insult": {
+    "comment": "Insult: relations drop by relation at once, and neither side can improve them for blockTurns turns.",
+    "relation": 20,
+    "blockTurns": 10
   },
   "credibility": {
     "start": 70,
