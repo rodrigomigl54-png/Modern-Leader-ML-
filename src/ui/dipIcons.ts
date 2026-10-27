@@ -16,9 +16,12 @@ export type DipIcon =
   | 'sanction'
   | 'unsanction'
   | 'war'
-  | 'peace';
+  | 'peace'
+  | 'access';
 
 const SHAPES: Record<DipIcon, string> = {
+  // A border gate with an arrow passing through: military access.
+  access: '<path d="M5 4v16M19 4v16"/><path class="dip-i-slide-r" d="M3 12h15l-3-3M18 12l-3 3"/>',
   // Two lines rising toward each other with a small spark: relations getting warmer.
   improve:
     '<path d="M3 17l5-5 4 3 7-8"/><path class="dip-i-rise" d="M15 7h4v4"/>' +

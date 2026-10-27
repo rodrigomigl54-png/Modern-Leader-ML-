@@ -1,5 +1,5 @@
 import { t, type TranslationKey } from '../i18n';
-import { formatPercent, formatUsd } from '../app/present';
+import { formatPercent, formatSignedUsd, formatUsd, signClass } from '../app/present';
 import type { Command } from '../sim/commands';
 import { growthRate, printAmount, weeklyBudget, type SimContext } from '../sim/economy';
 import type { GameState } from '../sim/newGame';
@@ -82,14 +82,32 @@ export class EconomyPanel {
     const line = (label: string, value: number, cls = ''): void => {
       budget.append(el('dt', cls, label), el('dd', `mono ${cls}`, formatUsd(value)));
     };
+    // Income, expenses and the net change per week, from the same budget the turn applies.
+    const aid = e.aid ?? 0;
+    const section = (label: string): void => {
+      budget.append(el('dt', 'budget-head', label), el('dd', 'budget-head', ''));
+    };
+    section(t('econ.income'));
     line(t('econ.taxes'), b.taxes);
     if (b.investmentReturns > 0) line(t('econ.returns'), b.investmentReturns);
     if (b.trade > 0) line(t('econ.trade'), b.trade);
+    if (aid > 0) line(t('econ.aid'), aid);
+    line(t('econ.totalIncome'), b.income + aid, 'budget-sum gain');
+    section(t('econ.expenses'));
     line(t('econ.military'), -b.military);
     line(t('econ.services'), -b.services);
     if (b.interest > 0) line(t('econ.interest'), -b.interest);
     if (b.upkeep > 0) line(t('econ.upkeep'), -b.upkeep);
-    line(t('econ.balance'), b.balance, b.balance < 0 ? 'budget-total danger' : 'budget-total');
+    line(t('econ.totalExpenses'), -b.spending, 'budget-sum loss');
+    const net = b.balance + aid;
+    budget.append(
+      el('dt', 'budget-total', t('econ.net')),
+      el(
+        'dd',
+        `mono budget-total ${signClass(net)}`,
+        t('econ.perWeek', { value: formatSignedUsd(net) }),
+      ),
+    );
 
     const slider = (
       label: string,
@@ -191,12 +209,29 @@ export class EconomyPanel {
       return `${t(`res.${r}`)} ${sign}${formatPercent(Math.abs(change), 0)}%`;
     }).join(', ');
 
+    // Policy: accept or refuse foreign investment in our cities.
+    const policy = el('div', 'segmented');
+    for (const reject of [false, true]) {
+      const on = !!e.rejectForeignInvestment === reject;
+      const b = button(
+        on ? 'segment segment-selected' : 'segment',
+        t(reject ? 'econ.rejectForeign' : 'econ.acceptForeign'),
+        () => this.options.issue({ type: 'setForeignInvestment', countryId: id, reject }),
+      );
+      b.setAttribute('aria-pressed', String(on));
+      policy.append(b);
+    }
+    const policyRow = el('div', 'setup-row');
+    policyRow.append(el('span', 'setup-row-label', t('econ.foreignInvestment')), policy);
+
     this.root.replaceChildren(
       header,
       el('h2', 'dossier-title', t('econ.title')),
       key,
       el('h3', 'dossier-subtitle', t('econ.budget')),
       budget,
+      policyRow,
+      el('p', 'setup-hint', t('econ.foreignHint')),
       slider(t('econ.taxRate'), e.taxRate, limits.taxRateMin, limits.taxRateMax, (rate) => ({
         type: 'setTax',
         countryId: id,

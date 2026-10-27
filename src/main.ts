@@ -16,7 +16,7 @@ import { shortCount, type ArmyMarker } from './map/armyLayer';
 import { createMapView } from './map/mapView';
 import { applyCommand, type Command, type CommandError } from './sim/commands';
 import { ensureChronicle, type NewsItem } from './sim/chronicle';
-import { ensureEconomy } from './sim/economy';
+import { ensureEconomy, weeklyBudget } from './sim/economy';
 import { ensureGoals, type Goal } from './sim/goals';
 import { ensureSummits, summitRules, type SummitQuestion } from './sim/summits';
 import { dateOfTurn } from './sim/calendar';
@@ -54,6 +54,7 @@ import { GameHud } from './ui/gameHud';
 import { GameMenu } from './ui/gameMenu';
 import { GoalsPanel } from './ui/goalsPanel';
 import { RankingsPanel } from './ui/rankingsPanel';
+import { CornerNotices } from './ui/cornerNotices';
 import { NewsTicker, newsDialog } from './ui/newsTicker';
 import { reportDialog } from './ui/reportDialog';
 import { summitDialog } from './ui/summitDialog';
@@ -118,6 +119,7 @@ const COMMAND_ERRORS: Partial<Record<CommandError, TranslationKey>> = {
   tooMany: 'dip.tooMany',
   alreadyRunning: 'dip.alreadyRunning',
   insulted: 'dip.insultedError',
+  noTransport: 'dip.noTransport',
   noChips: 'produce.noChips',
 };
 
@@ -296,6 +298,24 @@ async function start(): Promise<void> {
         atSea: a.arriveTurn !== undefined && a.arriveTurn > game!.turn,
       }));
       map.setArmies(markers);
+      showBuildings();
+    };
+
+    /** Building icons on the map: only in the cities that have the buildings (with levels). */
+    const showBuildings = (): void => {
+      if (!game) return map.setBuildings([]);
+      const byCity = new Map<number, Map<string, number>>();
+      for (const b of game.economy.buildings) {
+        const kinds = byCity.get(b.cityId) ?? new Map<string, number>();
+        kinds.set(b.category, (kinds.get(b.category) ?? 0) + 1);
+        byCity.set(b.cityId, kinds);
+      }
+      map.setBuildings(
+        [...byCity].map(([cityId, kinds]) => ({
+          cityId,
+          kinds: [...kinds].map(([category, level]) => ({ category, level })),
+        })),
+      );
     };
 
     /** Asks before assimilating, with the total cost and the risk (GDD section 7). */
@@ -340,13 +360,20 @@ async function start(): Promise<void> {
         const id = map.ownerOf(provinceId);
         return { id, name: nameOf(id) };
       },
-      buildingsIn: (cityId) =>
-        (game?.economy.buildings ?? [])
-          .filter((b) => b.cityId === cityId)
-          .map((b) => ({
-            category: b.category,
-            weeksLeft: b.completed ? null : b.completeTurn - game!.turn,
-          })),
+      playerId: () => game?.player.countryId ?? '',
+      buildingsIn: (cityId) => {
+        // Buildings of one kind in a city are its levels (GDD section 6).
+        const byKind = new Map<string, { level: number; weeksLeft: number | null }>();
+        for (const b of game?.economy.buildings ?? []) {
+          if (b.cityId !== cityId) continue;
+          const g = byKind.get(b.category) ?? { level: 0, weeksLeft: null };
+          g.level++;
+          if (!b.completed) g.weeksLeft = Math.max(g.weeksLeft ?? 0, b.completeTurn - game!.turn);
+          byKind.set(b.category, g);
+        }
+        return [...byKind].map(([category, g]) => ({ category, ...g }));
+      },
+      onUpgrade: (cityId, category) => game && investDialog.open(game, [cityId], category),
       statusOf: (provinceId) => {
         if (!game) return null;
         const pop = game.population;
@@ -514,6 +541,16 @@ async function start(): Promise<void> {
       map.setPolitics(politicsFor(state.world, state.settings.disputedMode));
     };
 
+    // Development only (stripped from builds): lets browser tests prepare a situation.
+    if (import.meta.env.DEV)
+      (window as unknown as { __ml: unknown }).__ml = {
+        game: () => game,
+        change: (fn: (state: GameState) => void) => {
+          if (game) fn(game);
+          showState();
+        },
+      };
+
     /** Refreshes everything that shows the game state. */
     const showState = (): void => {
       if (!game) return;
@@ -535,6 +572,7 @@ async function start(): Promise<void> {
       foreignPanel.update(game);
       goalsPanel.update(game);
       rankingsPanel.update(game);
+      notices.update(game);
       ticker.update(headlines(game));
       countryDialog.update(game);
     };
@@ -586,6 +624,8 @@ async function start(): Promise<void> {
           building: t(`building.${r.category}` as TranslationKey),
           city: cityName(r.cityId),
         });
+      if (r.type === 'pact') return t('foreign.pactRequest', { country: nameOf(r.from) });
+      if (r.type === 'access') return t('foreign.accessRequest', { country: nameOf(r.from) });
       const u = state.diplomacy.ultimatums.find((x) => x.id === r.ultimatumId);
       return u
         ? t('foreign.ultimatumRequest', {
@@ -684,6 +724,7 @@ async function start(): Promise<void> {
       sound.startMusic();
       ticker.show();
       ticker.update(headlines(state));
+      notices.update(state);
       if (state.gameOver) void showGameOver();
       else if (state.turn === 0) void advisorTip(0).then(startShortages);
       else if (state.summits.pending) void openSummit();
@@ -865,19 +906,12 @@ async function start(): Promise<void> {
       if (joinedAgainst.length)
         await foreign(t('minister.warJoined', { countries: names(joinedAgainst) }));
       if (joinedFor.length) toasts.show(t('dip.allyJoined', { countries: names(joinedFor) }));
-      for (const e of events) {
-        if (e.type !== 'request' || !game) continue;
-        const r = game.diplomacy.requests.find((x) => x.id === e.requestId);
-        if (!r) continue;
-        const accept = await confirmDialog(
-          uiRoot,
-          t('minister.foreign'),
-          describeRequest(game, r),
-          t('foreign.accept'),
-          t('foreign.refuse'),
-        );
-        issue({ type: 'answerRequest', countryId: player, requestId: r.id, accept });
+      // New proposals and requests wait in the corner without stopping the game.
+      if (game && game.diplomacy.requests.some((r) => !seenRequests.has(r.id))) {
+        sound.play('alert');
+        for (const r of game.diplomacy.requests) seenRequests.add(r.id);
       }
+      notices.update(game);
       // War news: one summary per turn instead of a toast per battle.
       let won = 0;
       let lost = 0;
@@ -1061,6 +1095,7 @@ async function start(): Promise<void> {
     const leaveGame = (): void => {
       sound.stopMusic();
       game = null;
+      notices.update(null);
       hud.hide();
       hud.setBusy(false);
       panel.hide();
@@ -1345,6 +1380,28 @@ async function start(): Promise<void> {
       openCountry: (id, view) => game && countryDialog.open(game, id, -1, view),
       openRankings: () => game && rankingsPanel.open(game),
     });
+    const seenRequests = new Set<number>();
+    /** The country a request comes from. */
+    const senderOf = (state: GameState, r: PlayerRequest): string =>
+      r.type === 'ultimatum'
+        ? (state.diplomacy.ultimatums.find((u) => u.id === r.ultimatumId)?.from ?? '')
+        : r.from;
+    const notices = new CornerNotices({
+      parent: uiRoot,
+      describe: (state, r) => describeRequest(state, r),
+      senderOf,
+      flag: (id) =>
+        flagImage(
+          countryFlag(game?.world ?? world, id, game?.settings.disputedMode ?? 'neutral'),
+          'flag',
+        ),
+      answer: (r, accept) => {
+        if (!game) return;
+        issue({ type: 'answerRequest', countryId: game.player.countryId, requestId: r.id, accept });
+      },
+      open: (state, r) =>
+        countryDialog.open(state, senderOf(state, r), -1, r.type === 'peace' ? 'peace' : 'main'),
+    });
     const rankingsPanel = new RankingsPanel({
       parent: uiRoot,
       sim,
@@ -1398,6 +1455,9 @@ async function start(): Promise<void> {
         foreignPanel.open(game);
       },
       pointsOf: (state) => (state.diplomacy.points[state.player.countryId] ?? 0).toFixed(0),
+      netOf: (state) =>
+        weeklyBudget(state, state.player.countryId, sim).balance +
+        (state.economy.countries[state.player.countryId]?.aid ?? 0),
       onDefence: () => {
         if (!game) return;
         if (defencePanel.isOpen) return defencePanel.close();

@@ -72,8 +72,10 @@ export interface EconomyRules {
   printing: { shareOfGdp: number };
   investment: {
     foreignReturnShare: number;
-    /** Most buildings of one kind a single order can place in each city. */
+    /** Most buildings (levels) of one kind a single order can place in each city. */
     maxPerCity?: number;
+    /** Each level of a building in a city costs this much more than the one before (0.25 = +25%). */
+    levelCostGrowth?: number;
     categories: InvestmentCategory[];
   };
 }
@@ -131,6 +133,8 @@ export interface CountryEconomy {
   printed: number;
   /** True after the Minister of Finance warned about high inflation (reset when it falls). */
   inflationAlerted: boolean;
+  /** Policy: refuse every investment by foreign countries in this country's cities. */
+  rejectForeignInvestment?: boolean;
   /** Foreign war aid received this week (USD); deficits it covers do not drive inflation. */
   aid?: number;
   /** Donors of war aid and the last turn of their aid after the war (reconstruction). */
@@ -393,7 +397,8 @@ export function hostConsent(world: World, investor: string, host: string): Conse
 
 export interface InvestmentQuote {
   category: InvestmentCategory;
-  cities: { cityId: number; host: string; consent: Consent }[];
+  /** Each city with its host, consent, current level and the cost of the ordered levels. */
+  cities: { cityId: number; host: string; consent: Consent; level: number; cost: number }[];
   /** Cities that will actually be built in (own or consenting hosts). */
   buildable: number[];
   /** Buildings per city (1 to investment.maxPerCity). */
@@ -405,6 +410,10 @@ export interface InvestmentQuote {
   foreignGdpPerYear: number;
   /** Yearly return to the investor from cities abroad. */
   returnPerYear: number;
+  /** Yearly upkeep the investor pays for the new buildings. */
+  upkeepPerYear: number;
+  /** Change of the investor's weekly budget once the buildings are finished. */
+  budgetPerWeek: number;
   affordable: boolean;
 }
 
@@ -431,16 +440,26 @@ export function investmentQuote(
   const cities = [...new Set(cityIds)].flatMap((cityId) => {
     const host = cityOwner(state, ctx, cityId);
     if (!host) return [];
-    // Sanctions freeze investment both ways (GDD section 10).
-    const consent = sanctionsBetween(state, investor, host)
-      ? 'refuses'
-      : hostConsent(state.world, investor, host);
-    return [{ cityId, host, consent }];
+    // Sanctions freeze investment both ways (GDD section 10); a host can refuse all foreign
+    // investment by policy.
+    const consent =
+      sanctionsBetween(state, investor, host) ||
+      (host !== investor && state.economy.countries[host]?.rejectForeignInvestment)
+        ? 'refuses'
+        : hostConsent(state.world, investor, host);
+    const level = buildingLevel(state, cityId, cat.id);
+    let cost = 0;
+    for (let i = 0; i < count; i++) cost += levelCost(ctx, cat, level + i);
+    return [{ cityId, host, consent, level, cost }];
   });
   const buildable = cities.filter((c) => c.consent !== 'refuses');
-  const own = buildable.filter((c) => c.consent === 'own').length;
-  const foreign = buildable.length - own;
-  const totalCost = cat.costUsd * buildable.length * count;
+  const totalCost = buildable.reduce((s, c) => s + c.cost, 0);
+  const ownCost = buildable.filter((c) => c.consent === 'own').reduce((s, c) => s + c.cost, 0);
+  const foreignCost = totalCost - ownCost;
+  const ownGdpPerYear = ownCost * cat.gdpPerYearShare;
+  const returnPerYear = foreignCost * ctx.economy.investment.foreignReturnShare;
+  const upkeepPerYear = totalCost * cat.upkeepShare;
+  const tax = economy.taxRate * productionFactor(state, ctx, investor);
   return {
     category: cat,
     cities,
@@ -448,11 +467,28 @@ export function investmentQuote(
     count,
     totalCost,
     buildTurns: cat.buildTurns,
-    ownGdpPerYear: cat.costUsd * cat.gdpPerYearShare * own * count,
-    foreignGdpPerYear: cat.costUsd * cat.gdpPerYearShare * foreign * count,
-    returnPerYear: cat.costUsd * ctx.economy.investment.foreignReturnShare * foreign * count,
+    ownGdpPerYear,
+    foreignGdpPerYear: foreignCost * cat.gdpPerYearShare,
+    returnPerYear,
+    upkeepPerYear,
+    // What the finished buildings change in the weekly budget: taxes on the new GDP and returns
+    // from abroad, minus upkeep (the same terms weeklyBudget uses).
+    budgetPerWeek: (ownGdpPerYear * tax + returnPerYear - upkeepPerYear) / 52,
     affordable: buildable.length > 0 && totalCost <= economy.treasury,
   };
+}
+
+/** Buildings of a category in a city (finished or under construction): its level. */
+export function buildingLevel(state: GameState, cityId: number, categoryId: string): number {
+  let n = 0;
+  for (const b of state.economy.buildings)
+    if (b.cityId === cityId && b.category === categoryId) n++;
+  return n;
+}
+
+/** Price of the next level of a building (level 0 = the first one), at today's price level. */
+export function levelCost(ctx: SimContext, cat: InvestmentCategory, level: number): number {
+  return cat.costUsd * (1 + (ctx.economy.investment.levelCostGrowth ?? 0)) ** level;
 }
 
 /** Extra cash one money print gives the country right now. */

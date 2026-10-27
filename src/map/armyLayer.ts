@@ -78,9 +78,15 @@ export class ArmyLayer {
     this.markers = markers;
   }
 
-  update(camera: Camera): void {
+  /** True while an army on screen is moving (its icon and route are animated). */
+  animating = false;
+
+  update(camera: Camera, now = performance.now()): void {
     const g = this.shapes;
     g.clear();
+    this.animating = false;
+    // Phase of the marching animation, 0..1 every second.
+    const phase = (now % 1000) / 1000;
     for (const t of this.pool) t.visible = false;
     const [x0, y0, x1, y1] = camera.visibleRect();
     const margin = 40 / camera.scale;
@@ -91,9 +97,11 @@ export class ArmyLayer {
     for (const m of this.markers) {
       if (m.relation !== 'own' || m.path.length === 0) continue;
       let [px, py] = camera.worldToScreen(...this.anchor[m.provinceId]!);
+      this.animating = true;
       for (const p of m.path) {
         const [qx, qy] = camera.worldToScreen(...this.anchor[p]!);
-        dashed(g, px, py, qx, qy);
+        // The dashes flow toward the destination.
+        dashed(g, px, py, qx, qy, phase);
         px = qx;
         py = qy;
       }
@@ -112,7 +120,8 @@ export class ArmyLayer {
       const slot = stacks.get(m.provinceId) ?? 0;
       stacks.set(m.provinceId, slot + 1);
       const label = shortCount(m.size);
-      const w = 10 + label.length * 7.5;
+      const icon = 12;
+      const w = 10 + icon + label.length * 7.5;
       const h = 18;
       const [sx, sy] = camera.worldToScreen(...world);
       const x = Math.round(sx - w / 2 + slot * (w + 3));
@@ -121,6 +130,46 @@ export class ArmyLayer {
       g.roundRect(x, y, w, h, 4)
         .fill({ color: color.fill, alpha: m.atSea ? 0.6 : 1 })
         .stroke({ color: m.selected ? 0xffffff : 0x0b1522, width: m.selected ? 2 : 1 });
+      // The unit icon: rank chevrons at rest, marching chevrons on the move, a boat at sea.
+      const moving = m.path.length > 0 || m.atSea;
+      if (moving) this.animating = true;
+      const ix = x + 4;
+      const iy = y + 4;
+      if (m.atSea) {
+        const bob = Math.sin(phase * Math.PI * 2) * 1.2;
+        g.poly([
+          ix,
+          iy + 6 + bob,
+          ix + 10,
+          iy + 6 + bob,
+          ix + 8,
+          iy + 10 + bob,
+          ix + 2,
+          iy + 10 + bob,
+        ]).fill({ color: color.text });
+        g.rect(ix + 4.5, iy + bob, 1.2, 6).fill({ color: color.text });
+        g.poly([ix + 5.7, iy + bob, ix + 9, iy + 4 + bob, ix + 5.7, iy + 4 + bob]).fill({
+          color: color.text,
+        });
+      } else {
+        const next = m.path[0];
+        const dir = next === undefined ? 0 : Math.sign(this.anchor[next]![0] - world[0]) || 1;
+        const shift = moving ? Math.sin(phase * Math.PI * 2) * 1.5 * dir : 0;
+        for (const dy of [0, 4]) {
+          if (dir === 0)
+            g.moveTo(ix + 1, iy + 6 + dy)
+              .lineTo(ix + 5, iy + 2 + dy)
+              .lineTo(ix + 9, iy + 6 + dy);
+          else
+            g.moveTo(ix + 3 + shift - dir * 2, iy + dy)
+              .lineTo(ix + 3 + shift + dir * 2, iy + 3 + dy)
+              .lineTo(ix + 3 + shift - dir * 2, iy + 6 + dy);
+        }
+        if (dir === 0) g.stroke({ color: color.text, width: 1.6 });
+        else {
+          g.stroke({ color: color.text, width: 1.6 });
+        }
+      }
       // A small chevron pointing at the city.
       g.poly([
         sx - 4 + slot * (w + 3),
@@ -143,7 +192,7 @@ export class ArmyLayer {
       text.text = label;
       text.tint = color.text;
       text.visible = true;
-      text.position.set(x + w / 2, y + h / 2 + 1);
+      text.position.set(x + icon + (w - icon) / 2, y + h / 2 + 1);
     }
   }
 }
@@ -151,13 +200,16 @@ export class ArmyLayer {
 const order = (m: ArmyMarker): number =>
   m.relation === 'own' ? 0 : m.relation === 'enemy' ? 1 : m.relation === 'ally' ? 2 : 3;
 
-function dashed(g: Graphics, ax: number, ay: number, bx: number, by: number): void {
+function dashed(g: Graphics, ax: number, ay: number, bx: number, by: number, phase = 0): void {
   const len = Math.hypot(bx - ax, by - ay);
   const dash = 6;
   const steps = Math.max(1, Math.floor(len / dash));
-  for (let i = 0; i < steps; i += 2) {
-    const t0 = i / steps;
-    const t1 = Math.min(1, (i + 1) / steps);
+  // The pattern shifts by up to two dashes per second, so the route seems to flow.
+  const offset = (phase * 2) % 2;
+  for (let i = -2; i < steps; i += 2) {
+    const t0 = Math.max(0, (i + offset) / steps);
+    const t1 = Math.min(1, (i + offset + 1) / steps);
+    if (t1 <= t0) continue;
     g.moveTo(ax + (bx - ax) * t0, ay + (by - ay) * t0).lineTo(
       ax + (bx - ax) * t1,
       ay + (by - ay) * t1,

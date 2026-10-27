@@ -5,8 +5,14 @@
 // never acts outside its profile; all randomness is seeded.
 import {
   imposeSanctions,
+  improveRelations,
+  insult,
+  insultedBetween,
   investAbroad,
+  leaveAlliance,
+  missionsOf,
   proposeAlliance,
+  requestAccess,
   relation,
   sanctioned,
   sendAid,
@@ -18,7 +24,7 @@ import {
   type DiplomacyEvent,
 } from './diplomacy';
 import { investmentQuote, weeklyBudget, type SimContext } from './economy';
-import { citiesOfProvince } from './military';
+import { citiesOfProvince, entryRule } from './military';
 import type { GoalKind } from './goals';
 import type { GameState } from './newGame';
 import { nationalSupport } from './population';
@@ -153,6 +159,7 @@ export function aiPolicyOrders(
     }
     if (
       live.has(player) &&
+      !state.economy.countries[player]?.rejectForeignInvestment &&
       relation(state, ctx, id, player) >= t.investInPlayerRelation &&
       chance(state, ctx, rng, economy, r.rates.investInPlayer)
     ) {
@@ -333,6 +340,78 @@ export function aiPolicyOrders(
       const pactRate = r.rates.pact * (g && pursues('joinAlliance') ? g.pactFactor : 1);
       if (chance(state, ctx, rng, T('loyalty'), pactRate)) proposeAlliance(state, ctx, id, partner);
       break;
+    }
+
+    // Diplomatic initiative (GDD section 11): warm up to partners and neighbors, cool off with
+    // rivals, drop pacts that have gone sour, offer pacts to a friendly player, and ask for
+    // passage when a war cannot be reached over land.
+    const di = r.diplomacy;
+    if (di) {
+      const neighbors = neighborsOf(state, ctx, country).filter((x) => live.has(x));
+      if (missionsOf(state, id).length === 0) {
+        const candidates = [...new Set([...partners, ...neighbors])]
+          .filter(
+            (x) =>
+              live.has(x) &&
+              x !== id &&
+              !rivals.has(x) &&
+              !enemiesAtWar(state.world, id).includes(x) &&
+              !insultedBetween(state, id, x),
+          )
+          .map((x) => ({ x, r: relation(state, ctx, id, x) }))
+          .filter((c) => c.r >= di.improveFrom && c.r < di.improveUpTo)
+          .sort((a, b) => b.r - a.r || (a.x < b.x ? -1 : 1));
+        const target = candidates[0];
+        if (target && chance(state, ctx, rng, 100 - T('expansionism'), r.rates.improve ?? 0))
+          improveRelations(state, ctx, id, target.x);
+      }
+      const rival = [...rivals]
+        .filter(
+          (x) =>
+            live.has(x) &&
+            !insultedBetween(state, id, x) &&
+            relation(state, ctx, id, x) > di.insultDownTo,
+        )
+        .sort()[0];
+      if (rival && chance(state, ctx, rng, T('pressure'), r.rates.insult ?? 0))
+        insult(state, ctx, id, rival);
+      // Pacts (not the big alliances) end when relations have gone sour.
+      for (const al of [...state.world.alliances]) {
+        if (al.type !== 'pact' || !al.members.includes(id)) continue;
+        const other = al.members.find((m) => m !== id);
+        if (other && relation(state, ctx, id, other) < di.cancelPactBelow)
+          leaveAlliance(state, ctx, id, al.id);
+      }
+      // A friendly country proposes a pact to the player (answered in a notification).
+      if (
+        live.has(player) &&
+        !pursues('neutrality') &&
+        !alliesOf(state.world, id).includes(player) &&
+        relation(state, ctx, id, player) >= t.pactRelation + di.playerPactMargin &&
+        !rivals.has(player) &&
+        chance(state, ctx, rng, T('loyalty'), r.rates.pact)
+      )
+        proposeAlliance(state, ctx, id, player);
+      // At war with no land front: ask a neighbor that borders the enemy for passage.
+      const enemies = new Set(enemiesAtWar(state.world, id));
+      if (enemies.size > 0 && (state.turn + id.charCodeAt(0)) % di.accessEveryTurns === 0) {
+        const land = ctx.provinceNeighbors ?? [];
+        const owners = state.world.provinceOwners;
+        const front = country.provinceIds.some((p) =>
+          land[p]?.some((q) => enemies.has(owners[q]!)),
+        );
+        if (!front) {
+          const canEnter = entryRule(state.world, id);
+          const host = neighbors.find((h) => {
+            if (canEnter(h) || h === player) return false;
+            const c = state.world.countries.find((x) => x.id === h);
+            return (c?.provinceIds ?? []).some((p) =>
+              land[p]?.some((q) => enemies.has(owners[q]!)),
+            );
+          });
+          if (host) requestAccess(state, ctx, id, host);
+        }
+      }
     }
 
     // Nuclear posture: a losing nuclear power threatens the player.

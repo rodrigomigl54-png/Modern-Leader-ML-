@@ -10,6 +10,8 @@ import {
   findPath,
   militaryTotals,
   recruitQuote,
+  soldiersAtSea,
+  transportCapacity,
   type Army,
   type MilitaryEvent,
   type MilitaryRules,
@@ -198,6 +200,46 @@ describe('movement', () => {
     expect(game.world.provinceOwners[5]).toBe('CCC');
     game = play(game, 1);
     expect(game.world.provinceOwners[5]).toBe('AAA');
+  });
+
+  it('needs transport capacity to cross the sea, and soldiers at sea cost more once', () => {
+    let game = issue(newGame(), { type: 'declareWar', countryId: 'AAA', targetId: 'CCC' });
+    // AAA has one port province (0): it carries transportPerPort soldiers at once.
+    const capacity = transportCapacity(game, sim, 'AAA');
+    expect(capacity).toBe(rules.naval.transportPerPort);
+    setArmies(game, [{ owner: 'AAA', provinceId: 0, regulars: capacity + 1 }]);
+    expect(
+      applyCommand(
+        game,
+        { type: 'moveArmies', countryId: 'AAA', armyIds: [100], targetProvinceId: 5 },
+        sim,
+      ),
+    ).toEqual({ ok: false, error: 'noTransport' });
+    // Two armies that fit only one at a time: the second waits in port.
+    setArmies(game, [
+      { owner: 'AAA', provinceId: 0, regulars: capacity * 0.6 },
+      { owner: 'AAA', provinceId: 0, regulars: capacity * 0.6 },
+    ]);
+    const onLand = armyUpkeep(game, sim, 'AAA');
+    game = issue(game, {
+      type: 'moveArmies',
+      countryId: 'AAA',
+      armyIds: [100, 101],
+      targetProvinceId: 5,
+    });
+    game = play(game, 1);
+    const [first, second] = armiesOf(game, 'AAA');
+    expect(first!.provinceId).toBe(5);
+    expect(first!.arriveTurn).toBeDefined();
+    expect(second!.provinceId).toBe(0);
+    expect(second!.path).toEqual([5]);
+    expect(soldiersAtSea(game, 'AAA')).toBe(capacity * 0.6);
+    // The soldiers at sea cost (multiplier - 1) more, on top of their land upkeep.
+    const m = game.military.countries.AAA!.upkeepPerSoldier;
+    expect(armyUpkeep(game, sim, 'AAA') - onLand).toBeCloseTo(
+      m * capacity * 0.6 * (rules.naval.seaUpkeepMultiplier! - 1),
+      0,
+    );
   });
 
   it('splits an army in two', () => {

@@ -73,6 +73,8 @@ export interface World {
   disputed: { id: string; parent: string }[];
   /** Bases abroad; a base lets its owner's armies enter the host's land. */
   foreignBases?: ForeignBase[];
+  /** Military access: the host lets the guest's armies cross its land (GDD section 5). */
+  militaryAccess?: { host: string; guest: string }[];
 }
 
 /**

@@ -8,6 +8,7 @@ import {
   hostConsent,
   initialEconomy,
   investmentQuote,
+  buildingLevel,
   weeklyBudget,
   type EconomyRules,
   type SimContext,
@@ -180,16 +181,19 @@ describe('investment', () => {
     expect(weeklyBudget(after, 'AAA', sim).investmentReturns).toBeGreaterThan(0);
   });
 
-  it('places several buildings per city in one order, up to the limit', () => {
+  it('places several levels per city in one order, each level dearer than the last', () => {
     const game = newGame();
+    const g = 1 + rules.investment.levelCostGrowth!;
     const quote = investmentQuote(game, sim, 'AAA', [0, 1], 'factory', 3)!;
     expect(quote.count).toBe(3);
-    expect(quote.totalCost).toBe(6 * 5e8);
-    expect(quote.ownGdpPerYear).toBe(6 * 5e8 * 0.25);
+    // Levels 1-3 in each of two cities.
+    expect(quote.totalCost).toBeCloseTo(2 * 5e8 * (1 + g + g * g), 0);
+    expect(quote.ownGdpPerYear).toBeCloseTo(quote.totalCost * 0.25, 0);
     expect(investmentQuote(game, sim, 'AAA', [0], 'factory', 999)!.count).toBe(
       rules.investment.maxPerCity,
     );
     game.economy.countries.AAA!.treasury = 1e10;
+    const before = game.economy.countries.AAA!.treasury;
     const invested = run(game, {
       type: 'invest',
       countryId: 'AAA',
@@ -198,6 +202,47 @@ describe('investment', () => {
       count: 2,
     });
     expect(invested.economy.buildings.map((b) => b.cityId)).toEqual([0, 0, 1, 1]);
+    expect(invested.economy.buildings.map((b) => b.costUsd)).toEqual([5e8, 5e8 * g, 5e8, 5e8 * g]);
+    expect(invested.economy.countries.AAA!.treasury).toBeCloseTo(before - 2 * 5e8 * (1 + g), 0);
+    expect(buildingLevel(invested, 0, 'factory')).toBe(2);
+    // The next upgrade of city 0 is level 3: dearer again.
+    expect(investmentQuote(invested, sim, 'AAA', [0], 'factory')!.totalCost).toBeCloseTo(
+      5e8 * g * g,
+      0,
+    );
+  });
+
+  it('shows what an investment adds to the weekly budget', () => {
+    const game = newGame();
+    const quote = investmentQuote(game, sim, 'AAA', [0], 'factory')!;
+    const e = game.economy.countries.AAA!;
+    expect(quote.budgetPerWeek).toBeCloseTo(
+      (quote.ownGdpPerYear * e.taxRate - quote.upkeepPerYear) / 52,
+      0,
+    );
+    expect(quote.budgetPerWeek).toBeGreaterThan(0);
+  });
+
+  it('a country can refuse all foreign investment; its own still works', () => {
+    const game = newGame();
+    const refused = run(game, { type: 'setForeignInvestment', countryId: 'BBB', reject: true });
+    expect(refused.economy.countries.BBB!.rejectForeignInvestment).toBe(true);
+    // AAA cannot build in BBB's city 2.
+    expect(investmentQuote(refused, sim, 'AAA', [2], 'factory')!.buildable).toEqual([]);
+    expect(
+      applyCommand(
+        refused,
+        { type: 'invest', countryId: 'AAA', cityIds: [2], category: 'factory' },
+        sim,
+      ),
+    ).toEqual({ ok: false, error: 'allRefused' });
+    // BBB still builds at home; AAA still builds at home.
+    refused.economy.countries.BBB!.treasury = 1e10;
+    expect(investmentQuote(refused, sim, 'BBB', [2], 'factory')!.buildable).toEqual([2]);
+    expect(investmentQuote(refused, sim, 'AAA', [0], 'factory')!.buildable).toEqual([0]);
+    // Switching it off allows foreign investment again.
+    const open = run(refused, { type: 'setForeignInvestment', countryId: 'BBB', reject: false });
+    expect(investmentQuote(open, sim, 'AAA', [2], 'factory')!.buildable).toEqual([2]);
   });
 
   it('freezes returns from a country at war with the investor', () => {

@@ -64,6 +64,10 @@ export interface MilitaryRules {
     interceptBase: number;
     /** Extra share per point of the best enemy air-defense interception at the landing city. */
     interceptAirDefense: number;
+    /** Soldiers a country can carry at sea at once, per province it has with a port. */
+    transportPerPort?: number;
+    /** Upkeep of a soldier at sea, as a multiple of its upkeep on land. */
+    seaUpkeepMultiplier?: number;
   };
   rebels: {
     startShareOfPopulation: number;
@@ -415,23 +419,65 @@ export function armyUpkeep(state: GameState, ctx: SimContext, countryId: string)
   const country = state.world.countries.find((c) => c.id === countryId);
   if (country?.status === 'rebels') return 0;
   const t = militaryTotals(state, countryId);
+  // Soldiers at sea cost more (transport ships), charged once on top of their land upkeep.
+  const sea = (rules.naval.seaUpkeepMultiplier ?? 1) - 1;
+  const atSeaCost =
+    sea > 0
+      ? state.military.armies
+          .filter((a) => a.owner === countryId && atSea(state, a))
+          .reduce((s, a) => s + a.regulars + a.special * rules.upkeep.specialMultiplier, 0) * sea
+      : 0;
   return (
     m.upkeepPerSoldier *
     (t.regulars +
       t.trainees +
       t.special * rules.upkeep.specialMultiplier +
-      t.reservists * rules.upkeep.reservistShare)
+      t.reservists * rules.upkeep.reservistShare +
+      atSeaCost)
   );
 }
 
-/** Border rule (GDD section 5): own land, allies' land, or land of a country at war with us. */
+/** Soldiers a country can have at sea at once: its ports times the transport per port. */
+export function transportCapacity(state: GameState, ctx: SimContext, countryId: string): number {
+  const per = ctx.military?.naval.transportPerPort;
+  if (per === undefined) return Infinity;
+  const { sea } = geography(ctx);
+  const country = state.world.countries.find((c) => c.id === countryId);
+  const ports = (country?.provinceIds ?? []).filter((p) => (sea.get(p)?.length ?? 0) > 0).length;
+  return ports * per;
+}
+
+/** Soldiers of a country now at sea. */
+export function soldiersAtSea(state: GameState, countryId: string): number {
+  return state.military.armies
+    .filter((a) => a.owner === countryId && atSea(state, a))
+    .reduce((s, a) => s + a.regulars + a.special, 0);
+}
+
+/** True when a path crosses the sea somewhere (from the start province on). */
+export function pathCrossesSea(ctx: SimContext, from: number, path: readonly number[]): boolean {
+  const { land } = geography(ctx);
+  let at = from;
+  for (const p of path) {
+    if (!land[at]?.includes(p)) return true;
+    at = p;
+  }
+  return false;
+}
+
+/**
+ * Border rule (GDD section 5): own land, allies' land, land of a country at war with us, and the
+ * land of a country that hosts our base or gives us military access. Nothing else.
+ */
 export function entryRule(world: World, mover: string): (owner: string) => boolean {
   const hosts = (world.foreignBases ?? []).filter((b) => b.owner === mover).map((b) => b.host);
+  const access = (world.militaryAccess ?? []).filter((a) => a.guest === mover).map((a) => a.host);
   const allowed = new Set([
     mover,
     ...alliesOf(world, mover),
     ...enemiesAtWar(world, mover),
     ...hosts,
+    ...access,
   ]);
   return (owner) => allowed.has(owner);
 }
@@ -662,6 +708,11 @@ export function movementPhase(state: GameState, ctx: SimContext): void {
     if (!canEnter(owners[next]!) || demilitarizedFor(state, army.owner).has(next)) {
       army.path = [];
       continue;
+    }
+    if (!land[army.provinceId]?.includes(next)) {
+      // Embarking needs free transport: the army waits in port until there is room.
+      const capacity = transportCapacity(state, ctx, army.owner);
+      if (soldiersAtSea(state, army.owner) + armySize(army) > capacity) continue;
     }
     army.path.shift();
     if (!land[army.provinceId]?.includes(next)) {

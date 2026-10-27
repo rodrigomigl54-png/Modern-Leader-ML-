@@ -1,6 +1,7 @@
 import { Application, Container, Graphics } from 'pixi.js';
 import type { CountryStatus } from '../sim/world';
 import { ArmyLayer, type ArmyMarker } from './armyLayer';
+import { BuildingLayer, type CityBuildings } from './buildingLayer';
 import { Camera } from './camera';
 import { StrikeLayer, type StrikeOverlay } from './strikeLayer';
 import { MapControls } from './controls';
@@ -80,6 +81,8 @@ export interface MapView {
   lookAtWorld(): void;
   /** Army counters and routes. */
   setArmies(markers: ArmyMarker[]): void;
+  /** Building icons next to the cities that have them. */
+  setBuildings(items: CityBuildings[]): void;
   /** Missiles, drones, nuclear bases and air-defense rings. */
   setStrikes(overlay: StrikeOverlay): void;
   /** Impact ripples at cities. */
@@ -203,7 +206,15 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
   const armies = new ArmyLayer(data, Math.min(2, deviceRatio()));
   const strikes = new StrikeLayer(data);
   const selectionBox = new Graphics();
-  app.stage.addChild(world, labels.container, strikes.container, armies.container, selectionBox);
+  const buildings = new BuildingLayer(data);
+  app.stage.addChild(
+    world,
+    labels.container,
+    buildings.container,
+    strikes.container,
+    armies.container,
+    selectionBox,
+  );
   await tiles.loadBase((f) => options.onProgress(0.5 + f * 0.5));
 
   const camera = new Camera(map.width, map.height);
@@ -377,6 +388,10 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
         requestRender();
       }
     },
+    setBuildings: (items) => {
+      buildings.set(items);
+      requestRender();
+    },
     setArmies: (markers) => {
       armies.setMarkers(markers);
       requestRender();
@@ -393,12 +408,18 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
 
   // Render only when something changed, so an idle map costs no battery.
   let last = performance.now();
+  let lastAnimation = 0;
   const frame = (now: number): void => {
     // Schedule the next frame first: an error in one frame must never stop the map for good.
     requestAnimationFrame(frame);
     const dt = Math.min(100, now - last);
     last = now;
     if (controls.update(dt)) dirty = true;
+    // Moving armies are animated at about 20 frames a second (enough for a smooth march).
+    if (armies.animating && now - lastAnimation >= 50) {
+      lastAnimation = now;
+      dirty = true;
+    }
     if (dirty) {
       dirty = false;
       const s = camera.scale;
@@ -413,8 +434,9 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       shared.setView(deviceScale, provinceAlpha);
       tiles.update(camera.visibleRect(), Math.min(deviceScale, s * 2));
       labels.update(camera);
+      buildings.update(camera);
       strikes.update(camera);
-      armies.update(camera);
+      armies.update(camera, now);
       // Impact ripples need frames until they fade.
       if (strikes.animating) dirty = true;
       app.render();

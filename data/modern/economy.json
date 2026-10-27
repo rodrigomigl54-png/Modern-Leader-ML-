@@ -56,9 +56,10 @@
     "shareOfGdp": 0.01
   },
   "investment": {
-    "comment": "costUsd at price level 1; gdpPerYearShare = GDP added to the host country per year, as a share of the cost; returnShare = yearly return to a foreign investor; upkeepShare = yearly upkeep paid by the owner. One order can place up to maxPerCity buildings of a kind in each selected city.",
+    "comment": "costUsd at price level 1; gdpPerYearShare = GDP added to the host country per year, as a share of the cost; returnShare = yearly return to a foreign investor; upkeepShare = yearly upkeep paid by the owner. Buildings of one kind in a city are its levels: each level costs levelCostGrowth more than the one before (the first factory $500 m, the second $625 m, ...), and its GDP, returns and upkeep follow what was paid. One order can add up to maxPerCity levels in each selected city. A country can refuse all foreign investment by policy.",
     "foreignReturnShare": 0.08,
     "maxPerCity": 10,
+    "levelCostGrowth": 0.25,
     "categories": [
       {
         "id": "factory",
