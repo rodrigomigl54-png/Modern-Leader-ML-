@@ -13,6 +13,8 @@ import {
 import {
   answerRequest,
   imposeSanctions,
+  improveRelations,
+  insult,
   leaveAlliance,
   liftSanctions,
   proposeAlliance,
@@ -67,6 +69,8 @@ export interface InvestCommand {
   countryId: string;
   cityIds: number[];
   category: string;
+  /** Buildings per city (default 1). */
+  count?: number;
 }
 
 /** Assimilates the listed provinces ("Assimilate all" sends every eligible one). */
@@ -166,6 +170,8 @@ export type DiplomacyCommand =
   | { type: 'proposeAlliance'; countryId: string; targetId: string; allianceId?: string }
   | { type: 'leaveAlliance'; countryId: string; allianceId: string }
   | { type: 'sanction'; countryId: string; targetId: string }
+  | { type: 'improveRelations'; countryId: string; targetId: string }
+  | { type: 'insult'; countryId: string; targetId: string }
   | { type: 'liftSanctions'; countryId: string; targetId: string }
   | { type: 'ultimatum'; countryId: string; targetId: string; demand: Demand; threat: Threat }
   | { type: 'requestBase'; countryId: string; cityId: number; pay: boolean }
@@ -289,6 +295,7 @@ export function applyCommand(
         command.countryId,
         command.cityIds,
         command.category,
+        command.count,
       );
       if (!quote) return { ok: false, error: 'unknownCategory' };
       if (quote.cities.length === 0) return { ok: false, error: 'noCities' };
@@ -299,17 +306,18 @@ export function applyCommand(
       e.treasury -= quote.totalCost;
       for (const city of quote.cities) {
         if (city.consent === 'refuses') continue;
-        state.economy.buildings.push({
-          id: state.economy.nextBuildingId++,
-          category: quote.category.id,
-          cityId: city.cityId,
-          owner: command.countryId,
-          host: city.host,
-          costUsd: quote.category.costUsd,
-          startedTurn: state.turn,
-          completeTurn: state.turn + quote.category.buildTurns,
-          completed: false,
-        });
+        for (let i = 0; i < quote.count; i++)
+          state.economy.buildings.push({
+            id: state.economy.nextBuildingId++,
+            category: quote.category.id,
+            cityId: city.cityId,
+            owner: command.countryId,
+            host: city.host,
+            costUsd: quote.category.costUsd,
+            startedTurn: state.turn,
+            completeTurn: state.turn + quote.category.buildTurns,
+            completed: false,
+          });
       }
       return { ok: true, state };
     }
@@ -482,6 +490,12 @@ function diplomacyCommand(
       break;
     case 'sanction':
       result = imposeSanctions(state, ctx, id, c.targetId);
+      break;
+    case 'improveRelations':
+      result = improveRelations(state, ctx, id, c.targetId);
+      break;
+    case 'insult':
+      result = insult(state, ctx, id, c.targetId);
       break;
     case 'liftSanctions':
       result = liftSanctions(state, ctx, id, c.targetId);

@@ -53,6 +53,7 @@ import { FpsCounter } from './ui/fpsCounter';
 import { GameHud } from './ui/gameHud';
 import { GameMenu } from './ui/gameMenu';
 import { GoalsPanel } from './ui/goalsPanel';
+import { RankingsPanel } from './ui/rankingsPanel';
 import { NewsTicker, newsDialog } from './ui/newsTicker';
 import { reportDialog } from './ui/reportDialog';
 import { summitDialog } from './ui/summitDialog';
@@ -114,6 +115,9 @@ const COMMAND_ERRORS: Partial<Record<CommandError, TranslationKey>> = {
   atWar: 'dip.atWarError',
   unknownRequest: 'dip.unknownRequest',
   tooEarly: 'dip.peaceTooEarly',
+  tooMany: 'dip.tooMany',
+  alreadyRunning: 'dip.alreadyRunning',
+  insulted: 'dip.insultedError',
   noChips: 'produce.noChips',
 };
 
@@ -466,6 +470,18 @@ async function start(): Promise<void> {
         else selection.add(cityId);
         selectionBar.update(selection.size, armySelection.size);
       },
+      setSelected: (cityIds, on) => {
+        for (const c of cityIds) {
+          if (on) selection.add(c);
+          else selection.delete(c);
+        }
+        selectionBar.update(selection.size, armySelection.size);
+      },
+      countryCitiesOf: (provinceId) => {
+        if (!game || game.world.provinceOwners[provinceId] !== game.player.countryId) return null;
+        const country = game.world.countries.find((c) => c.id === game!.player.countryId);
+        return country ? country.provinceIds.flatMap((p) => citiesOfProvince(sim, p)) : null;
+      },
     });
     const fps = new FpsCounter(uiRoot);
     map.setTheme(savedTheme());
@@ -518,6 +534,7 @@ async function start(): Promise<void> {
       defencePanel.update(game);
       foreignPanel.update(game);
       goalsPanel.update(game);
+      rankingsPanel.update(game);
       ticker.update(headlines(game));
       countryDialog.update(game);
     };
@@ -1157,11 +1174,11 @@ async function start(): Promise<void> {
       parent: uiRoot,
       sim,
       countryName: nameOf,
-      onConfirm: (category) => {
+      onConfirm: (category, count) => {
         if (!game) return;
         const cityIds = [...selection];
-        if (issue({ type: 'invest', countryId: game.player.countryId, cityIds, category })) {
-          toasts.show(t('invest.started', { count: cityIds.length }));
+        if (issue({ type: 'invest', countryId: game.player.countryId, cityIds, category, count })) {
+          toasts.show(t('invest.started', { count: cityIds.length * count }));
           clearSelection();
         }
       },
@@ -1326,6 +1343,18 @@ async function start(): Promise<void> {
       describeDemand,
       issue: (command) => void issue(command),
       openCountry: (id, view) => game && countryDialog.open(game, id, -1, view),
+      openRankings: () => game && rankingsPanel.open(game),
+    });
+    const rankingsPanel = new RankingsPanel({
+      parent: uiRoot,
+      sim,
+      countryName: nameOf,
+      flag: (id) =>
+        flagImage(
+          countryFlag(game?.world ?? world, id, game?.settings.disputedMode ?? 'neutral'),
+          'flag',
+        ),
+      openCountry: (id) => game && countryDialog.open(game, id, -1),
     });
 
     const selectionBar = new SelectionBar(uiRoot, {
@@ -1336,6 +1365,7 @@ async function start(): Promise<void> {
 
     const hud = new GameHud(uiRoot, world, {
       onMenu: () => gameMenu.show(),
+      onRankings: () => game && rankingsPanel.open(game),
       onNextTurn: () => void endTurn(),
       onEconomy: () => {
         if (!game) return;
@@ -1422,6 +1452,7 @@ async function start(): Promise<void> {
         foreignPanel.close();
         goalsPanel.open(game);
       },
+      onRankings: () => game && rankingsPanel.open(game),
       onNews: () => void openNews(),
       onFeedback: openFeedback,
       onExit: exitToMenu,

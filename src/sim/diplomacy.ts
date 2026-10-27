@@ -29,7 +29,13 @@ export interface DiplomacyRules {
     base: number;
     vassal: number;
     aid: number;
+    improve?: number;
+    insult?: number;
   };
+  /** Improve relations: a mission that raises relations every turn for a while. */
+  improve?: { turns: number; perTurn: number; maxActive: number };
+  /** Insult: an instant drop in relations that blocks improving them for a while. */
+  insult?: { relation: number; blockTurns: number };
   credibility: { start: number; enforced: number; failed: number; enforceTurns: number };
   ultimatum: {
     deadlineTurns: number;
@@ -187,6 +193,10 @@ export interface DiplomacyState {
   wars: Record<string, WarRecord>;
   demilitarized: { country: string; provinceIds: number[]; until: number }[];
   nextId: number;
+  /** Running "improve relations" missions (last turn included). */
+  missions?: { from: string; to: string; until: number }[];
+  /** Insults: improving relations between the two is blocked until the given turn. */
+  insults?: { from: string; to: string; until: number }[];
 }
 
 export type DiplomacyEvent =
@@ -209,7 +219,10 @@ export type DiplomacyError =
   | 'noStock'
   | 'notEnoughMoney'
   | 'unknownRequest'
-  | 'tooEarly';
+  | 'tooEarly'
+  | 'tooMany'
+  | 'alreadyRunning'
+  | 'insulted';
 
 /** Result of a diplomatic action: its error, or whether the other side accepted. */
 export type ActionResult = { error: DiplomacyError } | { accepted: boolean };
@@ -352,6 +365,57 @@ function spend(state: GameState, id: string, cost: number): boolean {
   if (have + 1e-9 < cost) return false;
   state.diplomacy.points[id] = have - cost;
   return true;
+}
+
+/** Improving relations between the two is blocked by a recent insult (either way). */
+export function insultedBetween(state: GameState, a: string, b: string): boolean {
+  return (state.diplomacy.insults ?? []).some(
+    (x) => x.until >= state.turn && ((x.from === a && x.to === b) || (x.from === b && x.to === a)),
+  );
+}
+
+/** Running "improve relations" missions of a country. */
+export function missionsOf(state: GameState, id: string): { to: string; until: number }[] {
+  return (state.diplomacy.missions ?? []).filter((m) => m.from === id && m.until >= state.turn);
+}
+
+/**
+ * Improve relations: diplomats work on another country for a number of turns, raising relations
+ * a little every turn (no money involved).
+ */
+export function improveRelations(
+  state: GameState,
+  ctx: SimContext,
+  from: string,
+  to: string,
+): ActionResult {
+  const rules = diplomacyRules(ctx);
+  const r = rules.improve;
+  if (!r || !exists(state, to) || from === to) return { error: 'invalidTarget' };
+  if (enemiesAtWar(state.world, from).includes(to)) return { error: 'atWar' };
+  if (insultedBetween(state, from, to)) return { error: 'insulted' };
+  const running = missionsOf(state, from);
+  if (running.some((m) => m.to === to)) return { error: 'alreadyRunning' };
+  if (running.length >= r.maxActive) return { error: 'tooMany' };
+  if (!spend(state, from, rules.costs.improve ?? 0)) return { error: 'notEnoughPoints' };
+  (state.diplomacy.missions ??= []).push({ from, to, until: state.turn + r.turns });
+  return { accepted: true };
+}
+
+/** Insult: relations drop at once, and neither side can improve them for a while. */
+export function insult(state: GameState, ctx: SimContext, from: string, to: string): ActionResult {
+  const rules = diplomacyRules(ctx);
+  const r = rules.insult;
+  if (!r || !exists(state, to) || from === to) return { error: 'invalidTarget' };
+  if (insultedBetween(state, from, to)) return { error: 'insulted' };
+  if (!spend(state, from, rules.costs.insult ?? 0)) return { error: 'notEnoughPoints' };
+  changeRelation(state, ctx, from, to, -r.relation);
+  // An insult ends any mission to improve relations between the two.
+  state.diplomacy.missions = (state.diplomacy.missions ?? []).filter(
+    (m) => !((m.from === from && m.to === to) || (m.from === to && m.to === from)),
+  );
+  (state.diplomacy.insults ??= []).push({ from, to, until: state.turn + r.blockTurns });
+  return { accepted: true };
 }
 
 /** Military strength of a country (armies, and reservists at half). */
@@ -1363,6 +1427,20 @@ export function diplomacyPhase(
       }
       emit({ type: 'globalSanctions', countryId: e.attacker });
     }
+  }
+
+  // Improve-relations missions work every turn until they end (or a war starts).
+  if (d.missions?.length || d.insults?.length) {
+    const perTurn = rules.improve?.perTurn ?? 0;
+    d.missions = (d.missions ?? []).filter(
+      (m) =>
+        m.until >= state.turn &&
+        exists(state, m.to) &&
+        exists(state, m.from) &&
+        !enemiesAtWar(state.world, m.from).includes(m.to),
+    );
+    for (const m of d.missions) changeRelation(state, ctx, m.from, m.to, perTurn);
+    d.insults = (d.insults ?? []).filter((x) => x.until >= state.turn);
   }
 
   // Relations drift slowly back toward what alliances, rivalries and wars imply.

@@ -8,7 +8,7 @@ export interface InvestDialogOptions {
   parent: HTMLElement;
   sim: SimContext;
   countryName: (id: string) => string;
-  onConfirm: (category: string) => void;
+  onConfirm: (category: string, count: number) => void;
 }
 
 /**
@@ -26,7 +26,10 @@ export class InvestDialog {
     options.parent.append(this.backdrop);
   }
 
+  private count = 1;
+
   open(game: GameState, cityIds: number[]): void {
+    this.count = 1;
     this.render(game, cityIds, null);
     this.backdrop.hidden = false;
   }
@@ -64,9 +67,31 @@ export class InvestDialog {
 
     // Quote and confirm stay visible at the bottom while the list scrolls.
     const footer = el('div', 'modal-footer');
+    // How many of the building go into each selected city.
+    const max = sim.economy.investment.maxPerCity ?? 1;
+    if (max > 1) {
+      const stepper = el('div', 'stepper');
+      const step = (delta: number): HTMLButtonElement => {
+        const b = button('btn btn-secondary stepper-button', delta < 0 ? '−' : '+', () => {
+          this.count = Math.max(1, Math.min(max, this.count + delta));
+          this.render(game, cityIds, chosen);
+        });
+        b.disabled = delta < 0 ? this.count <= 1 : this.count >= max;
+        b.setAttribute('aria-label', t(delta < 0 ? 'invest.fewer' : 'invest.more'));
+        return b;
+      };
+      stepper.append(
+        el('span', 'stepper-label', t('invest.perCityCount')),
+        step(-1),
+        el('span', 'stepper-value mono', String(this.count)),
+        step(1),
+      );
+      footer.append(stepper);
+    }
+
     const actions = el('div', 'modal-actions');
     actions.append(button('btn btn-secondary', t('saves.cancel'), () => this.close()));
-    const quote = chosen ? investmentQuote(game, sim, investor, cityIds, chosen) : null;
+    const quote = chosen ? investmentQuote(game, sim, investor, cityIds, chosen, this.count) : null;
     if (quote) {
       const facts = el('dl', 'facts');
       const fact = (label: string, value: string, cls = 'mono'): void => {
@@ -98,7 +123,7 @@ export class InvestDialog {
         t('invest.confirm', { cost: formatUsd(quote.totalCost) }),
         () => {
           this.close();
-          this.options.onConfirm(quote.category.id);
+          this.options.onConfirm(quote.category.id, quote.count);
         },
       );
       confirm.disabled = !quote.affordable;

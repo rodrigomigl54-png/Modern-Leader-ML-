@@ -437,6 +437,18 @@ Done:
 - `npm run sim:balance -- --trace a-b` now also prints the watched countries' economy every 4 turns.
 - Results (10-year runs): the Russia–Ukraine front holds for about two years and the war ends in a peace with little land changing hands; Ukraine then has a hard post-war period (in some runs it loses a few provinces to rebels, in others it recovers fully). The rest of the world is stable (Realistic: 5 wars, 2 revolutions, growth 2.1%).
 
+## Phase 23 — Bulk orders, rankings, relations, action icons
+
+Done (Dario's requests, inspired by Age of History 2 but drawn our own way):
+
+- **Several buildings at once:** the investment dialog has a "Per city" stepper (1–10, `economy.json` `investment.maxPerCity`): e.g. 2 factories in every selected city in one order.
+- **Select all cities:** the province panel has "Select all cities" for the province and, in your own provinces, "Whole country".
+- **World rankings** (`src/sim/rankings.ts`, `src/ui/rankingsPanel.ts`): power (50% GDP, 30% soldiers, 20% people, as shares of the world), GDP, GDP per person, population, army, provinces, support; flags and bars, your row highlighted (also outside the top 20), a tap opens the country. Opened from the podium button in the top bar, the game menu and the foreign ministry.
+- **Improve relations and Send an insult** (`diplomacy-rules.json` `improve`, `insult`): a 10-week mission raises relations by 2 a week (1 point, at most 3 at once); an insult lowers relations by 20 and freezes improving them for 10 weeks. GDD section 10 updated.
+- **Animated icons** for every diplomatic action (`src/ui/dipIcons.ts`): thin-line SVG icons in the game's colors, each with one gentle looping motion (rising arrow, flickering bolt, turning hourglass, waving flag, swaying olive branch, ...); motion stops with the system "reduce motion" setting.
+- Fixed: the weapons-trade button showed "{value}" (its text key had been reused in Phase 16).
+- Checked in Chromium with Pixel 7 landscape emulation: Belgrade → whole country (25 cities) → 3 factories per city ($38 bn), rankings, country dialog with icons; no errors.
+
 ## Next
 
 - Dario: merge the PR, review the new AI profiles, and test the game; changes come from that testing.
@@ -455,6 +467,7 @@ Done:
 - The interface size uses CSS `zoom` (supported by current browsers; very old ones ignore it).
 
 - Summit questions come from a fixed set of fourteen templates.
+- The AI does not use Improve relations or insults yet.
 
 - 133 of 203 AI profiles are derived from data rather than written by hand; their justifications are generic.
 - A turn takes about 30 ms on a PC; to watch on slow phones.

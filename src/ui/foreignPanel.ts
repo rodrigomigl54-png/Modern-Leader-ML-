@@ -24,6 +24,7 @@ export interface ForeignPanelOptions {
   describeDemand: (demand: Demand) => string;
   issue: (command: Command) => void;
   openCountry: (countryId: string, view?: 'main' | 'peace') => void;
+  openRankings: () => void;
 }
 
 /** Ministry of Foreign Affairs (GDD section 10): points, credibility and all relations. */
@@ -84,7 +85,12 @@ export class ForeignPanel {
     );
     fact(t('foreign.credibility'), String(Math.round(d.credibility[me] ?? 0)));
 
-    const children: HTMLElement[] = [header, el('h2', 'dossier-title', t('foreign.title')), facts];
+    const children: HTMLElement[] = [
+      header,
+      el('h2', 'dossier-title', t('foreign.title')),
+      facts,
+      button('btn btn-secondary btn-small', t('rank.title'), () => this.options.openRankings()),
+    ];
     const section = (title: string, items: HTMLElement[], empty?: string): void => {
       if (!items.length && !empty) return;
       children.push(el('h3', 'dossier-subtitle', title));
