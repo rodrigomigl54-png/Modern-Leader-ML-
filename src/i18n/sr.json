@@ -1,6 +1,9 @@
 {
   "app.title": "Modern Leader",
   "app.versionLabel": "v{version} · verzija od {date}",
+  "update.available": "Dostupna je nova verzija igre Modern Leader. Igra se čuva svake nedelje.",
+  "update.reload": "Učitaj je",
+  "update.later": "Kasnije",
   "settings.open": "Podešavanja",
   "settings.title": "Podešavanja",
   "settings.language": "Jezik",

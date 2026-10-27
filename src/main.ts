@@ -1,6 +1,7 @@
 import './ui/style.css';
 import { loadFonts } from './app/fonts';
 import { setupLandscape } from './app/orientation';
+import { watchForUpdates } from './app/updateCheck';
 import { onLanguageChange, t, type TranslationKey } from './i18n';
 import {
   countryFlag,
@@ -130,6 +131,7 @@ async function start(): Promise<void> {
 
   restoreLanguage();
   setupLandscape(document.body);
+  watchForUpdates(document.body);
   applyAppearance(savedTheme(), savedUiScale());
   const sound = new Sound();
   onTelegram(() => sound.play('alert'));
