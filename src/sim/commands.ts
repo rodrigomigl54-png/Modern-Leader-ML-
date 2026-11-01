@@ -2,6 +2,8 @@
 // (GDD section 2). They take effect immediately when issued (money is spent at once, a building
 // starts at once); the turn engine then advances everything they set in motion.
 import { investmentQuote, levelCost, printAmount, type SimContext } from './economy';
+import { assignPoint, type TechCategory } from './technology';
+import { nonAggressionBetween, proposeDeal, type Deal } from './deals';
 import {
   findPath,
   pathCrossesSea,
@@ -36,7 +38,6 @@ import {
   type Threat,
 } from './diplomacy';
 import { cloneState, type GameState } from './newGame';
-import { attendSummit, skipSummit } from './summits';
 import {
   airDefenseQuote,
   launchDrones,
@@ -66,6 +67,20 @@ export interface SetServicesCommand {
 export interface PrintMoneyCommand {
   type: 'printMoney';
   countryId: string;
+}
+
+/** Research spending as a share of GDP (technology). */
+export interface SetResearchCommand {
+  type: 'setResearch';
+  countryId: string;
+  share: number;
+}
+
+/** Assigns one technology point to a bonus. */
+export interface AssignTechCommand {
+  type: 'assignTech';
+  countryId: string;
+  category: TechCategory;
 }
 
 /** Policy: accept or refuse all investment by foreign countries in this country's cities. */
@@ -184,6 +199,8 @@ export type DiplomacyCommand =
   | { type: 'improveRelations'; countryId: string; targetId: string }
   | { type: 'insult'; countryId: string; targetId: string }
   | { type: 'requestAccess'; countryId: string; targetId: string }
+  /** A trade request (Age of History style): a package offered for a package asked. */
+  | { type: 'proposeDeal'; countryId: string; targetId: string; deal: Deal }
   /** The host (countryId) ends the access it gave the guest (targetId). */
   | { type: 'revokeAccess'; countryId: string; targetId: string }
   | { type: 'liftSanctions'; countryId: string; targetId: string }
@@ -216,22 +233,15 @@ export type DiplomacyCommand =
   | { type: 'proposePeace'; countryId: string; targetId: string; terms: PeaceTerms }
   | { type: 'answerRequest'; countryId: string; requestId: number; accept: boolean };
 
-export interface SummitCommand {
-  type: 'summit';
-  countryId: string;
-  summitId: number;
-  /** One answer per question; null skips the summit. */
-  answers: string[] | null;
-}
-
 export type Command =
   | DiplomacyCommand
-  | SummitCommand
   | SetTaxCommand
   | SetServicesCommand
   | PrintMoneyCommand
   | InvestCommand
   | ForeignInvestmentCommand
+  | SetResearchCommand
+  | AssignTechCommand
   | AssimilateCommand
   | MoveArmiesCommand
   | SplitArmyCommand
@@ -256,13 +266,14 @@ export type CommandError =
   | 'unknownArmy'
   | 'noPath'
   | 'noTransport'
+  | 'noTechPoints'
+  | 'nonAggression'
   | 'tooSmall'
   | 'nothingToRecruit'
   | 'needsBase'
   | 'invalidTarget'
   | 'alreadyAtWar'
   | 'allied'
-  | 'noSummit'
   | WeaponsError
   | DiplomacyError;
 
@@ -301,6 +312,23 @@ export function applyCommand(
       const amount = printAmount(previous, command.countryId, ctx.economy);
       e.treasury += amount;
       e.printed += amount;
+      return { ok: true, state };
+    }
+    case 'setResearch': {
+      const tech = ctx.economy.technology;
+      if (!tech) return { ok: false, error: 'unknownCountry' };
+      const state = cloneState(previous);
+      const e = state.economy.countries[command.countryId];
+      if (!e) return { ok: false, error: 'unknownCountry' };
+      e.research = Math.min(tech.maxResearch, Math.max(tech.minResearch, command.share));
+      return { ok: true, state };
+    }
+    case 'assignTech': {
+      const tech = ctx.economy.technology;
+      const state = cloneState(previous);
+      const e = state.economy.countries[command.countryId];
+      if (!tech || !e?.tech) return { ok: false, error: 'unknownCountry' };
+      if (!assignPoint(tech, e.tech, command.category)) return { ok: false, error: 'noTechPoints' };
       return { ok: true, state };
     }
     case 'setForeignInvestment': {
@@ -487,18 +515,11 @@ export function applyCommand(
         return { ok: false, error: 'alreadyAtWar' };
       if (alliesOf(previous.world, countryId).includes(targetId))
         return { ok: false, error: 'allied' };
+      if (nonAggressionBetween(previous, countryId, targetId))
+        return { ok: false, error: 'nonAggression' };
       const state = cloneState(previous);
       startWar(state, ctx, countryId, targetId);
       return { ok: true, state };
-    }
-    case 'summit': {
-      if (command.countryId !== previous.player.countryId || !ctx.summits)
-        return { ok: false, error: 'noSummit' };
-      const state = cloneState(previous);
-      const done = command.answers
-        ? attendSummit(state, ctx, command.summitId, command.answers)
-        : skipSummit(state, ctx, command.summitId);
-      return done ? { ok: true, state } : { ok: false, error: 'noSummit' };
     }
     default:
       return diplomacyCommand(previous, command, ctx);
@@ -531,6 +552,9 @@ function diplomacyCommand(
       break;
     case 'requestAccess':
       result = requestAccess(state, ctx, id, c.targetId);
+      break;
+    case 'proposeDeal':
+      result = proposeDeal(state, ctx, id, c.targetId, c.deal);
       break;
     case 'revokeAccess':
       result = revokeAccess(state, id, c.targetId);

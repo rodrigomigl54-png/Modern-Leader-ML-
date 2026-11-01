@@ -1,8 +1,9 @@
+import type { DealRules } from './deals';
 // Diplomacy (GDD sections 5, 8 and 10): relations, diplomatic points, credibility, alliances and
 // pacts, sanctions, ultimatums, joining wars, foreign bases, aid, weapons trade, vassals and peace
 // treaties. Until AI profiles exist (Phase 11) AI answers follow the thresholds in
 // data/modern/diplomacy-rules.json (DiplomacyRules). Everything is deterministic.
-import { buildingLevel, levelCost, type SimContext } from './economy';
+import { buildingLevel, investmentDiscount, levelCost, type SimContext } from './economy';
 import { armyStrength, atSea, militaryRules, provinceSeat } from './military';
 import type { GameState } from './newGame';
 import { joinThreshold } from './profiles';
@@ -32,6 +33,7 @@ export interface DiplomacyRules {
     improve?: number;
     insult?: number;
     access?: number;
+    deal?: number;
   };
   /** Improve relations: a mission that raises relations every turn for a while. */
   improve?: { turns: number; perTurn: number; maxActive: number };
@@ -39,6 +41,8 @@ export interface DiplomacyRules {
   insult?: { relation: number; blockTurns: number };
   /** Military access: the host lets the guest's armies cross its land. */
   access?: { askMinRelation: number; revokeBelowRelation: number; refusedRelation: number };
+  /** Weights of trade requests (src/sim/deals.ts). */
+  deals?: DealRules;
   /** Answers the player owes to AI proposals (pacts, access). */
   proposals?: {
     answerTurns: number;
@@ -215,6 +219,8 @@ export interface DiplomacyState {
   missions?: { from: string; to: string; until: number }[];
   /** Insults: improving relations between the two is blocked until the given turn. */
   insults?: { from: string; to: string; until: number }[];
+  /** Non-aggression pacts: neither side may declare war on the other until the turn. */
+  nonAggression?: { a: string; b: string; until: number }[];
   /** Last turn each AI proposal to the player was made, keyed "type|from". */
   proposedAt?: Record<string, number>;
 }
@@ -491,7 +497,7 @@ export function requestAccess(
   return { accepted };
 }
 
-function grantAccess(state: GameState, host: string, guest: string): void {
+export function grantAccess(state: GameState, host: string, guest: string): void {
   if (!hasAccess(state, guest, host)) (state.world.militaryAccess ??= []).push({ host, guest });
 }
 
@@ -983,7 +989,7 @@ export const vassalsOf = (world: World, id: string): string[] =>
 
 // ---- Actions (commands and AI) ----
 
-const exists = (state: GameState, id: string): boolean =>
+export const exists = (state: GameState, id: string): boolean =>
   state.world.countries.some(
     (c) => c.id === id && c.provinceIds.length > 0 && c.status !== 'uninhabited',
   );
@@ -1067,7 +1073,7 @@ export function imposeSanctions(
   return { accepted: true };
 }
 
-function addSanctions(state: GameState, ctx: SimContext, from: string, to: string): void {
+export function addSanctions(state: GameState, ctx: SimContext, from: string, to: string): void {
   const rules = diplomacyRules(ctx).sanctions;
   state.diplomacy.sanctions.push({ from, to, since: state.turn });
   changeRelation(state, ctx, from, to, rules.relation);
@@ -1614,6 +1620,8 @@ export function diplomacyPhase(
     for (const m of d.missions) changeRelation(state, ctx, m.from, m.to, perTurn);
     d.insults = (d.insults ?? []).filter((x) => x.until >= state.turn);
   }
+  if (d.nonAggression?.length)
+    d.nonAggression = d.nonAggression.filter((p) => p.until >= state.turn);
 
   // Military access ends with a war between the two, or when an AI host's relations sour.
   for (const a of [...(state.world.militaryAccess ?? [])]) {
@@ -1771,8 +1779,9 @@ export function investAbroad(
   // A host that refuses foreign investment by policy gets none (GDD section 6).
   if (host !== investor && state.economy.countries[host]?.rejectForeignInvestment) return false;
   const cost = levelCost(ctx, cat, buildingLevel(state, cityId, cat.id));
-  if (e.treasury < cost) return false;
-  e.treasury -= cost;
+  const price = cost * (1 - investmentDiscount(ctx, e));
+  if (e.treasury < price) return false;
+  e.treasury -= price;
   state.economy.buildings.push({
     id: state.economy.nextBuildingId++,
     category: cat.id,

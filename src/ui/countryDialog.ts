@@ -24,6 +24,15 @@ import {
   type PeaceTerms,
   type Threat,
 } from '../sim/diplomacy';
+import {
+  dealError,
+  dealLikelihood,
+  dealRules,
+  dealScore,
+  nonAggressionBetween,
+  type Deal,
+  type DealSide,
+} from '../sim/deals';
 import type { SimContext } from '../sim/economy';
 import { provinceSeat } from '../sim/military';
 import type { GameState } from '../sim/newGame';
@@ -33,6 +42,7 @@ import { weaponsRules, type WeaponKind } from '../sim/weapons';
 import { alliesOf, enemiesAtWar } from '../sim/world';
 import { leaderSeal } from './leaderSeal';
 import { button, el } from './dom';
+import { amountSlider } from './slider';
 import { dipIcon, type DipIcon } from './dipIcons';
 
 export interface CountryDialogOptions {
@@ -50,9 +60,13 @@ export interface CountryDialogOptions {
   declareWar: (countryId: string) => void;
   /** Text of a country's goal. */
   describeGoal: (goal: Goal, countryId: string) => string;
+  /** The country's place in the world power ranking. */
+  rankOf: (game: GameState, countryId: string) => { rank: number; great: boolean };
+  /** Opens the rankings. */
+  openRankings: () => void;
 }
 
-type View = 'main' | 'ultimatum' | 'peace' | 'aid' | 'trade';
+type View = 'main' | 'ultimatum' | 'peace' | 'aid' | 'trade' | 'deal';
 
 /** Relations with one country and every diplomatic action toward it (GDD section 10). */
 export class CountryDialog {
@@ -68,6 +82,7 @@ export class CountryDialog {
   private aidMoney = 0;
   private aidWeapon: { weapon: WeaponKind; tier: number; count: number } | null = null;
   private tradeCount = 5;
+  private deal: Deal = { give: {}, take: {} };
 
   constructor(private readonly options: CountryDialogOptions) {
     this.backdrop.hidden = true;
@@ -91,6 +106,7 @@ export class CountryDialog {
     this.threat = 'war';
     this.aidMoney = Math.round((game.economy.countries[game.player.countryId]?.gdp ?? 0) * 0.001);
     this.aidWeapon = null;
+    this.deal = { give: {}, take: {} };
     this.render();
     this.backdrop.hidden = false;
   }
@@ -132,7 +148,9 @@ export class CountryDialog {
             ? this.aidView()
             : this.view === 'trade'
               ? this.tradeView()
-              : this.mainView();
+              : this.view === 'deal'
+                ? this.dealView()
+                : this.mainView();
     dialog.append(...body);
     const footer = el('div', 'modal-footer');
     const actions = el('div', 'modal-actions');
@@ -152,7 +170,19 @@ export class CountryDialog {
     const r = relation(game, sim, me, id);
     const head = el('div', 'country-head');
     const title = el('div', 'country-title');
-    title.append(el('h2', 'modal-title', this.options.countryName(id)));
+    const name = el('div', 'country-name-row');
+    name.append(el('h2', 'modal-title', this.options.countryName(id)));
+    const { rank, great } = this.options.rankOf(game, id);
+    if (rank > 0) {
+      const badge = button(
+        `rank-chip${great ? ' rank-chip-great' : ''}`,
+        great ? `#${rank} · ${t('rank.greatPower')}` : `#${rank}`,
+        () => this.options.openRankings(),
+      );
+      badge.setAttribute('aria-label', t('rank.place', { rank }));
+      name.append(badge);
+    }
+    title.append(name);
     const bar = el('div', 'relation-bar');
     const fill = el('span', 'relation-fill');
     fill.style.left = r >= 0 ? '50%' : `${50 + r / 2}%`;
@@ -274,7 +304,49 @@ export class CountryDialog {
       details.append(list);
       wrap.append(details);
     }
+    wrap.append(this.opinions());
     return wrap;
+  }
+
+  /** What this country thinks of others: its warmest and coldest relations (after AoH). */
+  private opinions(): HTMLElement {
+    const game = this.game!;
+    const { sim } = this.options;
+    const id = this.target;
+    const scores = game.world.countries
+      .filter((c) => c.id !== id && c.provinceIds.length > 0 && c.status !== 'uninhabited')
+      .map((c) => [c.id, relation(game, sim, id, c.id)] as const)
+      .sort((a, b) => b[1] - a[1]);
+    const details = el('details', 'profile');
+    details.append(el('summary', '', t('opinion.title')));
+    const listOf = (rows: (readonly [string, number])[]): HTMLElement => {
+      const list = el('ul', 'opinion-list');
+      for (const [c, r] of rows) {
+        const item = el('li', 'opinion');
+        const bar = el('span', 'opinion-bar');
+        const fill = el('span', `opinion-fill ${r >= 0 ? 'relation-good' : 'relation-bad'}`);
+        fill.style.width = `${Math.min(100, Math.abs(r))}%`;
+        bar.append(fill);
+        item.append(
+          this.options.flag(c),
+          el('span', 'opinion-name', this.options.countryName(c)),
+          bar,
+          el('span', `mono relation-score ${signClass(Math.round(r), 0)}`, formatRelation(r)),
+        );
+        list.append(item);
+      }
+      return list;
+    };
+    const n = 6;
+    const best = scores.slice(0, n).filter(([, r]) => r > 0);
+    const worst = scores
+      .slice(-n)
+      .reverse()
+      .filter(([, r]) => r < 0);
+    if (!best.length && !worst.length) details.append(el('p', 'muted', t('opinion.none')));
+    if (best.length) details.append(el('h4', 'opinion-head', t('opinion.best')), listOf(best));
+    if (worst.length) details.append(el('h4', 'opinion-head', t('opinion.worst')), listOf(worst));
+    return details;
   }
 
   /** An action button with its point cost; disabled when the player cannot afford it. */
@@ -443,6 +515,13 @@ export class CountryDialog {
           );
       }
       list.append(
+        this.action(
+          t('deal.title'),
+          rules.costs.deal ?? 0,
+          () => this.go('deal'),
+          'btn btn-primary',
+          'deal',
+        ),
         this.action(t('dip.aid'), rules.costs.aid, () => this.go('aid'), undefined, 'aid'),
         this.plain(t('dip.weaponsTrade'), () => this.go('trade'), 'trade'),
       );
@@ -864,23 +943,197 @@ export class CountryDialog {
     ];
   }
 
+  /** Provinces one side could hand over: those near the other side first, never the capital. */
+  private dealProvinces(giver: string, other: string): number[] {
+    const game = this.game!;
+    const { sim } = this.options;
+    const country = game.world.countries.find((c) => c.id === giver);
+    if (!country) return [];
+    const owners = game.world.provinceOwners;
+    const land = sim.provinceNeighbors ?? [];
+    const pop = (p: number): number => sim.provincePopulation?.[p] ?? 0;
+    const own = country.provinceIds.filter((p) => p !== country.capitalProvinceId);
+    const near = own.filter((p) => (land[p] ?? []).some((q) => owners[q] === other));
+    const list = (near.length ? near : own).sort((a, b) => pop(b) - pop(a)).slice(0, 40);
+    if (owners[this.provinceId] === giver && this.provinceId !== country.capitalProvinceId)
+      if (!list.includes(this.provinceId)) list.unshift(this.provinceId);
+    return list;
+  }
+
+  /** Trade request (after Age of History): what we give, what we ask, and mutual treaties. */
+  private dealView(): HTMLElement[] {
+    const game = this.game!;
+    const { sim } = this.options;
+    const me = game.player.countryId;
+    const id = this.target;
+    const deal = this.deal;
+    const others = game.world.countries
+      .filter((c) => c.id !== me && c.id !== id && c.provinceIds.length > 0)
+      .map((c) => c.id)
+      .sort((a, b) => this.options.countryName(a).localeCompare(this.options.countryName(b)));
+    const toggle = (label: string, on: boolean, set: (v: boolean) => void): HTMLElement => {
+      const row = el('label', 'check-row');
+      const box = el('input');
+      box.type = 'checkbox';
+      box.checked = on;
+      box.addEventListener('change', () => {
+        set(box.checked);
+        this.render();
+      });
+      row.append(box, el('span', '', label));
+      return row;
+    };
+    const pick = (
+      label: string,
+      value: string | undefined,
+      set: (v: string | undefined) => void,
+    ): HTMLElement => {
+      const row = el('label', 'deal-pick');
+      const select = el('select');
+      select.append(new Option('—', ''));
+      for (const c of others) select.append(new Option(this.options.countryName(c), c));
+      select.value = value ?? '';
+      select.addEventListener('change', () => {
+        set(select.value || undefined);
+        this.render();
+      });
+      row.append(el('span', 'deal-pick-label', label), select);
+      return row;
+    };
+    const column = (title: string, side: DealSide, giver: string, other: string): HTMLElement => {
+      const col = el('section', 'deal-column');
+      col.append(el('h3', 'deal-column-title', title));
+      const treasury = Math.max(0, game.economy.countries[giver]?.treasury ?? 0);
+      side.money = Math.min(side.money ?? 0, treasury);
+      col.append(
+        amountSlider({
+          label: t('deal.money'),
+          min: 0,
+          max: treasury,
+          step: Math.max(1e6, Math.round(treasury / 200 / 1e6) * 1e6),
+          value: side.money,
+          format: (v) => formatUsd(v),
+          onChange: (v) => {
+            side.money = v;
+            this.render();
+          },
+        }),
+      );
+      const provinces = this.dealProvinces(giver, other);
+      if (provinces.length) {
+        const chosen = new Set(side.provinces ?? []);
+        const details = el('details', 'deal-provinces');
+        details.open = chosen.size > 0;
+        details.append(el('summary', '', t('deal.provinces', { count: chosen.size })));
+        const list = el('ul', 'peace-provinces');
+        for (const p of provinces) {
+          const on = chosen.has(p);
+          const item = el('li');
+          const b = button(`peace-province${on ? ' peace-province-on' : ''}`, '', () => {
+            side.provinces = on
+              ? (side.provinces ?? []).filter((x) => x !== p)
+              : [...(side.provinces ?? []), p];
+            this.render();
+          });
+          b.setAttribute('aria-pressed', String(on));
+          b.append(
+            el('span', 'peace-check', on ? '✓' : ''),
+            provinceIcon(),
+            el('span', 'peace-name', this.options.provinceName(p)),
+          );
+          item.append(b);
+          list.append(item);
+        }
+        details.append(list);
+        col.append(details);
+      }
+      col.append(
+        pick(t('deal.declareWar'), side.declareWarOn, (v) => (side.declareWarOn = v)),
+        pick(t('deal.coalition'), side.sanctionsOn, (v) => (side.sanctionsOn = v)),
+        toggle(t('deal.access'), !!side.militaryAccess, (v) => (side.militaryAccess = v)),
+      );
+      return col;
+    };
+    const columns = el('div', 'deal-columns');
+    columns.append(
+      column(t('deal.give'), deal.give, me, id),
+      column(t('deal.take', { country: this.options.countryName(id) }), deal.take, id, me),
+    );
+    const allied = alliesOf(game.world, me).includes(id);
+    const mutual = el('section', 'deal-mutual');
+    mutual.append(el('h3', 'deal-column-title', t('deal.mutual')));
+    if (!allied)
+      mutual.append(
+        toggle(t('deal.defensePact'), !!deal.defensePact, (v) => (deal.defensePact = v)),
+      );
+    if (!nonAggressionBetween(game, me, id))
+      mutual.append(
+        toggle(
+          t('deal.nonAggression', { years: Math.round(dealRules(sim).nonAggressionTurns / 52) }),
+          !!deal.nonAggression,
+          (v) => (deal.nonAggression = v),
+        ),
+      );
+    const invalid = dealError(game, me, id, deal);
+    const score = invalid ? -Infinity : dealScore(game, sim, me, id, deal);
+    const chance = invalid ? null : dealLikelihood(score, dealRules(sim));
+    const meter = el('div', `deal-chance deal-chance-${chance ?? 'none'}`);
+    const bar = el('span', 'deal-chance-bar');
+    const level = { veryLow: 1, low: 2, medium: 3, high: 4 };
+    for (let i = 1; i <= 4; i++)
+      bar.append(el('span', `deal-chance-step${chance && level[chance] >= i ? ' on' : ''}`));
+    meter.append(
+      el('span', 'deal-chance-label', t('deal.chance')),
+      bar,
+      el(
+        'span',
+        'deal-chance-value',
+        chance ? t(`deal.chance.${chance}` as TranslationKey) : t('deal.empty'),
+      ),
+    );
+    const send = this.action(
+      t('deal.send'),
+      diplomacyRules(sim).costs.deal ?? 0,
+      () => {
+        const result = this.options.issue({
+          type: 'proposeDeal',
+          countryId: me,
+          targetId: id,
+          deal: structuredClone(deal),
+        });
+        if (!result) return;
+        this.lastMessage = t(result.accepted === false ? 'deal.refused' : 'deal.accepted', {
+          country: this.options.countryName(id),
+        });
+        if (result.accepted !== false) this.deal = { give: {}, take: {} };
+        this.render();
+      },
+      'btn btn-primary',
+      'deal',
+    );
+    if (invalid) send.disabled = true;
+    return [el('p', 'setup-hint', t('deal.hint')), columns, mutual, meter, send];
+  }
+
   private aidView(): HTMLElement[] {
     const game = this.game!;
     const { sim } = this.options;
     const me = game.player.countryId;
     const id = this.target;
-    const money = el('input', 'input recruit-amount');
-    money.type = 'number';
-    money.inputMode = 'numeric';
-    money.min = '0';
-    money.step = '1000000';
-    money.value = String(this.aidMoney);
-    money.addEventListener('change', () => {
-      this.aidMoney = Math.max(0, Number(money.value) || 0);
-      this.render();
+    const treasury = Math.max(0, game.economy.countries[me]?.treasury ?? 0);
+    this.aidMoney = Math.min(this.aidMoney, treasury);
+    const row = amountSlider({
+      label: t('dip.aidAmount'),
+      min: 0,
+      max: treasury,
+      step: Math.max(1e6, Math.round(treasury / 200 / 1e6) * 1e6),
+      value: this.aidMoney,
+      format: (v) => formatUsd(v),
+      onChange: (v) => {
+        this.aidMoney = v;
+        this.render();
+      },
     });
-    const row = el('label', 'recruit-row');
-    row.append(el('span', '', t('dip.aidMoney', { value: formatUsd(this.aidMoney) })), money);
     const arsenal = game.weapons.countries[me]!;
     const weaponRows: HTMLElement[] = [];
     for (const weapon of ['missile', 'drone'] as const) {
@@ -932,17 +1185,18 @@ export class CountryDialog {
     const me = game.player.countryId;
     const id = this.target;
     const rules = weaponsRules(sim);
-    const count = el('input', 'input recruit-amount');
-    count.type = 'number';
-    count.inputMode = 'numeric';
-    count.min = '1';
-    count.value = String(this.tradeCount);
-    count.addEventListener('change', () => {
-      this.tradeCount = Math.max(1, Math.floor(Number(count.value) || 1));
-      this.render();
+    const row = amountSlider({
+      label: t('strike.count'),
+      min: 1,
+      max: 100,
+      step: 1,
+      value: this.tradeCount,
+      format: (v) => String(v),
+      onChange: (v) => {
+        this.tradeCount = v;
+        this.render();
+      },
     });
-    const row = el('label', 'recruit-row');
-    row.append(el('span', '', t('strike.count')), count);
     const n = this.tradeCount;
     const list = el('ul', 'dossier-cities');
     for (const weapon of ['missile', 'drone'] as const) {

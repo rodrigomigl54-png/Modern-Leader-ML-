@@ -18,6 +18,10 @@ import { advanceTurn } from './turn';
 import type { World, WorldCountry } from './world';
 
 const rules = economyRules as EconomyRules;
+// The factory's price and GDP share, as the data sets them.
+const factory = rules.investment.categories.find((c) => c.id === 'factory')!;
+const F = factory.costUsd;
+const S = factory.gdpPerYearShare;
 
 const country = (id: string, gdp: number, provinceIds: number[]): WorldCountry => ({
   id,
@@ -153,10 +157,10 @@ describe('investment', () => {
     expect(hostConsent(game.world, 'AAA', 'CCC')).toBe('refuses');
     const quote = investmentQuote(game, sim, 'AAA', [0, 1, 2, 3], 'factory')!;
     expect(quote.buildable).toEqual([0, 1, 2]);
-    expect(quote.totalCost).toBe(3 * 5e8);
-    expect(quote.ownGdpPerYear).toBe(2 * 5e8 * 0.25);
-    expect(quote.foreignGdpPerYear).toBe(5e8 * 0.25);
-    expect(quote.returnPerYear).toBe(5e8 * rules.investment.foreignReturnShare);
+    expect(quote.totalCost).toBe(3 * F);
+    expect(quote.ownGdpPerYear).toBe(2 * F * S);
+    expect(quote.foreignGdpPerYear).toBe(F * S);
+    expect(quote.returnPerYear).toBe(F * rules.investment.foreignReturnShare);
   });
 
   it('pays at once, finishes after the build time and adds GDP to the host', () => {
@@ -168,7 +172,7 @@ describe('investment', () => {
       category: 'factory',
     });
     expect(invested.economy.countries.AAA!.treasury).toBeCloseTo(
-      game.economy.countries.AAA!.treasury - 1e9,
+      game.economy.countries.AAA!.treasury - 2 * F,
     );
     expect(invested.economy.buildings.map((b) => [b.host, b.completed])).toEqual([
       ['AAA', false],
@@ -177,7 +181,7 @@ describe('investment', () => {
     const beforeHost = play(game, 12).economy.countries.BBB!.gdp;
     const after = play(invested, 12);
     expect(after.economy.buildings.every((b) => b.completed)).toBe(true);
-    expect(after.economy.countries.BBB!.gdp - beforeHost).toBeGreaterThan(5e8 * 0.25 * 0.9);
+    expect(after.economy.countries.BBB!.gdp - beforeHost).toBeGreaterThan(F * S * 0.9);
     expect(weeklyBudget(after, 'AAA', sim).investmentReturns).toBeGreaterThan(0);
   });
 
@@ -187,8 +191,8 @@ describe('investment', () => {
     const quote = investmentQuote(game, sim, 'AAA', [0, 1], 'factory', 3)!;
     expect(quote.count).toBe(3);
     // Levels 1-3 in each of two cities.
-    expect(quote.totalCost).toBeCloseTo(2 * 5e8 * (1 + g + g * g), 0);
-    expect(quote.ownGdpPerYear).toBeCloseTo(quote.totalCost * 0.25, 0);
+    expect(quote.totalCost).toBeCloseTo(2 * F * (1 + g + g * g), 0);
+    expect(quote.ownGdpPerYear).toBeCloseTo(quote.totalCost * S, 0);
     expect(investmentQuote(game, sim, 'AAA', [0], 'factory', 999)!.count).toBe(
       rules.investment.maxPerCity,
     );
@@ -202,12 +206,12 @@ describe('investment', () => {
       count: 2,
     });
     expect(invested.economy.buildings.map((b) => b.cityId)).toEqual([0, 0, 1, 1]);
-    expect(invested.economy.buildings.map((b) => b.costUsd)).toEqual([5e8, 5e8 * g, 5e8, 5e8 * g]);
-    expect(invested.economy.countries.AAA!.treasury).toBeCloseTo(before - 2 * 5e8 * (1 + g), 0);
+    expect(invested.economy.buildings.map((b) => b.costUsd)).toEqual([F, F * g, F, F * g]);
+    expect(invested.economy.countries.AAA!.treasury).toBeCloseTo(before - 2 * F * (1 + g), 0);
     expect(buildingLevel(invested, 0, 'factory')).toBe(2);
     // The next upgrade of city 0 is level 3: dearer again.
     expect(investmentQuote(invested, sim, 'AAA', [0], 'factory')!.totalCost).toBeCloseTo(
-      5e8 * g * g,
+      F * g * g,
       0,
     );
   });

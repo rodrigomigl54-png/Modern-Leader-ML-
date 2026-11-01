@@ -480,9 +480,27 @@ Done:
 - **Delete saved games** (Dario's request): every saved game in the Save / Load lists (the autosave too) has a trash button; the game asks before deleting it for good (`SaveStore.remove`, which existed but had no button). Checked in Chromium (Pixel 7 landscape): a manual save deleted from the list stays deleted after reloading the page.
 - Checked: changing `version.json` on the server shows the bar, and "Load it" opens the new build; lint, format, 198 tests, build.
 
+## Phase 26 — Trade requests, technology, faster AI, logo and intro
+
+Dario's list after playing (with Age of History screenshots); his answers: remove summits completely, assimilation only after peace, technology "like AoH, but modern", a "Situation Room" intro.
+
+Done:
+
+- **Summits removed** completely (sim, dialog, data, news, i18n, tests). Old saves load; their summit news are hidden.
+- **Occupation:** a province held while still at war with its people cannot riot or be assimilated; both start after peace (`isOccupied`, shown in the province panel).
+- **Cheaper investments:** building prices −40%, returns scaled so the payback stays the same.
+- **Faster, stronger AI by level:** `tempo` (×1 / ×2 / ×3.5 / ×5) on sanctions, ultimatums, wars and joining wars; `powerEdge` (×1.2 / ×1 / ×0.75 / ×0.55) on the strength needed to attack; aggressive profile ×1.75. Balance run (6 years, seed 4), wars: peaceful 0, realistic 9, aggressive 12, chaos 26.
+- **Technology** (`src/sim/technology.ts`): research slider (share of GDP), levels with points, seven categories (growth, taxes, military upkeep, investment costs, research, stability, administration); AI assigns its points; the HUD bulb shows unassigned points and opens the Technology panel.
+- **Trade request** (`src/sim/deals.ts`, after AoH): money, provinces, declare war on, coalition (sanctions) against, military access, defense pact and non-aggression pact (blocks war for 2 years); live likelihood in the dialog.
+- **Rank:** the player's world rank sits on the flag in the top bar (amber for great powers, top 8); every country dialog shows its rank chip (tap → rankings) and an **Opinions** section (best and worst relations).
+- **History charts** in the Ministry of Finance: GDP, treasury, support, provinces, technology, rank (recorded every 4 turns).
+- **Sliders instead of typed numbers** (aid, weapons trade, production, strikes, recruitment, research, deals).
+- **Logo and intro:** globe ring + "ML" monogram + amber point (menu, loading screen, favicon); a 5-second Situation Room intro plays while the map loads, skippable by tap/click/key; reduced motion shows the still logo.
+- Checked in Chromium (Pixel 7 landscape and 1280×720): intro, menu, rank badge, Technology panel (assigning points), charts, trade request accepted by Bosnia; lint, format, 204 tests, build.
+
 ## Next
 
-- Dario: merge the PR, review the new AI profiles, and test the game; changes come from that testing.
+- Dario: merge the PR and test Phase 26 (trade requests, technology, AI speed per level, intro); changes come from that testing.
 - See "What is left" below.
 
 ## What is left (to finish the whole game)
@@ -497,7 +515,8 @@ Done:
 
 - The interface size uses CSS `zoom` (supported by current browsers; very old ones ignore it).
 
-- Summit questions come from a fixed set of fourteen templates.
+- The AI does not send trade requests to the player yet (only answers them).
+- History charts start empty in older saves (recorded from the first turn played after the update).
 - Peace talks list only the provinces the winner holds (the existing rule); occupied land cannot be swapped for other land.
 - The map does not highlight the provinces selected in the peace talks.
 - Naval transport has no ships or naval battles: capacity comes from ports (a full navy is post-demo).

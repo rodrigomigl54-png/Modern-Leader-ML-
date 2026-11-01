@@ -1,3 +1,4 @@
+import type { HistoryPoint } from './history';
 // Creates the initial game state from the three setup choices (GDD section 3).
 import { initEconomy, type EconomyState, type SimContext } from './economy';
 import { emptyDiplomacy, initDiplomacy, type DiplomacyState } from './diplomacy';
@@ -7,7 +8,6 @@ import { emptyResources, initResources, resourcesPhase, type ResourcesState } fr
 import { emptyWeapons, initWeapons, type WeaponsState } from './weapons';
 import { emptyChronicle, markReport, type ChronicleState } from './chronicle';
 import { createAiGoals, createGoals, type Goal } from './goals';
-import { emptySummits, type SummitState } from './summits';
 import { applyDisputedSetting, type Aggressiveness, type DisputedMode, type World } from './world';
 
 export const LEADER_NAME_MAX = 40;
@@ -40,11 +40,12 @@ export interface GameState {
   resources: ResourcesState;
   /** News headlines and the snapshot for the next general report. */
   chronicle: ChronicleState;
-  summits: SummitState;
   /** The player's goals (GDD section 13). */
   goals: Goal[];
   /** Goals of the AI countries. */
   aiGoals: Record<string, Goal[]>;
+  /** The player's numbers every few weeks, for the charts. */
+  history?: HistoryPoint[];
   /** The end of the game: a defeat (revolution, conquered) or the player's victory. */
   gameOver?: { reason: 'revolution' | 'conquered' | 'victory'; turn: number };
 }
@@ -100,7 +101,6 @@ export function createNewGame(world: World, options: NewGameOptions, sim: SimCon
       : emptyDiplomacy(),
     resources: emptyResources({ world: effective }),
     chronicle: emptyChronicle({ world: effective }),
-    summits: emptySummits(),
     goals: [],
     aiGoals: {},
   };

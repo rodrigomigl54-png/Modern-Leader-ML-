@@ -466,7 +466,10 @@ describe('AI and determinism', () => {
 describe('revolution with armies', () => {
   it('rebels rise with fighters', () => {
     let game = newGame('BBB');
-    for (let i = 0; i < 12; i++) {
+    const rising = (): boolean =>
+      game.world.countries.some((c) => c.status === 'rebels' || c.faction);
+    // Checked when they rise: a government may crush them within a few weeks.
+    for (let i = 0; i < 12 && !rising(); i++) {
       for (const p of [0, 1, 2]) game.population.support[p] = 5;
       game = play(game, 1);
     }

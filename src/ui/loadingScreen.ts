@@ -1,4 +1,5 @@
 import { t } from '../i18n';
+import { logoMark } from './logo';
 
 export interface LoadingScreen {
   setProgress(fraction: number): void;
@@ -19,7 +20,7 @@ export function showLoadingScreen(root: HTMLElement): LoadingScreen {
   bar.className = 'loading-bar';
   const fill = document.createElement('div');
   bar.append(fill);
-  overlay.append(title, bar, message);
+  overlay.append(logoMark('loading-logo'), title, bar, message);
   root.append(overlay);
 
   return {

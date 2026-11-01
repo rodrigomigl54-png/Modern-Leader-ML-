@@ -5,7 +5,6 @@ import economyRules from '../../data/modern/economy.json';
 import goalsData from '../../data/modern/goals.json';
 import militaryRulesData from '../../data/modern/military.json';
 import populationRules from '../../data/modern/population.json';
-import summitsData from '../../data/modern/summits.json';
 import weaponsRulesData from '../../data/modern/weapons.json';
 import { applyCommand } from './commands';
 import {
@@ -29,7 +28,6 @@ import {
 import type { AiRules } from './profiles';
 import { aiPolicyOrders } from './aiPolicy';
 import { createRng } from './rng';
-import type { SummitRules } from './summits';
 import { advanceTurn, type TurnEvent } from './turn';
 import { convoyInterceptionPhase, type WeaponsRules } from './weapons';
 import { enemiesAtWar, type World, type WorldCountry } from './world';
@@ -72,7 +70,6 @@ const sim: SimContext = {
   diplomacy: diplomacyRulesData as unknown as DiplomacyRules,
   aiRules: aiRulesData as unknown as AiRules,
   profiles: {},
-  summits: summitsData as unknown as SummitRules,
   goals: goalsData as unknown as GoalRules,
   cityProvince: [0, 1, 2, 3, 4],
   cityPopulation: [1e6, 1e6, 1e6, 1e6, 1e6],
@@ -141,21 +138,6 @@ describe('support and the course of wars (GDD section 7)', () => {
     expect(support(game, 'FAR')).toBeLessThan(before.f);
     expect(game.chronicle.news.some((n) => n.kind === 'peace')).toBe(true);
   });
-
-  it('skipping a summit costs support at home', () => {
-    let game = newGame();
-    for (let i = 0; i < (summitsData as { firstTurn: number }).firstTurn; i++)
-      game = advanceTurn(game, sim).state;
-    const s = game.summits.pending!;
-    const before = support(game, 'PLR');
-    const skipped = applyCommand(
-      game,
-      { type: 'summit', countryId: 'PLR', summitId: s.id, answers: null },
-      sim,
-    );
-    if (!skipped.ok) throw new Error(skipped.error);
-    expect(support(skipped.state, 'PLR')).toBeLessThan(before);
-  });
 });
 
 describe('peace with a whole side', () => {
@@ -220,20 +202,6 @@ describe('AI air defense', () => {
       game.weapons.airDefenseBuilds.some((b) => b.owner === 'BBB') ||
         game.weapons.airDefense.some((lvl, city) => lvl > 0 && sim.cityProvince[city] === 1),
     ).toBe(true);
-  });
-});
-
-describe('emergency summits', () => {
-  it("the player's own war on a large power calls an emergency summit", () => {
-    const declared = applyCommand(
-      newGame(),
-      { type: 'declareWar', countryId: 'PLR', targetId: 'BBB' },
-      sim,
-    );
-    if (!declared.ok) throw new Error(declared.error);
-    const next = advanceTurn(declared.state, sim).state;
-    expect(next.summits.pending?.kind).toBe('emergency');
-    expect(next.summits.pending?.cause).toEqual({ kind: 'war', a: 'PLR', b: 'BBB' });
   });
 });
 
@@ -335,28 +303,6 @@ describe('debt and lost land', () => {
     transferProvince(game, sim, 4, 'AAA');
     expect(e.debt / e.gdp).toBeCloseTo(1, 6);
     expect(game.economy.countries.AAA!.debt).toBe(newGame().economy.countries.AAA!.debt);
-  });
-});
-
-describe('situational summit questions', () => {
-  it('heavy debt brings a debt-relief offer; accepting it cuts the debt', () => {
-    let game = newGame();
-    const e = game.economy.countries.PLR!;
-    e.debt = e.gdp * 2;
-    for (let i = 0; i < (summitsData as { firstTurn: number }).firstTurn; i++)
-      game = advanceTurn(game, sim).state;
-    const s = game.summits.pending!;
-    const i = s.questions.findIndex((q) => q.id === 'debtRelief');
-    expect(i).toBeGreaterThanOrEqual(0);
-    const answers = s.questions.map((q, k) => (k === i ? 'accept' : q.answers[0]!));
-    const before = game.economy.countries.PLR!.debt;
-    const done = applyCommand(
-      game,
-      { type: 'summit', countryId: 'PLR', summitId: s.id, answers },
-      sim,
-    );
-    if (!done.ok) throw new Error(done.error);
-    expect(done.state.economy.countries.PLR!.debt).toBeLessThan(before);
   });
 });
 

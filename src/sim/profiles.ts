@@ -35,6 +35,10 @@ export interface AiProfile extends Record<Trait, [number, string]> {
 
 export interface AiRules {
   aggressiveness: Record<Aggressiveness, number>;
+  /** Multiplies the chances of sanctions, ultimatums, wars and interventions per level. */
+  tempo?: Record<Aggressiveness, number>;
+  /** Multiplies the power advantage an AI wants before an ultimatum or a war, per level. */
+  powerEdge?: Record<Aggressiveness, number>;
   chaosTimingJitter: number;
   rates: {
     sanction: number;
@@ -94,6 +98,8 @@ export interface AiRules {
     minServices: number;
     debtLimit: number;
     lowSupport: number;
+    /** Extra research (share of GDP) an AI with economy trait 100 aims for. */
+    researchByEconomy?: number;
     /** Services the AI restores when the people are angry and the budget allows. */
     targetServices: number;
     /** Support within this margin above the riot threshold restores services even on debt... */

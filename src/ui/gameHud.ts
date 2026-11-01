@@ -18,6 +18,11 @@ export interface GameHudActions {
   /** Net change of the treasury per week (the budget balance plus foreign aid). */
   netOf: (game: GameState) => number;
   onRankings: () => void;
+  onTech: () => void;
+  /** World power rank of the player's country and whether it is a great power. */
+  rankOf: (game: GameState) => { rank: number; great: boolean };
+  /** Technology points waiting to be assigned. */
+  techPointsOf: (game: GameState) => number;
   onNextTurn: () => void;
   onEconomy: () => void;
   onInterior: () => void;
@@ -153,8 +158,31 @@ export class GameHud {
       '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" ' +
       'stroke-width="1.6" stroke-linejoin="round"><path d="M3 20h18M9 20V9h6v11M3 20v-6h6M15 20v-8h6v8"/>' +
       '<path d="M12 3.5l.9 1.8 2 .3-1.45 1.4.35 2-1.8-.95-1.8.95.35-2L9.1 5.6l2-.3z" fill="currentColor"/></svg>';
-    this.bar.replaceChildren(
+    // The flag carries the world rank, like a medal (tap: rankings).
+    const { rank, great } = this.actions.rankOf(game);
+    const flag = button(`hud-flag-box${great ? ' hud-great' : ''}`, '', this.actions.onRankings);
+    flag.append(
       flagImage(countryFlag(this.baseWorld, id, mode), 'flag hud-flag'),
+      el('span', 'rank-badge mono', `#${rank}`),
+    );
+    flag.setAttribute('aria-label', `${t('rank.title')}: #${rank}`);
+    flag.title = great ? t('rank.greatPower') : t('rank.title');
+    // Technology: a bulb with the points waiting to be assigned.
+    const techPoints = this.actions.techPointsOf(game);
+    const techButton = button(
+      `btn btn-secondary hud-menu hud-ranks hud-tech${techPoints > 0 ? ' hud-tech-on' : ''}`,
+      '',
+      this.actions.onTech,
+    );
+    techButton.innerHTML =
+      '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/>' +
+      '<path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>';
+    if (techPoints > 0) techButton.append(el('span', 'hud-badge mono', String(techPoints)));
+    techButton.setAttribute('aria-label', t('tech.title'));
+    techButton.title = t('tech.title');
+    this.bar.replaceChildren(
+      flag,
       leaderSeal(game.player.leaderName, id, 34),
       who,
       el('span', 'hud-break'),
@@ -163,6 +191,7 @@ export class GameHud {
       army,
       diplomacy,
       when,
+      techButton,
       ranks,
       button('btn btn-secondary hud-menu', t('menu.gameMenu'), this.actions.onMenu),
     );

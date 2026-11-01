@@ -76,7 +76,7 @@
     "neutralSupport": 45
   },
   "ai": {
-    "attackRatio": 1.4,
+    "attackRatio": 1.25,
     "targetArmyAtWar": 1.3,
     "recruitShareOfGap": 0.25,
     "maxTreasuryShare": 0.25,

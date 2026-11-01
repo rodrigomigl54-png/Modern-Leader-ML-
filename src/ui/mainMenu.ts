@@ -1,5 +1,6 @@
 import { t, type TranslationKey } from '../i18n';
 import { button, el } from './dom';
+import { logoMark } from './logo';
 
 const HISTORICAL_MODES: { key: TranslationKey; years: string }[] = [
   { key: 'mode.peloponnesian', years: '431–404 BC' },
@@ -47,7 +48,9 @@ export class MainMenu {
 
   private render(): void {
     const card = el('div', 'menu-card');
-    card.append(el('h1', 'menu-title', t('app.title')));
+    const brand = el('div', 'menu-brand');
+    brand.append(logoMark('menu-logo'), el('h1', 'menu-title', t('app.title')));
+    card.append(brand);
 
     const modern = button('mode-card mode-card-main', '', this.actions.onNewGame);
     modern.append(

@@ -56,85 +56,139 @@
     "shareOfGdp": 0.01
   },
   "investment": {
-    "comment": "costUsd at price level 1; gdpPerYearShare = GDP added to the host country per year, as a share of the cost; returnShare = yearly return to a foreign investor; upkeepShare = yearly upkeep paid by the owner. Buildings of one kind in a city are its levels: each level costs levelCostGrowth more than the one before (the first factory $500 m, the second $625 m, ...), and its GDP, returns and upkeep follow what was paid. One order can add up to maxPerCity levels in each selected city. A country can refuse all foreign investment by policy.",
-    "foreignReturnShare": 0.08,
+    "comment": "costUsd at price level 1; gdpPerYearShare = GDP added to the host country per year, as a share of the cost; returnShare = yearly return to a foreign investor; upkeepShare = yearly upkeep paid by the owner. Buildings of one kind in a city are its levels: each level costs levelCostGrowth more than the one before (the first factory $500 m, the second $625 m, ...), and its GDP, returns and upkeep follow what was paid. One order can add up to maxPerCity levels in each selected city. A country can refuse all foreign investment by policy. Prices were cut by 40% in Phase 26 (Dario: faster play); the shares were raised so each building adds the same GDP, upkeep and returns as before.",
+    "foreignReturnShare": 0.1333,
     "maxPerCity": 10,
     "levelCostGrowth": 0.25,
     "categories": [
       {
         "id": "factory",
-        "costUsd": 500000000,
+        "costUsd": 300000000,
         "buildTurns": 12,
-        "gdpPerYearShare": 0.25,
-        "upkeepShare": 0.02
+        "gdpPerYearShare": 0.4167,
+        "upkeepShare": 0.0333
       },
       {
         "id": "university",
-        "costUsd": 800000000,
+        "costUsd": 480000000,
         "buildTurns": 20,
-        "gdpPerYearShare": 0.12,
-        "upkeepShare": 0.03
+        "gdpPerYearShare": 0.2,
+        "upkeepShare": 0.05
       },
       {
         "id": "agriculture",
-        "costUsd": 300000000,
+        "costUsd": 180000000,
         "buildTurns": 8,
-        "gdpPerYearShare": 0.2,
-        "upkeepShare": 0.02
+        "gdpPerYearShare": 0.3333,
+        "upkeepShare": 0.0333
       },
       {
         "id": "infrastructure",
-        "costUsd": 1000000000,
+        "costUsd": 600000000,
         "buildTurns": 20,
-        "gdpPerYearShare": 0.2,
-        "upkeepShare": 0.01
+        "gdpPerYearShare": 0.3333,
+        "upkeepShare": 0.0167
       },
       {
         "id": "energy",
-        "costUsd": 1500000000,
+        "costUsd": 900000000,
         "buildTurns": 26,
-        "gdpPerYearShare": 0.22,
-        "upkeepShare": 0.02
+        "gdpPerYearShare": 0.3667,
+        "upkeepShare": 0.0333
       },
       {
         "id": "hospital",
-        "costUsd": 400000000,
+        "costUsd": 240000000,
         "buildTurns": 12,
-        "gdpPerYearShare": 0.06,
-        "upkeepShare": 0.04
+        "gdpPerYearShare": 0.1,
+        "upkeepShare": 0.0667
       },
       {
         "id": "missileFactory",
-        "costUsd": 2000000000,
+        "costUsd": 1200000000,
         "buildTurns": 30,
-        "gdpPerYearShare": 0.05,
-        "upkeepShare": 0.03,
+        "gdpPerYearShare": 0.0833,
+        "upkeepShare": 0.05,
         "military": true
       },
       {
         "id": "droneFactory",
-        "costUsd": 1000000000,
+        "costUsd": 600000000,
         "buildTurns": 20,
-        "gdpPerYearShare": 0.05,
-        "upkeepShare": 0.03,
+        "gdpPerYearShare": 0.0833,
+        "upkeepShare": 0.05,
         "military": true
       },
       {
         "id": "airDefenseFactory",
-        "costUsd": 1500000000,
+        "costUsd": 900000000,
         "buildTurns": 26,
-        "gdpPerYearShare": 0.05,
-        "upkeepShare": 0.03,
+        "gdpPerYearShare": 0.0833,
+        "upkeepShare": 0.05,
         "military": true
       },
       {
         "id": "militaryBase",
-        "costUsd": 1000000000,
+        "costUsd": 600000000,
         "buildTurns": 16,
-        "gdpPerYearShare": 0.03,
-        "upkeepShare": 0.04,
+        "gdpPerYearShare": 0.05,
+        "upkeepShare": 0.0667,
         "military": true
       }
+    ]
+  },
+  "technology": {
+    "comment": "Technology (Dario, Phase 26, after Age of History). Research spending (a share of GDP, set by the player; AI countries by their economy trait) fills progress toward the next level; a level costs levelGdpShare of GDP, levelCostGrowth more for each level gained, and brings pointsPerLevel points to assign. The shown technology level starts from GDP per person (startIndexAt1000 at 1,000 USD, plus startIndexPerDecade per factor of ten) and rises by indexPerLevel per level; a country starts with startPointsPerTenth points per 0.1 of it. Effects per point: GDP growth +0.05 percentage points a year, taxes +0.5%, military upkeep -1%, investment prices -1%, research speed +2%, target support +0.25, public services cost -1%.",
+    "startResearch": 0.005,
+    "minResearch": 0,
+    "maxResearch": 0.05,
+    "levelGdpShare": 0.012,
+    "levelCostGrowth": 0.08,
+    "pointsPerLevel": 3,
+    "startIndexAt1000": 0.25,
+    "startIndexPerDecade": 0.3,
+    "minStartIndex": 0.2,
+    "maxStartIndex": 0.95,
+    "indexPerLevel": 0.02,
+    "startPointsPerTenth": 1,
+    "categories": {
+      "gdpGrowth": {
+        "max": 20,
+        "perPoint": 0.0005
+      },
+      "taxes": {
+        "max": 20,
+        "perPoint": 0.005
+      },
+      "militaryUpkeep": {
+        "max": 20,
+        "perPoint": 0.01
+      },
+      "investmentCost": {
+        "max": 25,
+        "perPoint": 0.01
+      },
+      "research": {
+        "max": 25,
+        "perPoint": 0.02
+      },
+      "stability": {
+        "max": 20,
+        "perPoint": 0.25
+      },
+      "administration": {
+        "max": 20,
+        "perPoint": 0.01
+      }
+    },
+    "aiOrder": [
+      "gdpGrowth",
+      "taxes",
+      "research",
+      "administration",
+      "stability",
+      "militaryUpkeep",
+      "investmentCost"
     ]
   }
 }

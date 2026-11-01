@@ -2719,3 +2719,742 @@ textarea {
   width: 48px;
   padding: 0;
 }
+
+/* Amount sliders instead of typed numbers. */
+.amount-slider {
+  margin: 8px 0;
+}
+
+.amount-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.amount-label {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.amount-value {
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.amount-slider input[type='range'] {
+  width: 100%;
+  height: 32px;
+  margin: 4px 0 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.amount-slider input[type='range']::-webkit-slider-thumb {
+  width: 24px;
+  height: 24px;
+}
+
+.amount-ends {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* Technology. */
+.tech-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tech-level {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tech-level-label {
+  color: var(--text-muted);
+}
+
+.tech-level-value {
+  color: var(--accent);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.tech-points {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  color: var(--text-muted);
+}
+
+.tech-points-on {
+  border-color: var(--accent);
+  color: var(--text);
+  animation: tech-glow 1.6s ease-in-out infinite;
+}
+
+.tech-points-value {
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.tech-bar {
+  height: 8px;
+  margin: 10px 0 4px;
+  border-radius: 4px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+.tech-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6fa8dc, var(--accent));
+}
+
+.tech-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tech-row {
+  display: grid;
+  grid-template-columns: 26px 1fr 80px 48px 44px;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.tech-icon {
+  display: inline-flex;
+  color: var(--accent);
+}
+
+.tech-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tech-name {
+  font-weight: 600;
+}
+
+.tech-effect {
+  color: var(--good-text);
+  font-size: 12px;
+}
+
+.tech-meter {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+.tech-meter-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.tech-count {
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: right;
+}
+
+.tech-plus {
+  width: 40px;
+  min-height: 36px;
+  padding: 0;
+  font-size: 20px;
+}
+
+@keyframes tech-glow {
+  50% {
+    box-shadow: 0 0 12px rgba(242, 169, 59, 0.45);
+  }
+}
+
+@media (max-width: 520px) {
+  .tech-row {
+    grid-template-columns: 24px 1fr 44px 40px;
+  }
+
+  .tech-meter {
+    display: none;
+  }
+}
+
+/* Charts of the player's history. */
+.chart-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 4px 0 6px;
+}
+
+.line-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chart-grid {
+  stroke: var(--line-soft);
+  stroke-width: 1;
+}
+
+.chart-area {
+  fill: rgba(242, 169, 59, 0.12);
+}
+
+.chart-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.chart-dot {
+  fill: var(--accent);
+}
+
+.chart-label,
+.chart-empty {
+  fill: var(--text-muted);
+  font-size: 10px;
+}
+
+/* The world rank on the flag, like a medal (Phase 26). */
+.hud-flag-box {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.rank-badge {
+  position: absolute;
+  right: -8px;
+  bottom: -7px;
+  min-width: 18px;
+  padding: 0 4px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--panel-solid);
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: center;
+}
+
+.hud-great .rank-badge {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #1a1206;
+}
+
+.hud-great .hud-flag {
+  box-shadow:
+    0 0 0 1px var(--accent),
+    0 0 10px rgba(242, 169, 59, 0.5);
+}
+
+.hud-tech {
+  position: relative;
+}
+
+.hud-tech-on {
+  border-color: var(--accent);
+}
+
+.hud-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 16px;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #1a1206;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* Country dialog: world rank chip next to the name (Phase 26). */
+.country-name-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.rank-chip {
+  min-height: 28px;
+  padding: 2px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  background: var(--panel-solid);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.rank-chip-great {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Opinions: a country's warmest and coldest relations. */
+.opinion-head {
+  margin: 10px 0 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.opinion-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.opinion {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 72px 40px;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.opinion .flag {
+  width: 24px;
+  height: auto;
+}
+
+.opinion-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.opinion-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+.opinion-fill {
+  display: block;
+  height: 100%;
+}
+
+.opinion .relation-score {
+  text-align: right;
+}
+
+/* Trade request (after Age of History): two columns, treaties and the likelihood. */
+.deal-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.deal-column,
+.deal-mutual {
+  padding: 10px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: var(--line-soft);
+}
+
+.deal-mutual {
+  margin-top: 12px;
+}
+
+.deal-column-title {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.deal-pick {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0;
+}
+
+.deal-pick-label {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.deal-pick select {
+  min-height: 40px;
+  padding: 0 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--panel-solid);
+  color: var(--text);
+  font: inherit;
+}
+
+.deal-provinces summary {
+  min-height: 36px;
+  line-height: 36px;
+  cursor: pointer;
+}
+
+.deal-provinces .peace-provinces {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.deal-chance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 10px;
+}
+
+.deal-chance-label {
+  color: var(--text-muted);
+}
+
+.deal-chance-bar {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.deal-chance-step {
+  width: 22px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--line-soft);
+}
+
+.deal-chance-veryLow .deal-chance-step.on {
+  background: #b4453c;
+}
+
+.deal-chance-low .deal-chance-step.on {
+  background: #c9853a;
+}
+
+.deal-chance-medium .deal-chance-step.on {
+  background: #c9b23a;
+}
+
+.deal-chance-high .deal-chance-step.on {
+  background: #4e9a5e;
+}
+
+.deal-chance-value {
+  font-weight: 600;
+}
+
+/* Icons on filled buttons take the button's text color. */
+.btn-primary .dip-icon,
+.btn-danger .dip-icon {
+  color: inherit;
+}
+
+.dip-icon-deal .dip-i-sway {
+  transform-origin: center;
+}
+
+/* Logo (Phase 26): globe ring, "ML" monogram and the amber point. */
+.logo-mark-box,
+.menu-logo-box,
+.loading-logo-box {
+  display: inline-flex;
+}
+
+.logo-mark,
+.menu-logo,
+.loading-logo {
+  width: 100%;
+  height: 100%;
+}
+
+.menu-logo-box {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 4px;
+  color: var(--text);
+}
+
+.menu-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loading-logo-box {
+  width: 72px;
+  height: 72px;
+  color: var(--text);
+}
+
+/* Intro: the Situation Room opening, always dark. */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 42%, #0c1826 0%, #05090f 70%);
+  overflow: hidden;
+  color: #e8eef5;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: opacity 0.3s ease;
+}
+
+.intro-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.intro-svg {
+  width: min(52vmin, 320px);
+  height: min(52vmin, 320px);
+}
+
+.intro-svg * {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.intro-globe {
+  stroke: #5d7a99;
+  stroke-width: 1;
+  stroke-dasharray: 1;
+  animation: intro-draw 1s ease-out both;
+}
+
+.intro-ticks {
+  stroke: #5d7a99;
+  stroke-width: 1;
+  animation: intro-fade-in 0.6s ease 2.6s both;
+}
+
+.intro-world {
+  animation: intro-dim 0.8s ease 2.6s forwards;
+}
+
+.intro-grid {
+  stroke: #2c4258;
+  stroke-width: 0.6;
+  animation: intro-fade-in 0.8s ease 0.4s both;
+}
+
+.intro-sweep {
+  transform-box: view-box;
+  transform-origin: 100px 100px;
+  animation:
+    intro-spin 1.3s linear 0.6s infinite,
+    intro-fade-in 0.4s ease 0.6s both;
+}
+
+.intro-sweep-line {
+  stroke: #f2a93b;
+  stroke-width: 1;
+}
+
+.intro-border {
+  stroke: #f2a93b;
+  stroke-width: 1.4;
+  stroke-dasharray: 1;
+  animation: intro-border 1.1s ease-out both;
+}
+
+.intro-blip {
+  fill: #f2a93b;
+  animation: intro-blip 0.9s ease-out both;
+}
+
+.intro-mono {
+  stroke: #e8eef5;
+  stroke-width: 4.2;
+  stroke-dasharray: 1;
+  animation: intro-draw 0.9s cubic-bezier(0.6, 0, 0.2, 1) 2.6s both;
+}
+
+.intro-mono-l {
+  animation-delay: 3s;
+}
+
+.intro-dot {
+  fill: #f2a93b;
+  animation: intro-pop 0.5s ease-out 3.6s both;
+}
+
+.intro-name {
+  font-size: clamp(22px, 5.5vmin, 40px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  margin-right: -0.28em;
+  animation: intro-name 0.9s ease-out 3.5s both;
+}
+
+.intro-tagline {
+  color: #8798ab;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  margin-right: -0.32em;
+  animation: intro-fade-in 0.6s ease 4s both;
+}
+
+.intro-skip {
+  position: absolute;
+  bottom: calc(env(safe-area-inset-bottom) + 14px);
+  left: 0;
+  right: 0;
+  color: #5d6f82;
+  font-size: 12px;
+  text-align: center;
+  animation: intro-fade-in 0.6s ease 0.8s both;
+}
+
+@keyframes intro-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes intro-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes intro-dim {
+  to {
+    opacity: 0.14;
+  }
+}
+
+@keyframes intro-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes intro-border {
+  0% {
+    stroke-dashoffset: 1;
+    stroke-opacity: 1;
+  }
+  45% {
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+    stroke-width: 2.2;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    stroke-opacity: 0.5;
+    stroke-width: 1.2;
+  }
+}
+
+@keyframes intro-blip {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.8);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
+
+@keyframes intro-pop {
+  0% {
+    transform: scale(0);
+  }
+  60% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes intro-name {
+  from {
+    opacity: 0;
+    letter-spacing: 0.9em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.28em;
+  }
+}
+
+/* Reduced motion: the finished logo, no movement. */
+.intro-reduced *,
+.intro-reduced .intro-svg * {
+  animation: none !important;
+}
+
+.intro-reduced .intro-world {
+  opacity: 0.14;
+}
+
+.intro-reduced .intro-sweep {
+  display: none;
+}
+
+.intro-svg .intro-mark {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}

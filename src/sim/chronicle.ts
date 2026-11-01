@@ -19,8 +19,7 @@ export type NewsKind =
   | 'nuclear'
   | 'sanctions'
   | 'globalSanctions'
-  | 'alliance'
-  | 'summit';
+  | 'alliance';
 
 export interface NewsItem {
   turn: number;
@@ -28,7 +27,7 @@ export interface NewsItem {
   /** Countries involved, in the order the headline names them. */
   a: string;
   b?: string;
-  /** Extra id (summit kind, city id as text). */
+  /** Extra id (city id as text). */
   extra?: string;
 }
 

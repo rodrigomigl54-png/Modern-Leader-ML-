@@ -19,7 +19,6 @@ import { applyCommand, type Command, type CommandError } from './sim/commands';
 import { ensureChronicle, type NewsItem } from './sim/chronicle';
 import { ensureEconomy, weeklyBudget } from './sim/economy';
 import { ensureGoals, type Goal } from './sim/goals';
-import { ensureSummits, summitRules, type SummitQuestion } from './sim/summits';
 import { dateOfTurn } from './sim/calendar';
 import {
   armySize,
@@ -36,6 +35,7 @@ import { createNewGame, type GameState } from './sim/newGame';
 import { airDefenseMap, airDefenseQuote, ensureWeapons, weaponsRules } from './sim/weapons';
 import {
   assimilationQuote,
+  isOccupied,
   ensurePopulation,
   isAssimilated,
   nationalSupport,
@@ -55,14 +55,16 @@ import { GameHud } from './ui/gameHud';
 import { GameMenu } from './ui/gameMenu';
 import { GoalsPanel } from './ui/goalsPanel';
 import { RankingsPanel } from './ui/rankingsPanel';
+import { GREAT_POWERS, rankings } from './sim/rankings';
+import { TechPanel } from './ui/techPanel';
 import { CornerNotices } from './ui/cornerNotices';
 import { NewsTicker, newsDialog } from './ui/newsTicker';
 import { reportDialog } from './ui/reportDialog';
-import { summitDialog } from './ui/summitDialog';
 import { formatGameDate } from './ui/format';
 import { InteriorPanel } from './ui/interiorPanel';
 import { InvestDialog } from './ui/investDialog';
 import { showLoadingScreen } from './ui/loadingScreen';
+import { playIntro } from './ui/intro';
 import { MainMenu } from './ui/mainMenu';
 import { MapModeBar } from './ui/mapModeBar';
 import { ProduceDialog } from './ui/produceDialog';
@@ -96,7 +98,6 @@ const COMMAND_ERRORS: Partial<Record<CommandError, TranslationKey>> = {
   needsBase: 'recruit.noBase',
   alreadyAtWar: 'war.alreadyAtWar',
   allied: 'war.allied',
-  noSummit: 'summit.gone',
   invalidTarget: 'war.invalid',
   notAtWar: 'strike.notAtWar',
   outOfRange: 'strike.outOfRange',
@@ -121,6 +122,8 @@ const COMMAND_ERRORS: Partial<Record<CommandError, TranslationKey>> = {
   alreadyRunning: 'dip.alreadyRunning',
   insulted: 'dip.insultedError',
   noTransport: 'dip.noTransport',
+  nonAggression: 'deal.nonAggressionError',
+  noTechPoints: 'tech.noPoints',
   noChips: 'produce.noChips',
 };
 
@@ -147,6 +150,8 @@ async function start(): Promise<void> {
   document.addEventListener('gesturestart', (e) => e.preventDefault());
 
   const loading = showLoadingScreen(uiRoot);
+  // The intro plays while the map loads; the menu comes after both.
+  const intro = playIntro(uiRoot);
   let onMapTap: (provinceId: number | null) => void = () => undefined;
   let onShiftSelect: (provinceId: number) => void = () => undefined;
   let onBoxSelect: (provinceIds: number[]) => void = () => undefined;
@@ -395,6 +400,7 @@ async function start(): Promise<void> {
               ? pop.assimilateUntil[provinceId]! - game.turn
               : null,
           assimilationCost: quote?.provinceIds.length ? formatUsd(quote.totalCost) : null,
+          occupied: isOccupied(game, provinceId),
           riotThreshold: population.riots.threshold,
         };
       },
@@ -574,6 +580,7 @@ async function start(): Promise<void> {
       foreignPanel.update(game);
       goalsPanel.update(game);
       rankingsPanel.update(game);
+      techPanel.update(game);
       notices.update(game);
       ticker.update(headlines(game));
       countryDialog.update(game);
@@ -682,21 +689,19 @@ async function start(): Promise<void> {
     /** Shows a game (new or loaded) on the map. */
     const playGame = (loaded: GameState): void => {
       const state = ensureGoals(
-        ensureSummits(
-          ensureChronicle(
-            ensureResources(
-              ensureDiplomacy(
-                ensureWeapons(
-                  ensureMilitary(
-                    ensurePopulation(ensureEconomy(loaded, sim.economy), population),
-                    sim,
-                  ),
+        ensureChronicle(
+          ensureResources(
+            ensureDiplomacy(
+              ensureWeapons(
+                ensureMilitary(
+                  ensurePopulation(ensureEconomy(loaded, sim.economy), population),
                   sim,
                 ),
                 sim,
               ),
               sim,
             ),
+            sim,
           ),
         ),
         sim,
@@ -729,7 +734,6 @@ async function start(): Promise<void> {
       notices.update(state);
       if (state.gameOver) void showGameOver();
       else if (state.turn === 0) void advisorTip(0).then(startShortages);
-      else if (state.summits.pending) void openSummit();
     };
 
     /** The end of the game: a defeat (conquered, revolution) or the victory over the whole world. */
@@ -761,18 +765,20 @@ async function start(): Promise<void> {
         a: nameOf(n.a),
         b: n.b ? nameOf(n.b) : '',
         city: n.kind === 'nuclear' ? cityName(Number(n.extra)) : '',
-        summit: n.kind === 'summit' ? t(`summit.kind.${n.extra}` as TranslationKey) : '',
       });
-    const headlines = (state: GameState): string[] =>
-      [...state.chronicle.news].reverse().map(headline);
+    // Summits were removed from the game; old saves may still hold their headlines.
+    const shownNews = (state: GameState): NewsItem[] =>
+      [...state.chronicle.news].reverse().filter((n) => (n.kind as string) !== 'summit');
+    const headlines = (state: GameState): string[] => shownNews(state).map(headline);
     const openNews = async (): Promise<void> => {
       if (!game) return;
       const start = game.world.startDate;
       await newsDialog(
         uiRoot,
-        [...game.chronicle.news]
-          .reverse()
-          .map((n) => ({ date: formatGameDate(dateOfTurn(start, n.turn)), text: headline(n) })),
+        shownNews(game).map((n) => ({
+          date: formatGameDate(dateOfTurn(start, n.turn)),
+          text: headline(n),
+        })),
       );
     };
     const describeGoal = (g: Goal): string =>
@@ -784,15 +790,6 @@ async function start(): Promise<void> {
         debt: formatPercent(sim.goals?.lowDebt.maxShare ?? 0, 0),
         years: Math.round((sim.goals?.noRiots.turns ?? 0) / 52),
       });
-    const summitParams = (q: SummitQuestion): Record<string, string | number> => ({
-      country: q.country ? nameOf(q.country) : '',
-      rival: q.rival ? nameOf(q.rival) : '',
-      side: q.side ? nameOf(q.side) : '',
-      value: q.value ?? 0,
-      resource: q.resource ? t(`res.${q.resource}` as TranslationKey) : '',
-    });
-    const summitQuestion = (q: SummitQuestion): string =>
-      t(`summit.q.${q.id}` as TranslationKey, summitParams(q));
     /** The four ministers double as the tutorial in the first turns (GDD section 13). */
     const ADVISOR_TIPS: [TranslationKey, TranslationKey][] = [
       ['minister.finance', 'tip.economy'],
@@ -1031,6 +1028,8 @@ async function start(): Promise<void> {
           );
       }
       for (const e of events) {
+        if (e.type === 'techLevel' && e.countryId === player)
+          toasts.show(t('tech.newLevel', { points: e.points }));
         if (e.type === 'inflationAlert' && e.countryId === player) {
           await noticeDialog(
             uiRoot,
@@ -1050,33 +1049,9 @@ async function start(): Promise<void> {
             e.type === 'goalDone' ? 'info' : 'error',
           );
         }
-        if (e.type === 'summitHeld' && !e.attended)
-          toasts.show(
-            t('summit.missed', { summit: t(`summit.kind.${e.kind}` as TranslationKey) }),
-            'error',
-          );
       }
       for (const e of events) {
         if (e.type === 'report' && game) await reportDialog(uiRoot, e.report, nameOf);
-      }
-      if (events.some((e) => e.type === 'summitInvitation')) await openSummit();
-    };
-
-    /** Asks the player to attend or skip the pending summit. */
-    const openSummit = async (): Promise<void> => {
-      const s = game?.summits.pending;
-      if (!s || !sim.summits) return;
-      {
-        const answers = await summitDialog(uiRoot, s, summitRules(sim), {
-          title: t('summit.title', {
-            summit: t(`summit.kind.${s.kind}` as TranslationKey),
-            host: nameOf(s.host),
-          }),
-          question: summitQuestion,
-          answer: (q, a) => t(`summit.a.${q.id}.${a}` as TranslationKey, summitParams(q)),
-        });
-        if (game)
-          issue({ type: 'summit', countryId: game.player.countryId, summitId: s.id, answers });
       }
     };
 
@@ -1210,6 +1185,12 @@ async function start(): Promise<void> {
           t('econ.printConfirm'),
           t('saves.cancel'),
         ),
+      openTech: () => game && techPanel.open(game),
+    });
+    const techPanel = new TechPanel({
+      parent: uiRoot,
+      sim,
+      issue: (command) => void issue(command),
     });
 
     const interiorPanel = new InteriorPanel({
@@ -1370,10 +1351,17 @@ async function start(): Promise<void> {
       },
     });
 
+    /** A country's place in the world power ranking; the top ones are great powers. */
+    const worldRank = (state: GameState, id: string): { rank: number; great: boolean } => {
+      const rank = rankings(state, sim, 'power').find((r) => r.countryId === id)?.rank ?? 0;
+      return { rank, great: rank > 0 && rank <= GREAT_POWERS };
+    };
     const countryDialog = new CountryDialog({
       parent: uiRoot,
       sim,
       describeGoal: (g) => describeGoal(g),
+      rankOf: (state, id) => worldRank(state, id),
+      openRankings: () => game && rankingsPanel.open(game),
       countryName: nameOf,
       flag: (id) =>
         flagImage(
@@ -1447,6 +1435,9 @@ async function start(): Promise<void> {
     const hud = new GameHud(uiRoot, world, {
       onMenu: () => gameMenu.show(),
       onRankings: () => game && rankingsPanel.open(game),
+      onTech: () => game && techPanel.open(game),
+      rankOf: (state) => worldRank(state, state.player.countryId),
+      techPointsOf: (state) => state.economy.countries[state.player.countryId]?.tech?.points ?? 0,
       onNextTurn: () => void endTurn(),
       onEconomy: () => {
         if (!game) return;
@@ -1639,6 +1630,7 @@ async function start(): Promise<void> {
     });
 
     showMenuMap();
+    await intro;
     menu.show();
     loading.close();
   } catch (error) {

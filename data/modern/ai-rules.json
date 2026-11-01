@@ -1,14 +1,26 @@
 {
   "meta": {
-    "description": "How AI profiles turn into actions (GDD section 11). Rates are chances per turn at a trait of 100; thresholds are relations (-100..100) and strength ratios. Aggressiveness multiplies hostile traits (Chaos: hostile traits at the maximum and extra randomness in timing). Game-design defaults to be tuned in Phase 13.",
+    "description": "How AI profiles turn into actions (GDD section 11). Rates are chances per turn at a trait of 100; thresholds are relations (-100..100) and strength ratios. Aggressiveness multiplies hostile traits (Chaos: hostile traits at the maximum and extra randomness in timing). Game-design defaults to be tuned in Phase 13. Since Phase 26 (Dario: the AI was too slow) tempo multiplies the chances of sanctions, ultimatums, wars and interventions per level, and powerEdge scales the power advantage an AI wants before an ultimatum or a war.",
     "source": "Game design (GDD section 11)",
     "checked": "2026-10-25"
   },
   "aggressiveness": {
     "peaceful": 0.5,
     "realistic": 1,
-    "aggressive": 1.5,
+    "aggressive": 1.75,
     "chaos": 1
+  },
+  "tempo": {
+    "peaceful": 1,
+    "realistic": 2,
+    "aggressive": 3.5,
+    "chaos": 5
+  },
+  "powerEdge": {
+    "peaceful": 1.2,
+    "realistic": 1,
+    "aggressive": 0.75,
+    "chaos": 0.55
   },
   "chaosTimingJitter": 2,
   "rates": {
@@ -70,7 +82,8 @@
     "crisisMargin": 8,
     "crisisDebtLimit": 1.5,
     "reserveWeeks": 26,
-    "repayAboveWeeks": 8
+    "repayAboveWeeks": 8,
+    "researchByEconomy": 0.015
   },
   "nuclear": {
     "lastResortMinPosture": 30,

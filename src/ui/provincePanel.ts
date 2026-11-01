@@ -22,6 +22,8 @@ export interface ProvinceStatus {
   assimilatingWeeks: number | null;
   /** Assimilation cost when the player can order it, else null. */
   assimilationCost: string | null;
+  /** Held during a war with its people's country: no riots, assimilation only after peace. */
+  occupied?: boolean;
   riotThreshold: number;
 }
 
@@ -159,7 +161,9 @@ export class ProvincePanel {
             '',
             status.assimilatingWeeks !== null
               ? `${status.foreignCulture} · ${t('interior.assimilating', { weeks: status.assimilatingWeeks })}`
-              : status.foreignCulture,
+              : status.occupied
+                ? `${status.foreignCulture} · ${t('interior.occupied')}`
+                : status.foreignCulture,
           ),
         );
       }
