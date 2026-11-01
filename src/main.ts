@@ -1348,10 +1348,17 @@ async function start(): Promise<void> {
       },
     });
 
+    /** A country's place in the world power ranking; the top ones are great powers. */
+    const worldRank = (state: GameState, id: string): { rank: number; great: boolean } => {
+      const rank = rankings(state, sim, 'power').find((r) => r.countryId === id)?.rank ?? 0;
+      return { rank, great: rank > 0 && rank <= GREAT_POWERS };
+    };
     const countryDialog = new CountryDialog({
       parent: uiRoot,
       sim,
       describeGoal: (g) => describeGoal(g),
+      rankOf: (state, id) => worldRank(state, id),
+      openRankings: () => game && rankingsPanel.open(game),
       countryName: nameOf,
       flag: (id) =>
         flagImage(
@@ -1426,12 +1433,7 @@ async function start(): Promise<void> {
       onMenu: () => gameMenu.show(),
       onRankings: () => game && rankingsPanel.open(game),
       onTech: () => game && techPanel.open(game),
-      rankOf: (state) => {
-        const rank =
-          rankings(state, sim, 'power').find((r) => r.countryId === state.player.countryId)?.rank ??
-          0;
-        return { rank, great: rank > 0 && rank <= GREAT_POWERS };
-      },
+      rankOf: (state) => worldRank(state, state.player.countryId),
       techPointsOf: (state) => state.economy.countries[state.player.countryId]?.tech?.points ?? 0,
       onNextTurn: () => void endTurn(),
       onEconomy: () => {

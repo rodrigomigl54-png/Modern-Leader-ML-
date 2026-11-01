@@ -17,9 +17,14 @@ export type DipIcon =
   | 'unsanction'
   | 'war'
   | 'peace'
-  | 'access';
+  | 'access'
+  | 'deal';
 
 const SHAPES: Record<DipIcon, string> = {
+  // A balance whose beam tips back and forth: weighing a trade request.
+  deal:
+    '<path d="M12 4v16M8 20h8"/><g class="dip-i-sway"><path d="M5 8h14"/>' +
+    '<path d="M5 8l-2.5 5h5zM19 8l-2.5 5h5z"/></g>',
   // A border gate with an arrow passing through: military access.
   access: '<path d="M5 4v16M19 4v16"/><path class="dip-i-slide-r" d="M3 12h15l-3-3M18 12l-3 3"/>',
   // Two lines rising toward each other with a small spark: relations getting warmer.

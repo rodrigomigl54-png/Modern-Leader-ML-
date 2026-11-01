@@ -3000,3 +3000,192 @@ textarea {
   line-height: 16px;
   text-align: center;
 }
+
+/* Country dialog: world rank chip next to the name (Phase 26). */
+.country-name-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.rank-chip {
+  min-height: 28px;
+  padding: 2px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  background: var(--panel-solid);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.rank-chip-great {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Opinions: a country's warmest and coldest relations. */
+.opinion-head {
+  margin: 10px 0 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.opinion-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.opinion {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 72px 40px;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.opinion .flag {
+  width: 24px;
+  height: auto;
+}
+
+.opinion-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.opinion-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+.opinion-fill {
+  display: block;
+  height: 100%;
+}
+
+.opinion .relation-score {
+  text-align: right;
+}
+
+/* Trade request (after Age of History): two columns, treaties and the likelihood. */
+.deal-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.deal-column,
+.deal-mutual {
+  padding: 10px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: var(--line-soft);
+}
+
+.deal-mutual {
+  margin-top: 12px;
+}
+
+.deal-column-title {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.deal-pick {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0;
+}
+
+.deal-pick-label {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.deal-pick select {
+  min-height: 40px;
+  padding: 0 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--panel-solid);
+  color: var(--text);
+  font: inherit;
+}
+
+.deal-provinces summary {
+  min-height: 36px;
+  line-height: 36px;
+  cursor: pointer;
+}
+
+.deal-provinces .peace-provinces {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.deal-chance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 10px;
+}
+
+.deal-chance-label {
+  color: var(--text-muted);
+}
+
+.deal-chance-bar {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.deal-chance-step {
+  width: 22px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--line-soft);
+}
+
+.deal-chance-veryLow .deal-chance-step.on {
+  background: #b4453c;
+}
+
+.deal-chance-low .deal-chance-step.on {
+  background: #c9853a;
+}
+
+.deal-chance-medium .deal-chance-step.on {
+  background: #c9b23a;
+}
+
+.deal-chance-high .deal-chance-step.on {
+  background: #4e9a5e;
+}
+
+.deal-chance-value {
+  font-weight: 600;
+}
+
+/* Icons on filled buttons take the button's text color. */
+.btn-primary .dip-icon,
+.btn-danger .dip-icon {
+  color: inherit;
+}
+
+.dip-icon-deal .dip-i-sway {
+  transform-origin: center;
+}
