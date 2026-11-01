@@ -20,7 +20,6 @@ import { populationPhase, warSupportPhase, type PopulationEvent } from './popula
 import { createRng, type Rng } from './rng';
 import { buildReport, markReport, recordNews, type ReportData } from './chronicle';
 import { goalsPhase, type GoalEvent } from './goals';
-import { summitPhase, type SummitEvent } from './summits';
 import { victoryPhase } from './victory';
 
 export type TurnPhaseId =
@@ -57,7 +56,6 @@ export type TurnEvent =
   | DiplomacyEvent
   | ResourcesEvent
   | AiPolicyEvent
-  | SummitEvent
   | GoalEvent
   /** The 10-turn general report (GDD section 12). */
   | { type: 'report'; turn: number; report: ReportData }
@@ -119,7 +117,6 @@ const PHASES: Record<TurnPhaseId, Phase> = {
   events: (ctx) => {
     const { state, sim } = ctx;
     const push = (e: TurnEvent): void => void ctx.events.push(e);
-    if (sim.summits) summitPhase(state, sim, [...ctx.events], push);
     if (sim.goals) goalsPhase(state, sim, push);
     victoryPhase(state);
     recordNews(state, ctx.events);

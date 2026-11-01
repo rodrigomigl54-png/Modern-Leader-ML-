@@ -5,17 +5,15 @@ import economyRules from '../../data/modern/economy.json';
 import goalsData from '../../data/modern/goals.json';
 import militaryRulesData from '../../data/modern/military.json';
 import populationRules from '../../data/modern/population.json';
-import summitsData from '../../data/modern/summits.json';
 import weaponsRulesData from '../../data/modern/weapons.json';
 import { applyCommand } from './commands';
-import { relation, sanctioned, type DiplomacyRules } from './diplomacy';
+import type { DiplomacyRules } from './diplomacy';
 import type { EconomyRules, SimContext } from './economy';
 import { goalProgress, type GoalRules } from './goals';
 import type { MilitaryRules } from './military';
 import { createNewGame, type GameState } from './newGame';
 import type { PopulationRules } from './population';
 import type { AiRules } from './profiles';
-import { summitPhase, type SummitRules } from './summits';
 import { advanceTurn, type TurnEvent } from './turn';
 import type { WeaponsRules } from './weapons';
 import type { World, WorldCountry } from './world';
@@ -58,7 +56,6 @@ const sim: SimContext = {
   diplomacy: diplomacyRulesData as unknown as DiplomacyRules,
   aiRules: aiRulesData as unknown as AiRules,
   profiles: {},
-  summits: summitsData as unknown as SummitRules,
   goals: goalsData as unknown as GoalRules,
   cityProvince: [0, 1, 2, 3],
   cityPopulation: [1e6, 1e6, 1e6, 1e6],
@@ -114,102 +111,6 @@ describe('news and reports', () => {
     const next = later.find((e) => e.type === 'report');
     expect(next?.type === 'report' && next.report.sinceTurn).toBe(10);
     expect(next?.type === 'report' && next.report.warsStarted).toBe(0);
-  });
-});
-
-describe('summits', () => {
-  const invited = (): GameState => {
-    const events: TurnEvent[] = [];
-    const game = play(newGame(), (summitsData as { firstTurn: number }).firstTurn, events);
-    expect(events.some((e) => e.type === 'summitInvitation')).toBe(true);
-    return game;
-  };
-
-  it('a regular summit is called once a year with questions from the situation', () => {
-    const game = invited();
-    const s = game.summits.pending!;
-    expect(s.kind).toBe('un');
-    expect(s.members).toContain('FAR');
-    expect(s.questions.length).toBeGreaterThanOrEqual(2);
-    for (const q of s.questions) expect(q.answers.length).toBeGreaterThanOrEqual(2);
-  });
-
-  it('attending applies the answers, skipping costs relations and credibility', () => {
-    const game = invited();
-    const s = game.summits.pending!;
-    const attended = applyCommand(
-      game,
-      {
-        type: 'summit',
-        countryId: 'PLR',
-        summitId: s.id,
-        answers: s.questions.map((q) => q.answers[0]!),
-      },
-      sim,
-    );
-    const skipped = applyCommand(
-      game,
-      { type: 'summit', countryId: 'PLR', summitId: s.id, answers: null },
-      sim,
-    );
-    if (!attended.ok || !skipped.ok) throw new Error('summit command failed');
-    expect(attended.state.summits.pending).toBeNull();
-    expect(relation(skipped.state, sim, 'PLR', s.host)).toBeLessThan(
-      relation(game, sim, 'PLR', s.host),
-    );
-    expect(skipped.state.diplomacy.credibility.PLR!).toBeLessThan(game.diplomacy.credibility.PLR!);
-    expect(skipped.state.chronicle.news.some((n) => n.kind === 'summit')).toBe(true);
-    // The same summit cannot be answered twice.
-    expect(
-      applyCommand(
-        skipped.state,
-        { type: 'summit', countryId: 'PLR', summitId: s.id, answers: null },
-        sim,
-      ).ok,
-    ).toBe(false);
-  });
-
-  it('an unanswered invitation lapses into a skip', () => {
-    const game = invited();
-    const events: TurnEvent[] = [];
-    const later = play(game, (summitsData as { answerTurns: number }).answerTurns, events);
-    expect(later.summits.pending).toBeNull();
-    expect(events.some((e) => e.type === 'summitHeld' && !e.attended)).toBe(true);
-  });
-
-  it('a war between large powers calls an emergency summit; joining sanctions works', () => {
-    const war = applyCommand(
-      newGame(),
-      { type: 'declareWar', countryId: 'BBB', targetId: 'FAR' },
-      sim,
-    );
-    if (!war.ok) throw new Error(war.error);
-    const game = war.state;
-    const events: TurnEvent[] = [];
-    summitPhase(game, sim, [{ type: 'warDeclared', attacker: 'BBB', target: 'FAR' }], (e) =>
-      events.push(e),
-    );
-    const s = game.summits.pending!;
-    expect(s.kind).toBe('emergency');
-    expect(s.cause).toEqual({ kind: 'war', a: 'BBB', b: 'FAR' });
-    const q = s.questions.findIndex((x) => x.id === 'jointSanctions');
-    expect(s.questions[q]?.country).toBe('BBB');
-    const answers = s.questions.map((x, i) => (i === q ? 'join' : x.answers[0]!));
-    const done = applyCommand(
-      game,
-      { type: 'summit', countryId: 'PLR', summitId: s.id, answers },
-      sim,
-    );
-    if (!done.ok) throw new Error(done.error);
-    expect(sanctioned(done.state, 'PLR', 'BBB')).toBe(true);
-    // No second emergency summit right after the first.
-    summitPhase(
-      done.state,
-      sim,
-      [{ type: 'warDeclared', attacker: 'BBB', target: 'FAR' }],
-      () => {},
-    );
-    expect(done.state.summits.pending).toBeNull();
   });
 });
 

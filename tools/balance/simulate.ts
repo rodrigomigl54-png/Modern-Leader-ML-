@@ -76,7 +76,6 @@ try {
     resources: read('resources.json'),
     profiles: read('ai-profiles.json'),
     aiRules: read('ai-rules.json'),
-    summits: read('summits.json'),
     goals: read('goals.json'),
     startDebt: read('debt.json'),
     stats: readOptional('country-stats.json'),

@@ -7,7 +7,6 @@ import type { PopulationRules } from '../sim/population';
 import type { ResourcesData } from '../sim/resources';
 import type { AiProfile, AiRules } from '../sim/profiles';
 import type { WeaponsRules } from '../sim/weapons';
-import type { SummitRules } from '../sim/summits';
 import type { GoalRules } from '../sim/goals';
 import type { Alliance, CountryStats, Leader, Rivalry, War, World } from '../sim/world';
 
@@ -70,7 +69,6 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     import('../../data/modern/resources.json?url'),
     import('../../data/modern/ai-profiles.json?url'),
     import('../../data/modern/ai-rules.json?url'),
-    import('../../data/modern/summits.json?url'),
     import('../../data/modern/goals.json?url'),
     import('../../data/modern/debt.json?url'),
   ]);
@@ -85,7 +83,6 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     resourcesUrl,
     profilesUrl,
     aiRulesUrl,
-    summitsUrl,
     goalsUrl,
     debtUrl,
   ] = urls.slice(5);
@@ -105,7 +102,6 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     resources,
     profiles,
     aiRules,
-    summits,
     goals,
     startDebt,
     stats,
@@ -126,7 +122,6 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     fetchJson<ResourcesData>(resourcesUrl!.default),
     fetchJson<{ profiles: Record<string, AiProfile> }>(profilesUrl!.default),
     fetchJson<AiRules>(aiRulesUrl!.default),
-    fetchJson<SummitRules>(summitsUrl!.default),
     fetchJson<GoalRules>(goalsUrl!.default),
     fetchJson<StartDebt>(debtUrl!.default),
     statsUrl ? fetchJson<StatsFile>(statsUrl) : Promise.resolve(null),
@@ -147,7 +142,6 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     resources,
     profiles,
     aiRules,
-    summits,
     goals,
     startDebt,
     stats,
@@ -170,7 +164,6 @@ export interface WorldFiles {
   resources: ResourcesData;
   profiles: { profiles: Record<string, AiProfile> };
   aiRules: AiRules;
-  summits: SummitRules;
   goals: GoalRules;
   startDebt: StartDebt;
   stats: StatsFile | null;
@@ -196,7 +189,6 @@ export function assembleWorld(map: MapFacts, files: WorldFiles): WorldBundle {
     resources,
     profiles,
     aiRules,
-    summits,
     goals,
     startDebt,
     stats,
@@ -249,8 +241,7 @@ export function assembleWorld(map: MapFacts, files: WorldFiles): WorldBundle {
       profiles: profiles.profiles,
       aiRules,
       resources,
-      summits,
-      goals,
+        goals,
       startDebt,
     },
   };

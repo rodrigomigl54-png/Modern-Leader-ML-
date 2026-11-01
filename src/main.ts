@@ -19,7 +19,6 @@ import { applyCommand, type Command, type CommandError } from './sim/commands';
 import { ensureChronicle, type NewsItem } from './sim/chronicle';
 import { ensureEconomy, weeklyBudget } from './sim/economy';
 import { ensureGoals, type Goal } from './sim/goals';
-import { ensureSummits, summitRules, type SummitQuestion } from './sim/summits';
 import { dateOfTurn } from './sim/calendar';
 import {
   armySize,
@@ -58,7 +57,6 @@ import { RankingsPanel } from './ui/rankingsPanel';
 import { CornerNotices } from './ui/cornerNotices';
 import { NewsTicker, newsDialog } from './ui/newsTicker';
 import { reportDialog } from './ui/reportDialog';
-import { summitDialog } from './ui/summitDialog';
 import { formatGameDate } from './ui/format';
 import { InteriorPanel } from './ui/interiorPanel';
 import { InvestDialog } from './ui/investDialog';
@@ -96,7 +94,6 @@ const COMMAND_ERRORS: Partial<Record<CommandError, TranslationKey>> = {
   needsBase: 'recruit.noBase',
   alreadyAtWar: 'war.alreadyAtWar',
   allied: 'war.allied',
-  noSummit: 'summit.gone',
   invalidTarget: 'war.invalid',
   notAtWar: 'strike.notAtWar',
   outOfRange: 'strike.outOfRange',
@@ -682,21 +679,19 @@ async function start(): Promise<void> {
     /** Shows a game (new or loaded) on the map. */
     const playGame = (loaded: GameState): void => {
       const state = ensureGoals(
-        ensureSummits(
-          ensureChronicle(
-            ensureResources(
-              ensureDiplomacy(
-                ensureWeapons(
-                  ensureMilitary(
-                    ensurePopulation(ensureEconomy(loaded, sim.economy), population),
-                    sim,
-                  ),
+        ensureChronicle(
+          ensureResources(
+            ensureDiplomacy(
+              ensureWeapons(
+                ensureMilitary(
+                  ensurePopulation(ensureEconomy(loaded, sim.economy), population),
                   sim,
                 ),
                 sim,
               ),
               sim,
             ),
+            sim,
           ),
         ),
         sim,
@@ -729,7 +724,6 @@ async function start(): Promise<void> {
       notices.update(state);
       if (state.gameOver) void showGameOver();
       else if (state.turn === 0) void advisorTip(0).then(startShortages);
-      else if (state.summits.pending) void openSummit();
     };
 
     /** The end of the game: a defeat (conquered, revolution) or the victory over the whole world. */
@@ -761,18 +755,20 @@ async function start(): Promise<void> {
         a: nameOf(n.a),
         b: n.b ? nameOf(n.b) : '',
         city: n.kind === 'nuclear' ? cityName(Number(n.extra)) : '',
-        summit: n.kind === 'summit' ? t(`summit.kind.${n.extra}` as TranslationKey) : '',
       });
-    const headlines = (state: GameState): string[] =>
-      [...state.chronicle.news].reverse().map(headline);
+    // Summits were removed from the game; old saves may still hold their headlines.
+    const shownNews = (state: GameState): NewsItem[] =>
+      [...state.chronicle.news].reverse().filter((n) => (n.kind as string) !== 'summit');
+    const headlines = (state: GameState): string[] => shownNews(state).map(headline);
     const openNews = async (): Promise<void> => {
       if (!game) return;
       const start = game.world.startDate;
       await newsDialog(
         uiRoot,
-        [...game.chronicle.news]
-          .reverse()
-          .map((n) => ({ date: formatGameDate(dateOfTurn(start, n.turn)), text: headline(n) })),
+        shownNews(game).map((n) => ({
+          date: formatGameDate(dateOfTurn(start, n.turn)),
+          text: headline(n),
+        })),
       );
     };
     const describeGoal = (g: Goal): string =>
@@ -784,15 +780,6 @@ async function start(): Promise<void> {
         debt: formatPercent(sim.goals?.lowDebt.maxShare ?? 0, 0),
         years: Math.round((sim.goals?.noRiots.turns ?? 0) / 52),
       });
-    const summitParams = (q: SummitQuestion): Record<string, string | number> => ({
-      country: q.country ? nameOf(q.country) : '',
-      rival: q.rival ? nameOf(q.rival) : '',
-      side: q.side ? nameOf(q.side) : '',
-      value: q.value ?? 0,
-      resource: q.resource ? t(`res.${q.resource}` as TranslationKey) : '',
-    });
-    const summitQuestion = (q: SummitQuestion): string =>
-      t(`summit.q.${q.id}` as TranslationKey, summitParams(q));
     /** The four ministers double as the tutorial in the first turns (GDD section 13). */
     const ADVISOR_TIPS: [TranslationKey, TranslationKey][] = [
       ['minister.finance', 'tip.economy'],
@@ -1050,33 +1037,9 @@ async function start(): Promise<void> {
             e.type === 'goalDone' ? 'info' : 'error',
           );
         }
-        if (e.type === 'summitHeld' && !e.attended)
-          toasts.show(
-            t('summit.missed', { summit: t(`summit.kind.${e.kind}` as TranslationKey) }),
-            'error',
-          );
       }
       for (const e of events) {
         if (e.type === 'report' && game) await reportDialog(uiRoot, e.report, nameOf);
-      }
-      if (events.some((e) => e.type === 'summitInvitation')) await openSummit();
-    };
-
-    /** Asks the player to attend or skip the pending summit. */
-    const openSummit = async (): Promise<void> => {
-      const s = game?.summits.pending;
-      if (!s || !sim.summits) return;
-      {
-        const answers = await summitDialog(uiRoot, s, summitRules(sim), {
-          title: t('summit.title', {
-            summit: t(`summit.kind.${s.kind}` as TranslationKey),
-            host: nameOf(s.host),
-          }),
-          question: summitQuestion,
-          answer: (q, a) => t(`summit.a.${q.id}.${a}` as TranslationKey, summitParams(q)),
-        });
-        if (game)
-          issue({ type: 'summit', countryId: game.player.countryId, summitId: s.id, answers });
       }
     };
 

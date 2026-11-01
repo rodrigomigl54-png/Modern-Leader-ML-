@@ -9,7 +9,6 @@ import {
 } from './diplomacy';
 import type { GameState } from './newGame';
 import type { AiProfile, AiRules } from './profiles';
-import type { SummitRules } from './summits';
 import type { GoalRules } from './goals';
 import { shortageLoss, type ResourcesData } from './resources';
 import { pariahPenalty, type WeaponsRules } from './weapons';
@@ -112,8 +111,7 @@ export interface SimContext {
   aiRules?: AiRules;
   /** Public debt at the start (data/modern/debt.json); none means economy.json's share. */
   startDebt?: StartDebt;
-  /** Summit and goal rules (GDD sections 12-13). */
-  summits?: SummitRules;
+  /** Goal rules (GDD section 13). */
   goals?: GoalRules;
 }
 

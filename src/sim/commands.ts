@@ -36,7 +36,6 @@ import {
   type Threat,
 } from './diplomacy';
 import { cloneState, type GameState } from './newGame';
-import { attendSummit, skipSummit } from './summits';
 import {
   airDefenseQuote,
   launchDrones,
@@ -216,17 +215,8 @@ export type DiplomacyCommand =
   | { type: 'proposePeace'; countryId: string; targetId: string; terms: PeaceTerms }
   | { type: 'answerRequest'; countryId: string; requestId: number; accept: boolean };
 
-export interface SummitCommand {
-  type: 'summit';
-  countryId: string;
-  summitId: number;
-  /** One answer per question; null skips the summit. */
-  answers: string[] | null;
-}
-
 export type Command =
   | DiplomacyCommand
-  | SummitCommand
   | SetTaxCommand
   | SetServicesCommand
   | PrintMoneyCommand
@@ -262,7 +252,6 @@ export type CommandError =
   | 'invalidTarget'
   | 'alreadyAtWar'
   | 'allied'
-  | 'noSummit'
   | WeaponsError
   | DiplomacyError;
 
@@ -490,15 +479,6 @@ export function applyCommand(
       const state = cloneState(previous);
       startWar(state, ctx, countryId, targetId);
       return { ok: true, state };
-    }
-    case 'summit': {
-      if (command.countryId !== previous.player.countryId || !ctx.summits)
-        return { ok: false, error: 'noSummit' };
-      const state = cloneState(previous);
-      const done = command.answers
-        ? attendSummit(state, ctx, command.summitId, command.answers)
-        : skipSummit(state, ctx, command.summitId);
-      return done ? { ok: true, state } : { ok: false, error: 'noSummit' };
     }
     default:
       return diplomacyCommand(previous, command, ctx);
