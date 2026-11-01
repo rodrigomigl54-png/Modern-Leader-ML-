@@ -20,6 +20,7 @@ import {
   type TechState,
 } from './technology';
 import { advanceTurn } from './turn';
+import { HISTORY_EVERY } from './history';
 import type { World, WorldCountry } from './world';
 
 const rules = economyRules as EconomyRules;
@@ -164,5 +165,18 @@ describe('technology (Dario, Phase 26)', () => {
     const fixed = ensureEconomy(old, rules);
     expect(fixed.economy.countries.POOR!.tech).toBeDefined();
     expect(TECH_CATEGORIES).toContain(tech.aiOrder[0]);
+  });
+});
+
+describe('history for the charts', () => {
+  it('records the player every few weeks', () => {
+    let state = newGame();
+    for (let i = 0; i < HISTORY_EVERY * 2; i++) state = advanceTurn(state, sim).state;
+    expect(state.history).toHaveLength(2);
+    const last = state.history!.at(-1)!;
+    expect(last.turn).toBe(HISTORY_EVERY * 2);
+    expect(last.gdp).toBe(state.economy.countries.RICH!.gdp);
+    expect(last.provinces).toBe(1);
+    expect(last.rank).toBeGreaterThanOrEqual(1);
   });
 });

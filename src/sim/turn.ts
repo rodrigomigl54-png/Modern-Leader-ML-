@@ -21,6 +21,7 @@ import { createRng, type Rng } from './rng';
 import { buildReport, markReport, recordNews, type ReportData } from './chronicle';
 import { goalsPhase, type GoalEvent } from './goals';
 import { victoryPhase } from './victory';
+import { historyPhase } from './history';
 
 export type TurnPhaseId =
   | 'aiOrders'
@@ -119,6 +120,7 @@ const PHASES: Record<TurnPhaseId, Phase> = {
     const push = (e: TurnEvent): void => void ctx.events.push(e);
     if (sim.goals) goalsPhase(state, sim, push);
     victoryPhase(state);
+    historyPhase(state, sim);
     recordNews(state, ctx.events);
     if (state.turn % REPORT_INTERVAL === 0) {
       ctx.events.push({ type: 'report', turn: state.turn, report: buildReport(state, sim) });
