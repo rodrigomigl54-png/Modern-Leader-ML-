@@ -106,7 +106,7 @@ One turn = one week (52 turns per year). The player issues any number of orders,
 6. Economy: income, spending, trade, inflation.
 7. Population: support, unrest, revolt checks.
 8. Diplomacy: ultimatum deadlines, alliance responses, sanctions take effect.
-9. Events, summits, urgent notifications; the 10-turn report when due.
+9. Events, urgent notifications; the 10-turn report when due.
 10. Autosave.
 
 **Limits per turn:**
@@ -142,11 +142,17 @@ Investing abroad needs the host's consent (AI accepts or refuses based on relati
 
 **Sanctions** cut trade, weapons sales and investment between the countries involved. Their effect depends on how much the target depends on the sanctioning country.
 
+**Technology (Dario, Phase 26, "like Age of History, but modern"):** each country spends a share of GDP on research (a slider, 0–5%). Accumulated research raises the technology level (0.2–0.95 at the start from GDP per capita); every level gives technology points, assigned to seven categories with a cap each: economic growth, tax collection, military upkeep, investment costs, research, stability and administration. The AI assigns its points by a fixed order. Weights in `economy.json` ("technology").
+
+**Investment prices (Phase 26):** buildings cost 40% less than before, with returns scaled so their payback stays the same, to speed up play.
+
+**History charts:** every 4 turns the game records GDP, treasury, support, provinces, technology and rank; the Ministry of Finance shows them as charts.
+
 ## 7. Population, stability, revolution and assimilation
 
 There are no elections; public support is the player's lifeline, and losing it leads to riots, then revolution or a coup.
 
-**Public support (0–100%), per province and national average.** Raised by: GDP growth, services, low inflation, won wars, investment in that province. Lowered by: inflation, high taxes, war losses, mandatory service (when introduced), sanctions on the country, missile damage, ignored summits.
+**Public support (0–100%), per province and national average.** Raised by: GDP growth, services, low inflation, won wars, investment in that province. Lowered by: inflation, high taxes, war losses, mandatory service (when introduced), sanctions on the country, missile damage.
 
 **Escalation ladder:**
 
@@ -157,6 +163,8 @@ There are no elections; public support is the player's lifeline, and losing it l
 5. Rebels hold part of the country for a set number of turns → that part **secedes as a new country** the player can fight or make peace with.
 
 AI countries follow the same rules.
+
+**Occupation (Dario, Phase 26, after Age of Civilizations):** a province held by a country still at war with the people living there is *occupied*: it cannot riot and cannot be assimilated. Unrest and assimilation start only once peace is signed.
 
 **Assimilation:** conquered cities keep their culture and are less productive and less loyal until assimilated. Cost grows with city size and cultural distance. "Assimilate all" assimilates every eligible city in one click; before confirming it shows the total cost and the risk (temporary unrest in those cities for several turns).
 
@@ -242,6 +250,10 @@ AI countries take the initiative (Phase 24): they improve relations with partner
 - The receiver accepts or refuses. Ultimatums can be sent and received by the player and the AI.
 - If the sender does not carry out the threat after a refusal, it loses **credibility**. Low credibility makes future ultimatums weaker and more likely to be refused.
 
+**Trade requests (Dario, Phase 26, after Age of History):** the player builds a package for any country not at war with them. Each side can give money (a slider up to its treasury), provinces (never the capital), a declaration of war on a third country, joining a coalition (sanctions) against a third country, and military access. Both can also sign a defense pact or a non-aggression pact (2 years: neither side can declare war on the other). The dialog shows the likelihood of acceptance (very low, low, medium, high) live while the package changes; the AI accepts when what it gains outweighs what it gives, adjusted by relations and by how strong the third country is. A proposal costs diplomatic points. Weights in `diplomacy-rules.json` ("deals").
+
+**Opinions and rank:** every country dialog shows the country's place in the world power ranking (the top 8 are *great powers*) and its warmest and coldest relations. The player's own rank sits on the flag in the top bar.
+
 ## 11. AI behavior profiles
 
 Each AI country imitates the real country's foreign-policy behavior through a profile of traits; the aggressiveness setting scales the hostile traits up or down. The AI never acts randomly outside its profile.
@@ -263,26 +275,17 @@ Each profile also lists **rivals** and **partners** by country. Example: United 
 
 **Aggressiveness multipliers** apply to hostile traits only: Peaceful ×0.5, Realistic ×1, Aggressive ×1.5, Chaos = maximum plus extra randomness in timing. Example: on Peaceful, the United States still sanctions Iran but rarely goes to war; on Chaos it intervenes in almost every conflict.
 
-## 12. Summits, events, notifications and reports
+## 12. Events, notifications and reports
 
-A diplomatic summit happens once a year (every 52 turns) plus emergency summits; urgent notifications arrive immediately, and a general report arrives every 10 turns.
+Urgent notifications arrive immediately, and a general report arrives every 10 turns. (Summits were removed by Dario in Phase 26: they took away from the game.)
 
-**Summits:**
-
-- **Regular:** one per year. Type rotates: UN General Assembly, G20-style economic summit, regional summit of the player's region, alliance summit (if the player is in one).
-- **Emergency:** triggered by major events: a war between two large powers, a nuclear threat or use, a large country collapsing into revolution.
-- **Attend or skip.** Skipping has consequences: lower relations with the hosts and members, lost credibility, sometimes a resolution passed against the player.
-- **If attending:** 2–4 questions generated from the current situation, each with 3–4 answers. Each answer changes relations, support or credibility. Questions are templates filled with live data. Examples:
-  - "Your forces entered {country} two months ago. The assembly asks for your explanation."
-  - "Inflation in your country reached {x}%. Partners ask whether you will accept an aid package with conditions."
-  - "{rival} accuses you of supplying weapons to {side}. How do you respond?"
-  - "The summit proposes joint sanctions on {country}. Do you join?"
-
-**Urgent notifications (immediate):** war declared on the player, ultimatum received, missile or drone strike, riots or revolution, inflation passing the threshold, an ally attacked, summit invitation. Delivered as messages from ministers (Finance, Defense, Foreign Affairs, Interior).
+**Urgent notifications (immediate):** war declared on the player, ultimatum received, missile or drone strike, riots or revolution, inflation passing the threshold, an ally attacked, a trade request answered, a new technology level. Delivered as messages from ministers (Finance, Defense, Foreign Affairs, Interior).
 
 **General report (every 10 turns):** GDP change, budget, support, wars started and ended worldwide, new sanctions and alliances, biggest changes in relations.
 
 **News ticker / newspaper:** short in-game headlines about world events, in the game's own visual style.
+
+**AI tempo by level (Phase 26):** the aggressiveness level also multiplies how often the AI sanctions, sends ultimatums, declares and joins wars (peaceful ×1, realistic ×2, aggressive ×3.5, chaos ×5) and how large a power edge it needs before attacking (×1.2, ×1, ×0.75, ×0.55).
 
 ## 13. UI and UX
 
@@ -332,6 +335,8 @@ The interface must work equally on a phone (touch, small screen) and on a PC (mo
 **Sound:** minimal for the demo: UI clicks, a short alert for urgent notifications, missile launch and impact sounds, one calm ambient music track. CC0 or self-made audio only. Separate volume sliders for music and effects; muted by default on phones until the player turns it on.
 
 **Demo feedback:** a "Send feedback" button in the menu linking to a simple external form (what was fun, what was confusing, device used). No analytics or tracking in the demo, so no consent banner is needed.
+
+**Logo and intro (Phase 26):** the mark is a thin globe ring with an "ML" monogram drawn as straight lines and one amber point (the leader). The game opens with a five-second "Situation Room" intro while the map loads: a dark screen, a radar sweeping a globe, borders and capitals lighting up as it passes, then the lines gather into the monogram and the name appears. A tap, click or key skips it; reduced motion shows the still logo. Typed numbers were replaced by sliders everywhere.
 
 ## 14. Data, sources and verification
 
