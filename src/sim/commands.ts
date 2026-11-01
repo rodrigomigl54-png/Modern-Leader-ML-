@@ -3,6 +3,7 @@
 // starts at once); the turn engine then advances everything they set in motion.
 import { investmentQuote, levelCost, printAmount, type SimContext } from './economy';
 import { assignPoint, type TechCategory } from './technology';
+import { nonAggressionBetween, proposeDeal, type Deal } from './deals';
 import {
   findPath,
   pathCrossesSea,
@@ -198,6 +199,8 @@ export type DiplomacyCommand =
   | { type: 'improveRelations'; countryId: string; targetId: string }
   | { type: 'insult'; countryId: string; targetId: string }
   | { type: 'requestAccess'; countryId: string; targetId: string }
+  /** A trade request (Age of History style): a package offered for a package asked. */
+  | { type: 'proposeDeal'; countryId: string; targetId: string; deal: Deal }
   /** The host (countryId) ends the access it gave the guest (targetId). */
   | { type: 'revokeAccess'; countryId: string; targetId: string }
   | { type: 'liftSanctions'; countryId: string; targetId: string }
@@ -264,6 +267,7 @@ export type CommandError =
   | 'noPath'
   | 'noTransport'
   | 'noTechPoints'
+  | 'nonAggression'
   | 'tooSmall'
   | 'nothingToRecruit'
   | 'needsBase'
@@ -511,6 +515,8 @@ export function applyCommand(
         return { ok: false, error: 'alreadyAtWar' };
       if (alliesOf(previous.world, countryId).includes(targetId))
         return { ok: false, error: 'allied' };
+      if (nonAggressionBetween(previous, countryId, targetId))
+        return { ok: false, error: 'nonAggression' };
       const state = cloneState(previous);
       startWar(state, ctx, countryId, targetId);
       return { ok: true, state };
@@ -546,6 +552,9 @@ function diplomacyCommand(
       break;
     case 'requestAccess':
       result = requestAccess(state, ctx, id, c.targetId);
+      break;
+    case 'proposeDeal':
+      result = proposeDeal(state, ctx, id, c.targetId, c.deal);
       break;
     case 'revokeAccess':
       result = revokeAccess(state, id, c.targetId);

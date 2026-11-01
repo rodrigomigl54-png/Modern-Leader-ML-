@@ -25,6 +25,7 @@ import {
 } from './diplomacy';
 import { investmentQuote, weeklyBudget, type SimContext } from './economy';
 import { citiesOfProvince, entryRule } from './military';
+import { nonAggressionBetween } from './deals';
 import type { GoalKind } from './goals';
 import type { GameState } from './newGame';
 import { nationalSupport } from './population';
@@ -277,6 +278,7 @@ export function aiPolicyOrders(
         (x) =>
           live.has(x) &&
           !alliesOf(state.world, id).includes(x) &&
+          !nonAggressionBetween(state, id, x) &&
           relation(state, ctx, id, x) <= t.warRelation &&
           myPower >= sidePower(x) * t.warPower * edge,
       );

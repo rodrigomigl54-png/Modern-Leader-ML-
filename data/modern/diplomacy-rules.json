@@ -28,7 +28,8 @@
     "aid": 1,
     "improve": 1,
     "insult": 1,
-    "access": 1
+    "access": 1,
+    "deal": 1
   },
   "access": {
     "comment": "Military access: the host lets the guest's armies cross its land. An AI host agrees from askMinRelation (not to a rival, and not for a war against its own allies) and revokes it below revokeBelowRelation. Alliances, foreign bases and wars already open borders (GDD section 5).",
@@ -153,5 +154,24 @@
   "nuclear": {
     "relation": -60,
     "alliesRelation": -30
+  },
+  "deals": {
+    "comment": "Trade requests (Dario, Phase 26, after Age of History). The receiver adds up points: money (moneyPerGdpPercent per 1% of its GDP), land (landPerPopulationPercent per 1% of the people involved, giveLandFactor times when it gives land), a war it must start (warBase plus warPerPowerRatio per unit of the enemy's strength against its own, minus hostileBonus when it hates the enemy), sanctions (sanctionsCost), access (accessCost given, accessGain received), a defense pact ((relation - pactMinRelation) / pactDivisor) and a non-aggression pact (nonAggressionBase, doubled with a stronger proposer), plus relation / relationDivisor. It accepts at 0 or more; from highAt the chance shows as high. A non-aggression pact lasts nonAggressionTurns.",
+    "moneyPerGdpPercent": 6,
+    "landPerPopulationPercent": 2,
+    "giveLandFactor": 3,
+    "warBase": 20,
+    "warPerPowerRatio": 25,
+    "hostileRelation": -30,
+    "hostileBonus": 15,
+    "sanctionsCost": 8,
+    "accessCost": 6,
+    "accessGain": 2,
+    "pactDivisor": 2,
+    "nonAggressionBase": 4,
+    "relationDivisor": 10,
+    "highAt": 10,
+    "nonAggressionTurns": 104,
+    "acceptedRelation": 5
   }
 }
