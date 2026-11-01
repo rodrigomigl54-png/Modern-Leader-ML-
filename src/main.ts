@@ -55,6 +55,8 @@ import { GameHud } from './ui/gameHud';
 import { GameMenu } from './ui/gameMenu';
 import { GoalsPanel } from './ui/goalsPanel';
 import { RankingsPanel } from './ui/rankingsPanel';
+import { GREAT_POWERS, rankings } from './sim/rankings';
+import { TechPanel } from './ui/techPanel';
 import { CornerNotices } from './ui/cornerNotices';
 import { NewsTicker, newsDialog } from './ui/newsTicker';
 import { reportDialog } from './ui/reportDialog';
@@ -119,6 +121,8 @@ const COMMAND_ERRORS: Partial<Record<CommandError, TranslationKey>> = {
   alreadyRunning: 'dip.alreadyRunning',
   insulted: 'dip.insultedError',
   noTransport: 'dip.noTransport',
+  nonAggression: 'deal.nonAggressionError',
+  noTechPoints: 'tech.noPoints',
   noChips: 'produce.noChips',
 };
 
@@ -573,6 +577,7 @@ async function start(): Promise<void> {
       foreignPanel.update(game);
       goalsPanel.update(game);
       rankingsPanel.update(game);
+      techPanel.update(game);
       notices.update(game);
       ticker.update(headlines(game));
       countryDialog.update(game);
@@ -1020,6 +1025,8 @@ async function start(): Promise<void> {
           );
       }
       for (const e of events) {
+        if (e.type === 'techLevel' && e.countryId === player)
+          toasts.show(t('tech.newLevel', { points: e.points }));
         if (e.type === 'inflationAlert' && e.countryId === player) {
           await noticeDialog(
             uiRoot,
@@ -1175,6 +1182,12 @@ async function start(): Promise<void> {
           t('econ.printConfirm'),
           t('saves.cancel'),
         ),
+      openTech: () => game && techPanel.open(game),
+    });
+    const techPanel = new TechPanel({
+      parent: uiRoot,
+      sim,
+      issue: (command) => void issue(command),
     });
 
     const interiorPanel = new InteriorPanel({
@@ -1412,6 +1425,14 @@ async function start(): Promise<void> {
     const hud = new GameHud(uiRoot, world, {
       onMenu: () => gameMenu.show(),
       onRankings: () => game && rankingsPanel.open(game),
+      onTech: () => game && techPanel.open(game),
+      rankOf: (state) => {
+        const rank =
+          rankings(state, sim, 'power').find((r) => r.countryId === state.player.countryId)?.rank ??
+          0;
+        return { rank, great: rank > 0 && rank <= GREAT_POWERS };
+      },
+      techPointsOf: (state) => state.economy.countries[state.player.countryId]?.tech?.points ?? 0,
       onNextTurn: () => void endTurn(),
       onEconomy: () => {
         if (!game) return;

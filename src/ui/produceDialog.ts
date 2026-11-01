@@ -4,6 +4,7 @@ import type { SimContext } from '../sim/economy';
 import type { GameState } from '../sim/newGame';
 import { productionQuote, weaponsRules, type WeaponKind } from '../sim/weapons';
 import { button, el } from './dom';
+import { amountSlider } from './slider';
 
 export interface ProduceDialogOptions {
   parent: HTMLElement;
@@ -90,18 +91,20 @@ export class ProduceDialog {
     });
     dialog.append(list);
 
-    const input = el('input', 'input recruit-amount');
-    input.type = 'number';
-    input.inputMode = 'numeric';
-    input.min = '1';
-    input.value = String(this.count);
-    input.addEventListener('change', () => {
-      this.count = Math.max(1, Math.floor(Number(input.value) || 1));
-      redraw();
-    });
-    const row = el('label', 'recruit-row');
-    row.append(el('span', '', t('strike.count')), input);
-    dialog.append(row);
+    dialog.append(
+      amountSlider({
+        label: t('strike.count'),
+        min: 1,
+        max: 200,
+        step: 1,
+        value: this.count,
+        format: (v) => String(v),
+        onChange: (v) => {
+          this.count = v;
+          redraw();
+        },
+      }),
+    );
 
     const quote = productionQuote(game, sim, id, this.weapon, this.tier, this.count);
     const footer = el('div', 'modal-footer');

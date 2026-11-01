@@ -4,6 +4,7 @@ import type { SimContext } from '../sim/economy';
 import { recruitQuote, type RecruitMode, type UnitKind } from '../sim/military';
 import type { GameState } from '../sim/newGame';
 import { button, el } from './dom';
+import { amountSlider } from './slider';
 
 export interface RecruitDialogOptions {
   parent: HTMLElement;
@@ -95,29 +96,29 @@ export class RecruitDialog {
       ),
     );
 
-    const input = el('input', 'input recruit-amount');
-    input.type = 'number';
-    input.inputMode = 'numeric';
-    input.min = '1';
-    input.max = c.mode === 'percent' ? '100' : '1000000';
-    input.step = c.mode === 'percent' ? '5' : '100';
-    input.value = String(c.mode === 'percent' ? c.percent : c.fixed);
-    input.setAttribute(
-      'aria-label',
-      t(c.mode === 'percent' ? 'recruit.percentLabel' : 'recruit.fixedLabel'),
+    // The most a city can give this turn (its manpower and its base's capacity).
+    const most = Math.max(
+      100,
+      ...recruitQuote(game, sim, game.player.countryId, cityIds, c.kind, 'percent', 100).cities.map(
+        (x) => x.taken,
+      ),
     );
-    input.addEventListener('change', () => {
-      const v = Math.max(1, Math.floor(Number(input.value) || 1));
-      if (c.mode === 'percent') c.percent = Math.min(100, v);
-      else c.fixed = v;
-      redraw();
-    });
-    const row = el('label', 'recruit-row');
-    row.append(
-      el('span', '', t(c.mode === 'percent' ? 'recruit.percentLabel' : 'recruit.fixedLabel')),
-      input,
+    if (c.mode === 'fixed') c.fixed = Math.min(c.fixed, most);
+    dialog.append(
+      amountSlider({
+        label: t(c.mode === 'percent' ? 'recruit.percentLabel' : 'recruit.fixedLabel'),
+        min: c.mode === 'percent' ? 5 : 100,
+        max: c.mode === 'percent' ? 100 : most,
+        step: c.mode === 'percent' ? 5 : 100,
+        value: c.mode === 'percent' ? c.percent : c.fixed,
+        format: (v) => (c.mode === 'percent' ? `${v}%` : this.options.formatCount(v)),
+        onChange: (v) => {
+          if (c.mode === 'percent') c.percent = v;
+          else c.fixed = v;
+          redraw();
+        },
+      }),
     );
-    dialog.append(row);
 
     const amount = c.mode === 'percent' ? c.percent : c.fixed;
     const quote = recruitQuote(game, sim, game.player.countryId, cityIds, c.kind, c.mode, amount);

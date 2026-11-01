@@ -33,6 +33,7 @@ import { weaponsRules, type WeaponKind } from '../sim/weapons';
 import { alliesOf, enemiesAtWar } from '../sim/world';
 import { leaderSeal } from './leaderSeal';
 import { button, el } from './dom';
+import { amountSlider } from './slider';
 import { dipIcon, type DipIcon } from './dipIcons';
 
 export interface CountryDialogOptions {
@@ -869,18 +870,20 @@ export class CountryDialog {
     const { sim } = this.options;
     const me = game.player.countryId;
     const id = this.target;
-    const money = el('input', 'input recruit-amount');
-    money.type = 'number';
-    money.inputMode = 'numeric';
-    money.min = '0';
-    money.step = '1000000';
-    money.value = String(this.aidMoney);
-    money.addEventListener('change', () => {
-      this.aidMoney = Math.max(0, Number(money.value) || 0);
-      this.render();
+    const treasury = Math.max(0, game.economy.countries[me]?.treasury ?? 0);
+    this.aidMoney = Math.min(this.aidMoney, treasury);
+    const row = amountSlider({
+      label: t('dip.aidAmount'),
+      min: 0,
+      max: treasury,
+      step: Math.max(1e6, Math.round(treasury / 200 / 1e6) * 1e6),
+      value: this.aidMoney,
+      format: (v) => formatUsd(v),
+      onChange: (v) => {
+        this.aidMoney = v;
+        this.render();
+      },
     });
-    const row = el('label', 'recruit-row');
-    row.append(el('span', '', t('dip.aidMoney', { value: formatUsd(this.aidMoney) })), money);
     const arsenal = game.weapons.countries[me]!;
     const weaponRows: HTMLElement[] = [];
     for (const weapon of ['missile', 'drone'] as const) {
@@ -932,17 +935,18 @@ export class CountryDialog {
     const me = game.player.countryId;
     const id = this.target;
     const rules = weaponsRules(sim);
-    const count = el('input', 'input recruit-amount');
-    count.type = 'number';
-    count.inputMode = 'numeric';
-    count.min = '1';
-    count.value = String(this.tradeCount);
-    count.addEventListener('change', () => {
-      this.tradeCount = Math.max(1, Math.floor(Number(count.value) || 1));
-      this.render();
+    const row = amountSlider({
+      label: t('strike.count'),
+      min: 1,
+      max: 100,
+      step: 1,
+      value: this.tradeCount,
+      format: (v) => String(v),
+      onChange: (v) => {
+        this.tradeCount = v;
+        this.render();
+      },
     });
-    const row = el('label', 'recruit-row');
-    row.append(el('span', '', t('strike.count')), count);
     const n = this.tradeCount;
     const list = el('ul', 'dossier-cities');
     for (const weapon of ['missile', 'drone'] as const) {

@@ -11,6 +11,7 @@ import {
   weaponsRules,
 } from '../sim/weapons';
 import { button, el } from './dom';
+import { amountSlider } from './slider';
 
 export interface StrikeDialogOptions {
   parent: HTMLElement;
@@ -162,19 +163,20 @@ export class StrikeDialog {
       if (this.tier > 0) {
         const have = stock[this.tier - 1] ?? 0;
         this.count = Math.min(Math.max(1, this.count), have);
-        const input = el('input', 'input recruit-amount');
-        input.type = 'number';
-        input.inputMode = 'numeric';
-        input.min = '1';
-        input.max = String(have);
-        input.value = String(this.count);
-        input.addEventListener('change', () => {
-          this.count = Math.min(have, Math.max(1, Math.floor(Number(input.value) || 1)));
-          redraw();
-        });
-        const row = el('label', 'recruit-row');
-        row.append(el('span', '', t('strike.count')), input);
-        dialog.append(row);
+        dialog.append(
+          amountSlider({
+            label: t('strike.count'),
+            min: 1,
+            max: have,
+            step: 1,
+            value: this.count,
+            format: (v) => String(v),
+            onChange: (v) => {
+              this.count = v;
+              redraw();
+            },
+          }),
+        );
         if (defense.capacity > 0 && this.count <= defense.capacity)
           footer.append(el('p', 'setup-hint', t('strike.volumeHint', { count: defense.capacity })));
         const tier = this.tier;

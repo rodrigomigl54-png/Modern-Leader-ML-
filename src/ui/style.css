@@ -2719,3 +2719,284 @@ textarea {
   width: 48px;
   padding: 0;
 }
+
+/* Amount sliders instead of typed numbers. */
+.amount-slider {
+  margin: 8px 0;
+}
+
+.amount-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.amount-label {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.amount-value {
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.amount-slider input[type='range'] {
+  width: 100%;
+  height: 32px;
+  margin: 4px 0 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.amount-slider input[type='range']::-webkit-slider-thumb {
+  width: 24px;
+  height: 24px;
+}
+
+.amount-ends {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* Technology. */
+.tech-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tech-level {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tech-level-label {
+  color: var(--text-muted);
+}
+
+.tech-level-value {
+  color: var(--accent);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.tech-points {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  color: var(--text-muted);
+}
+
+.tech-points-on {
+  border-color: var(--accent);
+  color: var(--text);
+  animation: tech-glow 1.6s ease-in-out infinite;
+}
+
+.tech-points-value {
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.tech-bar {
+  height: 8px;
+  margin: 10px 0 4px;
+  border-radius: 4px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+.tech-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6fa8dc, var(--accent));
+}
+
+.tech-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tech-row {
+  display: grid;
+  grid-template-columns: 26px 1fr 80px 48px 44px;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.tech-icon {
+  display: inline-flex;
+  color: var(--accent);
+}
+
+.tech-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tech-name {
+  font-weight: 600;
+}
+
+.tech-effect {
+  color: var(--good-text);
+  font-size: 12px;
+}
+
+.tech-meter {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+.tech-meter-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.tech-count {
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: right;
+}
+
+.tech-plus {
+  width: 40px;
+  min-height: 36px;
+  padding: 0;
+  font-size: 20px;
+}
+
+@keyframes tech-glow {
+  50% {
+    box-shadow: 0 0 12px rgba(242, 169, 59, 0.45);
+  }
+}
+
+@media (max-width: 520px) {
+  .tech-row {
+    grid-template-columns: 24px 1fr 44px 40px;
+  }
+
+  .tech-meter {
+    display: none;
+  }
+}
+
+/* Charts of the player's history. */
+.chart-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 4px 0 6px;
+}
+
+.line-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chart-grid {
+  stroke: var(--line-soft);
+  stroke-width: 1;
+}
+
+.chart-area {
+  fill: rgba(242, 169, 59, 0.12);
+}
+
+.chart-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.chart-dot {
+  fill: var(--accent);
+}
+
+.chart-label,
+.chart-empty {
+  fill: var(--text-muted);
+  font-size: 10px;
+}
+
+/* The world rank on the flag, like a medal (Phase 26). */
+.hud-flag-box {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.rank-badge {
+  position: absolute;
+  right: -8px;
+  bottom: -7px;
+  min-width: 18px;
+  padding: 0 4px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--panel-solid);
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: center;
+}
+
+.hud-great .rank-badge {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #1a1206;
+}
+
+.hud-great .hud-flag {
+  box-shadow:
+    0 0 0 1px var(--accent),
+    0 0 10px rgba(242, 169, 59, 0.5);
+}
+
+.hud-tech {
+  position: relative;
+}
+
+.hud-tech-on {
+  border-color: var(--accent);
+}
+
+.hud-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 16px;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #1a1206;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}

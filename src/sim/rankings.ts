@@ -17,6 +17,9 @@ export const RANKING_METRICS: readonly RankingMetric[] = [
   'support',
 ];
 
+/** The top of the power ranking counts as great powers. */
+export const GREAT_POWERS = 8;
+
 export interface RankingRow {
   rank: number;
   countryId: string;

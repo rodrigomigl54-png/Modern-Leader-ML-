@@ -5,6 +5,11 @@ import { growthRate, printAmount, weeklyBudget, type SimContext } from '../sim/e
 import type { GameState } from '../sim/newGame';
 import { consumptionOf, productionOf, RESOURCES } from '../sim/resources';
 import { button, el } from './dom';
+import { lineChart } from './chart';
+import { formatGameDate } from './format';
+import { amountSlider } from './slider';
+import { dateOfTurn } from '../sim/calendar';
+import { levelCostUsd, techIndex } from '../sim/technology';
 
 export interface EconomyPanelOptions {
   parent: HTMLElement;
@@ -13,12 +18,24 @@ export interface EconomyPanelOptions {
   countryName: (countryId: string) => string;
   issue: (command: Command) => void;
   confirmPrint: (amount: string) => Promise<boolean>;
+  openTech: () => void;
 }
+
+type ChartMetric = 'gdp' | 'treasury' | 'support' | 'provinces' | 'tech' | 'rank';
+const CHART_METRICS: readonly ChartMetric[] = [
+  'gdp',
+  'treasury',
+  'support',
+  'provinces',
+  'tech',
+  'rank',
+];
 
 /** Budget, taxes, public services, money printing and investment projects (GDD section 6). */
 export class EconomyPanel {
   private readonly root = el('section', 'dossier economy');
   private game: GameState | null = null;
+  private chart: ChartMetric = 'gdp';
 
   constructor(private readonly options: EconomyPanelOptions) {
     this.root.hidden = true;
@@ -98,6 +115,7 @@ export class EconomyPanel {
     line(t('econ.services'), -b.services);
     if (b.interest > 0) line(t('econ.interest'), -b.interest);
     if (b.upkeep > 0) line(t('econ.upkeep'), -b.upkeep);
+    if (b.research > 0) line(t('econ.research'), -b.research);
     line(t('econ.totalExpenses'), -b.spending, 'budget-sum loss');
     const net = b.balance + aid;
     budget.append(
@@ -224,12 +242,79 @@ export class EconomyPanel {
     const policyRow = el('div', 'setup-row');
     policyRow.append(el('span', 'setup-row-label', t('econ.foreignInvestment')), policy);
 
+    // Research spending and technology (Phase 26).
+    const techRules = sim.economy.technology;
+    const techBox = el('div', 'tech-summary');
+    if (techRules && e.tech) {
+      techBox.append(
+        amountSlider({
+          label: t('econ.research'),
+          min: techRules.minResearch * 1000,
+          max: techRules.maxResearch * 1000,
+          step: 1,
+          value: Math.round((e.research ?? 0) * 1000),
+          format: (v) =>
+            `${(v / 10).toFixed(1)}% · ${formatUsd((e.gdp * v) / 1000 / 52)}/${t('econ.weekShort')}`,
+          onChange: (v) =>
+            this.options.issue({ type: 'setResearch', countryId: id, share: v / 1000 }),
+        }),
+      );
+      const cost = levelCostUsd(techRules, e.tech, e.gdp);
+      const techButton = button(
+        `btn ${e.tech.points > 0 ? 'btn-primary' : 'btn-secondary'} btn-small`,
+        t('econ.technology', {
+          level: techIndex(techRules, e.tech).toFixed(2),
+          progress: Math.min(99, Math.floor((e.tech.progress / Math.max(1, cost)) * 100)),
+          points: e.tech.points,
+        }),
+        () => this.options.openTech(),
+      );
+      techBox.append(techButton);
+    }
+
+    // The player's history as a chart (Phase 26).
+    const history = game.history ?? [];
+    const tabs = el('div', 'chart-tabs');
+    for (const m of CHART_METRICS) {
+      const b = button(
+        `rank-tab${m === this.chart ? ' rank-tab-on' : ''}`,
+        t(`econ.chart.${m}` as TranslationKey),
+        () => {
+          this.chart = m;
+          this.render();
+        },
+      );
+      tabs.append(b);
+    }
+    const series = history.map((h) => h[this.chart]);
+    const format = (v: number): string =>
+      this.chart === 'gdp' || this.chart === 'treasury'
+        ? formatUsd(v)
+        : this.chart === 'support'
+          ? `${v.toFixed(0)}%`
+          : this.chart === 'tech'
+            ? v.toFixed(2)
+            : this.chart === 'rank'
+              ? `#${v}`
+              : String(v);
+    const chart = lineChart(series, {
+      format,
+      invert: this.chart === 'rank',
+      startLabel: history[0]
+        ? formatGameDate(dateOfTurn(game.world.startDate, history[0].turn))
+        : '',
+    });
+
     this.root.replaceChildren(
       header,
       el('h2', 'dossier-title', t('econ.title')),
       key,
       el('h3', 'dossier-subtitle', t('econ.budget')),
       budget,
+      techBox,
+      el('h3', 'dossier-subtitle', t('econ.history')),
+      tabs,
+      chart,
       policyRow,
       el('p', 'setup-hint', t('econ.foreignHint')),
       slider(t('econ.taxRate'), e.taxRate, limits.taxRateMin, limits.taxRateMax, (rate) => ({
