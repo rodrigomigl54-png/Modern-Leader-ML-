@@ -196,6 +196,20 @@ export class CountryDialog {
     );
     title.append(score, bar);
     head.append(this.options.flag(id), title);
+    // Sub-views (trade request, ultimatum, peace, aid) keep the header short so the form is
+    // in view at once on phones.
+    if (this.view !== 'main') {
+      const short = el('div');
+      short.append(
+        head,
+        el(
+          'p',
+          'setup-hint',
+          t('dip.points', { value: (game.diplomacy.points[me] ?? 0).toFixed(1) }),
+        ),
+      );
+      return short;
+    }
     const chips = el('ul', 'chip-list');
     const chip = (text: string, cls = 'chip'): void => {
       chips.append(el('li', cls, text));
