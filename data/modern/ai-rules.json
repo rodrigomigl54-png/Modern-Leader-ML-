@@ -82,7 +82,8 @@
     "crisisMargin": 8,
     "crisisDebtLimit": 1.5,
     "reserveWeeks": 26,
-    "repayAboveWeeks": 8
+    "repayAboveWeeks": 8,
+    "researchByEconomy": 0.015
   },
   "nuclear": {
     "lastResortMinPosture": 30,

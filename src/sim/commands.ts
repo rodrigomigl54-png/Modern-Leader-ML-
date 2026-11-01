@@ -2,6 +2,7 @@
 // (GDD section 2). They take effect immediately when issued (money is spent at once, a building
 // starts at once); the turn engine then advances everything they set in motion.
 import { investmentQuote, levelCost, printAmount, type SimContext } from './economy';
+import { assignPoint, type TechCategory } from './technology';
 import {
   findPath,
   pathCrossesSea,
@@ -65,6 +66,20 @@ export interface SetServicesCommand {
 export interface PrintMoneyCommand {
   type: 'printMoney';
   countryId: string;
+}
+
+/** Research spending as a share of GDP (technology). */
+export interface SetResearchCommand {
+  type: 'setResearch';
+  countryId: string;
+  share: number;
+}
+
+/** Assigns one technology point to a bonus. */
+export interface AssignTechCommand {
+  type: 'assignTech';
+  countryId: string;
+  category: TechCategory;
 }
 
 /** Policy: accept or refuse all investment by foreign countries in this country's cities. */
@@ -222,6 +237,8 @@ export type Command =
   | PrintMoneyCommand
   | InvestCommand
   | ForeignInvestmentCommand
+  | SetResearchCommand
+  | AssignTechCommand
   | AssimilateCommand
   | MoveArmiesCommand
   | SplitArmyCommand
@@ -246,6 +263,7 @@ export type CommandError =
   | 'unknownArmy'
   | 'noPath'
   | 'noTransport'
+  | 'noTechPoints'
   | 'tooSmall'
   | 'nothingToRecruit'
   | 'needsBase'
@@ -290,6 +308,23 @@ export function applyCommand(
       const amount = printAmount(previous, command.countryId, ctx.economy);
       e.treasury += amount;
       e.printed += amount;
+      return { ok: true, state };
+    }
+    case 'setResearch': {
+      const tech = ctx.economy.technology;
+      if (!tech) return { ok: false, error: 'unknownCountry' };
+      const state = cloneState(previous);
+      const e = state.economy.countries[command.countryId];
+      if (!e) return { ok: false, error: 'unknownCountry' };
+      e.research = Math.min(tech.maxResearch, Math.max(tech.minResearch, command.share));
+      return { ok: true, state };
+    }
+    case 'assignTech': {
+      const tech = ctx.economy.technology;
+      const state = cloneState(previous);
+      const e = state.economy.countries[command.countryId];
+      if (!tech || !e?.tech) return { ok: false, error: 'unknownCountry' };
+      if (!assignPoint(tech, e.tech, command.category)) return { ok: false, error: 'noTechPoints' };
       return { ok: true, state };
     }
     case 'setForeignInvestment': {

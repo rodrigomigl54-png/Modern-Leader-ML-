@@ -136,5 +136,59 @@
         "military": true
       }
     ]
+  },
+  "technology": {
+    "comment": "Technology (Dario, Phase 26, after Age of History). Research spending (a share of GDP, set by the player; AI countries by their economy trait) fills progress toward the next level; a level costs levelGdpShare of GDP, levelCostGrowth more for each level gained, and brings pointsPerLevel points to assign. The shown technology level starts from GDP per person (startIndexAt1000 at 1,000 USD, plus startIndexPerDecade per factor of ten) and rises by indexPerLevel per level; a country starts with startPointsPerTenth points per 0.1 of it. Effects per point: GDP growth +0.05 percentage points a year, taxes +0.5%, military upkeep -1%, investment prices -1%, research speed +2%, target support +0.25, public services cost -1%.",
+    "startResearch": 0.005,
+    "minResearch": 0,
+    "maxResearch": 0.05,
+    "levelGdpShare": 0.012,
+    "levelCostGrowth": 0.08,
+    "pointsPerLevel": 3,
+    "startIndexAt1000": 0.25,
+    "startIndexPerDecade": 0.3,
+    "minStartIndex": 0.2,
+    "maxStartIndex": 0.95,
+    "indexPerLevel": 0.02,
+    "startPointsPerTenth": 1,
+    "categories": {
+      "gdpGrowth": {
+        "max": 20,
+        "perPoint": 0.0005
+      },
+      "taxes": {
+        "max": 20,
+        "perPoint": 0.005
+      },
+      "militaryUpkeep": {
+        "max": 20,
+        "perPoint": 0.01
+      },
+      "investmentCost": {
+        "max": 25,
+        "perPoint": 0.01
+      },
+      "research": {
+        "max": 25,
+        "perPoint": 0.02
+      },
+      "stability": {
+        "max": 20,
+        "perPoint": 0.25
+      },
+      "administration": {
+        "max": 20,
+        "perPoint": 0.01
+      }
+    },
+    "aiOrder": [
+      "gdpGrowth",
+      "taxes",
+      "research",
+      "administration",
+      "stability",
+      "militaryUpkeep",
+      "investmentCost"
+    ]
   }
 }

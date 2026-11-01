@@ -98,6 +98,8 @@ export interface AiRules {
     minServices: number;
     debtLimit: number;
     lowSupport: number;
+    /** Extra research (share of GDP) an AI with economy trait 100 aims for. */
+    researchByEconomy?: number;
     /** Services the AI restores when the people are angry and the budget allows. */
     targetServices: number;
     /** Support within this margin above the riot threshold restores services even on debt... */

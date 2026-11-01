@@ -13,6 +13,14 @@ import type { GoalRules } from './goals';
 import { shortageLoss, type ResourcesData } from './resources';
 import { pariahPenalty, type WeaponsRules } from './weapons';
 import { productionFactor, type PopulationRules } from './population';
+import {
+  aiAssignPoints,
+  researchWeek,
+  startingTech,
+  techBonus,
+  type TechRules,
+  type TechState,
+} from './technology';
 import { enemiesAtWar, rivalsOf, type World, type WorldCountry } from './world';
 
 export interface InvestmentCategory {
@@ -69,6 +77,7 @@ export interface EconomyRules {
     max: number;
   };
   printing: { shareOfGdp: number };
+  technology?: TechRules;
   investment: {
     foreignReturnShare: number;
     /** Most buildings (levels) of one kind a single order can place in each city. */
@@ -137,6 +146,9 @@ export interface CountryEconomy {
   aid?: number;
   /** Donors of war aid and the last turn of their aid after the war (reconstruction). */
   aidFrom?: Record<string, number>;
+  /** Research spending as a share of GDP (technology, Phase 26). */
+  research?: number;
+  tech?: TechState;
 }
 
 export interface Building {
@@ -161,7 +173,8 @@ export interface EconomyState {
 
 export type EconomyEvent =
   | { type: 'buildingCompleted'; buildingId: number; owner: string }
-  | { type: 'inflationAlert'; countryId: string; inflation: number };
+  | { type: 'inflationAlert'; countryId: string; inflation: number }
+  | { type: 'techLevel'; countryId: string; points: number };
 
 const clamp = (v: number, min: number, max: number): number => Math.min(max, Math.max(min, v));
 
@@ -194,6 +207,7 @@ export function initialEconomy(
       ? c.stats.militaryExpenditureUsd / c.stats.gdpUsd
       : rules.start.defaultMilitaryShareOfGdp;
   const { limits, start } = rules;
+  const research = rules.technology?.startResearch ?? 0;
   return {
     gdp,
     treasury: gdp * start.treasuryShareOfGdp,
@@ -201,7 +215,7 @@ export function initialEconomy(
     taxRate: start.taxRate,
     // A roughly balanced budget with a small deficit, as most states run.
     servicesShare: clamp(
-      start.taxRate - militaryShare - interest + start.servicesDeficit,
+      start.taxRate - militaryShare - interest - research + start.servicesDeficit,
       limits.servicesShareMin,
       limits.servicesShareMax,
     ),
@@ -209,6 +223,12 @@ export function initialEconomy(
     inflation: start.inflation,
     printed: 0,
     inflationAlerted: false,
+    ...(rules.technology
+      ? {
+          research,
+          tech: startingTech(rules.technology, gdp, c.stats.population ?? 0),
+        }
+      : {}),
   };
 }
 
@@ -222,10 +242,22 @@ export function initEconomy(
   return { countries, buildings: [], nextBuildingId: 1 };
 }
 
-/** Adds the economy to games saved before Phase 5. */
+/** Adds the economy to games saved before Phase 5, and technology to those before Phase 26. */
 export function ensureEconomy(state: GameState, rules: EconomyRules): GameState {
-  if (state.economy) return state;
-  return { ...state, economy: initEconomy(state.world, rules) };
+  if (!state.economy) return { ...state, economy: initEconomy(state.world, rules) };
+  const tech = rules.technology;
+  if (!tech || Object.values(state.economy.countries).every((e) => e.tech)) return state;
+  const countries = { ...state.economy.countries };
+  for (const c of state.world.countries) {
+    const e = countries[c.id];
+    if (!e || e.tech) continue;
+    countries[c.id] = {
+      ...e,
+      research: tech.startResearch,
+      tech: startingTech(tech, e.gdp, c.stats.population ?? 0),
+    };
+  }
+  return { ...state, economy: { ...state.economy, countries } };
 }
 
 export function category(rules: EconomyRules, id: string): InvestmentCategory | undefined {
@@ -243,6 +275,8 @@ export interface WeeklyBudget {
   services: number;
   interest: number;
   upkeep: number;
+  /** Research spending (technology). */
+  research: number;
   income: number;
   spending: number;
   balance: number;
@@ -271,22 +305,30 @@ export function weeklyBudget(state: GameState, countryId: string, ctx: SimContex
   const debtShare = e.gdp > 0 ? e.debt / e.gdp : 0;
   const interestRate =
     rules.debt.interestRate + rules.debt.interestPerDebtShare * Math.max(0, debtShare);
+  const tech = rules.technology;
   const week = {
-    // Riots and unassimilated provinces produce less (GDD section 7).
-    taxes: (e.gdp * e.taxRate * productionFactor(state, ctx, countryId)) / 52,
+    // Riots and unassimilated provinces produce less (GDD section 7); technology raises taxes.
+    taxes:
+      (e.gdp *
+        e.taxRate *
+        productionFactor(state, ctx, countryId) *
+        (1 + techBonus(tech, e.tech, 'taxes'))) /
+      52,
     investmentReturns: investmentReturns / 52,
     trade: (state.resources?.trade[countryId]?.income ?? 0) / 52,
-    // With armies (Phase 7) the military costs what the soldiers cost.
+    // With armies (Phase 7) the military costs what the soldiers cost; technology cuts upkeep.
     military:
-      ctx.military && state.military
+      (ctx.military && state.military
         ? armyUpkeep(state, ctx, countryId)
-        : (e.gdp * e.militaryShare) / 52,
-    services: (e.gdp * e.servicesShare) / 52,
+        : (e.gdp * e.militaryShare) / 52) *
+      (1 - techBonus(tech, e.tech, 'militaryUpkeep')),
+    services: (e.gdp * e.servicesShare * (1 - techBonus(tech, e.tech, 'administration'))) / 52,
     interest: (e.debt * interestRate) / 52,
     upkeep: upkeep / 52,
+    research: (e.gdp * (e.research ?? 0)) / 52,
   };
   const income = week.taxes + week.investmentReturns + week.trade;
-  const spending = week.military + week.services + week.interest + week.upkeep;
+  const spending = week.military + week.services + week.interest + week.upkeep + week.research;
   return { ...week, income, spending, balance: income - spending };
 }
 
@@ -298,7 +340,8 @@ export function growthRate(e: CountryEconomy, rules: EconomyRules): number {
     g.taxDrag * Math.max(0, e.taxRate - g.taxThreshold) +
     g.servicesEffect * (e.servicesShare - g.servicesNeutral) -
     g.inflationDrag * Math.max(0, e.inflation - g.inflationThreshold) -
-    g.debtDrag * Math.max(0, e.debt / Math.max(1, e.gdp) - g.debtThreshold);
+    g.debtDrag * Math.max(0, e.debt / Math.max(1, e.gdp) - g.debtThreshold) +
+    techBonus(rules.technology, e.tech, 'gdpGrowth');
   return clamp(rate, g.minGrowth, g.maxGrowth);
 }
 
@@ -368,6 +411,16 @@ export function economyPhase(
         sanctionsGrowthPenalty(state, ctx, id) -
         shortageLoss(state, ctx, id)) /
         52;
+
+    // Research money fills technology progress; AI countries assign new points at once.
+    if (rules.technology && e.tech) {
+      const levels = researchWeek(rules.technology, e.tech, e.gdp, budget.research);
+      if (levels > 0) {
+        if (id === state.player.countryId)
+          emit({ type: 'techLevel', countryId: id, points: e.tech.points });
+        else aiAssignPoints(rules.technology, e.tech);
+      }
+    }
 
     const alert = rules.inflation.alertThreshold;
     if (!e.inflationAlerted && e.inflation >= alert) {
@@ -451,13 +504,18 @@ export function investmentQuote(
     return [{ cityId, host, consent, level, cost }];
   });
   const buildable = cities.filter((c) => c.consent !== 'refuses');
-  const totalCost = buildable.reduce((s, c) => s + c.cost, 0);
+  // Buildings keep their full value; technology only lowers the price paid.
+  const value = buildable.reduce((s, c) => s + c.cost, 0);
+  const totalCost = value * (1 - investmentDiscount(ctx, economy));
   const ownCost = buildable.filter((c) => c.consent === 'own').reduce((s, c) => s + c.cost, 0);
-  const foreignCost = totalCost - ownCost;
+  const foreignCost = value - ownCost;
   const ownGdpPerYear = ownCost * cat.gdpPerYearShare;
   const returnPerYear = foreignCost * ctx.economy.investment.foreignReturnShare;
-  const upkeepPerYear = totalCost * cat.upkeepShare;
-  const tax = economy.taxRate * productionFactor(state, ctx, investor);
+  const upkeepPerYear = value * cat.upkeepShare;
+  const tax =
+    economy.taxRate *
+    productionFactor(state, ctx, investor) *
+    (1 + techBonus(ctx.economy.technology, economy.tech, 'taxes'));
   return {
     category: cat,
     cities,
@@ -484,7 +542,12 @@ export function buildingLevel(state: GameState, cityId: number, categoryId: stri
   return n;
 }
 
-/** Price of the next level of a building (level 0 = the first one), at today's price level. */
+/** Share of investment prices a country saves through technology. */
+export function investmentDiscount(ctx: SimContext, e: CountryEconomy | undefined): number {
+  return techBonus(ctx.economy.technology, e?.tech, 'investmentCost');
+}
+
+/** Value of the next level of a building (level 0 = the first one), at today's price level. */
 export function levelCost(ctx: SimContext, cat: InvestmentCategory, level: number): number {
   return cat.costUsd * (1 + (ctx.economy.investment.levelCostGrowth ?? 0)) ** level;
 }

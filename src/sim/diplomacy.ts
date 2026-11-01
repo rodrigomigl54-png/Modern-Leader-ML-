@@ -2,7 +2,7 @@
 // pacts, sanctions, ultimatums, joining wars, foreign bases, aid, weapons trade, vassals and peace
 // treaties. Until AI profiles exist (Phase 11) AI answers follow the thresholds in
 // data/modern/diplomacy-rules.json (DiplomacyRules). Everything is deterministic.
-import { buildingLevel, levelCost, type SimContext } from './economy';
+import { buildingLevel, investmentDiscount, levelCost, type SimContext } from './economy';
 import { armyStrength, atSea, militaryRules, provinceSeat } from './military';
 import type { GameState } from './newGame';
 import { joinThreshold } from './profiles';
@@ -1771,8 +1771,9 @@ export function investAbroad(
   // A host that refuses foreign investment by policy gets none (GDD section 6).
   if (host !== investor && state.economy.countries[host]?.rejectForeignInvestment) return false;
   const cost = levelCost(ctx, cat, buildingLevel(state, cityId, cat.id));
-  if (e.treasury < cost) return false;
-  e.treasury -= cost;
+  const price = cost * (1 - investmentDiscount(ctx, e));
+  if (e.treasury < price) return false;
+  e.treasury -= price;
   state.economy.buildings.push({
     id: state.economy.nextBuildingId++,
     category: cat.id,

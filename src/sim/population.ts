@@ -6,6 +6,7 @@ import { foodShortageSupport } from './resources';
 import { armySize, reinforce } from './military';
 import type { GameState } from './newGame';
 import type { Rng } from './rng';
+import { techBonus } from './technology';
 import { alliesOf, enemiesAtWar, rivalsOf, type WorldCountry } from './world';
 
 export interface PopulationRules {
@@ -255,6 +256,8 @@ export function targetSupport(
     target -= rules.debtEffect * Math.max(0, e.debt / Math.max(1, e.gdp) - rules.debtNeutral);
   }
   target -= (rules.sanctionsEffect ?? 0) * sanctionWeight(state, ctx, owner);
+  // Technology: stability bonus.
+  target += techBonus(ctx.economy.technology, e?.tech, 'stability');
   target -= foodShortageSupport(state, ctx, owner);
   // A country defending against an invasion rallies around its government.
   if (rules.war?.defenderRally && state.world.wars.some((w) => w.sides[1][0] === owner))

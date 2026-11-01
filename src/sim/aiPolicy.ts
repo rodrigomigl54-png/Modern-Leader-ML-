@@ -141,6 +141,16 @@ export function aiPolicyOrders(
         if (e.servicesShare < r.fiscal.targetServices) e.servicesShare += r.fiscal.step;
         else if (e.taxRate > r.fiscal.minTax) e.taxRate -= r.fiscal.step;
       }
+      // Research: economy-minded countries invest more, when the budget allows (technology).
+      const tech = ctx.economy.technology;
+      if (tech) {
+        const want = tech.startResearch + (T('economy') / 100) * r.fiscal.researchByEconomy!;
+        const now = e.research ?? tech.startResearch;
+        const step = r.fiscal.step / 5;
+        if (now < want && b.balance > 0) e.research = Math.min(want, now + step);
+        else if (now > tech.minResearch && b.balance < 0 && e.debt / Math.max(1, e.gdp) > debtLimit)
+          e.research = Math.max(tech.minResearch, now - step);
+      }
       // Money beyond a few weeks of spending pays back debt.
       const spare = e.treasury - b.spending * r.fiscal.repayAboveWeeks;
       if (spare > 0 && e.debt > 0) {
