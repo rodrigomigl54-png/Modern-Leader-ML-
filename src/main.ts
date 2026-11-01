@@ -64,6 +64,7 @@ import { formatGameDate } from './ui/format';
 import { InteriorPanel } from './ui/interiorPanel';
 import { InvestDialog } from './ui/investDialog';
 import { showLoadingScreen } from './ui/loadingScreen';
+import { playIntro } from './ui/intro';
 import { MainMenu } from './ui/mainMenu';
 import { MapModeBar } from './ui/mapModeBar';
 import { ProduceDialog } from './ui/produceDialog';
@@ -149,6 +150,8 @@ async function start(): Promise<void> {
   document.addEventListener('gesturestart', (e) => e.preventDefault());
 
   const loading = showLoadingScreen(uiRoot);
+  // The intro plays while the map loads; the menu comes after both.
+  const intro = playIntro(uiRoot);
   let onMapTap: (provinceId: number | null) => void = () => undefined;
   let onShiftSelect: (provinceId: number) => void = () => undefined;
   let onBoxSelect: (provinceIds: number[]) => void = () => undefined;
@@ -1627,6 +1630,7 @@ async function start(): Promise<void> {
     });
 
     showMenuMap();
+    await intro;
     menu.show();
     loading.close();
   } catch (error) {

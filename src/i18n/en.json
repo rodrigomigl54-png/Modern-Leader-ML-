@@ -754,5 +754,7 @@
   "opinion.title": "Opinions",
   "opinion.best": "Best relations",
   "opinion.worst": "Worst relations",
-  "opinion.none": "No strong opinions of anyone yet."
+  "opinion.none": "No strong opinions of anyone yet.",
+  "intro.tagline": "Geopolitical strategy",
+  "intro.skip": "Tap to skip"
 }
