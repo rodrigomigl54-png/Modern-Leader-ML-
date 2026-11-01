@@ -498,6 +498,12 @@ Done:
 - **Logo and intro:** globe ring + "ML" monogram + amber point (menu, loading screen, favicon); a 5-second Situation Room intro plays while the map loads, skippable by tap/click/key; reduced motion shows the still logo.
 - Checked in Chromium (Pixel 7 landscape and 1280×720): intro, menu, rank badge, Technology panel (assigning points), charts, trade request accepted by Bosnia; lint, format, 204 tests, build.
 
+### After the merge (testing on the merged build)
+
+- Played 40+ weeks on Aggressive (Serbia, Pixel 7 landscape, merged `main` build): no errors; a week takes 0.3–1 s in headless Chromium (software rendering); technology points, charts, trade request (Bosnia refuses to hand over a province: "Very low"), save → reload → load autosave → next week all work.
+- Balance, 3 years, seed 7, wars started: peaceful 0, realistic 2, aggressive 8, chaos 20.
+- Fix: the country dialog's sub-views (trade request, ultimatum, peace, aid) show a short header, so on phones the form is in view at once instead of below the country's whole profile.
+
 ## Next
 
 - Dario: merge the PR and test Phase 26 (trade requests, technology, AI speed per level, intro); changes come from that testing.
