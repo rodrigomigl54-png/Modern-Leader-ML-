@@ -35,6 +35,7 @@ import { createNewGame, type GameState } from './sim/newGame';
 import { airDefenseMap, airDefenseQuote, ensureWeapons, weaponsRules } from './sim/weapons';
 import {
   assimilationQuote,
+  isOccupied,
   ensurePopulation,
   isAssimilated,
   nationalSupport,
@@ -392,6 +393,7 @@ async function start(): Promise<void> {
               ? pop.assimilateUntil[provinceId]! - game.turn
               : null,
           assimilationCost: quote?.provinceIds.length ? formatUsd(quote.totalCost) : null,
+          occupied: isOccupied(game, provinceId),
           riotThreshold: population.riots.threshold,
         };
       },

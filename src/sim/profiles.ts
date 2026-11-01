@@ -35,6 +35,10 @@ export interface AiProfile extends Record<Trait, [number, string]> {
 
 export interface AiRules {
   aggressiveness: Record<Aggressiveness, number>;
+  /** Multiplies the chances of sanctions, ultimatums, wars and interventions per level. */
+  tempo?: Record<Aggressiveness, number>;
+  /** Multiplies the power advantage an AI wants before an ultimatum or a war, per level. */
+  powerEdge?: Record<Aggressiveness, number>;
   chaosTimingJitter: number;
   rates: {
     sanction: number;

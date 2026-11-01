@@ -691,5 +691,6 @@
   "res.from": "Uvoz iz: {list}",
   "res.partners": "Glavni trgovinski partneri (resursi, godišnje): {list}",
   "res.noPartners": "Nema trgovine resursima sa drugim zemljama.",
-  "res.prices": "Svetske cene od početka: {list}"
+  "res.prices": "Svetske cene od početka: {list}",
+  "interior.occupied": "okupirano: asimilacija posle mira"
 }

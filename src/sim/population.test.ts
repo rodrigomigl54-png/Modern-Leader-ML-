@@ -6,6 +6,7 @@ import type { EconomyRules, SimContext } from './economy';
 import { createNewGame, type GameState } from './newGame';
 import {
   assimilationQuote,
+  isOccupied,
   nationalSupport,
   productionFactor,
   targetSupport,
@@ -234,5 +235,24 @@ describe('assimilation', () => {
       ok: false,
       error: 'nothingToAssimilate',
     });
+  });
+});
+
+describe('occupied land (Dario, Phase 26)', () => {
+  it('has no riots and cannot be assimilated until the peace', () => {
+    const game = newGame('BBB');
+    game.world.wars.push({ id: 'w', sides: [['BBB'], ['AAA']] });
+    transferProvince(game, sim, 3, 'BBB');
+    expect(isOccupied(game, 3)).toBe(true);
+    expect(assimilationQuote(game, sim, 'BBB', [3]).provinceIds).toEqual([]);
+    // Even with no support at all, occupied land does not riot.
+    const held = play(game, 3, [], (s) => (s.population.support[3] = 0));
+    expect(held.population.riotTurns[3]).toBe(0);
+    // After the peace it is ordinary foreign land: it can riot and be assimilated.
+    held.world.wars = [];
+    expect(isOccupied(held, 3)).toBe(false);
+    expect(assimilationQuote(held, sim, 'BBB', [3]).provinceIds).toEqual([3]);
+    const unrest = play(held, 1, [], (s) => (s.population.support[3] = 0));
+    expect(unrest.population.riotTurns[3]).toBeGreaterThan(0);
   });
 });

@@ -6,7 +6,7 @@ import { foodShortageSupport } from './resources';
 import { armySize, reinforce } from './military';
 import type { GameState } from './newGame';
 import type { Rng } from './rng';
-import { alliesOf, rivalsOf, type WorldCountry } from './world';
+import { alliesOf, enemiesAtWar, rivalsOf, type WorldCountry } from './world';
 
 export interface PopulationRules {
   support: {
@@ -171,6 +171,16 @@ function populationShare(
 
 export function isAssimilated(state: GameState, provinceId: number): boolean {
   return state.population.culture[provinceId] === state.world.provinceOwners[provinceId];
+}
+
+/**
+ * Occupied land (Dario, Phase 26, as in Age of History): a province whose people belong to a
+ * country still at war with its owner. Until the peace it neither riots nor can be assimilated.
+ */
+export function isOccupied(state: GameState, provinceId: number): boolean {
+  const owner = state.world.provinceOwners[provinceId]!;
+  const people = state.population.culture[provinceId]!;
+  return people !== owner && enemiesAtWar(state.world, owner).includes(people);
 }
 
 /**
@@ -513,7 +523,10 @@ export function populationPhase(
       0,
       100,
     );
-    if (pop.support[p]! < rules.riots.threshold) {
+    if (isOccupied(state, p)) {
+      // No riots in occupied land until the peace.
+      pop.riotTurns[p] = 0;
+    } else if (pop.support[p]! < rules.riots.threshold) {
       if (pop.riotTurns[p] === 0) newRiots.set(owner, (newRiots.get(owner) ?? 0) + 1);
       pop.riotTurns[p]!++;
     } else if (pop.riotTurns[p]! > 0 && pop.support[p]! > rules.riots.endThreshold) {
@@ -558,6 +571,7 @@ export function assimilationQuote(
     (p) =>
       state.world.provinceOwners[p] === countryId &&
       !isAssimilated(state, p) &&
+      !isOccupied(state, p) &&
       state.population.assimilateUntil[p] === -1,
   );
   const allies = alliesOf(state.world, countryId);

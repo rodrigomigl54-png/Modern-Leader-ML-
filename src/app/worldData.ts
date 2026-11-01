@@ -241,7 +241,7 @@ export function assembleWorld(map: MapFacts, files: WorldFiles): WorldBundle {
       profiles: profiles.profiles,
       aiRules,
       resources,
-        goals,
+      goals,
       startDebt,
     },
   };

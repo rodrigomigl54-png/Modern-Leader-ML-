@@ -70,6 +70,11 @@ export function aiPolicyOrders(
   const r = rules(ctx);
   const t = r.thresholds;
   const player = state.player.countryId;
+  // How fast hostile actions come (tempo) and how much stronger an aggressor wants to be (edge)
+  // at the chosen aggressiveness (GDD section 11; faster on every level since Phase 26).
+  const level = state.settings.aggressiveness;
+  const tempo = r.tempo?.[level] ?? 1;
+  const edge = r.powerEdge?.[level] ?? 1;
   const countries = state.world.countries.filter(
     (c) =>
       c.id !== player &&
@@ -198,7 +203,7 @@ export function aiPolicyOrders(
     for (const other of [...rivals].filter((x) => live.has(x)).sort()) {
       if (sanctioned(state, id, other) || relation(state, ctx, id, other) > t.sanctionRelation)
         continue;
-      if (!chance(state, ctx, rng, T('sanctions'), r.rates.sanction)) continue;
+      if (!chance(state, ctx, rng, T('sanctions'), r.rates.sanction * tempo)) continue;
       const result = imposeSanctions(state, ctx, id, other);
       if ('accepted' in result) emit({ type: 'sanctionsImposed', from: id, to: other });
       break;
@@ -216,10 +221,10 @@ export function aiPolicyOrders(
           !enemiesAtWar(state.world, id).includes(x) &&
           !alliesOf(state.world, id).includes(x) &&
           relation(state, ctx, id, x) <= t.ultimatumRelation &&
-          myPower >= sidePower(x) * t.ultimatumPower,
+          myPower >= sidePower(x) * t.ultimatumPower * edge,
       );
       const target = candidates.sort()[0];
-      if (target && chance(state, ctx, rng, T('pressure'), r.rates.ultimatum)) {
+      if (target && chance(state, ctx, rng, T('pressure'), r.rates.ultimatum * tempo)) {
         const targetCountry = state.world.countries.find((c) => c.id === target)!;
         const land = ctx.provinceNeighbors ?? [];
         const border = targetCountry.provinceIds.find((p) =>
@@ -263,12 +268,15 @@ export function aiPolicyOrders(
           live.has(x) &&
           !alliesOf(state.world, id).includes(x) &&
           relation(state, ctx, id, x) <= t.warRelation &&
-          myPower >= sidePower(x) * t.warPower,
+          myPower >= sidePower(x) * t.warPower * edge,
       );
       const target = targets.sort(
         (a, b) => relation(state, ctx, id, a) - relation(state, ctx, id, b) || (a < b ? -1 : 1),
       )[0];
-      if (target && chance(state, ctx, rng, (T('expansionism') * T('risk')) / 100, r.rates.war)) {
+      if (
+        target &&
+        chance(state, ctx, rng, (T('expansionism') * T('risk')) / 100, r.rates.war * tempo)
+      ) {
         startWar(state, ctx, id, target, emit);
         emit({ type: 'warDeclared', attacker: id, target });
       }
@@ -288,7 +296,7 @@ export function aiPolicyOrders(
         !warBetween(state.world, id, enemy) &&
         enemy !== player &&
         (!nuclearPower(enemy) || T('risk') >= t.interveneNuclearRisk) &&
-        chance(state, ctx, rng, (T('interventionism') * T('risk')) / 100, r.rates.intervene)
+        chance(state, ctx, rng, (T('interventionism') * T('risk')) / 100, r.rates.intervene * tempo)
       ) {
         const war = warBetween(state.world, partner, enemy);
         if (war) {

@@ -123,7 +123,7 @@ describe('aggressiveness', () => {
       trait(newGame(ctx, level), ctx, 'BIG', t);
     expect(at('peaceful', 'risk')).toBe(30);
     expect(at('realistic', 'risk')).toBe(60);
-    expect(at('aggressive', 'risk')).toBe(90);
+    expect(at('aggressive', 'risk')).toBe(Math.min(100, 60 * aiRules.aggressiveness.aggressive));
     expect(at('chaos', 'risk')).toBe(100);
     expect(at('peaceful', 'loyalty')).toBe(60);
     expect(at('chaos', 'loyalty')).toBe(60);

@@ -691,5 +691,6 @@
   "res.from": "Imports from: {list}",
   "res.partners": "Main trade partners (resources, per year): {list}",
   "res.noPartners": "No resource trade with other countries.",
-  "res.prices": "World prices since the start: {list}"
+  "res.prices": "World prices since the start: {list}",
+  "interior.occupied": "occupied: assimilation after the peace"
 }
