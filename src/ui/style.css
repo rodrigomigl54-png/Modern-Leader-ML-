@@ -3458,3 +3458,136 @@ textarea {
   transform-box: view-box;
   transform-origin: 0 0;
 }
+
+/* Academy (tutorial) and the "?" help buttons. */
+.academy-backdrop {
+  z-index: 70;
+}
+
+.academy {
+  width: min(640px, 100%);
+}
+
+.academy-kicker {
+  margin: 0 0 2px;
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.academy-progress {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.academy-progress-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+.academy-progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.academy-chapters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.academy-chapter {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 20px;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--panel-solid);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.academy-chapter-num {
+  color: var(--text-muted);
+}
+
+.academy-chapter-done {
+  border-color: var(--good-text);
+}
+
+.academy-chapter-state {
+  color: var(--good-text);
+  font-weight: 700;
+}
+
+.academy-section {
+  margin-top: 14px;
+}
+
+.academy-section-title {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.academy-text {
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.academy-list {
+  margin: 0 0 8px;
+  padding-left: 20px;
+  line-height: 1.5;
+}
+
+.academy-list li {
+  margin-bottom: 4px;
+}
+
+.academy-nav {
+  margin-top: 0;
+}
+
+.title-help {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title-help .modal-title {
+  flex: 1;
+}
+
+.help-btn {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--panel-border);
+  border-radius: 50%;
+  background: var(--panel-solid);
+  color: var(--accent);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dossier-strip .help-btn {
+  margin-left: auto;
+}

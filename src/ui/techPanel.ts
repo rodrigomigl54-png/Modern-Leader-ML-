@@ -1,3 +1,4 @@
+import { titleWithHelp } from './academy';
 import { t, type TranslationKey } from '../i18n';
 import { formatPercent, formatUsd } from '../app/present';
 import type { Command } from '../sim/commands';
@@ -139,7 +140,7 @@ export class TechPanel {
     const actions = el('div', 'modal-actions');
     actions.append(button('btn btn-secondary', t('panel.close'), () => this.close()));
     dialog.append(
-      el('h2', 'modal-title', t('tech.title')),
+      titleWithHelp(t('tech.title'), 'advanced'),
       head,
       bar,
       el(

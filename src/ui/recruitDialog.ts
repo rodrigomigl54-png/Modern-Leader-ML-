@@ -1,3 +1,4 @@
+import { titleWithHelp } from './academy';
 import { t } from '../i18n';
 import { formatUsd } from '../app/present';
 import type { SimContext } from '../sim/economy';
@@ -53,7 +54,7 @@ export class RecruitDialog {
     const dialog = el('div', 'modal modal-wide');
     dialog.setAttribute('role', 'dialog');
     dialog.append(
-      el('h2', 'modal-title', t('recruit.title')),
+      titleWithHelp(t('recruit.title'), 'military'),
       el('p', 'modal-text', t('invest.selectedCount', { count: cityIds.length })),
     );
 

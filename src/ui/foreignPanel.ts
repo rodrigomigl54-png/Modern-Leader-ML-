@@ -1,3 +1,4 @@
+import { helpButton } from './academy';
 import { t } from '../i18n';
 import type { Command } from '../sim/commands';
 import { formatRelation, signClass } from '../app/present';
@@ -72,6 +73,7 @@ export class ForeignPanel {
       button('dossier-close', '×', () => this.close()),
     );
     header.lastElementChild!.setAttribute('aria-label', t('panel.close'));
+    header.insertBefore(helpButton('diplomacy'), header.lastElementChild);
 
     const facts = el('dl', 'dossier-facts');
     const fact = (label: string, value: string, cls = 'mono'): void => {

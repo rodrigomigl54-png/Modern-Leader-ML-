@@ -25,8 +25,8 @@
     "manpowerRefillPerTurn": 0.01,
     "regularCostWeeks": 26,
     "specialCostWeeks": 80,
-    "regularTrainTurns": 4,
-    "specialTrainTurns": 12,
+    "regularTrainTurns": 1,
+    "specialTrainTurns": 2,
     "capPerTurnByBase": [1000, 3000, 8000, 20000],
     "specialMinBase": 2
   },

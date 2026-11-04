@@ -504,6 +504,17 @@ Done:
 - Balance, 3 years, seed 7, wars started: peaceful 0, realistic 2, aggressive 8, chaos 20.
 - Fix: the country dialog's sub-views (trade request, ultimatum, peace, aid) show a short header, so on phones the form is in view at once instead of below the country's whole profile.
 
+## Controlled update — faster construction and training, Academy
+
+Dario asked for exactly three changes and nothing else:
+
+- **Construction −50%:** every building's `buildTurns` in `economy.json` halved (factory 12→6, university 20→10, agriculture 8→4, infrastructure 20→10, energy 26→13, hospital 12→6, missile factory 30→15, drone factory 20→10, air defense factory 26→13, military base 16→8) and air defense systems in `weapons.json` (8/12/16 → 4/6/8). Prices, effects and requirements unchanged; all values are whole weeks ≥ 1. Projects already started in a saved game keep their original finish week.
+- **Training:** `regularTrainTurns` 4 → 1, `specialTrainTurns` 12 → 2 (`military.json`). Costs, strength, upkeep, manpower and caps unchanged. The recruit dialog hints were updated to say so.
+- **Academy** (`src/ui/academy.ts`): main menu → Academy · Tutorial; 11 chapters, progress saved in localStorage (`ml.academy`), numbers read from the data; "?" buttons in the four ministries and the invest, recruit and technology dialogs.
+- The nuclear program (5 years) was left unchanged: it is a weapons program, not a construction project.
+- Tests: halved build times and a factory finishing exactly on time; regulars ready after exactly 1 week, special forces after exactly 2; every Academy section exists in both languages with all numbers filled in. The sea-crossing test now uses a stronger landing army, because the defender's AI-trained soldiers are now ready before the landing.
+- Balance (3 years, seed 7), wars started: peaceful 0, realistic 1, aggressive 8, chaos 22 (before: 0, 2, 8, 20).
+
 ## Next
 
 - Dario: merge the PR and test Phase 26 (trade requests, technology, AI speed per level, intro); changes come from that testing.

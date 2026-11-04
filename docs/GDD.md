@@ -178,9 +178,9 @@ Soldiers come only from recruitment; reserves exist only for defense; bases deci
 
 | Unit | Source | Strength | Can attack | Notes |
 | --- | --- | --- | --- | --- |
-| Regular soldiers | Recruitment in cities | 1× | Yes | Main army; costs upkeep |
+| Regular soldiers | Recruitment in cities | 1× | Yes | Main army; costs upkeep; trained in 1 week |
 | Reservists | Mandatory service | 1× | No, defense only | Last line of defense; activate only when their city is attacked and it has a base |
-| Special forces | Training at a large base | 2.5× | Yes | Expensive and slow to train |
+| Special forces | Training at a large base | 2.5× | Yes | Expensive; trained in 2 weeks |
 | Trainees | In training at a base | Below 1× | No | Join the defense of their city if it is attacked |
 
 **Bases (levels 1–3, to be tuned):** a higher level allows more recruitment in that city, activates more reservists and trainees when the city is defended, and from a set level unlocks special forces training. A small attack on a city with a base can be beaten by its reservists and trainees.
@@ -337,6 +337,8 @@ The interface must work equally on a phone (touch, small screen) and on a PC (mo
 **Demo feedback:** a "Send feedback" button in the menu linking to a simple external form (what was fun, what was confusing, device used). No analytics or tracking in the demo, so no consent banner is needed.
 
 **Logo and intro (Phase 26):** the mark is a thin globe ring with an "ML" monogram drawn as straight lines and one amber point (the leader). The game opens with a five-second "Situation Room" intro while the map loads: a dark screen, a radar sweeping a globe, borders and capitals lighting up as it passes, then the lines gather into the monogram and the name appears. A tap, click or key skips it; reduced motion shows the still logo. Typed numbers were replaced by sliders everywhere.
+
+**Academy (Dario's request after Phase 26):** a tutorial in the main menu (Academy · Tutorial), available at any time, also without a game. Eleven chapters (getting started, economy, taxes and services, population, construction, military, warfare, diplomacy, politics, advanced play, winning and losing) with Previous / Next, Chapters and Skip; read chapters are remembered in the browser. Every number in the text is read from the game data. Small "?" buttons in the ministries and in the invest, recruit and technology dialogs open the matching chapter. Construction times were halved and training takes 1 week for soldiers and 2 weeks for special forces in the same update.
 
 ## 14. Data, sources and verification
 
