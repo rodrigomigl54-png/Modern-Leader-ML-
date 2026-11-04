@@ -185,6 +185,35 @@ describe('investment', () => {
     expect(weeklyBudget(after, 'AAA', sim).investmentReturns).toBeGreaterThan(0);
   });
 
+  it('builds in half the former time, never in zero weeks', () => {
+    // Halved on Dario's request (former build times in weeks in the comments).
+    const weeks: Record<string, number> = {
+      factory: 6, // 12
+      university: 10, // 20
+      agriculture: 4, // 8
+      infrastructure: 10, // 20
+      energy: 13, // 26
+      hospital: 6, // 12
+      missileFactory: 15, // 30
+      droneFactory: 10, // 20
+      airDefenseFactory: 13, // 26
+      militaryBase: 8, // 16
+    };
+    for (const cat of sim.economy.investment.categories) {
+      expect(cat.buildTurns).toBe(weeks[cat.id]);
+      expect(Number.isInteger(cat.buildTurns) && cat.buildTurns >= 1).toBe(true);
+    }
+    const factory = sim.economy.investment.categories.find((c) => c.id === 'factory')!;
+    const invested = run(newGame(), {
+      type: 'invest',
+      countryId: 'AAA',
+      cityIds: [0],
+      category: 'factory',
+    });
+    expect(play(invested, factory.buildTurns - 1).economy.buildings[0]!.completed).toBe(false);
+    expect(play(invested, factory.buildTurns).economy.buildings[0]!.completed).toBe(true);
+  });
+
   it('places several levels per city in one order, each level dearer than the last', () => {
     const game = newGame();
     const g = 1 + rules.investment.levelCostGrowth!;

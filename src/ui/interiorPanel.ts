@@ -1,3 +1,4 @@
+import { helpButton } from './academy';
 import { t } from '../i18n';
 import { formatPercent, formatUsd } from '../app/present';
 import type { Command } from '../sim/commands';
@@ -71,6 +72,7 @@ export class InteriorPanel {
       button('dossier-close', '×', () => this.close()),
     );
     header.lastElementChild!.setAttribute('aria-label', t('panel.close'));
+    header.insertBefore(helpButton('population'), header.lastElementChild);
 
     const rioting = country.provinceIds
       .filter((p) => pop.riotTurns[p]! > 0)

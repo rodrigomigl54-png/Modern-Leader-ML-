@@ -188,7 +188,8 @@ describe('movement', () => {
 
   it('crosses the sea in several turns', () => {
     let game = issue(newGame(), { type: 'declareWar', countryId: 'AAA', targetId: 'CCC' });
-    setArmies(game, [{ owner: 'AAA', provinceId: 0, regulars: 1000 }]);
+    // Strong enough to beat the soldiers CCC trains (in one week) before the landing.
+    setArmies(game, [{ owner: 'AAA', provinceId: 0, regulars: 3000 }]);
     game = issue(game, {
       type: 'moveArmies',
       countryId: 'AAA',
@@ -417,6 +418,28 @@ describe('recruitment, reserves and service', () => {
         sim,
       ).ok,
     ).toBe(true);
+  });
+
+  it('trains regulars in exactly one week and special forces in exactly two', () => {
+    expect(rules.recruitment.regularTrainTurns).toBe(1);
+    expect(rules.recruitment.specialTrainTurns).toBe(2);
+    const recruit = (kind: 'regular' | 'special'): GameState =>
+      issue(newGame(), {
+        type: 'recruit',
+        countryId: 'AAA',
+        cityIds: [0],
+        kind,
+        mode: 'fixed',
+        amount: 100,
+      });
+    const regular = recruit('regular');
+    const regulars = militaryTotals(regular, 'AAA').regulars;
+    expect(militaryTotals(regular, 'AAA').trainees).toBe(100);
+    expect(militaryTotals(play(regular, 1), 'AAA').regulars).toBe(regulars + 100);
+    const special = recruit('special');
+    const specials = militaryTotals(special, 'AAA').special;
+    expect(militaryTotals(play(special, 1), 'AAA').trainees).toBe(100);
+    expect(militaryTotals(play(special, 2), 'AAA').special).toBe(specials + 100);
   });
 
   it('service grows reserves but costs support; without it reserves shrink', () => {

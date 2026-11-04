@@ -1,3 +1,4 @@
+import { helpButton } from './academy';
 import { t, type TranslationKey } from '../i18n';
 import { formatPercent, formatSignedUsd, formatUsd, signClass } from '../app/present';
 import type { Command } from '../sim/commands';
@@ -75,6 +76,7 @@ export class EconomyPanel {
     header.append(el('span', 'dossier-code', id), el('span', 'dossier-label', t('econ.ministry')));
     header.append(button('dossier-close', '×', () => this.close()));
     header.lastElementChild!.setAttribute('aria-label', t('econ.close'));
+    header.insertBefore(helpButton('economy'), header.lastElementChild);
 
     const key = el('dl', 'dossier-facts');
     const fact = (label: string, value: string, cls = 'mono'): void => {

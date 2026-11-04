@@ -1,3 +1,4 @@
+import { titleWithHelp } from './academy';
 import { t, type TranslationKey } from '../i18n';
 import { formatSignedUsd, formatUsd, signClass } from '../app/present';
 import { investmentQuote, type SimContext } from '../sim/economy';
@@ -44,7 +45,7 @@ export class InvestDialog {
     const dialog = el('div', 'modal modal-wide');
     dialog.setAttribute('role', 'dialog');
     dialog.append(
-      el('h2', 'modal-title', t('invest.title')),
+      titleWithHelp(t('invest.title'), 'construction'),
       el('p', 'modal-text', t('invest.selectedCount', { count: cityIds.length })),
     );
 

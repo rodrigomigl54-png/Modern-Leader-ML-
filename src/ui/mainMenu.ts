@@ -19,6 +19,8 @@ export interface MainMenuActions {
   onLoadGame: () => void;
   onSettings: () => void;
   onFeedback: () => void;
+  /** Opens the Academy (tutorial). */
+  onAcademy: () => void;
 }
 
 /** Main menu (GDD section 13) over the dimmed world map. */
@@ -78,6 +80,10 @@ export class MainMenu {
       el('h2', 'menu-subtitle', t('menu.historical')),
       historical,
       el('div', 'menu-actions'),
+      el('div', 'menu-actions'),
+    );
+    card.children[card.children.length - 2]!.append(
+      button('btn btn-secondary', t('academy.menu'), this.actions.onAcademy),
     );
     card.lastElementChild!.append(
       load,

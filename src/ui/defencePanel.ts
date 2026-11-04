@@ -1,3 +1,4 @@
+import { helpButton } from './academy';
 import { t } from '../i18n';
 import { formatUsd } from '../app/present';
 import type { SimContext } from '../sim/economy';
@@ -73,6 +74,7 @@ export class DefencePanel {
       button('dossier-close', '×', () => this.close()),
     );
     header.lastElementChild!.setAttribute('aria-label', t('panel.close'));
+    header.insertBefore(helpButton('military'), header.lastElementChild);
 
     const facts = el('dl', 'dossier-facts');
     const fact = (label: string, value: string, cls = 'mono'): void => {

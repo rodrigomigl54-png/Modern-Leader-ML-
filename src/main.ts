@@ -65,6 +65,7 @@ import { InteriorPanel } from './ui/interiorPanel';
 import { InvestDialog } from './ui/investDialog';
 import { showLoadingScreen } from './ui/loadingScreen';
 import { playIntro } from './ui/intro';
+import { Academy, setAcademyHelp } from './ui/academy';
 import { MainMenu } from './ui/mainMenu';
 import { MapModeBar } from './ui/mapModeBar';
 import { ProduceDialog } from './ui/produceDialog';
@@ -1550,7 +1551,11 @@ async function start(): Promise<void> {
       },
     });
 
+    // The Academy (tutorial): from the main menu, and from the ? buttons in the ministries.
+    const academy = new Academy({ parent: uiRoot, sim });
+    setAcademyHelp((chapter) => academy.open(chapter));
     const menu = new MainMenu(uiRoot, {
+      onAcademy: () => academy.open(),
       onFeedback: openFeedback,
       onNewGame: () => {
         menu.hide();
