@@ -39,6 +39,8 @@ uniform vec3 uProvinceBorderColor;
 uniform vec3 uHighlightColor;
 uniform vec3 uFocusOwner;
 uniform vec3 uFocusColor;
+uniform vec3 uFrontColor;
+uniform float uStripePeriod;
 
 vec3 idAt(vec2 uv) {
   return texture(uIdTex, uv).rgb;
@@ -46,7 +48,7 @@ vec3 idAt(vec2 uv) {
 
 vec2 paletteUv(vec3 id, float rowOffset) {
   return vec2((floor(id.r * 255.0 + 0.5) + 0.5) / 256.0,
-              (floor(id.g * 255.0 + 0.5) + rowOffset + 0.5) / 512.0);
+              (floor(id.g * 255.0 + 0.5) + rowOffset + 0.5) / 768.0);
 }
 
 bool isUnowned(vec3 id) { return id.b > 0.5; }
@@ -62,6 +64,18 @@ vec3 ownerOf(vec3 id) {
 float borderKind(vec3 id, vec3 owner, vec3 n) {
   if (same(id, n)) return 0.0;
   return same(owner, ownerOf(n)) ? 1.0 : 2.0;
+}
+
+// Side in the player's wars (0 none, 1 the player's side, 2 the enemy), from the owner row's alpha.
+float sideOf(vec3 id) {
+  if (isWater(id) || isUnowned(id)) return 0.0;
+  float a = texture(uPalette, paletteUv(id, 256.0)).a;
+  return a > 0.9 ? 0.0 : (a > 0.5 ? 1.0 : 2.0);
+}
+
+float frontEdge(float mySide, vec3 n) {
+  float s = sideOf(n);
+  return (mySide > 0.5 && s > 0.5 && abs(mySide - s) > 0.5) ? 1.0 : 0.0;
 }
 
 float selectionEdge(bool selected, vec3 n) {
@@ -100,6 +114,12 @@ void main() {
                        borderKind(id, owner, idAt(vUV - vec2(0.0, dp.y)))));
   }
 
+  // Occupied land: diagonal stripes of the people's own country over the occupier's color.
+  vec4 stripe = texture(uPalette, paletteUv(id, 512.0));
+  if (stripe.a > 0.5 && mod(gl_FragCoord.x + gl_FragCoord.y, uStripePeriod) < uStripePeriod * 0.42) {
+    color = mix(color, stripe.rgb, 0.85);
+  }
+
   if (country > 1.5) {
     color = mix(color, uCountryBorderColor, 0.85);
   } else if (province > 0.5) {
@@ -120,6 +140,24 @@ void main() {
                        max(focusEdge(focused, idAt(vUV + vec2(0.0, dg.y))),
                            focusEdge(focused, idAt(vUV - vec2(0.0, dg.y)))));
       color = mix(color, uFocusColor, 0.35 * glow);
+    }
+  }
+
+  // The front line: borders between the player's side and the enemy glow red (over the
+  // amber border of the player's country).
+  float mySide = sideOf(id);
+  if (mySide > 0.5) {
+    float front = max(max(frontEdge(mySide, c1), frontEdge(mySide, c2)),
+                      max(frontEdge(mySide, c3), frontEdge(mySide, c4)));
+    if (front > 0.5) {
+      color = uFrontColor;
+    } else {
+      vec2 df = dc * 2.5;
+      float near = max(max(frontEdge(mySide, idAt(vUV + vec2(df.x, 0.0))),
+                           frontEdge(mySide, idAt(vUV - vec2(df.x, 0.0)))),
+                       max(frontEdge(mySide, idAt(vUV + vec2(0.0, df.y))),
+                           frontEdge(mySide, idAt(vUV - vec2(0.0, df.y)))));
+      color = mix(color, uFrontColor, 0.4 * near);
     }
   }
 
@@ -172,6 +210,8 @@ export class ProvinceShaderShared {
       uHighlightColor: { value: rgbToVec(style.highlight), type: 'vec3<f32>' },
       uFocusOwner: { value: new Float32Array([2, 2, 2]), type: 'vec3<f32>' },
       uFocusColor: { value: rgbToVec(style.highlight), type: 'vec3<f32>' },
+      uFrontColor: { value: rgbToVec([217, 71, 59]), type: 'vec3<f32>' },
+      uStripePeriod: { value: 10, type: 'f32' },
     });
   }
 
@@ -189,7 +229,8 @@ export class ProvinceShaderShared {
     this.paletteSource.update();
   }
 
-  setView(deviceScale: number, provinceAlpha: number): void {
+  setView(deviceScale: number, provinceAlpha: number, devicePixels = 1): void {
+    this.uniforms.uniforms.uStripePeriod = 10 * Math.max(1, devicePixels);
     this.uniforms.uniforms.uScreenScale = deviceScale;
     this.uniforms.uniforms.uProvinceAlpha = provinceAlpha;
     this.uniforms.update();
