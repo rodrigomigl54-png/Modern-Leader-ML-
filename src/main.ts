@@ -715,6 +715,12 @@ async function start(): Promise<void> {
         });
       if (r.type === 'pact') return t('foreign.pactRequest', { country: nameOf(r.from) });
       if (r.type === 'access') return t('foreign.accessRequest', { country: nameOf(r.from) });
+      if (r.type === 'deal')
+        return t(`offer.${r.kind}`, {
+          country: nameOf(r.from),
+          amount: formatUsd(r.deal.give.money ?? r.deal.take.money ?? 0),
+          rival: nameOf(r.deal.take.sanctionsOn ?? ''),
+        });
       const u = state.diplomacy.ultimatums.find((x) => x.id === r.ultimatumId);
       return u
         ? t('foreign.ultimatumRequest', {

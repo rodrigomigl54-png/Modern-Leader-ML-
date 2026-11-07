@@ -66,7 +66,8 @@ const sim: SimContext = {
   population: populationRules as PopulationRules,
   military: militaryRulesData as MilitaryRules,
   weapons: weaponsRulesData as unknown as WeaponsRules,
-  diplomacy: rules,
+  // No random AI offers here (offers.test.ts): they would shift the relations measured below.
+  diplomacy: { ...rules, offers: undefined },
   relationOverrides: [{ a: 'AAA', b: 'CCC', value: -20 }],
   cityProvince: [0, 1, 2, 3, 4, 5],
   cityPopulation: [1e6, 1e6, 1e6, 1e6, 1e6, 1e6],

@@ -1071,5 +1071,9 @@
   "settings.graphics.medium": "Srednji",
   "settings.graphics.high": "Visok",
   "warCard.war": "RAT",
-  "warCard.peace": "MIR"
+  "warCard.peace": "MIR",
+  "offer.nonAggression": "{country} nudi pakt o nenapadanju: nijedna strana ne sme napasti drugu dve godine.",
+  "offer.buyAccess": "{country} nudi {amount} za vojni prolaz kroz vašu teritoriju.",
+  "offer.aid": "{country} traži od vas {amount} finansijske pomoći. Pomoć poboljšava odnose.",
+  "offer.coalition": "{country} nudi {amount} ako se pridružite sankcijama protiv države {rival}."
 }

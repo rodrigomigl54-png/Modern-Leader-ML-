@@ -84,7 +84,7 @@ export function emptyEvents(seed: number): EventsState {
 }
 
 /** The neighbors of a country (land borders), sorted. */
-function neighborsOf(state: GameState, ctx: SimContext, id: string): string[] {
+export function neighborsOf(state: GameState, ctx: SimContext, id: string): string[] {
   const owners = state.world.provinceOwners;
   const land = ctx.provinceNeighbors ?? [];
   const result = new Set<string>();

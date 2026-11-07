@@ -1,6 +1,7 @@
 import type { HistoryPoint } from './history';
 import { emptyLog, type CampaignLog } from './campaignLog';
 import { emptyEvents, type EventsState } from './randomEvents';
+import type { OffersState } from './offers';
 // Creates the initial game state from the three setup choices (GDD section 3).
 import { initEconomy, type EconomyState, type SimContext } from './economy';
 import { emptyDiplomacy, initDiplomacy, type DiplomacyState } from './diplomacy';
@@ -52,6 +53,8 @@ export interface GameState {
   log?: CampaignLog;
   /** Random events (master plan, phase 5); older saves start without any. */
   randomEvents?: EventsState;
+  /** AI offers to the player (created on first use). */
+  offers?: OffersState;
   /** The end of the game: a defeat (revolution, conquered) or the player's victory. */
   gameOver?: { reason: 'revolution' | 'conquered' | 'victory'; turn: number };
 }
