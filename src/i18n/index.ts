@@ -30,6 +30,9 @@ export function getLanguage(): Language {
 export function setLanguage(language: Language): void {
   if (language === current) return;
   current = language;
+  // Tell the browser the page's language, so its built-in Translate offers the right
+  // translation into any other language (master plan, phase 3).
+  if (typeof document !== 'undefined') document.documentElement.lang = language;
   for (const listener of listeners) listener(language);
 }
 

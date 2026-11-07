@@ -3591,3 +3591,375 @@ textarea {
 .dossier-strip .help-btn {
   margin-left: auto;
 }
+
+/* Campaign history (master plan, phase 7). */
+.history-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.history-chip {
+  min-height: 32px;
+  padding: 2px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  background: var(--panel-solid);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.history-chip-on {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.history-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history-date {
+  margin: 10px 0 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.history-entry {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--line-soft);
+  line-height: 1.4;
+}
+
+.history-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.history-cat {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.history-war .history-dot,
+.history-territory .history-dot {
+  background: var(--danger-text);
+}
+
+.history-peace .history-dot,
+.history-economy .history-dot {
+  background: var(--good-text);
+}
+
+.history-technology .history-dot,
+.history-national .history-dot {
+  background: var(--accent);
+}
+
+/* Weekly briefing: several notices in one dialog. */
+.briefing {
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+
+.briefing-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.briefing-item {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.briefing-item .modal-text {
+  margin-top: 4px;
+}
+
+/* Fewer animations (settings, or the system's reduced-motion choice). */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Peace talks: a capitulation and the treaty summary (master plan, phase 2). */
+.capitulation {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: var(--line-soft);
+}
+
+.capitulation-title {
+  display: block;
+  color: var(--accent);
+}
+
+.peace-summary {
+  margin: 10px 0 4px;
+  line-height: 1.4;
+}
+
+/* Goals: term and reward (master plan, phase 6). */
+.goal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.goal-term {
+  padding: 1px 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  color: var(--text-muted);
+}
+
+.goal-term-short {
+  border-color: var(--good-text);
+  color: var(--good-text);
+}
+
+.goal-term-medium {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.goal-reward {
+  color: var(--text-muted);
+}
+
+/* Random event card (master plan, phase 5): compact, the map stays visible. */
+.event-card {
+  position: absolute;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 40px);
+  z-index: 45;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 14px;
+  width: min(520px, calc(100vw - 24px));
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding: 14px 16px;
+  border: 1px solid var(--panel-border);
+  border-top: 3px solid var(--accent);
+  border-radius: 10px;
+  background: var(--panel-bg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  transform: translateX(-50%);
+  animation: event-in 0.22s ease-out both;
+}
+
+.event-out {
+  animation: event-out 0.18s ease-in both;
+}
+
+.event-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 64px;
+  border-radius: 8px;
+  background: var(--line-soft);
+  color: var(--accent);
+}
+
+.event-art svg {
+  width: 56px;
+  height: 46px;
+}
+
+.event-disaster .event-art,
+.event-military .event-art {
+  color: var(--danger-text);
+}
+
+.event-technology .event-art,
+.event-diplomatic .event-art {
+  color: var(--good-text);
+}
+
+.event-kicker {
+  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.event-title {
+  margin: 2px 0 4px;
+  font-size: 17px;
+}
+
+.event-text {
+  margin: 0 0 10px;
+  line-height: 1.4;
+}
+
+.event-answers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+}
+
+.event-answer {
+  display: grid;
+  gap: 2px;
+  min-height: 52px;
+  text-align: left;
+}
+
+.event-answer-fx {
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+@keyframes event-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 16px);
+  }
+}
+
+@keyframes event-out {
+  to {
+    opacity: 0;
+    transform: translate(-50%, 16px);
+  }
+}
+
+/* Interactive lessons (master plan, phase 4). */
+.academy-lessons-title {
+  margin: 18px 0 4px;
+  font-size: 15px;
+}
+
+.coach {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 64px);
+  left: 8px;
+  z-index: 75;
+  width: min(320px, calc(100vw - 16px));
+  padding: 10px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: var(--panel-bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.coach-collapsed {
+  width: auto;
+}
+
+.coach-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 8px;
+}
+
+.coach-kicker {
+  grid-column: 1;
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.coach-title {
+  grid-column: 1;
+  font-size: 14px;
+}
+
+.coach-toggle {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--panel-border);
+  border-radius: 50%;
+  background: var(--panel-solid);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.coach-dots {
+  display: flex;
+  gap: 4px;
+  margin: 8px 0 4px;
+}
+
+.coach-dot {
+  width: 18px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line-soft);
+}
+
+.coach-dot.on {
+  background: var(--good-text);
+}
+
+.coach-dot.now {
+  background: var(--accent);
+}
+
+.coach-text {
+  margin: 4px 0 8px;
+  line-height: 1.4;
+}
+
+.coach-done {
+  color: var(--good-text);
+  font-weight: 600;
+}
+
+.coach-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.coach-target {
+  outline: 3px solid var(--accent) !important;
+  outline-offset: 2px;
+  animation: coach-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes coach-pulse {
+  50% {
+    outline-color: rgba(242, 169, 59, 0.35);
+  }
+}
+
+/* Settings: the hint for other languages (browser Translate). */
+.settings-hint {
+  max-width: 260px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}

@@ -12,6 +12,7 @@ import type { MilitaryRules } from '../sim/military';
 import type { PopulationRules } from '../sim/population';
 import type { WeaponsRules } from '../sim/weapons';
 import { ACADEMY_CHAPTERS, ACADEMY_SECTIONS, academyVars } from './academy';
+import { LESSON_STEPS, LESSONS } from './coach';
 
 const sim = {
   economy: economyRules as unknown as EconomyRules,
@@ -50,5 +51,16 @@ describe('Academy', () => {
     expect(vars.weeks_factory).toBe(factory.buildTurns);
     expect(vars.riotThreshold).toBe(populationRules.riots.threshold);
     expect(vars.costUltimatum).toBe(diplomacyRules.costs.ultimatum);
+  });
+
+  it('has a title and a text for every step of every lesson in both languages', () => {
+    for (const dict of [en, sr] as Record<string, string>[])
+      for (const id of LESSONS) {
+        expect(dict[`lesson.${id}.title`], id).toBeTruthy();
+        LESSON_STEPS[id].forEach((_, i) =>
+          expect(dict[`lesson.${id}.${i + 1}`], `${id} ${i + 1}`).toBeTruthy(),
+        );
+        expect(dict[`lesson.${id}.${LESSON_STEPS[id].length + 1}`]).toBeUndefined();
+      }
   });
 });

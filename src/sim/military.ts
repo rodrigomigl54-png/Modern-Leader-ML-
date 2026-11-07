@@ -887,10 +887,23 @@ export function battlePhase(
 
 /** A country lost its last province to an army. Revolutions are handled by the population. */
 function conquered(state: GameState, countryId: string, emit: (e: MilitaryEvent) => void): void {
+  conquerCountry(state, countryId, emit);
+}
+
+/**
+ * A country with no land left leaves the game (conquest, or capitulation in a peace: master
+ * plan, phase 2). `by` names the winner; otherwise the first enemy.
+ */
+export function conquerCountry(
+  state: GameState,
+  countryId: string,
+  emit: (e: MilitaryEvent) => void,
+  winner?: string,
+): void {
   const country = state.world.countries.find((c) => c.id === countryId);
   if (!country || country.provinceIds.length > 0 || country.status === 'rebels') return;
   if (state.population?.factions.some((f) => f.parent === countryId)) return;
-  const by = [...enemiesAtWar(state.world, countryId)].sort()[0] ?? '';
+  const by = winner ?? [...enemiesAtWar(state.world, countryId)].sort()[0] ?? '';
   state.military.armies = state.military.armies.filter((a) => a.owner !== countryId);
   state.military.training = state.military.training.filter((t) => t.owner !== countryId);
   state.world.wars = state.world.wars

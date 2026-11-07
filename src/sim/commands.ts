@@ -4,6 +4,7 @@
 import { investmentQuote, levelCost, printAmount, type SimContext } from './economy';
 import { assignPoint, type TechCategory } from './technology';
 import { nonAggressionBetween, proposeDeal, type Deal } from './deals';
+import { answerEvent } from './randomEvents';
 import {
   findPath,
   pathCrossesSea,
@@ -74,6 +75,13 @@ export interface SetResearchCommand {
   type: 'setResearch';
   countryId: string;
   share: number;
+}
+
+/** The player's answer to a random event (master plan, phase 5). */
+export interface AnswerEventCommand {
+  type: 'answerEvent';
+  countryId: string;
+  option: number;
 }
 
 /** Assigns one technology point to a bonus. */
@@ -242,6 +250,7 @@ export type Command =
   | ForeignInvestmentCommand
   | SetResearchCommand
   | AssignTechCommand
+  | AnswerEventCommand
   | AssimilateCommand
   | MoveArmiesCommand
   | SplitArmyCommand
@@ -274,6 +283,7 @@ export type CommandError =
   | 'invalidTarget'
   | 'alreadyAtWar'
   | 'allied'
+  | 'noEvent'
   | WeaponsError
   | DiplomacyError;
 
@@ -321,6 +331,12 @@ export function applyCommand(
       const e = state.economy.countries[command.countryId];
       if (!e) return { ok: false, error: 'unknownCountry' };
       e.research = Math.min(tech.maxResearch, Math.max(tech.minResearch, command.share));
+      return { ok: true, state };
+    }
+    case 'answerEvent': {
+      if (command.countryId !== previous.player.countryId) return { ok: false, error: 'noEvent' };
+      const state = cloneState(previous);
+      if (!answerEvent(state, ctx, command.option)) return { ok: false, error: 'noEvent' };
       return { ok: true, state };
     }
     case 'assignTech': {

@@ -62,3 +62,44 @@ export function noticeDialog(
     root.append(backdrop);
   });
 }
+
+export interface BriefingItem {
+  /** Which minister reports it. */
+  from: string;
+  text: string;
+}
+
+/**
+ * Everything that needs the player's attention this week in one dialog (master plan: no chains
+ * of popups). One item looks like a single telegram.
+ */
+export function briefingDialog(
+  root: HTMLElement,
+  title: string,
+  items: readonly BriefingItem[],
+  okLabel: string,
+): Promise<void> {
+  if (items.length === 1) return noticeDialog(root, items[0]!.from, items[0]!.text, okLabel);
+  return new Promise((resolve) => {
+    const backdrop = el('div', 'modal-backdrop');
+    telegramListener?.();
+    const dialog = el('div', 'modal modal-telegram briefing');
+    dialog.setAttribute('role', 'alertdialog');
+    const list = el('ul', 'briefing-list');
+    for (const item of items) {
+      const li = el('li', 'briefing-item');
+      li.append(el('div', 'telegram-from mono', item.from), el('p', 'modal-text', item.text));
+      list.append(li);
+    }
+    const actions = el('div', 'modal-actions');
+    actions.append(
+      button('btn btn-primary', okLabel, () => {
+        backdrop.remove();
+        resolve();
+      }),
+    );
+    dialog.append(el('div', 'telegram-from mono', title), list, actions);
+    backdrop.append(dialog);
+    root.append(backdrop);
+  });
+}

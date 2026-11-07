@@ -519,6 +519,28 @@ Dario asked for exactly three changes and nothing else:
 
 Dario: halve the build times once more, training unchanged. `buildTurns` in `economy.json`: factory 6→3, university 10→5, agriculture 4→2, infrastructure 10→5, energy 13→7, hospital 6→3, missile factory 15→8, drone factory 10→5, air defense factory 13→7, military base 8→4 (odd halves round up, never below 1 week); air defense systems in `weapons.json` 4/6/8 → 2/3/4. Prices, effects and training (1 / 2 weeks) unchanged; the Academy reads the new values from the data.
 
+## Master plan, phases 2–7 and section 8–9
+
+Dario: "follow the prompt and start working". Where he did not answer, the proposals from the audit were used (capitulation rule, about one event in 10 weeks, the browser's Translate). Serbian stays (the plan forbids removing features). Every phase: tests, a check in Chromium (Pixel 7 landscape and 1280×720), a commit.
+
+- **Phase 7 — campaign history** (`src/sim/campaignLog.ts`, `src/ui/historyPanel.ts`): wars, battles (one line a week), land, peace, buildings (summed), technology, diplomacy, politics, goals, events; world wars, conquests, revolutions and nuclear strikes too. Saved with the game (at most 600 entries, the start kept), History in the game menu with category filters. Older saves start an empty log.
+- **Notices in three tiers**: what needs attention in a week is **one** briefing dialog (war on us, revolution, nuclear threat or strike involving us, global sanctions, countries joining against us); riots, lost provinces, strikes on us, shortages and inflation are toasts; the rest is the History. Measured: at most one blocking dialog per week (advisor tips in the first weeks, the 10-week report). Settings: **Fewer animations** (CSS, army marches, intro).
+- **Phase 2 — capitulation** (`hasCapitulated`, `diplomacy-rules.json` `peace.capitulationPopulationShare` 0.5): a country with no army left that keeps at most half the people it had when the war began must accept the winner's terms; the winner may take all its land and the country leaves the game. The capital cannot be the test (it moves when lost). AI winners annex beaten AI countries and offer the player a capitulation they may refuse. Peace talks show the capitulation and a one-line treaty summary.
+- **Phase 6 — national objectives**: goals are short-, medium- or long-term; the player also gets: finish 4 buildings (26 weeks), +1 technology level (104 weeks), climb the power ranking (260 weeks; 10 places, then great power, then top 3). Finished player goals reward support, relations with allies and friendly countries, technology points and diplomatic points (`goals.json` `rewards`, by term). AI goals unchanged; older saves get the objectives.
+- **Phase 5 — random events** (`data/modern/events.json`, `src/sim/randomEvents.ts`, `src/ui/eventPanel.ts`): 12 events with 2 answers each, 12% a week per country, at least 5 weeks apart, the same event not within 2 years (about one in 11 weeks). The AI answers by weights; the player in a compact card (no dimmed screen) that shows each answer's effects; unanswered for a week, the first answer applies. Own random stream: the rest of the game's randomness is unchanged. Effects balanced so GDP growth stays close to before (seed 7, 3 years: median growth 2.18% vs 2.31% without events; wars started the same).
+- **Phase 4 — interactive lessons** (`src/ui/coach.ts`): 10 lessons in a practice game that is never saved (Serbia, peaceful); a coach panel gives one instruction, lights up the real control and checks the real game state; hide, skip step, end, next lesson; finished lessons remembered (`ml.academy.lessons`). Offered only from the main menu. All 10 completed end to end in Chromium.
+- **Phase 3 — languages**: English and Serbian stay; any other language through the browser's own Translate (free, no account, no data sent by the game). The page now tells the browser its language; Settings explain how. Map labels are drawn on a canvas and stay in the game's language.
+- **Performance** (section 8): measured with the Chromium profiler (8 weeks as Ukraine on Chaos). `baselineRelation` checks war and rivalry pairs directly (identical results; AI-only turn 84–97 ms instead of 97–100 ms, Chaos 158 instead of 171 ms). **Graphics quality** setting (low / medium / high = pixel density 1 / 1.5 / 3, high the default): on a Pixel 7 low draws 7× fewer pixels and pans at 35 instead of 14 frames a second in software rendering. Main bundle 1.19 MB (307 KB gzip), mostly PixiJS.
+- **Licensing and stores** (section 9): `docs/LICENSES.md` (inventory with Needs review items) and `docs/STORE-CHECKLISTS.md` (Google Play, App Store, Steam). Not legal advice.
+- Checks: lint, format, 225 tests, build; Chromium checks per phase, no console errors.
+
+## Master plan, Phase 1 — pacing (assimilation)
+
+- Audit done (report in chat). The rest of the master plan (peace and surrender, national objectives, random events, campaign log, notification tiers, interactive Academy, translate option, performance, licensing review) waits for Dario's answers, phase by phase.
+- Assimilation 50% faster: `population.json` `assimilation.turns` 26 → 17. Cost, unrest while assimilating and the "after peace" rule unchanged. The AI uses the same command, but at present it does not start assimilation itself, so AI behavior is unchanged. The Academy shows the new value from the data.
+- Other waiting times reviewed and left as they are (to be decided by Dario): ultimatum deadline 3 weeks, improve relations 10 weeks, secession 52 weeks, calm after a crushed revolution 26 weeks, nuclear program 260 weeks, research (depends on spending).
+- Test: assimilation finishes after exactly 17 weeks, not before. Lint, format, 209 tests, build.
+
 ## Next
 
 - Dario: merge the PR and test Phase 26 (trade requests, technology, AI speed per level, intro); changes come from that testing.
@@ -537,6 +559,8 @@ Dario: halve the build times once more, training unchanged. `buildTurns` in `eco
 - The interface size uses CSS `zoom` (supported by current browsers; very old ones ignore it).
 
 - The AI does not send trade requests to the player yet (only answers them).
+- Credits with data attributions (World Bank CC BY 4.0, IMF, SIPRI) are still missing; see `docs/LICENSES.md`.
+- Random events and objective rewards are first values: to tune by play.
 - History charts start empty in older saves (recorded from the first turn played after the update).
 - Peace talks list only the provinces the winner holds (the existing rule); occupied land cannot be swapped for other land.
 - The map does not highlight the provinces selected in the peace talks.

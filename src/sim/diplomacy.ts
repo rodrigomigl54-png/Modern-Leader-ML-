@@ -1,10 +1,18 @@
 import type { DealRules } from './deals';
+import { logEntry } from './campaignLog';
 // Diplomacy (GDD sections 5, 8 and 10): relations, diplomatic points, credibility, alliances and
 // pacts, sanctions, ultimatums, joining wars, foreign bases, aid, weapons trade, vassals and peace
 // treaties. Until AI profiles exist (Phase 11) AI answers follow the thresholds in
 // data/modern/diplomacy-rules.json (DiplomacyRules). Everything is deterministic.
 import { buildingLevel, investmentDiscount, levelCost, type SimContext } from './economy';
-import { armyStrength, atSea, militaryRules, provinceSeat } from './military';
+import {
+  armySize,
+  armyStrength,
+  atSea,
+  conquerCountry,
+  militaryRules,
+  provinceSeat,
+} from './military';
 import type { GameState } from './newGame';
 import { joinThreshold } from './profiles';
 import { nationalSupport, shiftSupport, transferProvince } from './population';
@@ -118,6 +126,12 @@ export interface DiplomacyRules {
     /** Below this national support, or above this inflation, a country seeks peace. */
     exhaustedSupport?: number;
     exhaustedInflation?: number;
+    /**
+     * Capitulation (master plan, phase 2): a country with no army left that keeps at most this
+     * share of the people it had when the war began must accept the winner's terms, which may
+     * take all its land.
+     */
+    capitulationPopulationShare?: number;
   };
   nuclear: { relation: number; alliesRelation: number };
 }
@@ -167,6 +181,8 @@ export interface PeaceTerms {
   vassal: boolean;
   /** The target may not keep armies in its provinces next to the proposer. */
   demilitarize: boolean;
+  /** The target has capitulated and hands over all its land (see hasCapitulated). */
+  capitulation?: boolean;
 }
 
 export const WHITE_PEACE: PeaceTerms = {
@@ -231,7 +247,9 @@ export type DiplomacyEvent =
   | { type: 'ultimatumAnswered'; ultimatumId: number; from: string; to: string; accepted: boolean }
   | { type: 'credibilityLost'; countryId: string }
   | { type: 'request'; requestId: number }
-  | { type: 'globalSanctions'; countryId: string };
+  | { type: 'globalSanctions'; countryId: string }
+  /** A country capitulated and handed over all its land (master plan, phase 2). */
+  | { type: 'countryConquered'; countryId: string; by: string };
 
 export type DiplomacyError =
   | 'notEnoughPoints'
@@ -248,7 +266,8 @@ export type DiplomacyError =
   | 'tooEarly'
   | 'tooMany'
   | 'alreadyRunning'
-  | 'insulted';
+  | 'insulted'
+  | 'notCapitulated';
 
 /** Result of a diplomatic action: its error, or whether the other side accepted. */
 export type ActionResult = { error: DiplomacyError } | { accepted: boolean };
@@ -271,13 +290,21 @@ export function baselineRelation(
   b: string,
 ): number {
   if (a === b) return 100;
-  if (enemiesAtWar(world, a).includes(b)) return rules.relations.war;
+  // The same answers as enemiesAtWar(...).includes and rivalsOf(...).includes, without building
+  // and sorting lists: this runs for every pair of countries (performance, master plan).
+  const enemies = world.wars.some(
+    (w) =>
+      (w.sides[0].includes(a) && w.sides[1].includes(b)) ||
+      (w.sides[1].includes(a) && w.sides[0].includes(b)),
+  );
+  if (enemies) return rules.relations.war;
   let value = 0;
   for (const al of world.alliances) {
     if (!al.members.includes(a) || !al.members.includes(b)) continue;
     value = Math.max(value, rules.relations[al.type]);
   }
-  if (rivalsOf(world, a).includes(b)) value = Math.min(value, rules.relations.rival);
+  if (world.rivalries.some((r) => (r.a === a && r.b === b) || (r.a === b && r.b === a)))
+    value = Math.min(value, rules.relations.rival);
   return value;
 }
 
@@ -730,6 +757,28 @@ export function warBetween(world: World, a: string, b: string): War | undefined 
   });
 }
 
+/**
+ * The loser has capitulated to the winner (master plan, phase 2): they are at war, the loser has
+ * no soldiers left in any army and keeps at most capitulationPopulationShare of the people it had
+ * when the war began. It must then accept the winner's terms, up to giving all its land.
+ */
+export function hasCapitulated(
+  state: GameState,
+  ctx: SimContext,
+  winner: string,
+  loser: string,
+): boolean {
+  const share = diplomacyRules(ctx).peace.capitulationPopulationShare;
+  const war = warBetween(state.world, winner, loser);
+  if (share === undefined || !war) return false;
+  const country = state.world.countries.find((c) => c.id === loser);
+  if (!country || country.provinceIds.length === 0 || country.status === 'rebels') return false;
+  if (state.military.armies.some((a) => a.owner === loser && armySize(a) > 0)) return false;
+  const start = state.diplomacy.wars[war.id]?.startPopulation[loser];
+  if (!start) return false;
+  return populationOf(state, ctx, loser) <= start * share;
+}
+
 const culture = (state: GameState, p: number): string =>
   state.population?.culture[p] ?? state.world.provinceOwners[p]!;
 
@@ -857,6 +906,26 @@ export function applyPeace(
   const cost = peaceCost(state, ctx, proposer, target, terms);
   const war = warBetween(state.world, proposer, target);
   if (!cost || !war) return;
+  if (terms.capitulation && hasCapitulated(state, ctx, proposer, target)) {
+    // All the loser's land goes to the winner; the country leaves the game as conquered.
+    const score = Math.max(0, warScore(state, war.id, proposer));
+    const support = ctx.population?.support.war;
+    if (support && score >= support.peaceScore) shiftSupport(state, proposer, support.peaceWon);
+    const land = [...(state.world.countries.find((c) => c.id === target)?.provinceIds ?? [])];
+    for (const p of land) transferProvince(state, ctx, p, proposer);
+    conquerCountry(
+      state,
+      target,
+      (e) => {
+        if (e.type === 'countryConquered') emit(e);
+      },
+      proposer,
+    );
+    // Outside a turn (the player's own peace) nothing records the event: log it here.
+    logEntry(state, { category: 'territory', kind: 'conquered', a: target, b: proposer });
+    state.chronicle?.news.push({ turn: state.turn, kind: 'conquered', a: target, b: proposer });
+    return;
+  }
   // A won war raises support, a lost one lowers it (GDD section 7).
   const support = ctx.population?.support.war;
   const score = warScore(state, war.id, proposer);
@@ -949,6 +1018,8 @@ export function aiAcceptsPeace(
 ): boolean {
   const c = peaceCost(state, ctx, proposer, target, terms);
   if (c === null) return false;
+  // A country that has capitulated has no choice.
+  if (terms.capitulation) return hasCapitulated(state, ctx, proposer, target);
   // An exhausted country takes a peace that costs it nothing.
   if (warExhausted(state, ctx, target) && c.cost <= 0) return true;
   return c.cost <= c.available;
@@ -1470,8 +1541,10 @@ export function proposePeace(
   terms: PeaceTerms,
 ): ActionResult {
   if (!warBetween(state.world, proposer, target)) return { error: 'notAtWar' };
+  if (terms.capitulation && !hasCapitulated(state, ctx, proposer, target))
+    return { error: 'notCapitulated' };
   // Only provinces that can be demanded (held by the proposer, the target's people).
-  if (terms.provinces) {
+  if (terms.provinces && !terms.capitulation) {
     const legal = new Set(
       peaceProvinceOptions(state, ctx, proposer, target).map((o) => o.provinceId),
     );
@@ -1491,7 +1564,9 @@ export function proposePeace(
   }
   const war = warBetween(state.world, proposer, target)!;
   const started = state.diplomacy.wars[war.id]?.startTurn ?? -Infinity;
-  if (state.turn - started < diplomacyRules(ctx).peace.minTurns) return { error: 'tooEarly' };
+  // A capitulation does not wait for the minimum length of a war.
+  if (!terms.capitulation && state.turn - started < diplomacyRules(ctx).peace.minTurns)
+    return { error: 'tooEarly' };
   const accepted = aiAcceptsPeace(state, ctx, proposer, target, terms);
   if (accepted) applyPeace(state, ctx, proposer, target, terms);
   return { accepted };
@@ -1710,10 +1785,35 @@ export function diplomacyPhase(
     const record = d.wars[war.id];
     if (!record || war.id.startsWith('revolution-')) continue;
     const turns = state.turn - record.startTurn;
-    if (turns < rules.peace.aiPeaceMinTurns) continue;
     const a = war.sides[0][0];
     const b = war.sides[1][0];
     if (!a || !b) continue;
+    // A side leader that has capitulated hands over its land (the same rule for everyone; the
+    // player decides for themselves and gets an offer they may refuse).
+    const capitulated = hasCapitulated(state, ctx, a, b)
+      ? [a, b]
+      : hasCapitulated(state, ctx, b, a)
+        ? [b, a]
+        : null;
+    if (capitulated && capitulated[0] !== player) {
+      const [winner, loser] = capitulated as [string, string];
+      const terms: PeaceTerms = { ...WHITE_PEACE, capitulation: true };
+      if (loser !== player) {
+        applyPeace(state, ctx, winner, loser, terms, emit);
+        continue;
+      }
+      if (
+        state.turn - record.lastOffer >= rules.peace.aiOfferEvery &&
+        !d.requests.some((r) => r.type === 'peace' && r.warId === war.id)
+      ) {
+        record.lastOffer = state.turn;
+        proposePeace(state, ctx, winner, player, terms);
+        const request = d.requests.at(-1);
+        if (request) emit({ type: 'request', requestId: request.id });
+      }
+      continue;
+    }
+    if (turns < rules.peace.aiPeaceMinTurns) continue;
     const score = warScore(state, war.id, a);
     let [winner, loser] = score >= 0 ? [a, b] : [b, a];
     const decisive = Math.abs(score) >= rules.peace.aiPeaceScore;

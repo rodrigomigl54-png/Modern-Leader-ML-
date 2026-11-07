@@ -1,5 +1,6 @@
 import { t } from '../i18n';
 import { LOGO_DOT, LOGO_L, LOGO_M, LOGO_RING } from './logo';
+import { reducedMotion } from './settings';
 
 // The opening (Phase 26, "Situation Room"): a dark screen, a radar sweeping a globe, borders
 // lighting up as it passes, then the lines gather into the "ML" monogram and the game's name.
@@ -35,7 +36,7 @@ const BLIPS: [number, number][] = [
 
 /** Plays the intro over the page; resolves once it is gone. */
 export function playIntro(root: HTMLElement): Promise<void> {
-  const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+  const reduced = reducedMotion();
   const overlay = document.createElement('div');
   overlay.className = `intro${reduced ? ' intro-reduced' : ''}`;
   overlay.setAttribute('role', 'img');

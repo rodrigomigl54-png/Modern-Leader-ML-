@@ -60,13 +60,13 @@
     "successSupport": 55
   },
   "assimilation": {
-    "comment": "Cost per inhabitant of the province, times the cultural distance. Unrest lasts while the province assimilates.",
+    "comment": "Cost per inhabitant of the province, times the cultural distance. Unrest lasts while the province assimilates. turns was 26 until Dario asked for 50% faster assimilation (26 / 1.5 = 17).",
     "costPerPersonUsd": 200,
     "minCostUsd": 20000000,
     "distanceDefault": 1,
     "distanceAllied": 0.7,
     "distanceRival": 1.6,
-    "turns": 26,
+    "turns": 17,
     "unassimilatedProductionPenalty": 0.3
   }
 }

@@ -1,5 +1,6 @@
 import { t, type TranslationKey } from '../i18n';
 import type { SimContext } from '../sim/economy';
+import { LESSONS, lessonsDone, type LessonId } from './coach';
 import { button, el } from './dom';
 
 // The Academy (Dario's request): a tutorial reachable from the main menu at any time, one
@@ -217,6 +218,12 @@ const chapterTitle = (c: AcademyChapter): TranslationKey => `academy.${c}.title`
 export interface AcademyOptions {
   parent: HTMLElement;
   sim: SimContext;
+  /** Interactive lessons (master plan, phase 4), played in a practice game. */
+  lessons?: {
+    /** False while a real game runs (lessons never touch a campaign). */
+    available: () => boolean;
+    start: (id: LessonId) => void;
+  };
 }
 
 /** The Academy: chapter list, chapter pages with Previous / Next, and reading progress. */
@@ -226,7 +233,7 @@ export class Academy {
   private done = readDone();
   private vars: Record<string, string | number>;
 
-  constructor(options: AcademyOptions) {
+  constructor(private readonly options: AcademyOptions) {
     this.vars = academyVars(options.sim);
     this.backdrop.hidden = true;
     this.backdrop.addEventListener('click', (e) => {
@@ -314,6 +321,37 @@ export class Academy {
       list.append(item);
     });
     dialog.append(list);
+    // Learn by doing: short lessons in a practice game that is never saved.
+    const lessons = this.options.lessons;
+    if (lessons) {
+      const done = lessonsDone();
+      const available = lessons.available();
+      dialog.append(
+        el('h3', 'academy-lessons-title', t('lesson.listTitle')),
+        el('p', 'setup-hint', t(available ? 'lesson.listHint' : 'lesson.unavailable')),
+      );
+      const grid = el('ol', 'academy-chapters academy-lessons');
+      LESSONS.forEach((id, i) => {
+        const read = done.has(id);
+        const item = el('li');
+        const b = button(`academy-chapter${read ? ' academy-chapter-done' : ''}`, '', () =>
+          lessons.start(id),
+        );
+        b.disabled = !available;
+        b.append(
+          el('span', 'academy-chapter-num mono', '▶'),
+          el(
+            'span',
+            'academy-chapter-name',
+            `${i + 1}. ${t(`lesson.${id}.title` as TranslationKey)}`,
+          ),
+          el('span', 'academy-chapter-state', read ? '✓' : ''),
+        );
+        item.append(b);
+        grid.append(item);
+      });
+      dialog.append(grid);
+    }
     const footer = el('div', 'modal-footer');
     const actions = el('div', 'modal-actions');
     const first = ACADEMY_CHAPTERS.find((c) => !this.done.has(c)) ?? ACADEMY_CHAPTERS[0];

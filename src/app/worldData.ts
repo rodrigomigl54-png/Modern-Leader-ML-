@@ -8,6 +8,7 @@ import type { ResourcesData } from '../sim/resources';
 import type { AiProfile, AiRules } from '../sim/profiles';
 import type { WeaponsRules } from '../sim/weapons';
 import type { GoalRules } from '../sim/goals';
+import type { EventRules } from '../sim/randomEvents';
 import type { Alliance, CountryStats, Leader, Rivalry, War, World } from '../sim/world';
 
 export interface StatsFile {
@@ -71,6 +72,7 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     import('../../data/modern/ai-rules.json?url'),
     import('../../data/modern/goals.json?url'),
     import('../../data/modern/debt.json?url'),
+    import('../../data/modern/events.json?url'),
   ]);
   const [leadersUrl, diplomacyUrl, scenarioUrl, economyUrl, populationUrl] = urls;
   const [
@@ -85,6 +87,7 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     aiRulesUrl,
     goalsUrl,
     debtUrl,
+    eventsUrl,
   ] = urls.slice(5);
   const statsUrl = Object.values(optionalStats)[0];
   const [
@@ -104,6 +107,7 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     aiRules,
     goals,
     startDebt,
+    events,
     stats,
   ] = await Promise.all([
     fetchJson<LeadersFile>(leadersUrl.default),
@@ -124,6 +128,7 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     fetchJson<AiRules>(aiRulesUrl!.default),
     fetchJson<GoalRules>(goalsUrl!.default),
     fetchJson<StartDebt>(debtUrl!.default),
+    fetchJson<EventRules>(eventsUrl!.default),
     statsUrl ? fetchJson<StatsFile>(statsUrl) : Promise.resolve(null),
   ]);
 
@@ -144,6 +149,7 @@ export async function loadWorld(map: MapData): Promise<WorldBundle> {
     aiRules,
     goals,
     startDebt,
+    events,
     stats,
   });
 }
@@ -166,6 +172,8 @@ export interface WorldFiles {
   aiRules: AiRules;
   goals: GoalRules;
   startDebt: StartDebt;
+  /** Random events (master plan, phase 5); optional for older tools and tests. */
+  events?: EventRules;
   stats: StatsFile | null;
 }
 
@@ -191,6 +199,7 @@ export function assembleWorld(map: MapFacts, files: WorldFiles): WorldBundle {
     aiRules,
     goals,
     startDebt,
+    events,
     stats,
   } = files;
   const world: World = {
@@ -243,6 +252,7 @@ export function assembleWorld(map: MapFacts, files: WorldFiles): WorldBundle {
       resources,
       goals,
       startDebt,
+      ...(events ? { events } : {}),
     },
   };
 }

@@ -1,7 +1,7 @@
 import { t, type TranslationKey } from '../i18n';
 import { dateOfTurn } from '../sim/calendar';
 import type { SimContext } from '../sim/economy';
-import { goalProgress, type Goal } from '../sim/goals';
+import { goalProgress, goalReward, goalTerm, type Goal } from '../sim/goals';
 import type { GameState } from '../sim/newGame';
 import { button, el } from './dom';
 import { formatGameDate } from './format';
@@ -57,6 +57,29 @@ export class GoalsPanel {
       const fill = el('div', 'goal-fill');
       fill.style.width = `${Math.round(progress * 100)}%`;
       bar.append(fill);
+      // Term and reward (master plan, phase 6).
+      const reward = goalReward(this.sim, g);
+      const meta = el('span', 'goal-meta');
+      meta.append(
+        el(
+          'span',
+          `goal-term goal-term-${goalTerm(this.sim, g)}`,
+          t(`goals.term.${goalTerm(this.sim, g)}` as TranslationKey),
+        ),
+      );
+      if (reward)
+        meta.append(
+          el(
+            'span',
+            'goal-reward',
+            t('goals.reward', {
+              support: reward.support,
+              relation: reward.relation,
+              tech: reward.techPoints,
+              points: reward.diplomacyPoints,
+            }),
+          ),
+        );
       item.append(
         el('span', 'goal-name', this.describe(g)),
         el(
@@ -69,6 +92,7 @@ export class GoalsPanel {
             : t(`goals.${g.status}` as TranslationKey),
         ),
         bar,
+        meta,
       );
       list.append(item);
     }

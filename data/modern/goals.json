@@ -1,14 +1,71 @@
 {
   "meta": {
-    "description": "Country goals (GDD section 13): every country gets 3-5 goals chosen from these templates by its situation. Turns are weeks. Game-design defaults to be tuned in Phase 13.",
+    "description": "Country goals (GDD section 13): every country gets 3-5 goals chosen from these templates by its situation. Turns are weeks. Game-design defaults to be tuned in Phase 13. Master plan phase 6: the player also gets a short-term (buildings), a medium-term (technology) and a long-term objective (world power rank); finished player goals give a reward by term: national support, better relations with allies and friendly countries (relation at least friendRelation), technology points and diplomatic points.",
     "source": "Game design (GDD section 13)",
     "checked": "2026-10-25"
   },
-  "gdpGrowth": { "factor": 1.15, "turns": 260 },
-  "noRiots": { "turns": 260, "minSupportMargin": 20 },
-  "lowInflation": { "max": 0.05, "streak": 52, "turns": 260 },
-  "lowDebt": { "maxShare": 0.6, "turns": 260 },
-  "joinAlliance": { "turns": 260 },
-  "stayInAlliance": { "turns": 260 },
-  "neutrality": { "maxLoyalty": 35, "turns": 260 }
+  "gdpGrowth": {
+    "factor": 1.15,
+    "turns": 260
+  },
+  "noRiots": {
+    "turns": 260,
+    "minSupportMargin": 20
+  },
+  "lowInflation": {
+    "max": 0.05,
+    "streak": 52,
+    "turns": 260
+  },
+  "lowDebt": {
+    "maxShare": 0.6,
+    "turns": 260
+  },
+  "joinAlliance": {
+    "turns": 260
+  },
+  "stayInAlliance": {
+    "turns": 260
+  },
+  "neutrality": {
+    "maxLoyalty": 35,
+    "turns": 260
+  },
+  "buildings": {
+    "count": 4,
+    "turns": 26
+  },
+  "techLevels": {
+    "levels": 1,
+    "turns": 104
+  },
+  "rank": {
+    "climb": 10,
+    "turns": 260
+  },
+  "terms": {
+    "shortMax": 52,
+    "mediumMax": 156
+  },
+  "rewards": {
+    "friendRelation": 25,
+    "short": {
+      "support": 2,
+      "relation": 3,
+      "techPoints": 1,
+      "diplomacyPoints": 1
+    },
+    "medium": {
+      "support": 4,
+      "relation": 6,
+      "techPoints": 2,
+      "diplomacyPoints": 2
+    },
+    "long": {
+      "support": 6,
+      "relation": 10,
+      "techPoints": 3,
+      "diplomacyPoints": 3
+    }
+  }
 }

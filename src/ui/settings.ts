@@ -4,6 +4,34 @@ import { getLanguage, isLanguage, LANGUAGES, onLanguageChange, setLanguage, t } 
 const STORAGE_KEY = 'ml.language';
 const FPS_KEY = 'ml.showFps';
 const DISPUTED_KEY = 'ml.disputedMode';
+const MOTION_KEY = 'ml.reduceMotion';
+const GRAPHICS_KEY = 'ml.graphics';
+
+/** Graphics quality (performance, master plan): it changes only how sharp the map is drawn. */
+export const GRAPHICS = ['low', 'medium', 'high'] as const;
+export type Graphics = (typeof GRAPHICS)[number];
+const MAX_RESOLUTION: Record<Graphics, number> = { low: 1, medium: 1.5, high: 3 };
+
+/** The highest pixel density the map is drawn at for the saved quality (high by default). */
+export function graphicsResolution(): number {
+  const saved = readString(GRAPHICS_KEY) as Graphics | null;
+  return MAX_RESOLUTION[saved && GRAPHICS.includes(saved) ? saved : 'high'];
+}
+
+/** True when the player asked for fewer animations (or the system asks for reduced motion). */
+export function reducedMotion(): boolean {
+  return (
+    readFlag(MOTION_KEY) ||
+    (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false)
+  );
+}
+
+/** Applies the reduced-motion choice to the page (CSS) and returns it. */
+export function applyReducedMotion(): boolean {
+  const on = reducedMotion();
+  document.documentElement.classList.toggle('reduce-motion', on);
+  return on;
+}
 
 /** Default disputed-territories display for new games (GDD sections 4 and 13). */
 export function defaultDisputedMode(): DisputedMode {
@@ -30,6 +58,18 @@ function writeFlag(key: string, value: boolean): void {
   } catch {
     // Ignore: the choice still applies for this visit.
   }
+}
+
+/**
+ * Other languages (master plan, phase 3): the game is in English (and Serbian); any other language
+ * comes from the browser's own Translate, which is free, needs no account and sends nothing from
+ * the game itself.
+ */
+function translateHint(): HTMLElement {
+  const hint = document.createElement('span');
+  hint.className = 'settings-hint';
+  hint.textContent = t('settings.translateHint');
+  return hint;
 }
 
 /** Restores the language the player chose last time, if the browser allows storage. */
@@ -87,6 +127,10 @@ export function applyAppearance(theme: Theme, scale: number): void {
 export interface SettingsOptions {
   onShowFps: (show: boolean) => void;
   onTheme: (theme: Theme) => void;
+  /** Fewer animations turned on or off. */
+  onReduceMotion: (on: boolean) => void;
+  /** Graphics quality changed: the new highest pixel density. */
+  onGraphics: (maxResolution: number) => void;
   sound: {
     musicVolume: number;
     effectsVolume: number;
@@ -166,6 +210,13 @@ export function mountSettings(root: HTMLElement, options: SettingsOptions): Sett
       writeFlag(FPS_KEY, fps.checked);
       options.onShowFps(fps.checked);
     });
+    const motion = document.createElement('input');
+    motion.type = 'checkbox';
+    motion.checked = readFlag(MOTION_KEY);
+    motion.addEventListener('change', () => {
+      writeFlag(MOTION_KEY, motion.checked);
+      options.onReduceMotion(applyReducedMotion());
+    });
     const feedback = document.createElement('a');
     feedback.className = 'btn btn-secondary settings-feedback';
     feedback.href = FEEDBACK_URL;
@@ -232,6 +283,20 @@ export function mountSettings(root: HTMLElement, options: SettingsOptions): Sett
           (m) => writeString(DISPUTED_KEY, m),
         ),
       ),
+      row(t('settings.otherLanguages'), translateHint()),
+      row(
+        t('settings.graphics'),
+        select(
+          GRAPHICS,
+          (readString(GRAPHICS_KEY) as Graphics | null) ?? 'high',
+          (g) => t(`settings.graphics.${g}`),
+          (g) => {
+            writeString(GRAPHICS_KEY, g);
+            options.onGraphics(graphicsResolution());
+          },
+        ),
+      ),
+      row(t('settings.reduceMotion'), motion),
       row(t('settings.showFps'), fps),
       feedback,
       close,

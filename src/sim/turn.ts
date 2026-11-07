@@ -22,6 +22,8 @@ import { buildReport, markReport, recordNews, type ReportData } from './chronicl
 import { goalsPhase, type GoalEvent } from './goals';
 import { victoryPhase } from './victory';
 import { historyPhase } from './history';
+import { recordLog } from './campaignLog';
+import { randomEventsPhase, type RandomEventEvent } from './randomEvents';
 
 export type TurnPhaseId =
   | 'aiOrders'
@@ -58,6 +60,7 @@ export type TurnEvent =
   | ResourcesEvent
   | AiPolicyEvent
   | GoalEvent
+  | RandomEventEvent
   /** The 10-turn general report (GDD section 12). */
   | { type: 'report'; turn: number; report: ReportData }
   /** A new year began. */
@@ -118,9 +121,11 @@ const PHASES: Record<TurnPhaseId, Phase> = {
   events: (ctx) => {
     const { state, sim } = ctx;
     const push = (e: TurnEvent): void => void ctx.events.push(e);
+    if (sim.events) randomEventsPhase(state, sim, push);
     if (sim.goals) goalsPhase(state, sim, push);
     victoryPhase(state);
     historyPhase(state, sim);
+    recordLog(state, ctx.events);
     recordNews(state, ctx.events);
     if (state.turn % REPORT_INTERVAL === 0) {
       ctx.events.push({ type: 'report', turn: state.turn, report: buildReport(state, sim) });

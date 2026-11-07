@@ -108,7 +108,7 @@ export class GameHud {
       el('span', 'hud-week mono', t('turn.week', { turn: game.turn + 1 })),
     );
     const e = game.economy.countries[id]!;
-    const stats = button('hud-stats', '', this.actions.onEconomy);
+    const stats = button('hud-stats hud-finance', '', this.actions.onEconomy);
     stats.setAttribute('aria-label', t('econ.title'));
     const stat = (label: string, value: string, cls = ''): HTMLElement => {
       const s = el('span', `hud-stat ${cls}`);
@@ -135,7 +135,7 @@ export class GameHud {
       ),
     );
     const support = this.actions.supportOf(game);
-    const people = button('hud-stats hud-people', '', this.actions.onInterior);
+    const people = button('hud-stats hud-people hud-support', '', this.actions.onInterior);
     people.setAttribute('aria-label', t('interior.title'));
     people.append(
       stat(
@@ -144,10 +144,10 @@ export class GameHud {
         support < this.actions.riotThreshold ? 'danger' : '',
       ),
     );
-    const army = button('hud-stats hud-people', '', this.actions.onDefence);
+    const army = button('hud-stats hud-people hud-army', '', this.actions.onDefence);
     army.setAttribute('aria-label', t('defence.title'));
     army.append(stat(t('defence.armyShort'), this.actions.armyOf(game)));
-    const diplomacy = button('hud-stats hud-people', '', this.actions.onForeign);
+    const diplomacy = button('hud-stats hud-people hud-dipl', '', this.actions.onForeign);
     diplomacy.setAttribute('aria-label', t('foreign.title'));
     diplomacy.append(stat(t('foreign.pointsShort'), this.actions.pointsOf(game)));
     // World rankings: a small podium.
