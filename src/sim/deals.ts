@@ -224,7 +224,18 @@ export function proposeDeal(
   if (have + 1e-9 < cost) return { error: 'notEnoughPoints' };
   state.diplomacy.points[from] = have - cost;
   const accepted = to !== state.player.countryId && dealScore(state, ctx, from, to, deal) >= 0;
-  if (!accepted) return { accepted };
+  if (accepted) executeDeal(state, ctx, from, to, deal);
+  return { accepted };
+}
+
+/** Carries out an accepted deal (from = the proposer). */
+export function executeDeal(
+  state: GameState,
+  ctx: SimContext,
+  from: string,
+  to: string,
+  deal: Deal,
+): void {
   const r = dealRules(ctx);
   apply(state, ctx, from, to, deal.give);
   apply(state, ctx, to, from, deal.take);
@@ -245,5 +256,4 @@ export function proposeDeal(
     -100,
     Math.min(100, relation(state, ctx, from, to) + r.acceptedRelation),
   );
-  return { accepted };
 }

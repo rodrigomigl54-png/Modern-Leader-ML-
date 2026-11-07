@@ -174,5 +174,24 @@
     "highAt": 10,
     "nonAggressionTurns": 104,
     "acceptedRelation": 5
+  },
+  "offers": {
+    "comment": "AI offers to the player (Dario, idea 5). Each week some country makes an offer with chancePerWeek, at most one every minGapWeeks; the same country repeats the same kind only after repeatGapWeeks. Kinds: a neighbor with relation inside nonAggressionRelation offers a non-aggression pact; a country at war (relation at least accessMinRelation) whose enemy borders the player pays for military access; a poorer friend (aidMinRelation) asks for aid (aidGdpShare of the player's GDP, at most aidTreasuryShare of the treasury); a friend (coalitionMinRelation) pays for sanctions on its rival when the player dislikes it too. Payments are payGdpShare of the payer's GDP, at most payTreasuryShare of its treasury. Refusing or letting it expire after answerTurns costs refusedRelation.",
+    "chancePerWeek": 0.12,
+    "minGapWeeks": 6,
+    "repeatGapWeeks": 52,
+    "answerTurns": 4,
+    "refusedRelation": -3,
+    "payGdpShare": 0.002,
+    "payTreasuryShare": 0.3,
+    "aidGdpShare": 0.001,
+    "aidTreasuryShare": 0.2,
+    "nonAggressionRelation": [
+      -40,
+      30
+    ],
+    "accessMinRelation": 0,
+    "aidMinRelation": 35,
+    "coalitionMinRelation": 30
   }
 }

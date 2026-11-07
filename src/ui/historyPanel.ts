@@ -14,6 +14,8 @@ export interface HistoryPanelOptions {
   goalText: (game: GameState, kind: string) => string;
   /** Text of an entry added by a later system (events, objectives), or null. */
   extraText?: (entry: LogEntry) => string | null;
+  /** Plays the border timelapse (Dario, idea 8). */
+  onReplay?: () => void;
 }
 
 /** The campaign's history (master plan, phase 7): newest first, filtered by category. */
@@ -114,6 +116,15 @@ export class HistoryPanel {
       list.append(item);
     }
     if (!shown.length) list.append(el('li', 'history-entry muted', t('log.empty')));
-    this.root.replaceChildren(header, el('h2', 'dossier-title', t('log.title')), chips, list);
+    const replay = this.options.onReplay
+      ? button('btn btn-small history-replay', t('replay.watch'), () => this.options.onReplay?.())
+      : null;
+    this.root.replaceChildren(
+      header,
+      el('h2', 'dossier-title', t('log.title')),
+      ...(replay ? [replay] : []),
+      chips,
+      list,
+    );
   }
 }

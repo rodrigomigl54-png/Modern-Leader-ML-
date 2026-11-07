@@ -1,4 +1,5 @@
-import type { DealRules } from './deals';
+import { dealError, executeDeal, type Deal, type DealRules } from './deals';
+import type { OfferKind, OfferRules } from './offers';
 import { logEntry } from './campaignLog';
 // Diplomacy (GDD sections 5, 8 and 10): relations, diplomatic points, credibility, alliances and
 // pacts, sanctions, ultimatums, joining wars, foreign bases, aid, weapons trade, vassals and peace
@@ -51,6 +52,8 @@ export interface DiplomacyRules {
   access?: { askMinRelation: number; revokeBelowRelation: number; refusedRelation: number };
   /** Weights of trade requests (src/sim/deals.ts). */
   deals?: DealRules;
+  /** AI offers to the player (Dario, idea 5). */
+  offers?: OfferRules;
   /** Answers the player owes to AI proposals (pacts, access). */
   proposals?: {
     answerTurns: number;
@@ -200,6 +203,8 @@ export type PlayerRequest =
   | { id: number; type: 'ultimatum'; ultimatumId: number; until: number }
   | { id: number; type: 'pact'; from: string; until: number }
   | { id: number; type: 'access'; from: string; until: number }
+  /** An AI country's own deal for the player (Dario, idea 5): give = what it gives. */
+  | { id: number; type: 'deal'; from: string; kind: OfferKind; deal: Deal; until: number }
   | {
       id: number;
       type: 'investment';
@@ -1612,6 +1617,13 @@ export function answerRequest(
         });
       changeRelation(state, ctx, player, request.from, p?.acceptedRelation ?? 0);
     } else if (!accept) changeRelation(state, ctx, player, request.from, p?.refusedRelation ?? 0);
+  } else if (request.type === 'deal') {
+    // Things may have changed since the offer (money spent, a war): check it again.
+    const valid = !dealError(state, request.from, player, request.deal);
+    if (accept && valid) executeDeal(state, ctx, request.from, player, request.deal);
+    else if (!accept)
+      changeRelation(state, ctx, player, request.from, rules.offers?.refusedRelation ?? 0);
+    return { accepted: accept && valid };
   } else if (request.type === 'peace') {
     if (accept && warBetween(state.world, request.from, player))
       applyPeace(state, ctx, request.from, player, request.terms, emit);

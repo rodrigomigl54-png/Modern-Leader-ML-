@@ -24,6 +24,7 @@ import { victoryPhase } from './victory';
 import { historyPhase } from './history';
 import { recordLog } from './campaignLog';
 import { randomEventsPhase, type RandomEventEvent } from './randomEvents';
+import { offersPhase } from './offers';
 
 export type TurnPhaseId =
   | 'aiOrders'
@@ -122,6 +123,7 @@ const PHASES: Record<TurnPhaseId, Phase> = {
     const { state, sim } = ctx;
     const push = (e: TurnEvent): void => void ctx.events.push(e);
     if (sim.events) randomEventsPhase(state, sim, push);
+    if (sim.diplomacy) offersPhase(state, sim, push);
     if (sim.goals) goalsPhase(state, sim, push);
     victoryPhase(state);
     historyPhase(state, sim);

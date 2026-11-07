@@ -63,6 +63,9 @@ import { GameMenu } from './ui/gameMenu';
 import { GoalsPanel } from './ui/goalsPanel';
 import { HistoryPanel } from './ui/historyPanel';
 import { eventPanel } from './ui/eventPanel';
+import { showWarCard } from './ui/warCard';
+import { playReplay } from './ui/replay';
+import { borderReplay } from './sim/borderLog';
 import { RankingsPanel } from './ui/rankingsPanel';
 import { GREAT_POWERS, rankings } from './sim/rankings';
 import { TechPanel } from './ui/techPanel';
@@ -203,6 +206,14 @@ async function start(): Promise<void> {
     const nameOf = (id: string): string =>
       countryName(game?.world ?? world, id, game?.settings.disputedMode ?? defaultDisputedMode());
     const cityName = (cityId: number): string => map.data.cities[cityId]?.name ?? String(cityId);
+    /** War or peace card with both flags (Dario, idea 3). */
+    const warCard = (kind: 'war' | 'peace', a: string, b: string): void => {
+      const mode = game?.settings.disputedMode ?? defaultDisputedMode();
+      const w = game?.world ?? world;
+      const sideOf = (id: string) => ({ name: nameOf(id), flag: countryFlag(w, id, mode) });
+      showWarCard(uiRoot, kind, sideOf(a), sideOf(b));
+      sound.play(kind === 'war' ? 'impact' : 'click');
+    };
     const provinceName = (id: number): string => map.data.provinces[id]?.name ?? String(id);
 
     /** "Novi Sad, Niš, Subotica +2" */
@@ -232,6 +243,7 @@ async function start(): Promise<void> {
       const before = new Set(enemiesAtWar(game.world, player));
       if (!issue({ type: 'declareWar', countryId: player, targetId: countryId })) return;
       toasts.show(t('war.declared', { country: nameOf(countryId) }), 'error');
+      warCard('war', player, countryId);
       // Allies of the target that answered its call.
       const joined = enemiesAtWar(game.world, player).filter(
         (e) => e !== countryId && !before.has(e),
@@ -299,45 +311,91 @@ async function start(): Promise<void> {
     };
 
     /** Army counters on the map, colored by their relation to the player. */
+    /** Other countries' armies smaller than this are not drawn (Dario: a cleaner map). */
+    const OTHERS_MIN_ARMY = 20000;
     const showArmies = (): void => {
       if (!game) return map.setArmies([]);
       const player = game.player.countryId;
       const enemies = new Set(enemiesAtWar(game.world, player));
       const allies = new Set(alliesOf(game.world, player));
-      const markers: ArmyMarker[] = game.military.armies.map((a) => ({
-        id: a.id,
-        provinceId: a.provinceId,
-        size: armySize(a),
-        relation:
-          a.owner === player
-            ? 'own'
-            : enemies.has(a.owner)
-              ? 'enemy'
-              : allies.has(a.owner)
-                ? 'ally'
-                : 'other',
-        selected: armySelection.has(a.id),
-        path: a.path,
-        atSea: a.arriveTurn !== undefined && a.arriveTurn > game!.turn,
-      }));
+      // Countries at war show their flag on their counters (Dario, after AoH2).
+      const atWar = new Set(game.world.wars.flatMap((w) => [...w.sides[0], ...w.sides[1]]));
+      const flagOf = (id: string): string | null =>
+        atWar.has(id) ? countryFlag(game!.world, id, game!.settings.disputedMode) : null;
+      const relationOf = (owner: string): ArmyMarker['relation'] =>
+        owner === player
+          ? 'own'
+          : enemies.has(owner)
+            ? 'enemy'
+            : allies.has(owner)
+              ? 'ally'
+              : 'other';
+      const markers: ArmyMarker[] = [];
+      // Other countries' armies (not ours, allies' or enemies'): only the big ones, one counter
+      // per country and province (Dario: the map was too crowded).
+      const others = new Map<string, ArmyMarker>();
+      for (const a of game.military.armies) {
+        const relation = relationOf(a.owner);
+        const marker: ArmyMarker = {
+          id: a.id,
+          provinceId: a.provinceId,
+          size: armySize(a),
+          relation,
+          selected: armySelection.has(a.id),
+          path: a.path,
+          atSea: a.arriveTurn !== undefined && a.arriveTurn > game.turn,
+          special: a.special,
+          flag: flagOf(a.owner),
+        };
+        if (relation !== 'other') {
+          markers.push(marker);
+          continue;
+        }
+        const key = `${a.owner}:${a.provinceId}`;
+        const merged = others.get(key);
+        if (merged) {
+          merged.size += marker.size;
+          merged.special = (merged.special ?? 0) + a.special;
+        } else others.set(key, { ...marker, path: [] });
+      }
+      for (const m of others.values()) if (m.size >= OTHERS_MIN_ARMY) markers.push(m);
       map.setArmies(markers);
       showBuildings();
     };
 
-    /** Building icons on the map: only in the cities that have the buildings (with levels). */
+    /**
+     * Building icons on the map (Dario: less crowded): one icon per kind in each of the player's
+     * provinces, at the province's main city, the kinds with most buildings first. Capitals get
+     * a star.
+     */
     const showBuildings = (): void => {
-      if (!game) return map.setBuildings([]);
-      const byCity = new Map<number, Map<string, number>>();
+      if (!game) {
+        map.setCapitals([]);
+        return map.setBuildings([]);
+      }
+      const player = game.player.countryId;
+      const owners = game.world.provinceOwners;
+      const byProvince = new Map<number, Map<string, number>>();
       for (const b of game.economy.buildings) {
-        const kinds = byCity.get(b.cityId) ?? new Map<string, number>();
+        const p = sim.cityProvince[b.cityId];
+        if (p === undefined || owners[p] !== player) continue;
+        const kinds = byProvince.get(p) ?? new Map<string, number>();
         kinds.set(b.category, (kinds.get(b.category) ?? 0) + 1);
-        byCity.set(b.cityId, kinds);
+        byProvince.set(p, kinds);
       }
       map.setBuildings(
-        [...byCity].map(([cityId, kinds]) => ({
-          cityId,
-          kinds: [...kinds].map(([category, level]) => ({ category, level })),
+        [...byProvince].map(([p, kinds]) => ({
+          cityId: provinceSeat(sim, p),
+          kinds: [...kinds]
+            .sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1))
+            .map(([category, level]) => ({ category, level })),
         })),
+      );
+      map.setCapitals(
+        game.world.countries
+          .filter((c) => c.provinceIds.length > 0 && c.status !== 'uninhabited')
+          .map((c) => ({ cityId: provinceSeat(sim, c.capitalProvinceId), mine: c.id === player }))
+          .filter((c) => c.cityId >= 0),
       );
     };
 
@@ -615,6 +673,9 @@ async function start(): Promise<void> {
       game = result.state;
       showState();
       if (command.type.startsWith('launch')) sound.play('launch');
+      // The player's own peace treaty, accepted at once.
+      if (command.type === 'proposePeace' && result.accepted)
+        warCard('peace', command.countryId, command.targetId);
       return { accepted: result.accepted };
     };
     const issue = (command: Command): boolean => issueResult(command) !== null;
@@ -656,6 +717,12 @@ async function start(): Promise<void> {
         });
       if (r.type === 'pact') return t('foreign.pactRequest', { country: nameOf(r.from) });
       if (r.type === 'access') return t('foreign.accessRequest', { country: nameOf(r.from) });
+      if (r.type === 'deal')
+        return t(`offer.${r.kind}`, {
+          country: nameOf(r.from),
+          amount: formatUsd(r.deal.give.money ?? r.deal.take.money ?? 0),
+          rival: nameOf(r.deal.take.sanctionsOn ?? ''),
+        });
       const u = state.diplomacy.ultimatums.find((x) => x.id === r.ultimatumId);
       return u
         ? t('foreign.ultimatumRequest', {
@@ -800,6 +867,44 @@ async function start(): Promise<void> {
       if (game) issue({ type: 'answerEvent', countryId: game.player.countryId, option });
     };
 
+    /** The border timelapse (Dario, idea 8): the map replays the game's border changes. */
+    const startReplay = async (): Promise<void> => {
+      if (!game) return;
+      const frames = borderReplay(game, 90);
+      if (!frames.length) {
+        toasts.show(t('replay.none'));
+        return;
+      }
+      historyPanel.close();
+      const base = game.world;
+      const mode = game.settings.disputedMode;
+      map.clearSelection();
+      map.setArmies([]);
+      map.setBuildings([]);
+      map.setWar(null);
+      await playReplay(uiRoot, {
+        frames,
+        dateOf: (turn) => formatGameDate(dateOfTurn(base.startDate, turn)),
+        show: (owners) => {
+          const held = new Map<string, number[]>();
+          owners.forEach((o, p) => {
+            const list = held.get(o);
+            if (list) list.push(p);
+            else held.set(o, [p]);
+          });
+          const countries = base.countries.map((c) => ({
+            ...c,
+            provinceIds: held.get(c.id) ?? [],
+          }));
+          map.setPolitics(politicsFor({ ...base, provinceOwners: owners, countries }, mode));
+        },
+      });
+      // Back to the present.
+      shownOwners = '';
+      showState();
+      showBuildings();
+    };
+
     /** The end of the game: a defeat (conquered, revolution) or the victory over the whole world. */
     const showGameOver = async (): Promise<void> => {
       if (!game?.gameOver) return;
@@ -819,6 +924,9 @@ async function start(): Promise<void> {
         text: t(`gameOver.${reason}`, vars),
         details: t('gameOver.details', vars),
         buttonLabel: t('game.mainMenu'),
+        ...(game.borderLog?.some((c) => c[0] > 0)
+          ? { extra: { label: t('replay.watch'), run: startReplay } }
+          : {}),
       });
       leaveGame();
     };
@@ -939,6 +1047,7 @@ async function start(): Promise<void> {
         if (e.type === 'warDeclared') {
           if (e.target === player)
             brief('minister.foreign', t('minister.warDeclared', { country: nameOf(e.attacker) }));
+          if (e.target === player) warCard('war', e.attacker, player);
           else if (playerAllies.has(e.target))
             toasts.show(
               t('minister.allyAttacked', { country: nameOf(e.attacker), ally: nameOf(e.target) }),
@@ -957,8 +1066,10 @@ async function start(): Promise<void> {
           if (e.enemy === player) joinedAgainst.push(e.countryId);
           else if (e.ally === player) joinedFor.push(e.countryId);
         }
-        if (e.type === 'peace' && (e.a === player || e.b === player))
+        if (e.type === 'peace' && (e.a === player || e.b === player)) {
           toasts.show(t('dip.peaceMade', { country: nameOf(e.a === player ? e.b : e.a) }));
+          warCard('peace', player, e.a === player ? e.b : e.a);
+        }
         if (e.type === 'ultimatumAnswered' && e.from === player)
           toasts.show(
             t(e.accepted ? 'dip.ultimatumAccepted' : 'dip.ultimatumRefused', {
@@ -1473,6 +1584,7 @@ async function start(): Promise<void> {
     // The campaign's history (master plan, phase 7).
     const historyPanel = new HistoryPanel({
       parent: uiRoot,
+      onReplay: () => void startReplay(),
       countryName: nameOf,
       provinceName,
       cityName,

@@ -1,5 +1,6 @@
 // Population (GDD section 7): public support per province, riots, revolution, rebels, secession and
 // assimilation. All numbers come from data/modern/population.json (PopulationRules).
+import { recordBorderChange } from './borderLog';
 import { growthRate, type SimContext } from './economy';
 import { sanctionWeight } from './diplomacy';
 import { foodShortageSupport } from './resources';
@@ -307,6 +308,7 @@ export function transferProvince(
   from.provinceIds = from.provinceIds.filter((p) => p !== provinceId);
   to.provinceIds = [...to.provinceIds, provinceId].sort((a, b) => a - b);
   state.world.provinceOwners[provinceId] = newOwner;
+  recordBorderChange(state, provinceId, oldOwner);
   if (from.capitalProvinceId === provinceId && from.provinceIds.length > 0) {
     from.capitalProvinceId = mostPopulous(ctx, from.provinceIds);
   }

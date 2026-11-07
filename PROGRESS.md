@@ -541,9 +541,19 @@ Dario: "follow the prompt and start working". Where he did not answer, the propo
 - Other waiting times reviewed and left as they are (to be decided by Dario): ultimatum deadline 3 weeks, improve relations 10 weeks, secession 52 weeks, calm after a crushed revolution 26 weeks, nuclear program 260 weeks, research (depends on spending).
 - Test: assimilation finishes after exactly 17 weeks, not before. Lint, format, 209 tests, build.
 
+## Dario's ideas 3, 5, 8, a cleaner map and phones
+
+- **Cleaner map** (`buildingLayer.ts`, `armyLayer.ts`): one small building icon per kind in each of the player's provinces (at the main city, most buildings first, dots for extra buildings) instead of icons at every city; icons 28% smaller. Capital stars for every country (player's in amber). Army counters: helmet for soldiers, beret with a star for special forces, the country's flag while it is at war. Armies of countries that are neither allies nor enemies are merged per province and shown only from 20,000 soldiers.
+- **Idea 3 — war and peace card** (`src/ui/warCard.ts`): both flags and a WAR / PEACE stamp for the player's wars and peace treaties; goes away by itself after 2.6 s or at a tap.
+- **Idea 5 — AI offers** (`src/sim/offers.ts`, `diplomacy-rules.json` "offers"): non-aggression pact from a wary neighbor, money for military access from a country at war, an aid request from a poorer friend, money for joining sanctions against a common rival. Built from the trade-deal parts (`executeDeal`, checked again when accepted), own random stream, corner notifications. Refusing costs 3 relation.
+- **Idea 8 — border timelapse** (`src/sim/borderLog.ts`, `src/ui/replay.ts`): every owner change is logged as [turn, province, previous owner] (at most 20,000 entries); the replay rebuilds past maps from the present. Opens from History and from the victory/defeat screen.
+- **Phones**: the UI is drawn at 80% on touch screens with a landscape height up to 500 px (times the UI scale setting); panels use the full height under zoom (`--full-h`, which also fixes short panels with a small UI scale); the game menu has two columns. PC unchanged.
+- Tests: offers (each kind, refusal, an offer that became impossible, one at a time, deterministic), border log and replay. Lint, format, 234 tests, build; Chromium checks on Pixel 7 landscape.
+
 ## Next
 
-- Dario: merge the PR and test Phase 26 (trade requests, technology, AI speed per level, intro); changes come from that testing.
+- Dario: merge the PR and test the new map icons, AI offers, the timelapse and the phone layout on a real phone; changes come from that testing.
+- Login (Google / Apple) and leaderboards: only after testing shows the game holds players (see the chat report).
 - See "What is left" below.
 
 ## What is left (to finish the whole game)
@@ -558,7 +568,6 @@ Dario: "follow the prompt and start working". Where he did not answer, the propo
 
 - The interface size uses CSS `zoom` (supported by current browsers; very old ones ignore it).
 
-- The AI does not send trade requests to the player yet (only answers them).
 - Credits with data attributions (World Bank CC BY 4.0, IMF, SIPRI) are still missing; see `docs/LICENSES.md`.
 - Random events and objective rewards are first values: to tune by play.
 - History charts start empty in older saves (recorded from the first turn played after the update).
