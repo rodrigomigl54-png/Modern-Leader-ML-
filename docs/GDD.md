@@ -287,6 +287,17 @@ Urgent notifications arrive immediately, and a general report arrives every 10 t
 
 **AI tempo by level (Phase 26):** the aggressiveness level also multiplies how often the AI sanctions, sends ultimatums, declares and joins wars (peaceful ×1, realistic ×2, aggressive ×3.5, chaos ×5) and how large a power edge it needs before attacking (×1.2, ×1, ×0.75, ×0.55).
 
+**Master plan additions (Dario's approval, November 2026):**
+
+- **Capitulation:** a country with no army left that keeps at most half the people it had when the war began has capitulated; the winner may take all its land (same rule for the AI; the player may refuse an AI's demand).
+- **Random events:** about one event per country in 11 weeks (12 kinds, 2 answers each, effects shown before choosing), data in `events.json`; the AI answers by weights.
+- **National objectives:** short-, medium- and long-term goals; the player's objectives (buildings, technology, power rank) and rewards (support, relations with friends, technology and diplomatic points).
+- **Campaign history:** a filterable log of the important events of the game.
+- **Notices in three tiers:** one weekly briefing for what needs attention, toasts for the rest, the History for small things; no chains of dialogs.
+- **Interactive lessons:** the Academy also teaches through 10 lessons in a practice game that is never saved.
+- **Languages:** English and Serbian; other languages through the browser's Translate.
+- **Settings:** fewer animations, graphics quality.
+
 ## 13. UI and UX
 
 The interface must work equally on a phone (touch, small screen) and on a PC (mouse, large screen).
