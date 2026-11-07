@@ -3955,3 +3955,11 @@ textarea {
     outline-color: rgba(242, 169, 59, 0.35);
   }
 }
+
+/* Settings: the hint for other languages (browser Translate). */
+.settings-hint {
+  max-width: 260px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}

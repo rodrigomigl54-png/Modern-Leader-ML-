@@ -85,6 +85,7 @@ import { SelectionBar } from './ui/selectionBar';
 import {
   applyAppearance,
   applyReducedMotion,
+  graphicsResolution,
   defaultDisputedMode,
   FEEDBACK_URL,
   mountSettings,
@@ -174,6 +175,7 @@ async function start(): Promise<void> {
       onSelect: (id) => onMapTap(id),
       onShiftSelect: (id) => onShiftSelect(id),
       onBoxSelect: (ids) => onBoxSelect(ids),
+      maxResolution: graphicsResolution(),
     });
     map.setReducedMotion(applyReducedMotion());
     const [bundle, store] = await Promise.all([loadWorld(map.data), openSaveStore()]);
@@ -1556,6 +1558,7 @@ async function start(): Promise<void> {
       onShowFps: (show) => fps.setVisible(show),
       onTheme: (theme) => map.setTheme(theme),
       onReduceMotion: (on) => map.setReducedMotion(on),
+      onGraphics: (max) => map.setMaxResolution(max),
       sound: {
         get musicVolume() {
           return sound.musicVolume;

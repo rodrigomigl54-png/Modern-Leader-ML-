@@ -58,6 +58,8 @@ export interface MapView {
   refreshLabels(): void;
   /** Fewer animations: armies jump to their place instead of marching. */
   setReducedMotion(on: boolean): void;
+  /** Graphics quality: the highest pixel density the map is drawn at (1 = low). */
+  setMaxResolution(max: number): void;
   /** Highlights one province (or none with -1). */
   highlightProvince(provinceId: number): void;
   /** Clears the province highlight. */
@@ -108,6 +110,8 @@ export interface MapView {
 
 export interface MapViewOptions {
   onProgress: (fraction: number) => void;
+  /** Graphics quality: the highest pixel density (default 3, the screen's own up to 3). */
+  maxResolution?: number;
   /** Province id, or null when the selection was cleared (tap on water). */
   onSelect: (provinceId: number | null) => void;
   /** Shift-click on a province (PC multi-select). */
@@ -120,7 +124,8 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
   const data = await loadMapData((f) => options.onProgress(f * 0.5));
   const { map, provinces, countries } = data;
 
-  const deviceRatio = (): number => Math.min(window.devicePixelRatio || 1, 3);
+  let maxResolution = options.maxResolution ?? 3;
+  const deviceRatio = (): number => Math.min(window.devicePixelRatio || 1, 3, maxResolution);
   const app = new Application();
   await app.init({
     width: window.innerWidth,
@@ -409,6 +414,10 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
     setReducedMotion: (on) => {
       reducedMotion = on;
       requestRender();
+    },
+    setMaxResolution: (max) => {
+      maxResolution = max;
+      resize();
     },
   };
 

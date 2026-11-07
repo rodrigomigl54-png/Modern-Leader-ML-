@@ -1063,5 +1063,11 @@
   "lesson.objectives.title": "Ciljevi i istorija",
   "lesson.objectives.1": "Dodirni Meni u gornjoj traci.",
   "lesson.objectives.2": "Otvori Ciljeve: svaki ima rok, napredak i nagradu.",
-  "lesson.objectives.3": "Ponovo otvori Meni, pa Istorija: zapis tvoje kampanje."
+  "lesson.objectives.3": "Ponovo otvori Meni, pa Istorija: zapis tvoje kampanje.",
+  "settings.otherLanguages": "Drugi jezici",
+  "settings.translateHint": "Koristi prevodilac pregledača: Chrome ili Edge — desni klik (na telefonu meni ⋮) → Prevedi; Safari — aA → Prevedi. Nazivi na mapi ostaju na engleskom.",
+  "settings.graphics": "Kvalitet grafike",
+  "settings.graphics.low": "Nizak (najbrže)",
+  "settings.graphics.medium": "Srednji",
+  "settings.graphics.high": "Visok"
 }

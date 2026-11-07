@@ -290,13 +290,21 @@ export function baselineRelation(
   b: string,
 ): number {
   if (a === b) return 100;
-  if (enemiesAtWar(world, a).includes(b)) return rules.relations.war;
+  // The same answers as enemiesAtWar(...).includes and rivalsOf(...).includes, without building
+  // and sorting lists: this runs for every pair of countries (performance, master plan).
+  const enemies = world.wars.some(
+    (w) =>
+      (w.sides[0].includes(a) && w.sides[1].includes(b)) ||
+      (w.sides[1].includes(a) && w.sides[0].includes(b)),
+  );
+  if (enemies) return rules.relations.war;
   let value = 0;
   for (const al of world.alliances) {
     if (!al.members.includes(a) || !al.members.includes(b)) continue;
     value = Math.max(value, rules.relations[al.type]);
   }
-  if (rivalsOf(world, a).includes(b)) value = Math.min(value, rules.relations.rival);
+  if (world.rivalries.some((r) => (r.a === a && r.b === b) || (r.a === b && r.b === a)))
+    value = Math.min(value, rules.relations.rival);
   return value;
 }
 

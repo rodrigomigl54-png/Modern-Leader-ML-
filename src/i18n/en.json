@@ -1063,5 +1063,11 @@
   "lesson.objectives.title": "Goals and history",
   "lesson.objectives.1": "Tap Menu in the top bar.",
   "lesson.objectives.2": "Open Goals: each has a deadline, progress and a reward.",
-  "lesson.objectives.3": "Open Menu again and then History: the record of your campaign."
+  "lesson.objectives.3": "Open Menu again and then History: the record of your campaign.",
+  "settings.otherLanguages": "Other languages",
+  "settings.translateHint": "Use your browser's Translate: Chrome or Edge — right-click (on a phone, ⋮ menu) → Translate; Safari — aA → Translate. Map names stay in English.",
+  "settings.graphics": "Graphics quality",
+  "settings.graphics.low": "Low (fastest)",
+  "settings.graphics.medium": "Medium",
+  "settings.graphics.high": "High"
 }
