@@ -4132,3 +4132,18 @@ body.replaying #ui-root > :not(.replay-bar) {
     display: none;
   }
 }
+
+/* Credits and licenses in Settings. */
+.settings-credits {
+  margin: 8px 0;
+}
+
+.settings-credits summary {
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.settings-credits a {
+  color: var(--accent);
+  font-size: 12px;
+}

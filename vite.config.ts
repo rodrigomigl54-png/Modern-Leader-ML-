@@ -31,6 +31,8 @@ export default defineConfig({
     },
   ],
   build: {
+    // The licenses of every bundled library ship with the game (MIT, BSD and ISC require it).
+    license: { fileName: 'THIRD-PARTY-LICENSES.md' },
     // PixiJS alone is ~600 kB minified (~135 kB gzipped); one chunk is fine for this game.
     chunkSizeWarningLimit: 1024,
   },
