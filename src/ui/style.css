@@ -3716,3 +3716,35 @@ textarea {
   margin: 10px 0 4px;
   line-height: 1.4;
 }
+
+/* Goals: term and reward (master plan, phase 6). */
+.goal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.goal-term {
+  padding: 1px 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  color: var(--text-muted);
+}
+
+.goal-term-short {
+  border-color: var(--good-text);
+  color: var(--good-text);
+}
+
+.goal-term-medium {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.goal-reward {
+  color: var(--text-muted);
+}

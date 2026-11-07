@@ -805,6 +805,14 @@ async function start(): Promise<void> {
         weeks: sim.goals?.lowInflation.streak ?? 0,
         debt: formatPercent(sim.goals?.lowDebt.maxShare ?? 0, 0),
         years: Math.round((sim.goals?.noRiots.turns ?? 0) / 52),
+        count: sim.goals?.buildings?.count ?? 0,
+        level: sim.economy.technology
+          ? (
+              (game?.economy.countries[game.player.countryId]?.tech?.start ?? 0) +
+              (g.target ?? 0) * sim.economy.technology.indexPerLevel
+            ).toFixed(2)
+          : '',
+        rank: g.target ?? 0,
       });
     /** The four ministers double as the tutorial in the first turns (GDD section 13). */
     const ADVISOR_TIPS: [TranslationKey, TranslationKey][] = [

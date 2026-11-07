@@ -9,7 +9,8 @@ import weaponsRulesData from '../../data/modern/weapons.json';
 import { applyCommand } from './commands';
 import type { DiplomacyRules } from './diplomacy';
 import type { EconomyRules, SimContext } from './economy';
-import { goalProgress, type GoalRules } from './goals';
+import { ensureGoals, goalProgress, goalReward, goalTerm, type GoalRules } from './goals';
+import { relation } from './diplomacy';
 import type { MilitaryRules } from './military';
 import { createNewGame, type GameState } from './newGame';
 import type { PopulationRules } from './population';
@@ -117,8 +118,12 @@ describe('news and reports', () => {
 describe('goals', () => {
   it('gives the player 3-5 goals that fit the situation', () => {
     const game = newGame();
-    expect(game.goals.length).toBeGreaterThanOrEqual(3);
-    expect(game.goals.length).toBeLessThanOrEqual(5);
+    // 3-5 country goals (GDD section 13), plus the player's objectives (master plan, phase 6).
+    const objectives = ['buildings', 'techLevels', 'rank'];
+    const country = game.goals.filter((g) => !objectives.includes(g.kind));
+    expect(country.length).toBeGreaterThanOrEqual(3);
+    expect(country.length).toBeLessThanOrEqual(5);
+    expect(game.goals.filter((g) => objectives.includes(g.kind)).length).toBeGreaterThanOrEqual(2);
     expect(game.goals.some((g) => g.kind === 'stayInAlliance' && g.allianceId === 'bloc')).toBe(
       true,
     );
@@ -144,5 +149,63 @@ describe('goals', () => {
 
   it('is deterministic', () => {
     expect(play(newGame(), 30)).toEqual(play(newGame(), 30));
+  });
+});
+
+describe('player objectives (master plan, phase 6)', () => {
+  const rules = goalsData as unknown as GoalRules;
+
+  it('adds a short-, a medium- and a long-term objective to the player only', () => {
+    const game = newGame();
+    const byKind = (k: string) => game.goals.find((g) => g.kind === k)!;
+    expect(goalTerm(sim, byKind('buildings'))).toBe('short');
+    expect(goalTerm(sim, byKind('techLevels'))).toBe('medium');
+    expect(goalTerm(sim, byKind('rank'))).toBe('long');
+    expect(goalTerm(sim, byKind('gdpGrowth'))).toBe('long');
+    expect(byKind('buildings').target).toBe(rules.buildings!.count);
+    for (const goals of Object.values(game.aiGoals))
+      expect(goals.some((g) => ['buildings', 'techLevels', 'rank'].includes(g.kind))).toBe(false);
+  });
+
+  it('rewards a finished goal with support, relations with friends, technology and points', () => {
+    const game = newGame();
+    const done = structuredClone(game);
+    // Make the buildings objective already met in one copy.
+    done.goals.find((g) => g.kind === 'buildings')!.target = 0;
+    const control = play(game, 1);
+    const events: TurnEvent[] = [];
+    const after = play(done, 1, events);
+    const goal = after.goals.find((g) => g.kind === 'buildings')!;
+    expect(goal.status).toBe('done');
+    expect(events.some((e) => e.type === 'goalDone' && e.kind === 'buildings')).toBe(true);
+    const reward = goalReward(sim, goal)!;
+    expect(reward).toEqual(rules.rewards!.short);
+    expect(
+      after.economy.countries.PLR!.tech!.points - control.economy.countries.PLR!.tech!.points,
+    ).toBe(reward.techPoints);
+    expect(after.diplomacy.points.PLR! - control.diplomacy.points.PLR!).toBeCloseTo(
+      reward.diplomacyPoints,
+    );
+    // The ally gains relations; a country without ties does not.
+    expect(relation(after, sim, 'PLR', 'AAA') - relation(control, sim, 'PLR', 'AAA')).toBeCloseTo(
+      reward.relation,
+    );
+    expect(relation(after, sim, 'PLR', 'FAR')).toBeCloseTo(relation(control, sim, 'PLR', 'FAR'));
+    expect(after.population.support[2]!).toBeGreaterThan(control.population.support[2]!);
+    expect(after.log!.entries.some((e) => e.kind === 'goalDone' && e.extra === 'buildings')).toBe(
+      true,
+    );
+  });
+
+  it('shows progress and gives older saves the objectives', () => {
+    const game = newGame();
+    for (const g of game.goals) expect(goalProgress(game, sim, g)).toBeGreaterThanOrEqual(0);
+    const old = {
+      ...game,
+      goals: game.goals.filter((g) => !['buildings', 'techLevels', 'rank'].includes(g.kind)),
+    };
+    const loaded = ensureGoals(old, sim);
+    expect(loaded.goals.some((g) => g.kind === 'buildings')).toBe(true);
+    expect(ensureGoals(loaded, sim)).toBe(loaded);
   });
 });

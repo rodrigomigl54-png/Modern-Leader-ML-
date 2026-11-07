@@ -943,5 +943,12 @@
   "peace.takeAll": "Accept the capitulation: take everything",
   "peace.capitulationDone": "{country} capitulated. All its land is yours.",
   "peace.notCapitulated": "They have not capitulated: they still have an army or most of their people.",
-  "foreign.capitulationRequest": "{country} demands our capitulation: all our land. Refuse and keep fighting?"
+  "foreign.capitulationRequest": "{country} demands our capitulation: all our land. Refuse and keep fighting?",
+  "goals.buildings": "Finish {count} new buildings",
+  "goals.techLevels": "Reach technology level {level}",
+  "goals.rank": "Reach #{rank} in the world power ranking",
+  "goals.term.short": "Short-term",
+  "goals.term.medium": "Medium-term",
+  "goals.term.long": "Long-term",
+  "goals.reward": "Reward: +{support} support · +{relation} relations with friends · +{tech} technology points · +{points} diplomatic points"
 }

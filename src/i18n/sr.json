@@ -943,5 +943,12 @@
   "peace.takeAll": "Prihvati kapitulaciju: uzmi sve",
   "peace.capitulationDone": "{country} je kapitulirala. Sva njena zemlja je tvoja.",
   "peace.notCapitulated": "Nisu kapitulirali: još imaju vojsku ili većinu stanovništva.",
-  "foreign.capitulationRequest": "{country} traži našu kapitulaciju: svu našu zemlju. Odbiti i nastaviti borbu?"
+  "foreign.capitulationRequest": "{country} traži našu kapitulaciju: svu našu zemlju. Odbiti i nastaviti borbu?",
+  "goals.buildings": "Završi {count} nove zgrade",
+  "goals.techLevels": "Dostigni nivo tehnologije {level}",
+  "goals.rank": "Dođi do #{rank} na svetskoj rang listi moći",
+  "goals.term.short": "Kratkoročni",
+  "goals.term.medium": "Srednjoročni",
+  "goals.term.long": "Dugoročni",
+  "goals.reward": "Nagrada: +{support} podrške · +{relation} odnosa sa prijateljima · +{tech} poena tehnologije · +{points} diplomatskih poena"
 }
