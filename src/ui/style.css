@@ -3850,3 +3850,108 @@ textarea {
     transform: translate(-50%, 16px);
   }
 }
+
+/* Interactive lessons (master plan, phase 4). */
+.academy-lessons-title {
+  margin: 18px 0 4px;
+  font-size: 15px;
+}
+
+.coach {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 64px);
+  left: 8px;
+  z-index: 75;
+  width: min(320px, calc(100vw - 16px));
+  padding: 10px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: var(--panel-bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.coach-collapsed {
+  width: auto;
+}
+
+.coach-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 8px;
+}
+
+.coach-kicker {
+  grid-column: 1;
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.coach-title {
+  grid-column: 1;
+  font-size: 14px;
+}
+
+.coach-toggle {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--panel-border);
+  border-radius: 50%;
+  background: var(--panel-solid);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.coach-dots {
+  display: flex;
+  gap: 4px;
+  margin: 8px 0 4px;
+}
+
+.coach-dot {
+  width: 18px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line-soft);
+}
+
+.coach-dot.on {
+  background: var(--good-text);
+}
+
+.coach-dot.now {
+  background: var(--accent);
+}
+
+.coach-text {
+  margin: 4px 0 8px;
+  line-height: 1.4;
+}
+
+.coach-done {
+  color: var(--good-text);
+  font-weight: 600;
+}
+
+.coach-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.coach-target {
+  outline: 3px solid var(--accent) !important;
+  outline-offset: 2px;
+  animation: coach-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes coach-pulse {
+  50% {
+    outline-color: rgba(242, 169, 59, 0.35);
+  }
+}

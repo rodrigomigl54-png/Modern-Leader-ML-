@@ -74,6 +74,7 @@ import { InvestDialog } from './ui/investDialog';
 import { showLoadingScreen } from './ui/loadingScreen';
 import { playIntro } from './ui/intro';
 import { Academy, setAcademyHelp } from './ui/academy';
+import { Coach, type LessonId } from './ui/coach';
 import { MainMenu } from './ui/mainMenu';
 import { MapModeBar } from './ui/mapModeBar';
 import { ProduceDialog } from './ui/produceDialog';
@@ -703,6 +704,9 @@ async function start(): Promise<void> {
     };
 
     /** Shows a game (new or loaded) on the map. */
+    /** A practice game for the Academy's lessons: never saved (master plan, phase 4). */
+    let practice = false;
+    let coach: Coach | null = null;
     const playGame = (loaded: GameState): void => {
       const state = ensureGoals(
         ensureChronicle(
@@ -845,13 +849,13 @@ async function start(): Promise<void> {
     ];
     const advisorTip = async (turn: number): Promise<void> => {
       const tip = ADVISOR_TIPS[turn];
-      if (!tip || !game) return;
+      if (!tip || !game || practice) return;
       await noticeDialog(uiRoot, t(tip[0]), t(tip[1]), t('minister.understood'));
     };
 
     /** Shortages the player's country has from the start (none of them is an event). */
     const startShortages = async (): Promise<void> => {
-      if (!game) return;
+      if (!game || practice) return;
       const supply = game.resources?.trade[game.player.countryId]?.supply ?? [];
       const alert = sim.resources?.rules.shortageAlert ?? 0;
       const short = RESOURCES.filter((_, i) => (supply[i] ?? 1) < alert);
@@ -1089,7 +1093,7 @@ async function start(): Promise<void> {
       game = result.state;
       showState();
       // Step 10 of the turn: autosave (GDD section 5).
-      await save(AUTOSAVE_SLOT, game);
+      if (!practice) await save(AUTOSAVE_SLOT, game);
       await announce(result.events);
       if (game.gameOver) return void showGameOver();
       await advisorTip(game.turn);
@@ -1098,6 +1102,8 @@ async function start(): Promise<void> {
     };
 
     const leaveGame = (): void => {
+      coach?.stop();
+      practice = false;
       sound.stopMusic();
       game = null;
       notices.update(null);
@@ -1143,6 +1149,7 @@ async function start(): Promise<void> {
       const parsed = await importSave();
       if (!parsed) return;
       if (!parsed.ok) return reportImportError(parsed.error);
+      practice = false;
       playGame(parsed.save.game);
       if (game) await save(AUTOSAVE_SLOT, game);
     };
@@ -1171,7 +1178,10 @@ async function start(): Promise<void> {
           if (ok) void write();
         });
       },
-      onLoad: (file: SaveFile) => playGame(file.game),
+      onLoad: (file: SaveFile) => {
+        practice = false;
+        playGame(file.game);
+      },
       onDelete: async (slot, file) => {
         const ok = await confirmDialog(
           uiRoot,
@@ -1562,7 +1572,10 @@ async function start(): Promise<void> {
     });
     const openFeedback = (): void => void window.open(FEEDBACK_URL, '_blank', 'noopener');
     const gameMenu = new GameMenu(uiRoot, {
-      onSave: () => void slots.show('save'),
+      onSave: () => {
+        if (practice) return toasts.show(t('lesson.notSaved'));
+        void slots.show('save');
+      },
       onLoad: () => void slots.show('load'),
       onExport: () => {
         if (!game) return;
@@ -1610,13 +1623,71 @@ async function start(): Promise<void> {
       },
       onStart: (options) => {
         const state = createNewGame(world, options, sim);
+        practice = false;
         playGame(state);
         void save(AUTOSAVE_SLOT, state);
       },
     });
 
     // The Academy (tutorial): from the main menu, and from the ? buttons in the ministries.
-    const academy = new Academy({ parent: uiRoot, sim });
+    // Interactive lessons run in a practice game that is never saved.
+    const startLesson = (id: LessonId): void => {
+      academy.close();
+      if (!game || !practice) {
+        const countryId = world.countries.some((c) => c.id === 'SRB' && c.provinceIds.length)
+          ? 'SRB'
+          : world.countries.find((c) => c.status === 'full' && c.provinceIds.length)!.id;
+        const state = createNewGame(
+          world,
+          {
+            aggressiveness: 'peaceful',
+            disputedMode: defaultDisputedMode(),
+            countryId,
+            leaderName: t('lesson.leader'),
+            seed: 7,
+          },
+          sim,
+        );
+        practice = true;
+        playGame(state);
+      } else {
+        // Each lesson starts from a clean screen: no panel open, nothing selected.
+        panel.hide();
+        economyPanel.close();
+        interiorPanel.close();
+        defencePanel.close();
+        foreignPanel.close();
+        goalsPanel.close();
+        historyPanel.close();
+        countryDialog.close();
+        techPanel.close();
+        investDialog.close();
+        recruitDialog.close();
+        rankingsPanel.close();
+        gameMenu.hide();
+        clearSelection();
+        map.clearSelection();
+        map.lookAtCountry(game.player.countryId);
+      }
+      coach?.begin(id);
+    };
+    coach = new Coach({
+      parent: uiRoot,
+      game: () => game,
+      onExit: () => {
+        leaveGame();
+        academy.open();
+      },
+      onNext: (id) => coach?.begin(id),
+    });
+    // Development only (stripped from builds): browser tests start lessons directly.
+    if (import.meta.env.DEV)
+      (window as unknown as { __startLesson: unknown }).__startLesson = startLesson;
+    const academy = new Academy({
+      parent: uiRoot,
+      sim,
+      lessons: { available: () => !game || practice, start: startLesson },
+    });
     setAcademyHelp((chapter) => academy.open(chapter));
     const menu = new MainMenu(uiRoot, {
       onAcademy: () => academy.open(),

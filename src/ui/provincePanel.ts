@@ -183,7 +183,7 @@ export class ProvincePanel {
       );
     }
 
-    const list = el('ul', 'dossier-cities');
+    const list = el('ul', 'dossier-cities city-list');
     for (const city of cities) {
       const item = el('li');
       const selected = this.options.isSelected(city.id);
@@ -279,7 +279,7 @@ export class ProvincePanel {
           el('dd', 'danger', t('arsenal.nuclearBase')),
         );
       army.push(mfacts);
-      const list = el('ul', 'dossier-cities');
+      const list = el('ul', 'dossier-cities army-list');
       for (const a of military.armies) {
         const item = el('li');
         if (a.mine) {
