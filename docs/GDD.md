@@ -252,6 +252,8 @@ AI countries take the initiative (Phase 24): they improve relations with partner
 
 **Trade requests (Dario, Phase 26, after Age of History):** the player builds a package for any country not at war with them. Each side can give money (a slider up to its treasury), provinces (never the capital), a declaration of war on a third country, joining a coalition (sanctions) against a third country, and military access. Both can also sign a defense pact or a non-aggression pact (2 years: neither side can declare war on the other). The dialog shows the likelihood of acceptance (very low, low, medium, high) live while the package changes; the AI accepts when what it gains outweighs what it gives, adjusted by relations and by how strong the third country is. A proposal costs diplomatic points. Weights in `diplomacy-rules.json` ("deals").
 
+**AI offers to the player (Dario, idea 5):** now and then (about one in eight weeks, at least 6 weeks apart, the same offer from the same country at most once a year) a country makes the player an offer from the same parts: a wary neighbor offers a non-aggression pact, a country at war pays for military access toward an enemy on the player's border, a poorer friend asks for financial aid, a friend pays the player to join sanctions against a rival both dislike. Answered in a corner notification; refusing or letting it expire costs a little relation. Rules in `diplomacy-rules.json` ("offers").
+
 **Opinions and rank:** every country dialog shows the country's place in the world power ranking (the top 8 are *great powers*) and its warmest and coldest relations. The player's own rank sits on the flag in the top bar.
 
 ## 11. AI behavior profiles
@@ -306,6 +308,8 @@ The interface must work equally on a phone (touch, small screen) and on a PC (mo
 
 **End of the game:** a full-screen **Defeat** when the player loses the last province (to an enemy or to the rebels), a full-screen **Victory** when the player owns every inhabited province of the world; both in the chosen language. (Added by Dario in Phase 21.)
 
+**Phones** (Dario: the phone is the main target): on touch screens with a short landscape height the whole interface is drawn at 80% of its PC size (times the UI scale setting); the in-game menu uses two columns. PC unchanged.
+
 **Main screen:** the map fills the screen; a top bar shows money, GDP, inflation, support, manpower, diplomatic points and the date; the "Next Turn" button sits bottom right; panels open over the map and close with one tap.
 
 **Map modes:** political, economy (GDP per province), public support, alliances, relations toward the player (green to red), military, air-defense coverage, resources.
@@ -313,7 +317,10 @@ The interface must work equally on a phone (touch, small screen) and on a PC (mo
 **Controls:**
 
 - Tap/click a city or province: info panel with actions.
-- Building icons sit next to the cities that have them (from city zoom on); army counters carry a unit icon that marches while the army moves and becomes a boat at sea.
+- Building icons: one small icon per kind of building in each of the player's provinces, at the province's main city, from city zoom on (Dario: a less crowded map). Every country's capital has a star (the player's in amber).
+- Army counters carry a unit icon: a helmet for soldiers, a beret with a star for special forces (a small star on a mixed army); it marches while the army moves and becomes a boat at sea. Countries at war show their flag on their counters (after AoH2). The armies of countries not allied with or at war with the player are merged per province and shown only from 20,000 soldiers (Dario: the player cannot see everyone's soldiers).
+- Declaring war and making peace show a short card with both flags (WAR / PEACE) that never stops the game.
+- **Border timelapse** (Dario, idea 8): from the History and from the victory or defeat screen, the map replays how the borders moved during the game in about 20 seconds (pause, scrub, close).
 - Relations always show their score with a sign (+65 green, −65 red, 0 neutral).
 - Multi-select: a selection mode for tapping several cities (phone) or drag/Shift-click (PC); one action applies to all selected.
 - Pinch/scroll to zoom, drag to pan.
