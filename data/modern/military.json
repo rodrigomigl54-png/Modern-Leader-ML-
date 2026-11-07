@@ -12,7 +12,7 @@
     "traineeStrength": 0.5
   },
   "upkeep": {
-    "comment": "Weekly cost per soldier is calibrated per country so that its starting army costs its real military spending (SIPRI). Reservists cost a share of that.",
+    "comment": "Weekly cost per soldier is calibrated per country so that its starting army costs its starting military spending (the game's own estimate, country-stats.json). Reservists cost a share of that.",
     "reservistShare": 0.05,
     "specialMultiplier": 3,
     "defaultPersonnelPerMillion": 3000,

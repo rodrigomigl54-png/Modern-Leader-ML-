@@ -1,7 +1,7 @@
 {
   "meta": {
-    "description": "Missiles, drones, air defense and nuclear weapons (GDD section 9). Tiers, ranges, damage and costs are game-design defaults to be tuned in Phase 13 (balance). Starting arsenals are estimated from military spending; nuclear countries, warhead counts and base locations are drafted from public information known up to mid-2026 (SIPRI Yearbook 2025 estimates, rounded).",
-    "source": "Game design (GDD section 9); nuclear forces: SIPRI Yearbook 2025 (rounded)",
+    "description": "Missiles, drones, air defense and nuclear weapons (GDD section 9). Tiers, ranges, damage and costs are game-design defaults to be tuned in Phase 13 (balance). Starting arsenals are estimated from military spending; nuclear countries, warhead counts and base locations are drafted from public information known up to mid-2026 (round public estimates).",
+    "source": "Game design (GDD section 9); nuclear forces: round numbers from widely published public estimates and official statements",
     "checked": "2026-10-24",
     "checkedBy": "draft — nuclear base locations are approximate (nearest large city) and need a check"
   },
@@ -284,7 +284,7 @@
     "aiCooldownTurns": 52,
     "countries": {
       "RUS": {
-        "warheads": 5460,
+        "warheads": 5500,
         "bases": [
           "Saratov",
           "Orenburg",
@@ -295,7 +295,7 @@
         ]
       },
       "USA": {
-        "warheads": 5180,
+        "warheads": 5200,
         "bases": [
           "Minot",
           "Great Falls",
@@ -311,20 +311,20 @@
         ]
       },
       "FRA": {
-        "warheads": 290,
+        "warheads": 300,
         "bases": [
           "Brest",
           "Toulon"
         ]
       },
       "GBR": {
-        "warheads": 225,
+        "warheads": 250,
         "bases": [
           "Glasgow"
         ]
       },
       "IND": {
-        "warheads": 180,
+        "warheads": 170,
         "bases": [
           "Agra",
           "Vishakhapatnam"

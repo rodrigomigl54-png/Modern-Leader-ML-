@@ -1,8 +1,10 @@
 // Builds data/modern/country-stats.json.
-// Usage: npm run data:stats             World Bank API + IMF (needs api.worldbank.org, www.imf.org)
+// Usage: npm run data:stats             World Bank API (needs api.worldbank.org)
 //        npm run data:stats -- --mirror World Bank GDP and population from the datasets/* GitHub
 //                                       mirrors, when the APIs cannot be reached
 // Gaps are filled from tools/countries/estimates.json (drafted, marked in the output).
+// Military spending and armed forces are not fetched (SIPRI and IISS data may not be used
+// commercially): run npm run data:estimates afterwards to fill them with the game's own levels.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { DATA_DIR, ROOT } from '../map/paths.ts';
@@ -22,21 +24,10 @@ interface Indicator {
   description: string;
 }
 
-// World Bank indicators. Personnel comes from IISS, spending from SIPRI, stability from the
-// Worldwide Governance Indicators (WGI).
+// World Bank indicators (CC BY 4.0). Stability comes from the Worldwide Governance Indicators.
 const INDICATORS: Indicator[] = [
   { key: 'gdpUsd', code: 'NY.GDP.MKTP.CD', description: 'GDP (current US$)' },
   { key: 'population', code: 'SP.POP.TOTL', description: 'Population, total' },
-  {
-    key: 'militaryPersonnel',
-    code: 'MS.MIL.TOTL.P1',
-    description: 'Armed forces personnel, total (IISS)',
-  },
-  {
-    key: 'militaryExpenditureUsd',
-    code: 'MS.MIL.XPND.CD',
-    description: 'Military expenditure (current US$, SIPRI)',
-  },
   {
     key: 'stability',
     // The WGI series moved to its own code in 2025 (it was PV.EST in source 3).
@@ -57,19 +48,8 @@ const MIRRORS: Partial<Record<Key, { url: string; description: string }>> = {
   },
 };
 
-// IMF World Economic Outlook fallback for economies the World Bank does not cover (e.g. Taiwan).
-const IMF: Partial<Record<Key, { code: string; scale: number }>> = {
-  gdpUsd: { code: 'NGDPD', scale: 1e9 },
-  population: { code: 'LP', scale: 1e6 },
-};
-const LAST_ACTUAL_YEAR = 2025;
-
 interface Estimates {
   sources: Record<string, string>;
-  military: Record<
-    string,
-    { activePersonnel: number; expenditureUsd?: number; rough?: boolean; override?: boolean }
-  >;
   economy: Record<
     string,
     { gdpUsd: number; gdpYear: number; population: number; populationYear: number }
@@ -90,7 +70,6 @@ const USER_AGENT = 'Mozilla/5.0 (modern-leader data tool)';
 
 async function get(url: string): Promise<Response> {
   for (let attempt = 1; ; attempt++) {
-    // The IMF rejects requests without a browser-like user agent.
     const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
     if (response.ok) return response;
     if (attempt >= 3) throw new Error(`Request failed (${response.status}): ${url}`);
@@ -135,43 +114,8 @@ async function mirrorSeries(url: string, source: string): Promise<Map<string, Va
   return out;
 }
 
-async function imf(code: string, id: string, scale: number): Promise<Value | null> {
-  const json = (await (
-    await get(`https://www.imf.org/external/datamapper/api/v1/${code}/${id}`)
-  ).json()) as {
-    values?: Record<string, Record<string, Record<string, number>>>;
-  };
-  const series = json.values?.[code]?.[id];
-  if (!series) return null;
-  const year = Object.keys(series)
-    .map(Number)
-    .filter((y) => y <= LAST_ACTUAL_YEAR)
-    .sort((a, b) => b - a)[0];
-  if (year === undefined) return null;
-  return {
-    value: series[String(year)]! * scale,
-    year,
-    source: `IMF World Economic Outlook ${code}`,
-  };
-}
-
 function estimate(key: Key, id: string): Value | null {
-  const m = estimates.military[id];
   const e = estimates.economy[id];
-  if (key === 'militaryPersonnel' && m) {
-    return {
-      value: m.activePersonnel,
-      year: null,
-      source: `estimate: ${estimates.sources.activePersonnel}${m.rough ? ' (rough)' : ''}`,
-    };
-  }
-  if (key === 'militaryExpenditureUsd' && m?.expenditureUsd) {
-    return {
-      value: m.expenditureUsd,
-      year: 2024,
-      source: `estimate: ${estimates.sources.expenditureUsd}`,
-    };
-  }
   if (key === 'gdpUsd' && e)
     return { value: e.gdpUsd, year: e.gdpYear, source: `estimate: ${estimates.sources[id]}` };
   if (key === 'population' && e) {
@@ -207,12 +151,6 @@ for (const id of countries) {
   const entry: Record<string, unknown> = {};
   for (const indicator of INDICATORS) {
     let v = series.get(indicator.key)!.get(id) ?? null;
-    // A war changed the forces since the last World Bank year: the newer estimate wins.
-    if (indicator.key === 'militaryPersonnel' && estimates.military[id]?.override)
-      v = estimate(indicator.key, id);
-    const fallback = IMF[indicator.key];
-    if (!v && fallback && !mirror)
-      v = await imf(fallback.code, id, fallback.scale).catch(() => null);
     if (!v) v = estimate(indicator.key, id);
     entry[indicator.key] = v ? Math.round(v.value * 1000) / 1000 : null;
     entry[`${indicator.key}Year`] = v?.year ?? null;
@@ -232,11 +170,11 @@ writeFileSync(
     {
       meta: {
         description:
-          'Economic and military indicators per country, most recent non-empty value. A *Source field marks values not taken from the World Bank (IMF or drafted estimates). null = no data (the game treats it as unknown).',
+          'Economic and military indicators per country, most recent non-empty value. A *Source field marks values not taken from the World Bank (drafted estimates). null = no data (the game treats it as unknown).',
         source: `${used.join('; ')}. World Bank Open Data is licensed CC BY 4.0. Gaps: tools/countries/estimates.json.`,
         mode: mirror
           ? 'mirror (World Bank API not reachable; military and stability from estimates or missing)'
-          : 'World Bank API + IMF',
+          : 'World Bank API',
         generatedBy: 'tools/countries/stats.ts',
         generated: today,
         checked: today,
@@ -252,3 +190,4 @@ console.log(
   `Wrote ${countries.length} countries; ${estimated.length} estimated values; ${missing.length} missing`,
 );
 console.log('missing:', missing.join(', '));
+console.log('Next: npm run data:estimates (military spending, armed forces, debt).');

@@ -135,7 +135,7 @@ export interface CountryEconomy {
   taxRate: number;
   /** Public services spending as a share of GDP. */
   servicesShare: number;
-  /** Military spending as a share of GDP (from SIPRI data, or the default). */
+  /** Military spending as a share of GDP (the game's own estimate, or the default). */
   militaryShare: number;
   /** Annual inflation, e.g. 0.03 = 3 %. */
   inflation: number;

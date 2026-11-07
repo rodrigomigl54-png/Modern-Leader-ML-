@@ -218,7 +218,8 @@ export function assembleWorld(map: MapFacts, files: WorldFiles): WorldBundle {
           militaryExpenditureUsd: s.militaryExpenditureUsd ?? null,
           stability: s.stability ?? null,
         } satisfies CountryStats,
-        leader: leaders.leaders[c.id] ?? { name: null, title: 'president' },
+        // Titles only (no names of real people); the player names their own leader.
+        leader: { title: 'president', ...leaders.leaders[c.id], name: null },
       };
     }),
     provinceOwners: map.provinces.map((p) => p.owner),

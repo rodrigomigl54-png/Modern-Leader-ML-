@@ -79,8 +79,7 @@
   "setup.atWar": "At war",
   "setup.none": "None",
   "setup.leader": "Your name",
-  "setup.leaderHint": "You replace {title} {name} as the leader of {country}. All other countries keep their real leaders.",
-  "setup.leaderHintNoName": "You become the leader of {country}. All other countries keep their real leaders.",
+  "setup.leaderHint": "You become the leader of {country} ({title}). Type your name: the other countries' leaders appear by their office only.",
   "setup.leaderPlaceholder": "Leader name",
   "setup.disputed": "Disputed territories",
   "disputed.neutral": "Neutral",
@@ -1082,6 +1081,6 @@
   "replay.pause": "Pause",
   "replay.none": "The borders have not changed yet.",
   "credits.title": "Credits and licenses",
-  "credits.text": "Map data: Made with Natural Earth (public domain). Economic data: World Bank Open Data (CC BY 4.0), including Worldwide Governance Indicators; armed forces: IISS via the World Bank. Government debt: International Monetary Fund, World Economic Outlook. Military expenditure and nuclear forces: SIPRI Military Expenditure Database and SIPRI Yearbook. All figures are rounded and adapted for the game. Flags: Wikimedia Commons (public domain), via hampusborgos/country-flags. Font: Inter (SIL Open Font License 1.1). Graphics engine: PixiJS (MIT). Music and sounds are made by the game itself.",
+  "credits.text": "Map data: Made with Natural Earth (public domain). Economic data: World Bank Open Data (CC BY 4.0), including the Worldwide Governance Indicators. Military spending, armed forces, government debt and nuclear forces are the game's own rounded estimates. All figures are adapted for the game. Flags: Wikimedia Commons (public domain), via hampusborgos/country-flags. Font: Inter (SIL Open Font License 1.1). Graphics engine: PixiJS (MIT). Music and sounds are made by the game itself.",
   "credits.licenses": "Licenses of the libraries used"
 }

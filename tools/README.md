@@ -62,13 +62,13 @@ map as a neutral, uninhabited territory.
 
 ## Country statistics and debt
 
-- `npm run data:stats` builds `data/modern/country-stats.json` from the World Bank API (GDP, population, armed forces, military spending, political stability) with the IMF for economies the World Bank lacks; gaps and `override: true` entries come from `tools/countries/estimates.json`.
-- `npm run data:debt` builds `data/modern/debt.json` from the IMF WEO series `GGXWDG_NGDP`.
+- `npm run data:stats` builds `data/modern/country-stats.json` from the World Bank API (GDP, population, political stability); gaps come from `tools/countries/estimates.json` (Taiwan: its national statistics).
+- `npm run data:estimates` writes the game's own estimates (`tools/countries/game-estimates.json`) into `country-stats.json` (military spending, armed forces) and `debt.json`. Run it after `data:stats`. SIPRI, IISS and IMF data are not used (commercial terms).
 - Both need `api.worldbank.org` and `www.imf.org`; behind a proxy run them with `NODE_USE_ENV_PROXY=1`.
 
 ## AI profiles
 
-`npm run data:profiles` builds `data/modern/ai-profiles.json` (GDD section 11) from the hand-written profiles in `tools/ai/manual-profiles.json` and, for every other country, scores derived from the game data (alliances, rivalries, wars, sanctions, SIPRI spending, mandatory service, nuclear weapons). Every score has a one-line justification. Edit the manual file and rerun; never edit the generated file by hand.
+`npm run data:profiles` builds `data/modern/ai-profiles.json` (GDD section 11) from the hand-written profiles in `tools/ai/manual-profiles.json` and, for every other country, scores derived from the game data (alliances, rivalries, wars, sanctions, estimated military spending, mandatory service, nuclear weapons). Every score has a one-line justification. Edit the manual file and rerun; never edit the generated file by hand.
 
 ## Balance simulations
 

@@ -1,7 +1,7 @@
 {
   "meta": {
     "description": "Hand-written AI profiles (GDD section 11) for countries whose foreign policy is well documented. Each trait is [score 0-100, one-line justification from verifiable behavior]. Traits: interventionism, sanctions, pressure (on weaker states), expansionism, risk (open war vs indirect means), nuclear (posture), loyalty (to allies), economy (economic focus). Countries not listed are derived from data by tools/ai/build-profiles.ts.",
-    "source": "Documented behavior known up to mid-2026: wars and military operations, alliance memberships, foreign bases, sanctions regimes, military spending (SIPRI)",
+    "source": "Documented behavior known up to mid-2026: wars and military operations, alliance memberships, foreign bases, sanctions regimes, military spending (game estimates)",
     "checked": "2026-10-25",
     "checkedBy": "draft — needs review by Dario"
   },

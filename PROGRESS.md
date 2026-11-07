@@ -555,6 +555,16 @@ Dario: "follow the prompt and start working". Where he did not answer, the propo
 - Shipped libraries checked (all MIT, BSD-3, ISC or OFL); the build writes `THIRD-PARTY-LICENSES.md`; Settings → Credits and licenses names every data source.
 - Findings that need Dario's decision before a commercial release are listed in `docs/LICENSES.md` (SIPRI and IMF commercial terms, IISS, real leaders' names, the Ukraine war under Google Play's sensitive events policy, store ad rules, a trademark search for the name).
 
+## Store-safe data: own estimates, no leader names, no war at the start
+
+Dario's decisions after the license audit:
+
+- **SIPRI, IISS and IMF data replaced** by the game's own coarse estimates (`tools/countries/game-estimates.json`, applied with `npm run data:estimates`): military spending = World Bank GDP × one of 10 spending levels (0.5%–10%), armed forces rounded to one of 10 steps per power of ten, debt rounded to 5 points (below 30% of GDP) or 10 points; nuclear warheads are round public numbers. `data:stats` no longer fetches SIPRI, IISS or IMF series; `tools/countries/debt.ts` was removed. Taiwan's GDP and population come from its national statistics.
+- **No names of real leaders:** `leaders.json` keeps only the titles of the offices; the country dialog shows the office; the player still types their own name.
+- **No war at the start:** Russia and Ukraine start as rivals at −100 with the map unchanged; any war starts in play.
+- Credits updated. Balance (3 years, seed 7), wars started: peaceful 0, realistic 2, aggressive 10, chaos 16; median growth ~2.1%.
+- Stress test of the production build (local static server): 1000 simultaneous connections, ~6,600 requests a second, 0 errors; a first visit downloads about 2.2 MB, later visits use the cache. The game runs on each player's device; no server holds games.
+
 ## Next
 
 - Dario: merge the PR and test the new map icons, AI offers, the timelapse and the phone layout on a real phone; changes come from that testing.
@@ -573,7 +583,6 @@ Dario: "follow the prompt and start working". Where he did not answer, the propo
 
 - The interface size uses CSS `zoom` (supported by current browsers; very old ones ignore it).
 
-- SIPRI and IMF data need permission (or replacement) before a commercial release; see `docs/LICENSES.md`.
 - Random events and objective rewards are first values: to tune by play.
 - History charts start empty in older saves (recorded from the first turn played after the update).
 - Peace talks list only the provinces the winner holds (the existing rule); occupied land cannot be swapped for other land.
@@ -596,12 +605,11 @@ Dario: "follow the prompt and start working". Where he did not answer, the propo
 
 - Rural population is spread by area, not by real density (deserts and mountains get as many people per km² as farmland).
 
-- Starting debt for Cuba and Venezuela is drafted (no IMF data).
+- Starting debt, military spending and armed forces are the game's own coarse estimates.
 - Economy numbers are first design values; they are tuned in Phase 13.
 
-- Leaders and wars are drafted from information known up to mid-2026. Elections and events before the start date need a check.
+- Offices, alliances and relations are drafted from information known up to mid-2026.
 - World Bank armed-forces figures are from 2020 and include paramilitary forces; Russia, Ukraine and countries without data use drafted IISS estimates. Military spending is missing for 30 small states.
-- After the war Ukraine often goes through riots and loses a few provinces to rebels; on Aggressive, Russia sometimes attacks again, loses, and breaks apart.
 - No GDP data: North Korea, Vatican, and the disputed territories except Kosovo and Palestine.
 - Disputed territories use simplified flags drawn for the game (Abkhazia, South Ossetia, Transnistria, Northern Cyprus, Somaliland).
 

@@ -382,13 +382,10 @@ export class SetupWizard {
     const country = this.effective.countries.find((c) => c.id === id)!;
     const name = countryName(this.world, id, this.disputedMode);
     const leader = country.leader;
-    const hint = leader.name
-      ? t('setup.leaderHint', {
-          title: t(`leaderTitle.${leader.title}` as TranslationKey),
-          name: leader.name,
-          country: name,
-        })
-      : t('setup.leaderHintNoName', { country: name });
+    const hint = t('setup.leaderHint', {
+      title: t(`leaderTitle.${leader.title}` as TranslationKey),
+      country: name,
+    });
 
     const input = el('input', 'input input-large');
     input.type = 'text';

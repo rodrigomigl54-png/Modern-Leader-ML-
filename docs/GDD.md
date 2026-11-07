@@ -16,7 +16,7 @@ Modern Leader (working title, code name ML) is a turn-based geopolitical grand-s
 - Web build first (desktop and phone browsers), deployed to GitHub Pages.
 - English is the main language; every UI string goes through a translation system from day one (Serbian added as the second language).
 - Single player only. No multiplayer in the demo.
-- No images of real leaders: names and titles only.
+- No images or names of real leaders: titles of their offices only (the player names their own leader).
 - Full province map, no merging or simplification.
 - Later (not demo): Steam and mobile release, free with ads and in-app purchases. Monetization must never sell military or economic advantage (no pay-to-win).
 
@@ -62,13 +62,13 @@ A new game takes three choices: AI aggressiveness, country, and the player's lea
 
 Only countries with full status are selectable (see section 4, disputed territories).
 
-**Step 3 — Leader name.** The player types a name and replaces the current head of state/government of the chosen country. All other countries keep their real leaders (names and titles only).
+**Step 3 — Leader name.** The player types a name and takes over the office of head of state/government of the chosen country. Other countries' leaders appear by their office only, never by the name of a real person (Dario, license and store audit).
 
 Optional setting on this screen: **Disputed territories display** (section 4).
 
 ## 4. World, map and disputed territories
 
-The world starts on a fixed date (default 1 January 2027, stored in data, changeable) with borders, leaders, alliances, wars and relations as they stand on that date.
+The world starts on a fixed date (default 1 January 2027, stored in data, changeable) with borders, offices, alliances and relations as they stand on that date. No war is running at the start (Dario, store rules): countries at war in reality start as rivals at −100 and may go to war in play.
 
 **Map**
 
@@ -366,9 +366,10 @@ All world data lives in JSON files under `data/modern/`; Claude Code drafts it, 
 | --- | --- | --- |
 | Borders, provinces | Natural Earth admin-0 and admin-1 (public domain) | Automatic checks + visual review |
 | Cities | Natural Earth populated places (public domain) | Automatic checks |
-| GDP, population, budget, debt | World Bank and IMF open data | Spot checks |
+| GDP, population, stability | World Bank open data (CC BY 4.0) | Spot checks |
+| Military spending, armed forces, debt, nuclear forces | The game's own rounded estimates (`tools/countries/game-estimates.json`), not database values (SIPRI, IISS and IMF data need permission for commercial use) | Dario |
 | Military size, reserves, mandatory service | Public estimates, rounded | Dario |
-| Leaders (name + title) | Official government sites | Dario, at every data update |
+| Leaders (title of the office only) | Official government sites | Dario, at every data update |
 | Alliances, pacts, wars | Official alliance and government sources | Dario |
 | Relations and AI profiles | Drafted from documented behavior, each with a one-line justification | Dario |
 | Resources | Open production and trade statistics | Spot checks |

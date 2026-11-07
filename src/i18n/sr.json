@@ -79,8 +79,7 @@
   "setup.atWar": "U ratu",
   "setup.none": "Nema",
   "setup.leader": "Vaše ime",
-  "setup.leaderHint": "Zamenjujete aktuelnog lidera ({title} {name}) na čelu države {country}. Sve druge države zadržavaju svoje stvarne lidere.",
-  "setup.leaderHintNoName": "Postajete lider države {country}. Sve druge države zadržavaju svoje stvarne lidere.",
+  "setup.leaderHint": "Postajete lider države {country} ({title}). Upišite svoje ime: lideri drugih država prikazani su samo po funkciji.",
   "setup.leaderPlaceholder": "Ime lidera",
   "setup.disputed": "Sporne teritorije",
   "disputed.neutral": "Neutralne",
@@ -1082,6 +1081,6 @@
   "replay.pause": "Pauza",
   "replay.none": "Granice se još nisu menjale.",
   "credits.title": "Zasluge i licence",
-  "credits.text": "Podaci o mapi: Made with Natural Earth (javno dobro). Ekonomski podaci: World Bank Open Data (CC BY 4.0), uključujući Worldwide Governance Indicators; oružane snage: IISS preko Svetske banke. Javni dug: Međunarodni monetarni fond, World Economic Outlook. Vojni izdaci i nuklearne snage: SIPRI Military Expenditure Database i SIPRI Yearbook. Svi brojevi su zaokruženi i prilagođeni igri. Zastave: Wikimedia Commons (javno dobro), preko hampusborgos/country-flags. Font: Inter (SIL Open Font License 1.1). Grafički pogon: PixiJS (MIT). Muziku i zvukove pravi sama igra.",
+  "credits.text": "Podaci o mapi: Made with Natural Earth (javno dobro). Ekonomski podaci: World Bank Open Data (CC BY 4.0), uključujući Worldwide Governance Indicators. Vojni izdaci, broj vojnika, javni dug i nuklearne snage su zaokružene procene same igre. Svi brojevi su prilagođeni igri. Zastave: Wikimedia Commons (javno dobro), preko hampusborgos/country-flags. Font: Inter (SIL Open Font License 1.1). Grafički pogon: PixiJS (MIT). Muziku i zvukove pravi sama igra.",
   "credits.licenses": "Licence korišćenih biblioteka"
 }

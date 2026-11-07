@@ -57,7 +57,7 @@ function derive(id: string): Profile {
   const spending =
     share === null
       ? 'No reliable military spending data'
-      : `Military spending ${share.toFixed(1)}% of GDP (SIPRI)`;
+      : `Military spending ${share.toFixed(1)}% of GDP (game estimate)`;
   const alliances = diplomacy.alliances.filter((a) => a.members.includes(id));
   const defense = alliances.filter((a) => a.type === 'alliance');
   const pacts = alliances.filter((a) => a.type === 'pact');
@@ -125,7 +125,7 @@ function derive(id: string): Profile {
       risk,
       why(atWar && 'At war at the start', spending, drafted && 'Mandatory military service'),
     ],
-    nuclear: nuclear[id] ? [40, 'Has nuclear weapons (SIPRI)'] : [0, 'No nuclear weapons'],
+    nuclear: nuclear[id] ? [40, 'Has nuclear weapons'] : [0, 'No nuclear weapons'],
     loyalty: [
       loyalty,
       names.length ? `Member of ${names.join(', ')}` : 'No alliances or defense pacts',
@@ -154,7 +154,7 @@ const out = {
     description:
       'AI behavior profiles (GDD section 11). Traits 0-100, each [score, one-line justification]. Hand-written profiles come from tools/ai/manual-profiles.json; the rest ("derived": true) are computed from the game data by tools/ai/build-profiles.ts. Generated file: do not edit by hand.',
     source:
-      'tools/ai/manual-profiles.json and data/modern (alliances, rivalries, wars, sanctions, SIPRI spending, nuclear forces)',
+      'tools/ai/manual-profiles.json and data/modern (alliances, rivalries, wars, sanctions, estimated military spending, nuclear forces)',
     generatedBy: 'tools/ai/build-profiles.ts',
     checked: new Date().toISOString().slice(0, 10),
     checkedBy: 'draft — needs review by Dario',

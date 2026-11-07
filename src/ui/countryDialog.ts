@@ -226,6 +226,8 @@ export class CountryDialog {
       if (al.members.includes(id) && al.type !== 'vassal') chip(this.options.allianceName(al.id));
     const country = game.world.countries.find((c) => c.id === id);
     const leader = el('div', 'country-leader');
+    // Only the player's leader has a name: other countries show the office alone (no names of
+    // real people).
     if (country?.leader.name) {
       leader.append(
         leaderSeal(country.leader.name, id, 36),
@@ -235,7 +237,8 @@ export class CountryDialog {
           `${t(`leaderTitle.${country.leader.title}` as TranslationKey)} ${country.leader.name}`,
         ),
       );
-    }
+    } else if (country)
+      leader.append(el('span', '', t(`leaderTitle.${country.leader.title}` as TranslationKey)));
     const wrap = el('div');
     wrap.append(
       head,

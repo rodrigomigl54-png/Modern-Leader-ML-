@@ -112,6 +112,13 @@ Findings that need a decision (see the chat report):
 10. **Patents:** no known patent covers the game's mechanics (turn-based map strategy is old and
     common); a formal freedom-to-operate search would need a patent attorney.
 
+## Decisions of November 2026 (done)
+
+- SIPRI, IISS and IMF values replaced by the game's own coarse estimates (findings 1–3 above
+  resolved); nuclear forces are round public numbers.
+- Real leaders' names removed: offices only (finding 4 resolved).
+- No war at the start (finding 5 lowered): rivals at −100 instead.
+
 ## Before a public release
 
 1. Add a Credits screen: World Bank (CC BY 4.0), IMF, SIPRI, Natural Earth, PixiJS (MIT), Inter (OFL).

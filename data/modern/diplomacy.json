@@ -4,7 +4,8 @@
     "source": "Treaty texts and official alliance sites; documented diplomatic history",
     "asOf": "2026-06",
     "checked": null,
-    "checkedBy": "Pending review by Dario"
+    "checkedBy": "Pending review by Dario",
+    "wars": "No war at the start (Dario, license and store audit): the Russia-Ukraine conflict starts as a rivalry with relations at -100; wars start only in play."
   },
   "alliances": [
     {
@@ -241,7 +242,7 @@
     {
       "a": "RUS",
       "b": "UKR",
-      "reason": "War since 2022; annexation of Crimea in 2014"
+      "reason": "Deep hostility; annexation of Crimea in 2014 (the game starts without a war: Dario, store rules)"
     },
     {
       "a": "RUS",
@@ -379,20 +380,5 @@
       "reason": "Western Sahara conflict; ceasefire collapsed in 2020"
     }
   ],
-  "wars": [
-    {
-      "id": "russia-ukraine",
-      "sides": [
-        [
-          "RUS"
-        ],
-        [
-          "UKR"
-        ]
-      ],
-      "since": "2022-02-24",
-      "source": "Full-scale invasion of Ukraine; still active at the last data check (mid-2026)",
-      "verify": true
-    }
-  ]
+  "wars": []
 }
