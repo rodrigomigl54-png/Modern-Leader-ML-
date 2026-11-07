@@ -299,45 +299,91 @@ async function start(): Promise<void> {
     };
 
     /** Army counters on the map, colored by their relation to the player. */
+    /** Other countries' armies smaller than this are not drawn (Dario: a cleaner map). */
+    const OTHERS_MIN_ARMY = 20000;
     const showArmies = (): void => {
       if (!game) return map.setArmies([]);
       const player = game.player.countryId;
       const enemies = new Set(enemiesAtWar(game.world, player));
       const allies = new Set(alliesOf(game.world, player));
-      const markers: ArmyMarker[] = game.military.armies.map((a) => ({
-        id: a.id,
-        provinceId: a.provinceId,
-        size: armySize(a),
-        relation:
-          a.owner === player
-            ? 'own'
-            : enemies.has(a.owner)
-              ? 'enemy'
-              : allies.has(a.owner)
-                ? 'ally'
-                : 'other',
-        selected: armySelection.has(a.id),
-        path: a.path,
-        atSea: a.arriveTurn !== undefined && a.arriveTurn > game!.turn,
-      }));
+      // Countries at war show their flag on their counters (Dario, after AoH2).
+      const atWar = new Set(game.world.wars.flatMap((w) => [...w.sides[0], ...w.sides[1]]));
+      const flagOf = (id: string): string | null =>
+        atWar.has(id) ? countryFlag(game!.world, id, game!.settings.disputedMode) : null;
+      const relationOf = (owner: string): ArmyMarker['relation'] =>
+        owner === player
+          ? 'own'
+          : enemies.has(owner)
+            ? 'enemy'
+            : allies.has(owner)
+              ? 'ally'
+              : 'other';
+      const markers: ArmyMarker[] = [];
+      // Other countries' armies (not ours, allies' or enemies'): only the big ones, one counter
+      // per country and province (Dario: the map was too crowded).
+      const others = new Map<string, ArmyMarker>();
+      for (const a of game.military.armies) {
+        const relation = relationOf(a.owner);
+        const marker: ArmyMarker = {
+          id: a.id,
+          provinceId: a.provinceId,
+          size: armySize(a),
+          relation,
+          selected: armySelection.has(a.id),
+          path: a.path,
+          atSea: a.arriveTurn !== undefined && a.arriveTurn > game.turn,
+          special: a.special,
+          flag: flagOf(a.owner),
+        };
+        if (relation !== 'other') {
+          markers.push(marker);
+          continue;
+        }
+        const key = `${a.owner}:${a.provinceId}`;
+        const merged = others.get(key);
+        if (merged) {
+          merged.size += marker.size;
+          merged.special = (merged.special ?? 0) + a.special;
+        } else others.set(key, { ...marker, path: [] });
+      }
+      for (const m of others.values()) if (m.size >= OTHERS_MIN_ARMY) markers.push(m);
       map.setArmies(markers);
       showBuildings();
     };
 
-    /** Building icons on the map: only in the cities that have the buildings (with levels). */
+    /**
+     * Building icons on the map (Dario: less crowded): one icon per kind in each of the player's
+     * provinces, at the province's main city, the kinds with most buildings first. Capitals get
+     * a star.
+     */
     const showBuildings = (): void => {
-      if (!game) return map.setBuildings([]);
-      const byCity = new Map<number, Map<string, number>>();
+      if (!game) {
+        map.setCapitals([]);
+        return map.setBuildings([]);
+      }
+      const player = game.player.countryId;
+      const owners = game.world.provinceOwners;
+      const byProvince = new Map<number, Map<string, number>>();
       for (const b of game.economy.buildings) {
-        const kinds = byCity.get(b.cityId) ?? new Map<string, number>();
+        const p = sim.cityProvince[b.cityId];
+        if (p === undefined || owners[p] !== player) continue;
+        const kinds = byProvince.get(p) ?? new Map<string, number>();
         kinds.set(b.category, (kinds.get(b.category) ?? 0) + 1);
-        byCity.set(b.cityId, kinds);
+        byProvince.set(p, kinds);
       }
       map.setBuildings(
-        [...byCity].map(([cityId, kinds]) => ({
-          cityId,
-          kinds: [...kinds].map(([category, level]) => ({ category, level })),
+        [...byProvince].map(([p, kinds]) => ({
+          cityId: provinceSeat(sim, p),
+          kinds: [...kinds]
+            .sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1))
+            .map(([category, level]) => ({ category, level })),
         })),
+      );
+      map.setCapitals(
+        game.world.countries
+          .filter((c) => c.provinceIds.length > 0 && c.status !== 'uninhabited')
+          .map((c) => ({ cityId: provinceSeat(sim, c.capitalProvinceId), mine: c.id === player }))
+          .filter((c) => c.cityId >= 0),
       );
     };
 

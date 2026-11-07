@@ -1,4 +1,4 @@
-import { BitmapFont, BitmapText, Container, Graphics } from 'pixi.js';
+import { BitmapFont, BitmapText, Container, Graphics, Sprite, Texture } from 'pixi.js';
 import type { Camera } from './camera';
 import type { MapData } from './mapData';
 import { FONT_FAMILY } from '../app/fonts';
@@ -15,6 +15,10 @@ export interface ArmyMarker {
   /** Provinces still to cross (drawn for the player's armies). */
   path: readonly number[];
   atSea: boolean;
+  /** Special forces in the army (Dario: their own icon). */
+  special?: number;
+  /** Flag image of the owner, shown on the counter while it is at war (as in AoH2). */
+  flag?: string | null;
 }
 
 const COLORS: Record<ArmyRelation, { fill: number; text: number }> = {
@@ -47,6 +51,33 @@ export class ArmyLayer {
   private readonly pool: BitmapText[] = [];
   private markers: ArmyMarker[] = [];
   private readonly anchor: [number, number][];
+  private readonly flags = new Container();
+  private readonly flagPool: Sprite[] = [];
+  /** Flag textures by image URL (loaded once; null while loading or after an error). */
+  private readonly flagTextures = new Map<string, Texture | null>();
+  /** Called when a flag finished loading, to draw it. */
+  onFlagLoaded: () => void = () => undefined;
+
+  private flagTexture(url: string): Texture | null {
+    if (this.flagTextures.has(url)) return this.flagTextures.get(url)!;
+    this.flagTextures.set(url, null);
+    const img = new Image();
+    img.decoding = 'async';
+    img.src = url;
+    img
+      .decode()
+      .then(() => {
+        // Draw the flag into a small canvas: a sharp texture at counter size.
+        const canvas = document.createElement('canvas');
+        canvas.width = 48;
+        canvas.height = 32;
+        canvas.getContext('2d')?.drawImage(img, 0, 0, 48, 32);
+        this.flagTextures.set(url, Texture.from(canvas));
+        this.onFlagLoaded();
+      })
+      .catch(() => undefined);
+    return null;
+  }
 
   constructor(data: MapData, resolution: number) {
     BitmapFont.install({
@@ -60,7 +91,7 @@ export class ArmyLayer {
       resolution,
       chars: [['0', '9'], 'kM.'],
     });
-    this.container.addChild(this.shapes, this.texts);
+    this.container.addChild(this.shapes, this.flags, this.texts);
     // Armies stand at the province's main city (or its center when it has none).
     const seat = new Map<number, [number, number]>();
     const best = new Map<number, number>();
@@ -88,6 +119,8 @@ export class ArmyLayer {
     // Phase of the marching animation, 0..1 every second.
     const phase = (now % 1000) / 1000;
     for (const t of this.pool) t.visible = false;
+    for (const f of this.flagPool) f.visible = false;
+    let flagsUsed = 0;
     const [x0, y0, x1, y1] = camera.visibleRect();
     const margin = 40 / camera.scale;
     const inView = ([x, y]: [number, number]): boolean =>
@@ -130,12 +163,29 @@ export class ArmyLayer {
       g.roundRect(x, y, w, h, 4)
         .fill({ color: color.fill, alpha: m.atSea ? 0.6 : 1 })
         .stroke({ color: m.selected ? 0xffffff : 0x0b1522, width: m.selected ? 2 : 1 });
-      // The unit icon: rank chevrons at rest, marching chevrons on the move, a boat at sea.
+      // The unit icon: the country's flag at war, a boat at sea, else a soldier's helmet or the
+      // special forces' beret with a star (Dario, after AoH2).
       const moving = m.path.length > 0 || m.atSea;
       if (moving) this.animating = true;
       const ix = x + 4;
       const iy = y + 4;
-      if (m.atSea) {
+      const flag = m.flag && !m.atSea ? this.flagTexture(m.flag) : null;
+      if (flag) {
+        let sprite = this.flagPool[flagsUsed];
+        if (!sprite) {
+          sprite = new Sprite();
+          this.flagPool.push(sprite);
+          this.flags.addChild(sprite);
+        }
+        flagsUsed++;
+        sprite.texture = flag;
+        sprite.visible = true;
+        sprite.width = 13;
+        sprite.height = 9;
+        const bob = moving ? Math.sin(phase * Math.PI * 2) : 0;
+        sprite.position.set(ix - 1, iy + bob);
+        g.rect(ix - 1.5, iy - 0.5 + bob, 14, 10).stroke({ color: 0x0b1522, width: 1 });
+      } else if (m.atSea) {
         const bob = Math.sin(phase * Math.PI * 2) * 1.2;
         g.poly([
           ix,
@@ -152,22 +202,23 @@ export class ArmyLayer {
           color: color.text,
         });
       } else {
-        const next = m.path[0];
-        const dir = next === undefined ? 0 : Math.sign(this.anchor[next]![0] - world[0]) || 1;
-        const shift = moving ? Math.sin(phase * Math.PI * 2) * 1.5 * dir : 0;
-        for (const dy of [0, 4]) {
-          if (dir === 0)
-            g.moveTo(ix + 1, iy + 6 + dy)
-              .lineTo(ix + 5, iy + 2 + dy)
-              .lineTo(ix + 9, iy + 6 + dy);
-          else
-            g.moveTo(ix + 3 + shift - dir * 2, iy + dy)
-              .lineTo(ix + 3 + shift + dir * 2, iy + 3 + dy)
-              .lineTo(ix + 3 + shift - dir * 2, iy + 6 + dy);
-        }
-        if (dir === 0) g.stroke({ color: color.text, width: 1.6 });
-        else {
-          g.stroke({ color: color.text, width: 1.6 });
+        // Marching: the icon bobs.
+        const bob = moving ? Math.sin(phase * Math.PI * 2) * 1.2 : 0;
+        const special = (m.special ?? 0) > 0 && (m.special ?? 0) * 2 >= m.size;
+        if (special) {
+          // Special forces: a beret (tilted dome) with a star.
+          g.ellipse(ix + 5, iy + 5 + bob, 5, 3.4).fill({ color: color.text });
+          g.circle(ix + 9, iy + 3 + bob, 1.4).fill({ color: color.text });
+          star(g, ix + 4.5, iy + 4.6 + bob, 2.2, color.fill);
+        } else {
+          // Soldiers: a helmet with a brim.
+          g.moveTo(ix + 1, iy + 7 + bob)
+            .arc(ix + 5, iy + 7 + bob, 4, Math.PI, 0)
+            .lineTo(ix + 1, iy + 7 + bob)
+            .fill({ color: color.text });
+          g.rect(ix - 0.5, iy + 7 + bob, 11, 1.6).fill({ color: color.text });
+          // Mixed armies: a small star for the special forces among them.
+          if ((m.special ?? 0) > 0) star(g, ix + 9.5, iy + 1.5 + bob, 2.2, 0xf4f1e8);
         }
       }
       // A small chevron pointing at the city.
@@ -215,4 +266,15 @@ function dashed(g: Graphics, ax: number, ay: number, bx: number, by: number, pha
       ay + (by - ay) * t1,
     );
   }
+}
+
+/** A small five-pointed star. */
+function star(g: Graphics, x: number, y: number, r: number, color: number): void {
+  const points: number[] = [];
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + (i * Math.PI) / 5;
+    const rr = i % 2 === 0 ? r : r * 0.45;
+    points.push(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+  }
+  g.poly(points).fill({ color });
 }

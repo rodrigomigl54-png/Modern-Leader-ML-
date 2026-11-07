@@ -92,6 +92,8 @@ export interface MapView {
   setArmies(markers: ArmyMarker[]): void;
   /** Building icons next to the cities that have them. */
   setBuildings(items: CityBuildings[]): void;
+  /** Capital cities (a star each; the player's in amber). */
+  setCapitals(capitals: { cityId: number; mine: boolean }[]): void;
   /** Missiles, drones, nuclear bases and air-defense rings. */
   setStrikes(overlay: StrikeOverlay): void;
   /** Impact ripples at cities. */
@@ -246,6 +248,7 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
     }));
   const labels = new MapLabels(data, deviceRatio(), labelCountries());
   const armies = new ArmyLayer(data, Math.min(2, deviceRatio()));
+  armies.onFlagLoaded = () => requestRender();
   const strikes = new StrikeLayer(data);
   const battles = new BattleLayer(data, Math.min(2, deviceRatio()));
   const selectionBox = new Graphics();
@@ -431,6 +434,10 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
         applyMode();
         requestRender();
       }
+    },
+    setCapitals: (capitals) => {
+      buildings.setCapitals(capitals);
+      requestRender();
     },
     setBuildings: (items) => {
       buildings.set(items);
