@@ -1080,5 +1080,8 @@
   "replay.watch": "▶ Promene granica",
   "replay.play": "Pusti",
   "replay.pause": "Pauza",
-  "replay.none": "Granice se još nisu menjale."
+  "replay.none": "Granice se još nisu menjale.",
+  "credits.title": "Zasluge i licence",
+  "credits.text": "Podaci o mapi: Made with Natural Earth (javno dobro). Ekonomski podaci: World Bank Open Data (CC BY 4.0), uključujući Worldwide Governance Indicators; oružane snage: IISS preko Svetske banke. Javni dug: Međunarodni monetarni fond, World Economic Outlook. Vojni izdaci i nuklearne snage: SIPRI Military Expenditure Database i SIPRI Yearbook. Svi brojevi su zaokruženi i prilagođeni igri. Zastave: Wikimedia Commons (javno dobro), preko hampusborgos/country-flags. Font: Inter (SIL Open Font License 1.1). Grafički pogon: PixiJS (MIT). Muziku i zvukove pravi sama igra.",
+  "credits.licenses": "Licence korišćenih biblioteka"
 }

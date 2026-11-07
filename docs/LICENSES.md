@@ -64,6 +64,54 @@ imported. Steam asks developers to disclose AI-generated content in the Content 
 - **Needs review**: the name "Modern Leader" itself (search the trademark registers of the target
   markets before a store release).
 
+## Audit of November 2026 (Dario: "nothing may break any rule")
+
+Done in this repository:
+
+- **Libraries:** all 13 shipped packages are permissive: MIT (pixi.js and 8 of its packages),
+  BSD-3-Clause (2), ISC (earcut), OFL-1.1 (Inter). The build now writes
+  `THIRD-PARTY-LICENSES.md` next to the game with every license text (MIT, BSD and ISC require
+  the notice in every copy). Linked from Settings → Credits and licenses.
+- **Credits:** Settings → Credits and licenses names Natural Earth, the World Bank (CC BY 4.0),
+  WGI, IISS, the IMF, SIPRI, the flags, Inter and PixiJS (CC BY 4.0 requires the attribution).
+- **Files:** the game ships no third-party images, sounds, music or fonts other than the 199
+  flags and Inter. Sounds are synthesized; icons, logo and intro are drawn in code. The 240
+  PNGs are map tiles rendered from Natural Earth.
+- **Other games:** no text the player sees names another game; no assets, code or texts come
+  from one. Code comments mention Age of History as inspiration only.
+- **Flags:** the source repository states the flags are public domain (from Wikimedia Commons);
+  a list of flags with special licenses (oxguy3/flags) contains only US city flags, none of ours.
+
+Findings that need a decision (see the chat report):
+
+1. **SIPRI** (military spending, nuclear forces): SIPRI's terms allow free non-commercial use;
+   commercial use needs permission and normally a royalty. The World Bank series
+   MS.MIL.XPND.CD is SIPRI data and says its use is subject to SIPRI's terms. **Before a
+   commercial release:** ask SIPRI for permission, or replace these values with the game's own
+   rounded estimates from several public sources.
+2. **IMF** (government debt): the IMF page asks for permission for commercial reuse
+   (copyright@imf.org). Same choice: ask, or use the World Bank's own CC BY debt series where it
+   exists and estimates elsewhere.
+3. **IISS** (armed forces personnel, via World Bank MS.MIL.TOTL.P1): third-party data in the
+   World Bank set; check the series' license note and ask IISS if needed.
+4. **Real living leaders by name:** publicity and personality rights differ by country; the
+   safest store version uses titles only ("President of France") or lets the player turn names
+   on. Decision for Dario.
+5. **The war in Ukraine at the start:** Google Play's Sensitive Events policy bars apps that
+   capitalize on ongoing conflicts (a Hong Kong protest game was removed in 2019). A store build
+   should present it as a neutral simulation and avoid using the real war in marketing; an
+   option to start without current wars lowers the risk. Decision for Dario.
+6. **Apple 1.1.2:** enemies in a game cannot solely target a real government. Met today (the
+   player picks any country and fights anyone), keep it that way.
+7. **Steam:** no ads that players must watch and no rewards for watching ads; AI-generated
+   content must be disclosed in the Content Survey.
+8. **Web ads:** Google's H5 Games Ads (AdSense) is an invite-only beta; ads need a privacy
+   policy and, for players in the EU/EEA, a certified consent banner.
+9. **Name "Modern Leader":** a quick web search found no game with that name or registered mark;
+   a proper search in the USPTO, EUIPO, WIPO and Serbian registers is still needed.
+10. **Patents:** no known patent covers the game's mechanics (turn-based map strategy is old and
+    common); a formal freedom-to-operate search would need a patent attorney.
+
 ## Before a public release
 
 1. Add a Credits screen: World Bank (CC BY 4.0), IMF, SIPRI, Natural Earth, PixiJS (MIT), Inter (OFL).

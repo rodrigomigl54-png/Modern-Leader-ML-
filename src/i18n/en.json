@@ -1080,5 +1080,8 @@
   "replay.watch": "▶ Border timelapse",
   "replay.play": "Play",
   "replay.pause": "Pause",
-  "replay.none": "The borders have not changed yet."
+  "replay.none": "The borders have not changed yet.",
+  "credits.title": "Credits and licenses",
+  "credits.text": "Map data: Made with Natural Earth (public domain). Economic data: World Bank Open Data (CC BY 4.0), including Worldwide Governance Indicators; armed forces: IISS via the World Bank. Government debt: International Monetary Fund, World Economic Outlook. Military expenditure and nuclear forces: SIPRI Military Expenditure Database and SIPRI Yearbook. All figures are rounded and adapted for the game. Flags: Wikimedia Commons (public domain), via hampusborgos/country-flags. Font: Inter (SIL Open Font License 1.1). Graphics engine: PixiJS (MIT). Music and sounds are made by the game itself.",
+  "credits.licenses": "Licenses of the libraries used"
 }

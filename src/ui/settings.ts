@@ -72,6 +72,27 @@ function translateHint(): HTMLElement {
   return hint;
 }
 
+/**
+ * Credits and licenses: the data sources the game must name (World Bank CC BY 4.0, IMF, SIPRI)
+ * and a link to the licenses of the bundled libraries (THIRD-PARTY-LICENSES.md in the build).
+ */
+function credits(): HTMLElement {
+  const box = document.createElement('details');
+  box.className = 'settings-credits';
+  const summary = document.createElement('summary');
+  summary.textContent = t('credits.title');
+  const text = document.createElement('p');
+  text.className = 'settings-hint';
+  text.textContent = t('credits.text');
+  const link = document.createElement('a');
+  link.href = 'THIRD-PARTY-LICENSES.md';
+  link.target = '_blank';
+  link.rel = 'noopener';
+  link.textContent = t('credits.licenses');
+  box.append(summary, text, link);
+  return box;
+}
+
 /** Restores the language the player chose last time, if the browser allows storage. */
 export function restoreLanguage(): void {
   try {
@@ -298,6 +319,7 @@ export function mountSettings(root: HTMLElement, options: SettingsOptions): Sett
       ),
       row(t('settings.reduceMotion'), motion),
       row(t('settings.showFps'), fps),
+      credits(),
       feedback,
       close,
     );
