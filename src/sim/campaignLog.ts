@@ -140,7 +140,13 @@ export function recordLog(state: GameState, events: readonly TurnEvent[]): void 
           add({ category: 'territory', kind: 'provinceLost', a: e.to, n: e.provinceId });
         break;
       case 'countryConquered':
-        add({ category: 'territory', kind: 'conquered', a: e.countryId, b: e.by });
+        // A capitulation is logged when it happens; do not log it twice.
+        if (
+          !log.entries.some(
+            (x) => x.turn === state.turn && x.kind === 'conquered' && x.a === e.countryId,
+          )
+        )
+          add({ category: 'territory', kind: 'conquered', a: e.countryId, b: e.by });
         break;
       case 'peace':
         add({ category: 'peace', kind: 'peace', a: e.a, b: e.b });

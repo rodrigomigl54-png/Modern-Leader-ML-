@@ -8,6 +8,7 @@ import { applyCommand, type Command } from './commands';
 import {
   bestPeaceProvinces,
   hasAccess,
+  hasCapitulated,
   peaceCost,
   peaceProvinceOptions,
   pointsIncome,
@@ -488,6 +489,68 @@ describe('nuclear use and determinism', () => {
   it('gives the same result for the same seed', () => {
     const start = run(newGame(), { type: 'declareWar', countryId: 'AAA', targetId: 'BBB' }).state;
     expect(play(start, 12)).toEqual(play(start, 12));
+  });
+});
+
+describe('capitulation', () => {
+  /** BBB at war with AAA, half its people lost and no army left. */
+  const beaten = (player = 'AAA'): GameState => {
+    const game = run(newGame(player), {
+      type: 'declareWar',
+      countryId: 'AAA',
+      targetId: 'BBB',
+    }).state;
+    transferProvince(game, sim, 2, 'AAA');
+    game.military.armies = [];
+    return game;
+  };
+
+  it('needs no army left and at most half the people the loser had when the war began', () => {
+    const game = beaten();
+    expect(hasCapitulated(game, sim, 'AAA', 'BBB')).toBe(true);
+    expect(hasCapitulated(game, sim, 'BBB', 'AAA')).toBe(false);
+    game.military.armies = [
+      { id: 900, owner: 'BBB', provinceId: 3, regulars: 10, special: 0, path: [], from: 3 },
+    ];
+    expect(hasCapitulated(game, sim, 'AAA', 'BBB')).toBe(false);
+    const fresh = run(newGame(), { type: 'declareWar', countryId: 'AAA', targetId: 'BBB' }).state;
+    fresh.military.armies = [];
+    expect(hasCapitulated(fresh, sim, 'AAA', 'BBB')).toBe(false);
+  });
+
+  it('lets the winner take all the land; the loser leaves the game', () => {
+    const terms = { ...WHITE_PEACE, capitulation: true };
+    const notYet = run(newGame(), { type: 'declareWar', countryId: 'AAA', targetId: 'BBB' }).state;
+    expect(
+      applyCommand(notYet, { type: 'proposePeace', countryId: 'AAA', targetId: 'BBB', terms }, sim),
+    ).toEqual({ ok: false, error: 'notCapitulated' });
+    const result = run(beaten(), {
+      type: 'proposePeace',
+      countryId: 'AAA',
+      targetId: 'BBB',
+      terms,
+    });
+    expect(result.accepted).toBe(true);
+    const game = result.state;
+    expect(game.world.provinceOwners.slice(0, 4)).toEqual(['AAA', 'AAA', 'AAA', 'AAA']);
+    expect(game.world.countries.find((c) => c.id === 'BBB')!.provinceIds).toEqual([]);
+    expect(warBetween(game.world, 'AAA', 'BBB')).toBeUndefined();
+    expect(game.log!.entries.at(-1)).toMatchObject({ kind: 'conquered', a: 'BBB', b: 'AAA' });
+  });
+
+  it('the AI follows the same rule, and offers the player a capitulation they may refuse', () => {
+    // AI against AI: the beaten country hands over its land.
+    let game = beaten('DDD');
+    game = play(game, 1);
+    expect(game.world.countries.find((c) => c.id === 'BBB')!.provinceIds).toEqual([]);
+    expect(game.world.provinceOwners[3]).toBe('AAA');
+    // The player beaten: an offer arrives instead.
+    game = beaten('BBB');
+    game.diplomacy.wars[warBetween(game.world, 'AAA', 'BBB')!.id]!.lastOffer = -100;
+    game = play(game, 1);
+    const offer = game.diplomacy.requests.find((r) => r.type === 'peace');
+    expect(offer && 'terms' in offer && offer.terms.capitulation).toBe(true);
+    expect(game.world.provinceOwners[3]).toBe('BBB');
   });
 });
 

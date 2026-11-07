@@ -6,6 +6,7 @@ import {
   dependenceOn,
   diplomacyRules,
   forSale,
+  hasCapitulated,
   bestPeaceProvinces,
   peaceProvinceOptions,
   hasAccess,
@@ -914,12 +915,60 @@ export class CountryDialog {
       ok ? 'setup-hint' : 'setup-warning',
       t('dip.peaceCost', { cost: Math.round(cost.cost), available: Math.round(cost.available) }),
     );
+    // What the treaty changes, in one line (master plan, phase 2).
+    const people = (ps: number[]): number =>
+      ps.reduce((s, p) => s + (sim.provincePopulation?.[p] ?? 0), 0);
+    const summary = el(
+      'p',
+      'peace-summary',
+      t('peace.summary', {
+        provinces: cost.keep.length,
+        people: this.options.formatCount(people(cost.keep)),
+        back: cost.give.length,
+        money: formatUsd(cost.reparations),
+      }),
+    );
+    // A country with no army that lost most of its people has capitulated: all its land.
+    const capitulation: HTMLElement[] = [];
+    if (hasCapitulated(game, sim, me, id)) {
+      const land = game.world.countries.find((c) => c.id === id)?.provinceIds ?? [];
+      const box = el('div', 'capitulation');
+      box.append(
+        el(
+          'strong',
+          'capitulation-title',
+          t('peace.capitulated', { country: this.options.countryName(id) }),
+        ),
+        el(
+          'p',
+          'setup-hint',
+          t('peace.capitulatedText', {
+            provinces: land.length,
+            people: this.options.formatCount(people(land)),
+          }),
+        ),
+        button('btn btn-primary dip-action', t('peace.takeAll'), () =>
+          this.toastResult(
+            {
+              type: 'proposePeace',
+              countryId: me,
+              targetId: id,
+              terms: { ...WHITE_PEACE, capitulation: true },
+            },
+            'peace.capitulationDone',
+            'dip.peaceRefused',
+          ),
+        ),
+      );
+      capitulation.push(box);
+    }
     return [
       el(
         'p',
         `modal-text ${score >= 0 ? '' : 'danger'}`,
         t('dip.warScore', { score: Math.round(score) }),
       ),
+      ...capitulation,
       el('p', 'setup-hint', t('dip.peaceHint')),
       ...(war.sides.some((side) => side[0] === id && side.length > 1)
         ? [
@@ -952,6 +1001,7 @@ export class CountryDialog {
       reparations,
       toggle(t('dip.peaceVassal'), terms.vassal, (v) => (terms.vassal = v)),
       toggle(t('dip.demilitarize'), terms.demilitarize, (v) => (terms.demilitarize = v)),
+      summary,
       meter,
       propose,
     ];

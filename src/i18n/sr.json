@@ -936,5 +936,12 @@
   "log.event": "Događaj.",
   "log.objective": "Cilj.",
   "minister.briefing": "Nedeljni brifing",
-  "settings.reduceMotion": "Manje animacija"
+  "settings.reduceMotion": "Manje animacija",
+  "peace.summary": "Ovaj ugovor: zadržavaš {provinces} provincija ({people} stanovnika), vraća ti se {back} tvojih, oni plaćaju {money}.",
+  "peace.capitulated": "{country} je kapitulirala",
+  "peace.capitulatedText": "Nema više vojske i izgubila je više od polovine stanovništva. Možeš da uzmeš svih {provinces} provincija koje još drži ({people} stanovnika) i završiš rat.",
+  "peace.takeAll": "Prihvati kapitulaciju: uzmi sve",
+  "peace.capitulationDone": "{country} je kapitulirala. Sva njena zemlja je tvoja.",
+  "peace.notCapitulated": "Nisu kapitulirali: još imaju vojsku ili većinu stanovništva.",
+  "foreign.capitulationRequest": "{country} traži našu kapitulaciju: svu našu zemlju. Odbiti i nastaviti borbu?"
 }

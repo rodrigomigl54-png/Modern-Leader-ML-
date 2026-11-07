@@ -149,7 +149,8 @@
     "peaceRelation": 20,
     "minTurns": 4,
     "exhaustedSupport": 25,
-    "exhaustedInflation": 0.3
+    "exhaustedInflation": 0.3,
+    "capitulationPopulationShare": 0.5
   },
   "nuclear": {
     "relation": -60,

@@ -936,5 +936,12 @@
   "log.event": "Event.",
   "log.objective": "Objective.",
   "minister.briefing": "Weekly briefing",
-  "settings.reduceMotion": "Fewer animations"
+  "settings.reduceMotion": "Fewer animations",
+  "peace.summary": "This treaty: you keep {provinces} provinces ({people} people), {back} of yours come back, they pay {money}.",
+  "peace.capitulated": "{country} has capitulated",
+  "peace.capitulatedText": "No army left and more than half its people lost. You may take all {provinces} provinces it still holds ({people} people) and end the war.",
+  "peace.takeAll": "Accept the capitulation: take everything",
+  "peace.capitulationDone": "{country} capitulated. All its land is yours.",
+  "peace.notCapitulated": "They have not capitulated: they still have an army or most of their people.",
+  "foreign.capitulationRequest": "{country} demands our capitulation: all our land. Refuse and keep fighting?"
 }

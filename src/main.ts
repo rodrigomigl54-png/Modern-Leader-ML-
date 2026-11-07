@@ -109,6 +109,7 @@ const COMMAND_ERRORS: Partial<Record<CommandError, TranslationKey>> = {
   allied: 'war.allied',
   invalidTarget: 'war.invalid',
   notAtWar: 'strike.notAtWar',
+  notCapitulated: 'peace.notCapitulated',
   outOfRange: 'strike.outOfRange',
   outOfRangeOrBlocked: 'strike.outOfRange',
   noStock: 'strike.nothing',
@@ -637,7 +638,10 @@ async function start(): Promise<void> {
     const describeRequest = (state: GameState, r: PlayerRequest): string => {
       if (r.type === 'joinWar')
         return t('foreign.joinWarRequest', { ally: nameOf(r.from), enemy: nameOf(r.enemy) });
-      if (r.type === 'peace') return t('foreign.peaceRequest', { country: nameOf(r.from) });
+      if (r.type === 'peace')
+        return t(r.terms.capitulation ? 'foreign.capitulationRequest' : 'foreign.peaceRequest', {
+          country: nameOf(r.from),
+        });
       if (r.type === 'investment')
         return t('foreign.investmentRequest', {
           country: nameOf(r.from),

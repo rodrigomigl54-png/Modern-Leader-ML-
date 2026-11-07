@@ -3697,3 +3697,22 @@ textarea {
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
 }
+
+/* Peace talks: a capitulation and the treaty summary (master plan, phase 2). */
+.capitulation {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: var(--line-soft);
+}
+
+.capitulation-title {
+  display: block;
+  color: var(--accent);
+}
+
+.peace-summary {
+  margin: 10px 0 4px;
+  line-height: 1.4;
+}
