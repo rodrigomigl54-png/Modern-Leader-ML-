@@ -10,6 +10,7 @@ import {
 import type { GameState } from './newGame';
 import type { AiProfile, AiRules } from './profiles';
 import type { GoalRules } from './goals';
+import type { EventRules } from './randomEvents';
 import { shortageLoss, type ResourcesData } from './resources';
 import { pariahPenalty, type WeaponsRules } from './weapons';
 import { productionFactor, type PopulationRules } from './population';
@@ -122,6 +123,8 @@ export interface SimContext {
   startDebt?: StartDebt;
   /** Goal rules (GDD section 13). */
   goals?: GoalRules;
+  /** Random events (master plan, phase 5). */
+  events?: EventRules;
 }
 
 export interface CountryEconomy {

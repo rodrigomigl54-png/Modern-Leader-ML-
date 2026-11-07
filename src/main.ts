@@ -61,6 +61,7 @@ import { GameHud } from './ui/gameHud';
 import { GameMenu } from './ui/gameMenu';
 import { GoalsPanel } from './ui/goalsPanel';
 import { HistoryPanel } from './ui/historyPanel';
+import { eventPanel } from './ui/eventPanel';
 import { RankingsPanel } from './ui/rankingsPanel';
 import { GREAT_POWERS, rankings } from './sim/rankings';
 import { TechPanel } from './ui/techPanel';
@@ -750,6 +751,26 @@ async function start(): Promise<void> {
       notices.update(state);
       if (state.gameOver) void showGameOver();
       else if (state.turn === 0) void advisorTip(0).then(startShortages);
+      else void askEvent();
+    };
+
+    /** A random event waiting for the player's answer (master plan, phase 5). */
+    let askingEvent = false;
+    const askEvent = async (): Promise<void> => {
+      const pending = game?.randomEvents?.pending;
+      const def = pending && sim.events?.events.find((e) => e.id === pending.eventId);
+      if (!game || !pending || !def || askingEvent) return;
+      askingEvent = true;
+      sound.play('alert');
+      const option = await eventPanel({
+        root: uiRoot,
+        def,
+        ...(pending.other ? { other: nameOf(pending.other) } : {}),
+        gdp: game.economy.countries[game.player.countryId]?.gdp ?? 0,
+        formatUsd,
+      });
+      askingEvent = false;
+      if (game) issue({ type: 'answerEvent', countryId: game.player.countryId, option });
     };
 
     /** The end of the game: a defeat (conquered, revolution) or the victory over the whole world. */
@@ -1072,6 +1093,7 @@ async function start(): Promise<void> {
       await announce(result.events);
       if (game.gameOver) return void showGameOver();
       await advisorTip(game.turn);
+      await askEvent();
       hud.setBusy(false);
     };
 
@@ -1398,6 +1420,14 @@ async function start(): Promise<void> {
       goalText: (state, kind) => {
         const goal = state.goals.find((g) => g.kind === kind);
         return goal ? describeGoal(goal) : kind;
+      },
+      extraText: (entry) => {
+        if (entry.kind !== 'event' || !entry.extra) return null;
+        const vars = { country: entry.a ? nameOf(entry.a) : '' };
+        return t('log.event', {
+          title: t(`event.${entry.extra}.title` as TranslationKey, vars),
+          answer: t(`event.${entry.extra}.option${entry.n ?? 0}` as TranslationKey, vars),
+        });
       },
     });
     const foreignPanel = new ForeignPanel({

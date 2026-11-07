@@ -1,0 +1,124 @@
+{
+  "meta": {
+    "description": "Random events (master plan, phase 5). Every country, the AI too, may get one event a week with chancePerWeek, never sooner than minGapWeeks after its last one and never the same event within repeatGapWeeks. Each event has conditions, a weight and 2 options with effects on the country: gdp (share of GDP, e.g. 0.01 = +1%), treasury (share of GDP), support (points, every province), inflation (added, e.g. 0.01 = +1 point), relation (with the other country of the event), techPoints and diplomacyPoints. The AI picks options by their aiWeight. Game-design defaults to be tuned by play.",
+    "source": "Game design (master plan, phase 5)",
+    "checked": "2026-11-07"
+  },
+  "chancePerWeek": 0.12,
+  "minGapWeeks": 5,
+  "repeatGapWeeks": 104,
+  "events": [
+    {
+      "id": "boom",
+      "category": "economic",
+      "weight": 2,
+      "options": [
+        { "effects": { "gdp": 0.01 }, "aiWeight": 1 },
+        { "effects": { "support": 4 }, "aiWeight": 1 }
+      ]
+    },
+    {
+      "id": "recession",
+      "category": "economic",
+      "weight": 2,
+      "options": [
+        { "effects": { "treasury": -0.005, "inflation": 0.01 }, "aiWeight": 1 },
+        { "effects": { "gdp": -0.01, "support": -3 }, "aiWeight": 1 }
+      ]
+    },
+    {
+      "id": "energyCrisis",
+      "category": "economic",
+      "weight": 1,
+      "options": [
+        { "effects": { "treasury": -0.004 }, "aiWeight": 1 },
+        { "effects": { "inflation": 0.015, "support": -3 }, "aiWeight": 1 }
+      ]
+    },
+    {
+      "id": "protests",
+      "category": "social",
+      "weight": 2,
+      "when": { "maxSupport": 60 },
+      "options": [
+        { "effects": { "treasury": -0.002, "support": 3 }, "aiWeight": 2 },
+        { "effects": { "support": -4 }, "aiWeight": 1 }
+      ]
+    },
+    {
+      "id": "scandal",
+      "category": "political",
+      "weight": 1,
+      "options": [
+        { "effects": { "diplomacyPoints": -1, "support": -1 }, "aiWeight": 1 },
+        { "effects": { "support": -4 }, "aiWeight": 1 }
+      ]
+    },
+    {
+      "id": "strike",
+      "category": "social",
+      "weight": 1,
+      "options": [
+        { "effects": { "treasury": -0.003, "support": 1 }, "aiWeight": 1 },
+        { "effects": { "gdp": -0.005, "support": -2 }, "aiWeight": 1 }
+      ]
+    },
+    {
+      "id": "flood",
+      "category": "disaster",
+      "weight": 1,
+      "options": [
+        { "effects": { "treasury": -0.004 }, "aiWeight": 2 },
+        { "effects": { "gdp": -0.008, "support": -3 }, "aiWeight": 1 }
+      ]
+    },
+    {
+      "id": "drought",
+      "category": "disaster",
+      "weight": 1,
+      "options": [
+        { "effects": { "treasury": -0.003 }, "aiWeight": 2 },
+        { "effects": { "inflation": 0.005, "support": -4 }, "aiWeight": 1 }
+      ]
+    },
+    {
+      "id": "borderIncident",
+      "category": "military",
+      "weight": 1,
+      "when": { "neighbor": true, "atWar": false },
+      "options": [
+        { "effects": { "relation": -10, "support": 2 }, "aiWeight": 1 },
+        { "effects": { "relation": 3, "support": -2 }, "aiWeight": 1 }
+      ]
+    },
+    {
+      "id": "diplomaticCrisis",
+      "category": "diplomatic",
+      "weight": 1,
+      "when": { "neighbor": true },
+      "options": [
+        { "effects": { "relation": 8, "diplomacyPoints": -1 }, "aiWeight": 1 },
+        { "effects": { "relation": -12, "support": 2 }, "aiWeight": 1 }
+      ]
+    },
+    {
+      "id": "breakthrough",
+      "category": "technology",
+      "weight": 1,
+      "options": [
+        { "effects": { "techPoints": 2 }, "aiWeight": 1 },
+        { "effects": { "gdp": 0.006 }, "aiWeight": 1 }
+      ]
+    },
+    {
+      "id": "warWeariness",
+      "category": "political",
+      "weight": 2,
+      "when": { "atWar": true },
+      "options": [
+        { "effects": { "diplomacyPoints": -1, "support": 3 }, "aiWeight": 1 },
+        { "effects": { "support": -3 }, "aiWeight": 1 }
+      ]
+    }
+  ]
+}

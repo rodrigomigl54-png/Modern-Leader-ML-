@@ -77,6 +77,7 @@ try {
     profiles: read('ai-profiles.json'),
     aiRules: read('ai-rules.json'),
     goals: read('goals.json'),
+    events: readOptional('events.json'),
     startDebt: read('debt.json'),
     stats: readOptional('country-stats.json'),
   });

@@ -1,5 +1,6 @@
 import type { HistoryPoint } from './history';
 import { emptyLog, type CampaignLog } from './campaignLog';
+import { emptyEvents, type EventsState } from './randomEvents';
 // Creates the initial game state from the three setup choices (GDD section 3).
 import { initEconomy, type EconomyState, type SimContext } from './economy';
 import { emptyDiplomacy, initDiplomacy, type DiplomacyState } from './diplomacy';
@@ -49,6 +50,8 @@ export interface GameState {
   history?: HistoryPoint[];
   /** The campaign's history (master plan, phase 7); older saves start an empty one. */
   log?: CampaignLog;
+  /** Random events (master plan, phase 5); older saves start without any. */
+  randomEvents?: EventsState;
   /** The end of the game: a defeat (revolution, conquered) or the player's victory. */
   gameOver?: { reason: 'revolution' | 'conquered' | 'victory'; turn: number };
 }
@@ -117,6 +120,7 @@ export function createNewGame(world: World, options: NewGameOptions, sim: SimCon
   }
   markReport(game, sim);
   game.log = emptyLog(game);
+  if (sim.events) game.randomEvents = emptyEvents(game.rngState);
   return game;
 }
 

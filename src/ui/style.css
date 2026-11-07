@@ -3748,3 +3748,105 @@ textarea {
 .goal-reward {
   color: var(--text-muted);
 }
+
+/* Random event card (master plan, phase 5): compact, the map stays visible. */
+.event-card {
+  position: absolute;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 40px);
+  z-index: 45;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 14px;
+  width: min(520px, calc(100vw - 24px));
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding: 14px 16px;
+  border: 1px solid var(--panel-border);
+  border-top: 3px solid var(--accent);
+  border-radius: 10px;
+  background: var(--panel-bg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  transform: translateX(-50%);
+  animation: event-in 0.22s ease-out both;
+}
+
+.event-out {
+  animation: event-out 0.18s ease-in both;
+}
+
+.event-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 64px;
+  border-radius: 8px;
+  background: var(--line-soft);
+  color: var(--accent);
+}
+
+.event-art svg {
+  width: 56px;
+  height: 46px;
+}
+
+.event-disaster .event-art,
+.event-military .event-art {
+  color: var(--danger-text);
+}
+
+.event-technology .event-art,
+.event-diplomatic .event-art {
+  color: var(--good-text);
+}
+
+.event-kicker {
+  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.event-title {
+  margin: 2px 0 4px;
+  font-size: 17px;
+}
+
+.event-text {
+  margin: 0 0 10px;
+  line-height: 1.4;
+}
+
+.event-answers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+}
+
+.event-answer {
+  display: grid;
+  gap: 2px;
+  min-height: 52px;
+  text-align: left;
+}
+
+.event-answer-fx {
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+@keyframes event-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 16px);
+  }
+}
+
+@keyframes event-out {
+  to {
+    opacity: 0;
+    transform: translate(-50%, 16px);
+  }
+}
