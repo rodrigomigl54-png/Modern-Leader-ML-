@@ -9,7 +9,7 @@ import {
   supportColor,
   supportMode,
 } from './mapModes';
-import { PaletteData } from './palette';
+import { PALETTE_WIDTH, PaletteData } from './palette';
 import { smallProvinceNear } from './tapTarget';
 import { chooseLevel, decodeProvince, visibleTiles, type TileLevel } from './tileMath';
 
@@ -95,6 +95,32 @@ describe('PaletteData', () => {
     expect(p.getColor(4612)).toEqual([10, 20, 30]);
     expect(p.getOwner(4612)).toBe(300);
     expect(p.getColor(4613)).toEqual([0, 0, 0]);
+  });
+
+  it('stores stripes and war sides without touching color and owner', () => {
+    const p = new PaletteData();
+    p.setColor(7, [10, 20, 30]);
+    p.setOwner(7, 3);
+    const ownerAlpha = (label: number): number =>
+      p.data[((256 + (label >> 8)) * PALETTE_WIDTH + (label & 255)) * 4 + 3]!;
+    const stripe = (label: number): number[] => {
+      const o = ((512 + (label >> 8)) * PALETTE_WIDTH + (label & 255)) * 4;
+      return [...p.data.slice(o, o + 4)];
+    };
+    expect(ownerAlpha(7)).toBe(255);
+    p.setSide(7, 1);
+    expect(ownerAlpha(7)).toBe(170);
+    p.setSide(7, 2);
+    expect(ownerAlpha(7)).toBe(85);
+    p.setSide(7, 0);
+    expect(ownerAlpha(7)).toBe(255);
+    expect(stripe(7)).toEqual([0, 0, 0, 0]);
+    p.setStripe(7, [1, 2, 3]);
+    expect(stripe(7)).toEqual([1, 2, 3, 255]);
+    p.setStripe(7, null);
+    expect(stripe(7)[3]).toBe(0);
+    expect(p.getColor(7)).toEqual([10, 20, 30]);
+    expect(p.getOwner(7)).toBe(3);
   });
 });
 

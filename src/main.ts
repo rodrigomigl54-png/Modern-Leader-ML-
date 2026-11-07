@@ -32,6 +32,7 @@ import {
 import { ensureDiplomacy, relation, type Demand, type PlayerRequest } from './sim/diplomacy';
 import { ensureResources, RESOURCES, type ResourceId } from './sim/resources';
 import { createNewGame, type GameState } from './sim/newGame';
+import type { BattleFx, CaptureFx } from './map/battleLayer';
 import { airDefenseMap, airDefenseQuote, ensureWeapons, weaponsRules } from './sim/weapons';
 import {
   assimilationQuote,
@@ -568,6 +569,7 @@ async function start(): Promise<void> {
     if (import.meta.env.DEV)
       (window as unknown as { __ml: unknown }).__ml = {
         game: () => game,
+        sim: () => sim,
         change: (fn: (state: GameState) => void) => {
           if (game) fn(game);
           showState();
@@ -666,7 +668,26 @@ async function start(): Promise<void> {
     };
 
     /** Relations toward the player and alliance blocs for the diplomacy map modes. */
+    /** Wars on the map: occupied land and the sides of the player's wars (AoH-style). */
+    const showWar = (): void => {
+      if (!game) return map.setWar(null);
+      const player = game.player.countryId;
+      const occupied = new Map<number, string>();
+      game.world.provinceOwners.forEach((_, p) => {
+        if (isOccupied(game!, p)) occupied.set(p, game!.population.culture[p]!);
+      });
+      const sides = new Map<string, 1 | 2>();
+      for (const w of game.world.wars) {
+        const mine = w.sides.findIndex((side) => side.includes(player));
+        if (mine < 0) continue;
+        for (const c of w.sides[mine]!) sides.set(c, 1);
+        for (const c of w.sides[1 - mine]!) if (!sides.has(c)) sides.set(c, 2);
+      }
+      map.setWar(occupied.size || sides.size ? { occupied, sides } : null);
+    };
+
     const showDiplomacy = (): void => {
+      showWar();
       if (!game) return map.setDiplomacy(null, null);
       const player = game.player.countryId;
       const relations = new Map(
@@ -1018,6 +1039,31 @@ async function start(): Promise<void> {
         if (e.type === 'weaponsReady' && e.owner === player)
           toasts.show(t(`arsenal.ready.${e.weapon}`, { count: formatCount(e.count) }));
       }
+      // The week's battles and captured provinces on the map (AoH-style war view).
+      const battleFx: BattleFx[] = [];
+      const captureFx: CaptureFx[] = [];
+      const playerSide = new Set([player, ...alliesOf(game.world, player)]);
+      for (const e of events) {
+        if (e.type === 'battle') {
+          const ours = playerSide.has(e.attacker)
+            ? 'attacker'
+            : playerSide.has(e.defender)
+              ? 'defender'
+              : null;
+          battleFx.push({
+            provinceId: e.provinceId,
+            ourLosses: ours === 'defender' ? e.defenderLosses : e.attackerLosses,
+            theirLosses: ours === 'defender' ? e.attackerLosses : e.defenderLosses,
+            tone: ours ? (e.winner === ours ? 'won' : 'lost') : 'other',
+          });
+        }
+        if (e.type === 'provinceCaptured')
+          captureFx.push({
+            provinceId: e.provinceId,
+            tone: playerSide.has(e.to) ? 'gain' : playerSide.has(e.from) ? 'loss' : 'other',
+          });
+      }
+      if (battleFx.length || captureFx.length) map.showBattles(battleFx, captureFx);
       if (hitCities.length) {
         map.pulseCities(hitCities.slice(0, 30));
         sound.play('impact');
@@ -1127,6 +1173,7 @@ async function start(): Promise<void> {
       map.setStrikes({ missiles: [], drones: [], nuclearBases: [], airDefense: [] });
       map.setAirDefense(null);
       map.setDiplomacy(null, null);
+      map.setWar(null);
       map.setExports(null);
       countryDialog.close();
       clearSelection();

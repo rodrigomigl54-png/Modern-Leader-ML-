@@ -4,11 +4,12 @@ import { ArmyLayer, type ArmyMarker } from './armyLayer';
 import { BuildingLayer, type CityBuildings } from './buildingLayer';
 import { Camera } from './camera';
 import { StrikeLayer, type StrikeOverlay } from './strikeLayer';
+import { BattleLayer, type BattleFx, type CaptureFx } from './battleLayer';
 import { MapControls } from './controls';
 import { loadMapData, type MapData } from './mapData';
 import { countryAnchors } from './labelLayout';
 import { MapLabels, type LabelCountry } from './mapLabels';
-import { MAP_MODES, type MapMode } from './mapModes';
+import { assignCountryColors, DISPUTED_COLOR, MAP_MODES, type MapMode } from './mapModes';
 import { hexToRgb, PaletteData, type RGB } from './palette';
 import { ProvincePicker } from './picker';
 import { ProvinceShaderShared } from './provinceShader';
@@ -58,6 +59,10 @@ export interface MapView {
   refreshLabels(): void;
   /** Fewer animations: armies jump to their place instead of marching. */
   setReducedMotion(on: boolean): void;
+  /** Wars on the map: occupied land striped, the player's front line in red (or none). */
+  setWar(war: MapWar | null): void;
+  /** Battle markers and losses of this week, and flashes over captured provinces. */
+  showBattles(battles: readonly BattleFx[], captures: readonly CaptureFx[]): void;
   /** Graphics quality: the highest pixel density the map is drawn at (1 = low). */
   setMaxResolution(max: number): void;
   /** Highlights one province (or none with -1). */
@@ -106,6 +111,14 @@ export interface MapView {
   ownerOf(provinceId: number): string;
   /** Called after every rendered frame with the frame time in ms. */
   onFrame: ((dtMs: number) => void) | null;
+}
+
+/** Wars on the map (AoH-style war view). */
+export interface MapWar {
+  /** Occupied provinces: province id -> the country whose people live there. */
+  occupied: ReadonlyMap<number, string>;
+  /** Countries in the player's wars: 1 the player's side, 2 the enemy. */
+  sides: ReadonlyMap<string, 1 | 2>;
 }
 
 export interface MapViewOptions {
@@ -157,6 +170,9 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
   let blocs: ReadonlyMap<string, number> | null = null;
   let exports: ReadonlyMap<string, number> | null = null;
   let mode: MapMode = MAP_MODES[0]!;
+  let war: MapWar | null = null;
+  /** Stripes of a people whose country no longer exists. */
+  const STRIPE_GONE = DISPUTED_COLOR;
   const writeOwners = (): void => {
     politics.owners.forEach((owner, id) => {
       // Countries born during the game (rebels, seceded states) get the next free index.
@@ -191,6 +207,25 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
         const paper = THEMES[theme].paper;
         palette.setColor(id + 1, paper ? toPaper(c, paper) : c);
       });
+    // Occupied land (political mode) and sides for the front line.
+    const political = mode.id === 'political';
+    const countryColors =
+      political && war && war.occupied.size
+        ? assignCountryColors({
+            provinces,
+            countries: politics.countries,
+            owners: politics.owners,
+            focusCountry,
+            support,
+          })
+        : null;
+    politics.owners.forEach((owner, id) => {
+      const culture = war?.occupied.get(id);
+      const stripe = culture && countryColors ? (countryColors.get(culture) ?? STRIPE_GONE) : null;
+      const paper = THEMES[theme].paper;
+      palette.setStripe(id + 1, stripe && paper ? toPaper(stripe, paper) : stripe);
+      palette.setSide(id + 1, war?.sides.get(owner) ?? 0);
+    });
     shared.paletteChanged();
   };
   applyMode();
@@ -212,6 +247,7 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
   const labels = new MapLabels(data, deviceRatio(), labelCountries());
   const armies = new ArmyLayer(data, Math.min(2, deviceRatio()));
   const strikes = new StrikeLayer(data);
+  const battles = new BattleLayer(data, Math.min(2, deviceRatio()));
   const selectionBox = new Graphics();
   const buildings = new BuildingLayer(data);
   app.stage.addChild(
@@ -220,6 +256,7 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
     buildings.container,
     strikes.container,
     armies.container,
+    battles.container,
     selectionBox,
   );
   await tiles.loadBase((f) => options.onProgress(0.5 + f * 0.5));
@@ -413,6 +450,16 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
     onFrame: null,
     setReducedMotion: (on) => {
       reducedMotion = on;
+      battles.setReducedMotion(on);
+      requestRender();
+    },
+    setWar: (next) => {
+      war = next;
+      applyMode();
+      requestRender();
+    },
+    showBattles: (list, captures) => {
+      battles.show(list, captures);
       requestRender();
     },
     setMaxResolution: (max) => {
@@ -447,14 +494,15 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
       const deviceScale = s * deviceRatio();
       // Province borders fade in between these zoom levels.
       const provinceAlpha = Math.min(1, Math.max(0, (s - 0.12) / 0.25));
-      shared.setView(deviceScale, provinceAlpha);
+      shared.setView(deviceScale, provinceAlpha, deviceRatio());
       tiles.update(camera.visibleRect(), Math.min(deviceScale, s * 2));
       labels.update(camera);
       buildings.update(camera);
       strikes.update(camera);
+      battles.update(camera, now);
       armies.update(camera, now);
       // Impact ripples need frames until they fade.
-      if (strikes.animating) dirty = true;
+      if (strikes.animating || battles.animating) dirty = true;
       app.render();
       view.onFrame?.(dt);
     }
