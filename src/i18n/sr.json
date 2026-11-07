@@ -1069,5 +1069,7 @@
   "settings.graphics": "Kvalitet grafike",
   "settings.graphics.low": "Nizak (najbrže)",
   "settings.graphics.medium": "Srednji",
-  "settings.graphics.high": "Visok"
+  "settings.graphics.high": "Visok",
+  "warCard.war": "RAT",
+  "warCard.peace": "MIR"
 }

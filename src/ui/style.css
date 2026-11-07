@@ -3963,3 +3963,83 @@ textarea {
   font-size: 12px;
   line-height: 1.4;
 }
+
+/* War / peace card (Dario, idea 3): both flags and a stamp, never blocking. */
+.war-card {
+  position: absolute;
+  /* Below the toasts at the top. */
+  top: 34%;
+  left: 50%;
+  z-index: 46;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: var(--panel-bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  transform: translateX(-50%);
+  animation: war-card-in 0.25s ease-out both;
+  cursor: pointer;
+}
+
+.war-card-out {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.war-card-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 110px;
+}
+
+.war-card-flag {
+  width: 46px;
+  height: auto;
+  border: 1px solid var(--panel-border);
+}
+
+.war-card-name {
+  overflow: hidden;
+  max-width: 110px;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.war-card-stamp {
+  padding: 4px 10px;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  transform: rotate(-6deg);
+  animation: war-card-stamp 0.35s cubic-bezier(0.2, 1.6, 0.4, 1) 0.1s both;
+}
+
+.war-card-war .war-card-stamp {
+  color: var(--danger-text);
+}
+
+.war-card-peace .war-card-stamp {
+  color: var(--good-text);
+}
+
+@keyframes war-card-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -12px);
+  }
+}
+
+@keyframes war-card-stamp {
+  from {
+    opacity: 0;
+    transform: rotate(-6deg) scale(1.8);
+  }
+}

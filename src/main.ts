@@ -63,6 +63,7 @@ import { GameMenu } from './ui/gameMenu';
 import { GoalsPanel } from './ui/goalsPanel';
 import { HistoryPanel } from './ui/historyPanel';
 import { eventPanel } from './ui/eventPanel';
+import { showWarCard } from './ui/warCard';
 import { RankingsPanel } from './ui/rankingsPanel';
 import { GREAT_POWERS, rankings } from './sim/rankings';
 import { TechPanel } from './ui/techPanel';
@@ -203,6 +204,14 @@ async function start(): Promise<void> {
     const nameOf = (id: string): string =>
       countryName(game?.world ?? world, id, game?.settings.disputedMode ?? defaultDisputedMode());
     const cityName = (cityId: number): string => map.data.cities[cityId]?.name ?? String(cityId);
+    /** War or peace card with both flags (Dario, idea 3). */
+    const warCard = (kind: 'war' | 'peace', a: string, b: string): void => {
+      const mode = game?.settings.disputedMode ?? defaultDisputedMode();
+      const w = game?.world ?? world;
+      const sideOf = (id: string) => ({ name: nameOf(id), flag: countryFlag(w, id, mode) });
+      showWarCard(uiRoot, kind, sideOf(a), sideOf(b));
+      sound.play(kind === 'war' ? 'impact' : 'click');
+    };
     const provinceName = (id: number): string => map.data.provinces[id]?.name ?? String(id);
 
     /** "Novi Sad, Niš, Subotica +2" */
@@ -232,6 +241,7 @@ async function start(): Promise<void> {
       const before = new Set(enemiesAtWar(game.world, player));
       if (!issue({ type: 'declareWar', countryId: player, targetId: countryId })) return;
       toasts.show(t('war.declared', { country: nameOf(countryId) }), 'error');
+      warCard('war', player, countryId);
       // Allies of the target that answered its call.
       const joined = enemiesAtWar(game.world, player).filter(
         (e) => e !== countryId && !before.has(e),
@@ -661,6 +671,9 @@ async function start(): Promise<void> {
       game = result.state;
       showState();
       if (command.type.startsWith('launch')) sound.play('launch');
+      // The player's own peace treaty, accepted at once.
+      if (command.type === 'proposePeace' && result.accepted)
+        warCard('peace', command.countryId, command.targetId);
       return { accepted: result.accepted };
     };
     const issue = (command: Command): boolean => issueResult(command) !== null;
@@ -985,6 +998,7 @@ async function start(): Promise<void> {
         if (e.type === 'warDeclared') {
           if (e.target === player)
             brief('minister.foreign', t('minister.warDeclared', { country: nameOf(e.attacker) }));
+          if (e.target === player) warCard('war', e.attacker, player);
           else if (playerAllies.has(e.target))
             toasts.show(
               t('minister.allyAttacked', { country: nameOf(e.attacker), ally: nameOf(e.target) }),
@@ -1003,8 +1017,10 @@ async function start(): Promise<void> {
           if (e.enemy === player) joinedAgainst.push(e.countryId);
           else if (e.ally === player) joinedFor.push(e.countryId);
         }
-        if (e.type === 'peace' && (e.a === player || e.b === player))
+        if (e.type === 'peace' && (e.a === player || e.b === player)) {
           toasts.show(t('dip.peaceMade', { country: nameOf(e.a === player ? e.b : e.a) }));
+          warCard('peace', player, e.a === player ? e.b : e.a);
+        }
         if (e.type === 'ultimatumAnswered' && e.from === player)
           toasts.show(
             t(e.accepted ? 'dip.ultimatumAccepted' : 'dip.ultimatumRefused', {

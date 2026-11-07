@@ -1069,5 +1069,7 @@
   "settings.graphics": "Graphics quality",
   "settings.graphics.low": "Low (fastest)",
   "settings.graphics.medium": "Medium",
-  "settings.graphics.high": "High"
+  "settings.graphics.high": "High",
+  "warCard.war": "WAR",
+  "warCard.peace": "PEACE"
 }
