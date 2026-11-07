@@ -8,6 +8,8 @@ export interface GameMenuActions {
   onImport: () => void;
   onSettings: () => void;
   onGoals: () => void;
+  /** The campaign's history. */
+  onHistory: () => void;
   onRankings: () => void;
   onNews: () => void;
   onFeedback: () => void;
@@ -44,6 +46,7 @@ export class GameMenu {
     list.append(
       item(t('menu.resume'), () => undefined, 'btn btn-primary'),
       item(t('goals.title'), this.actions.onGoals),
+      item(t('log.title'), this.actions.onHistory),
       item(t('rank.title'), this.actions.onRankings),
       item(t('news.title'), this.actions.onNews),
       item(t('menu.save'), this.actions.onSave),

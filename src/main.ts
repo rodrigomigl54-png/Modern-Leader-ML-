@@ -54,6 +54,7 @@ import { FpsCounter } from './ui/fpsCounter';
 import { GameHud } from './ui/gameHud';
 import { GameMenu } from './ui/gameMenu';
 import { GoalsPanel } from './ui/goalsPanel';
+import { HistoryPanel } from './ui/historyPanel';
 import { RankingsPanel } from './ui/rankingsPanel';
 import { GREAT_POWERS, rankings } from './sim/rankings';
 import { TechPanel } from './ui/techPanel';
@@ -580,6 +581,7 @@ async function start(): Promise<void> {
       defencePanel.update(game);
       foreignPanel.update(game);
       goalsPanel.update(game);
+      historyPanel.update(game);
       rankingsPanel.update(game);
       techPanel.update(game);
       notices.update(game);
@@ -717,6 +719,7 @@ async function start(): Promise<void> {
       defencePanel.close();
       foreignPanel.close();
       goalsPanel.close();
+      historyPanel.close();
       clearSelection();
       map.clearSelection();
       shownOwners = '';
@@ -1082,6 +1085,7 @@ async function start(): Promise<void> {
       defencePanel.close();
       foreignPanel.close();
       goalsPanel.close();
+      historyPanel.close();
       modeBar.hide();
       ticker.hide();
       modeBar.set('political');
@@ -1204,6 +1208,7 @@ async function start(): Promise<void> {
         defencePanel.close();
         foreignPanel.close();
         goalsPanel.close();
+        historyPanel.close();
         map.highlightProvince(id);
         panel.show(id);
       },
@@ -1252,6 +1257,7 @@ async function start(): Promise<void> {
         defencePanel.close();
         foreignPanel.close();
         goalsPanel.close();
+        historyPanel.close();
         map.lookAtProvince(id);
         map.highlightProvince(id);
         panel.show(id);
@@ -1381,6 +1387,17 @@ async function start(): Promise<void> {
     });
 
     const goalsPanel = new GoalsPanel(uiRoot, sim, (g) => describeGoal(g));
+    // The campaign's history (master plan, phase 7).
+    const historyPanel = new HistoryPanel({
+      parent: uiRoot,
+      countryName: nameOf,
+      provinceName,
+      cityName,
+      goalText: (state, kind) => {
+        const goal = state.goals.find((g) => g.kind === kind);
+        return goal ? describeGoal(goal) : kind;
+      },
+    });
     const foreignPanel = new ForeignPanel({
       parent: uiRoot,
       sim,
@@ -1448,6 +1465,7 @@ async function start(): Promise<void> {
         defencePanel.close();
         foreignPanel.close();
         goalsPanel.close();
+        historyPanel.close();
         economyPanel.open(game);
       },
       onInterior: () => {
@@ -1458,12 +1476,14 @@ async function start(): Promise<void> {
         defencePanel.close();
         foreignPanel.close();
         goalsPanel.close();
+        historyPanel.close();
         interiorPanel.open(game);
       },
       onForeign: () => {
         if (!game) return;
         if (foreignPanel.isOpen) return foreignPanel.close();
         goalsPanel.close();
+        historyPanel.close();
         panel.hide();
         economyPanel.close();
         interiorPanel.close();
@@ -1526,7 +1546,18 @@ async function start(): Promise<void> {
         interiorPanel.close();
         defencePanel.close();
         foreignPanel.close();
+        historyPanel.close();
         goalsPanel.open(game);
+      },
+      onHistory: () => {
+        if (!game) return;
+        panel.hide();
+        economyPanel.close();
+        interiorPanel.close();
+        defencePanel.close();
+        foreignPanel.close();
+        goalsPanel.close();
+        historyPanel.open(game);
       },
       onRankings: () => game && rankingsPanel.open(game),
       onNews: () => void openNews(),
@@ -1582,6 +1613,7 @@ async function start(): Promise<void> {
           defencePanel.close();
           foreignPanel.close();
           goalsPanel.close();
+          historyPanel.close();
           panel.show(id);
         }
       }
@@ -1628,6 +1660,7 @@ async function start(): Promise<void> {
       if (game) defencePanel.update(game);
       if (game) foreignPanel.update(game);
       if (game) goalsPanel.update(game);
+      if (game) historyPanel.update(game);
       if (game) ticker.update(headlines(game));
       modeBar.refresh();
       selectionBar.update(selection.size, armySelection.size);

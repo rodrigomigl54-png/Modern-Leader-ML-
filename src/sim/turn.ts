@@ -22,6 +22,7 @@ import { buildReport, markReport, recordNews, type ReportData } from './chronicl
 import { goalsPhase, type GoalEvent } from './goals';
 import { victoryPhase } from './victory';
 import { historyPhase } from './history';
+import { recordLog } from './campaignLog';
 
 export type TurnPhaseId =
   | 'aiOrders'
@@ -121,6 +122,7 @@ const PHASES: Record<TurnPhaseId, Phase> = {
     if (sim.goals) goalsPhase(state, sim, push);
     victoryPhase(state);
     historyPhase(state, sim);
+    recordLog(state, ctx.events);
     recordNews(state, ctx.events);
     if (state.turn % REPORT_INTERVAL === 0) {
       ctx.events.push({ type: 'report', turn: state.turn, report: buildReport(state, sim) });
