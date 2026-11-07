@@ -519,6 +519,13 @@ Dario asked for exactly three changes and nothing else:
 
 Dario: halve the build times once more, training unchanged. `buildTurns` in `economy.json`: factory 6→3, university 10→5, agriculture 4→2, infrastructure 10→5, energy 13→7, hospital 6→3, missile factory 15→8, drone factory 10→5, air defense factory 13→7, military base 8→4 (odd halves round up, never below 1 week); air defense systems in `weapons.json` 4/6/8 → 2/3/4. Prices, effects and training (1 / 2 weeks) unchanged; the Academy reads the new values from the data.
 
+## Master plan, Phase 1 — pacing (assimilation)
+
+- Audit done (report in chat). The rest of the master plan (peace and surrender, national objectives, random events, campaign log, notification tiers, interactive Academy, translate option, performance, licensing review) waits for Dario's answers, phase by phase.
+- Assimilation 50% faster: `population.json` `assimilation.turns` 26 → 17. Cost, unrest while assimilating and the "after peace" rule unchanged. The AI uses the same command, but at present it does not start assimilation itself, so AI behavior is unchanged. The Academy shows the new value from the data.
+- Other waiting times reviewed and left as they are (to be decided by Dario): ultimatum deadline 3 weeks, improve relations 10 weeks, secession 52 weeks, calm after a crushed revolution 26 weeks, nuclear program 260 weeks, research (depends on spending).
+- Test: assimilation finishes after exactly 17 weeks, not before. Lint, format, 209 tests, build.
+
 ## Next
 
 - Dario: merge the PR and test Phase 26 (trade requests, technology, AI speed per level, intro); changes come from that testing.

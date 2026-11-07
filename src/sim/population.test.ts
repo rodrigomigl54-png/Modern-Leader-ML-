@@ -236,6 +236,18 @@ describe('assimilation', () => {
       error: 'nothingToAssimilate',
     });
   });
+
+  it('takes 17 weeks (50% faster than the former 26), not less', () => {
+    expect(rules.assimilation.turns).toBe(17);
+    const result = applyCommand(
+      conquered(),
+      { type: 'assimilate', countryId: 'BBB', provinceIds: [3] },
+      sim,
+    );
+    if (!result.ok) throw new Error(result.error);
+    expect(play(result.state, 16).population.culture[3]).not.toBe('BBB');
+    expect(play(result.state, 17).population.culture[3]).toBe('BBB');
+  });
 });
 
 describe('occupied land (Dario, Phase 26)', () => {
