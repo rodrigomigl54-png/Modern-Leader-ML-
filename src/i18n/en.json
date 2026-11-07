@@ -1075,5 +1075,10 @@
   "offer.nonAggression": "{country} offers a non-aggression pact: neither side may attack the other for two years.",
   "offer.buyAccess": "{country} offers {amount} for military access through your land.",
   "offer.aid": "{country} asks you for {amount} in financial aid. Helping improves relations.",
-  "offer.coalition": "{country} offers {amount} if you join its sanctions against {rival}."
+  "offer.coalition": "{country} offers {amount} if you join its sanctions against {rival}.",
+  "replay.title": "Border timelapse",
+  "replay.watch": "▶ Border timelapse",
+  "replay.play": "Play",
+  "replay.pause": "Pause",
+  "replay.none": "The borders have not changed yet."
 }

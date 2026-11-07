@@ -64,6 +64,8 @@ import { GoalsPanel } from './ui/goalsPanel';
 import { HistoryPanel } from './ui/historyPanel';
 import { eventPanel } from './ui/eventPanel';
 import { showWarCard } from './ui/warCard';
+import { playReplay } from './ui/replay';
+import { borderReplay } from './sim/borderLog';
 import { RankingsPanel } from './ui/rankingsPanel';
 import { GREAT_POWERS, rankings } from './sim/rankings';
 import { TechPanel } from './ui/techPanel';
@@ -865,6 +867,44 @@ async function start(): Promise<void> {
       if (game) issue({ type: 'answerEvent', countryId: game.player.countryId, option });
     };
 
+    /** The border timelapse (Dario, idea 8): the map replays the game's border changes. */
+    const startReplay = async (): Promise<void> => {
+      if (!game) return;
+      const frames = borderReplay(game, 90);
+      if (!frames.length) {
+        toasts.show(t('replay.none'));
+        return;
+      }
+      historyPanel.close();
+      const base = game.world;
+      const mode = game.settings.disputedMode;
+      map.clearSelection();
+      map.setArmies([]);
+      map.setBuildings([]);
+      map.setWar(null);
+      await playReplay(uiRoot, {
+        frames,
+        dateOf: (turn) => formatGameDate(dateOfTurn(base.startDate, turn)),
+        show: (owners) => {
+          const held = new Map<string, number[]>();
+          owners.forEach((o, p) => {
+            const list = held.get(o);
+            if (list) list.push(p);
+            else held.set(o, [p]);
+          });
+          const countries = base.countries.map((c) => ({
+            ...c,
+            provinceIds: held.get(c.id) ?? [],
+          }));
+          map.setPolitics(politicsFor({ ...base, provinceOwners: owners, countries }, mode));
+        },
+      });
+      // Back to the present.
+      shownOwners = '';
+      showState();
+      showBuildings();
+    };
+
     /** The end of the game: a defeat (conquered, revolution) or the victory over the whole world. */
     const showGameOver = async (): Promise<void> => {
       if (!game?.gameOver) return;
@@ -884,6 +924,9 @@ async function start(): Promise<void> {
         text: t(`gameOver.${reason}`, vars),
         details: t('gameOver.details', vars),
         buttonLabel: t('game.mainMenu'),
+        ...(game.borderLog?.some((c) => c[0] > 0)
+          ? { extra: { label: t('replay.watch'), run: startReplay } }
+          : {}),
       });
       leaveGame();
     };
@@ -1541,6 +1584,7 @@ async function start(): Promise<void> {
     // The campaign's history (master plan, phase 7).
     const historyPanel = new HistoryPanel({
       parent: uiRoot,
+      onReplay: () => void startReplay(),
       countryName: nameOf,
       provinceName,
       cityName,

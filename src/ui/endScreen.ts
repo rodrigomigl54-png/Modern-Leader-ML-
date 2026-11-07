@@ -8,6 +8,8 @@ export interface EndScreenOptions {
   /** Leader, country and how long the game lasted. */
   details: string;
   buttonLabel: string;
+  /** A second button (the border timelapse): the screen hides while its action runs. */
+  extra?: { label: string; run: () => Promise<void> };
 }
 
 /** The full-screen end of a game: a victory or a defeat. Resolves when the player leaves. */
@@ -21,6 +23,14 @@ export function endScreen(root: HTMLElement, options: EndScreenOptions): Promise
       title,
       el('p', 'end-text', options.text),
       el('p', 'end-details', options.details),
+      ...(options.extra
+        ? [
+            button('btn end-button', options.extra.label, () => {
+              screen.hidden = true;
+              void options.extra!.run().then(() => (screen.hidden = false));
+            }),
+          ]
+        : []),
       button('btn btn-primary end-button', options.buttonLabel, () => {
         screen.remove();
         resolve();

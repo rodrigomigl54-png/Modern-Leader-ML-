@@ -4043,3 +4043,61 @@ textarea {
     transform: rotate(-6deg) scale(1.8);
   }
 }
+
+/* Border timelapse (Dario, idea 8): a slim bar over the map; everything else steps aside. */
+body.replaying #ui-root > :not(.replay-bar) {
+  display: none !important;
+}
+
+.replay-bar {
+  position: absolute;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(560px, calc(100% - 32px));
+  padding: 8px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: var(--panel-bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+
+.replay-title {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.replay-date {
+  min-width: 84px;
+  font-size: 13px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.replay-scrub {
+  flex: 1;
+  min-width: 60px;
+  accent-color: var(--accent);
+}
+
+.replay-toggle,
+.replay-close {
+  min-width: 36px;
+  min-height: 32px;
+}
+
+.history-replay {
+  margin: 0 0 10px;
+}
+
+@media (max-width: 520px) {
+  .replay-title {
+    display: none;
+  }
+}
