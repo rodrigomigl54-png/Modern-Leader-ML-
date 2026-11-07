@@ -64,49 +64,49 @@
       {
         "id": "factory",
         "costUsd": 300000000,
-        "buildTurns": 6,
+        "buildTurns": 3,
         "gdpPerYearShare": 0.4167,
         "upkeepShare": 0.0333
       },
       {
         "id": "university",
         "costUsd": 480000000,
-        "buildTurns": 10,
+        "buildTurns": 5,
         "gdpPerYearShare": 0.2,
         "upkeepShare": 0.05
       },
       {
         "id": "agriculture",
         "costUsd": 180000000,
-        "buildTurns": 4,
+        "buildTurns": 2,
         "gdpPerYearShare": 0.3333,
         "upkeepShare": 0.0333
       },
       {
         "id": "infrastructure",
         "costUsd": 600000000,
-        "buildTurns": 10,
+        "buildTurns": 5,
         "gdpPerYearShare": 0.3333,
         "upkeepShare": 0.0167
       },
       {
         "id": "energy",
         "costUsd": 900000000,
-        "buildTurns": 13,
+        "buildTurns": 7,
         "gdpPerYearShare": 0.3667,
         "upkeepShare": 0.0333
       },
       {
         "id": "hospital",
         "costUsd": 240000000,
-        "buildTurns": 6,
+        "buildTurns": 3,
         "gdpPerYearShare": 0.1,
         "upkeepShare": 0.0667
       },
       {
         "id": "missileFactory",
         "costUsd": 1200000000,
-        "buildTurns": 15,
+        "buildTurns": 8,
         "gdpPerYearShare": 0.0833,
         "upkeepShare": 0.05,
         "military": true
@@ -114,7 +114,7 @@
       {
         "id": "droneFactory",
         "costUsd": 600000000,
-        "buildTurns": 10,
+        "buildTurns": 5,
         "gdpPerYearShare": 0.0833,
         "upkeepShare": 0.05,
         "military": true
@@ -122,7 +122,7 @@
       {
         "id": "airDefenseFactory",
         "costUsd": 900000000,
-        "buildTurns": 13,
+        "buildTurns": 7,
         "gdpPerYearShare": 0.0833,
         "upkeepShare": 0.05,
         "military": true
@@ -130,7 +130,7 @@
       {
         "id": "militaryBase",
         "costUsd": 600000000,
-        "buildTurns": 8,
+        "buildTurns": 4,
         "gdpPerYearShare": 0.05,
         "upkeepShare": 0.0667,
         "military": true

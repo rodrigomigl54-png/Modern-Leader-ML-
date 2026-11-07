@@ -515,6 +515,10 @@ Dario asked for exactly three changes and nothing else:
 - Tests: halved build times and a factory finishing exactly on time; regulars ready after exactly 1 week, special forces after exactly 2; every Academy section exists in both languages with all numbers filled in. The sea-crossing test now uses a stronger landing army, because the defender's AI-trained soldiers are now ready before the landing.
 - Balance (3 years, seed 7), wars started: peaceful 0, realistic 1, aggressive 8, chaos 22 (before: 0, 2, 8, 20).
 
+## Construction halved again
+
+Dario: halve the build times once more, training unchanged. `buildTurns` in `economy.json`: factory 6→3, university 10→5, agriculture 4→2, infrastructure 10→5, energy 13→7, hospital 6→3, missile factory 15→8, drone factory 10→5, air defense factory 13→7, military base 8→4 (odd halves round up, never below 1 week); air defense systems in `weapons.json` 4/6/8 → 2/3/4. Prices, effects and training (1 / 2 weeks) unchanged; the Academy reads the new values from the data.
+
 ## Next
 
 - Dario: merge the PR and test Phase 26 (trade requests, technology, AI speed per level, intro); changes come from that testing.

@@ -185,19 +185,20 @@ describe('investment', () => {
     expect(weeklyBudget(after, 'AAA', sim).investmentReturns).toBeGreaterThan(0);
   });
 
-  it('builds in half the former time, never in zero weeks', () => {
-    // Halved on Dario's request (former build times in weeks in the comments).
+  it('builds in a quarter of the original time, never in zero weeks', () => {
+    // Halved twice on Dario's request (original build times in weeks in the comments; odd
+    // halves round up).
     const weeks: Record<string, number> = {
-      factory: 6, // 12
-      university: 10, // 20
-      agriculture: 4, // 8
-      infrastructure: 10, // 20
-      energy: 13, // 26
-      hospital: 6, // 12
-      missileFactory: 15, // 30
-      droneFactory: 10, // 20
-      airDefenseFactory: 13, // 26
-      militaryBase: 8, // 16
+      factory: 3, // 12
+      university: 5, // 20
+      agriculture: 2, // 8
+      infrastructure: 5, // 20
+      energy: 7, // 26
+      hospital: 3, // 12
+      missileFactory: 8, // 30
+      droneFactory: 5, // 20
+      airDefenseFactory: 7, // 26
+      militaryBase: 4, // 16
     };
     for (const cat of sim.economy.investment.categories) {
       expect(cat.buildTurns).toBe(weeks[cat.id]);
