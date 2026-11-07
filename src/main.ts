@@ -43,7 +43,13 @@ import {
 import { createSave, type SaveError, type SaveFile } from './sim/save';
 import { advanceTurn, type TurnEvent } from './sim/turn';
 import { alliesOf, applyDisputedSetting, enemiesAtWar } from './sim/world';
-import { confirmDialog, noticeDialog, onTelegram } from './ui/confirmDialog';
+import {
+  briefingDialog,
+  confirmDialog,
+  noticeDialog,
+  onTelegram,
+  type BriefingItem,
+} from './ui/confirmDialog';
 import { flagImage } from './ui/dom';
 import { CountryDialog } from './ui/countryDialog';
 import { endScreen } from './ui/endScreen';
@@ -76,6 +82,7 @@ import { SaveSlots, slotName } from './ui/saveSlots';
 import { SelectionBar } from './ui/selectionBar';
 import {
   applyAppearance,
+  applyReducedMotion,
   defaultDisputedMode,
   FEEDBACK_URL,
   mountSettings,
@@ -165,6 +172,7 @@ async function start(): Promise<void> {
       onShiftSelect: (id) => onShiftSelect(id),
       onBoxSelect: (ids) => onBoxSelect(ids),
     });
+    map.setReducedMotion(applyReducedMotion());
     const [bundle, store] = await Promise.all([loadWorld(map.data), openSaveStore()]);
     loading.setProgress(1);
     const world = bundle.world;
@@ -826,6 +834,12 @@ async function start(): Promise<void> {
     const announce = async (events: TurnEvent[]): Promise<void> => {
       if (!game) return;
       const player = game.player.countryId;
+      // Notices in three tiers (master plan): what needs the player's attention goes into one
+      // weekly briefing (never a chain of dialogs), the rest are toasts, small things only go
+      // into the History.
+      const briefing: BriefingItem[] = [];
+      const brief = (from: TranslationKey, text: string): void =>
+        void briefing.push({ from: t(from), text });
       for (const e of events) {
         if (e.type === 'buildingCompleted' && e.owner === player) {
           const b = game.economy.buildings.find((x) => x.id === e.buildingId);
@@ -839,8 +853,6 @@ async function start(): Promise<void> {
           }
         }
       }
-      const interior = (text: string): Promise<void> =>
-        noticeDialog(uiRoot, t('minister.interior'), text, t('minister.understood'));
       for (const e of events) {
         if (e.type === 'revolution' && e.countryId !== player)
           toasts.show(t('interior.revolutionAbroad', { country: nameOf(e.countryId) }));
@@ -852,25 +864,25 @@ async function start(): Promise<void> {
             }),
           );
         if (!('countryId' in e) || e.countryId !== player) continue;
-        if (e.type === 'riotsStarted') await interior(t('minister.riots', { count: e.provinces }));
-        if (e.type === 'revolution') await interior(t('minister.revolution'));
-        if (e.type === 'revolutionCrushed') await interior(t('minister.crushed'));
+        if (e.type === 'riotsStarted')
+          toasts.show(t('minister.riots', { count: e.provinces }), 'error');
+        if (e.type === 'revolution') brief('minister.interior', t('minister.revolution'));
+        if (e.type === 'revolutionCrushed') toasts.show(t('minister.crushed'));
         if (e.type === 'secession')
-          await interior(t('minister.secession', { state: nameOf(e.newCountryId) }));
+          brief('minister.interior', t('minister.secession', { state: nameOf(e.newCountryId) }));
       }
       // Diplomacy: allies joining, peace, answers to our ultimatums, requests to answer.
-      const foreign = (text: string): Promise<void> =>
-        noticeDialog(uiRoot, t('minister.foreign'), text, t('minister.understood'));
       const joinedAgainst: string[] = [];
       const joinedFor: string[] = [];
       const playerAllies = new Set(alliesOf(game.world, player));
       for (const e of events) {
         if (e.type === 'warDeclared') {
           if (e.target === player)
-            await foreign(t('minister.warDeclared', { country: nameOf(e.attacker) }));
+            brief('minister.foreign', t('minister.warDeclared', { country: nameOf(e.attacker) }));
           else if (playerAllies.has(e.target))
-            await foreign(
+            toasts.show(
               t('minister.allyAttacked', { country: nameOf(e.attacker), ally: nameOf(e.target) }),
+              'error',
             );
           else
             toasts.show(
@@ -880,12 +892,7 @@ async function start(): Promise<void> {
         if (e.type === 'sanctionsImposed' && e.to === player)
           toasts.show(t('news.sanctionsOnUs', { country: nameOf(e.from) }), 'error');
         if (e.type === 'nuclearThreat' && e.to === player)
-          await noticeDialog(
-            uiRoot,
-            t('minister.defence'),
-            t('minister.nuclearThreat', { country: nameOf(e.from) }),
-            t('minister.understood'),
-          );
+          brief('minister.defence', t('minister.nuclearThreat', { country: nameOf(e.from) }));
         if (e.type === 'warJoined') {
           if (e.enemy === player) joinedAgainst.push(e.countryId);
           else if (e.ally === player) joinedFor.push(e.countryId);
@@ -902,12 +909,12 @@ async function start(): Promise<void> {
         if (e.type === 'credibilityLost' && e.countryId === player)
           toasts.show(t('dip.credibilityLost'), 'error');
         if (e.type === 'globalSanctions' && e.countryId === player)
-          await foreign(t('minister.globalSanctions'));
+          brief('minister.foreign', t('minister.globalSanctions'));
       }
       const names = (ids: string[]): string =>
         ids.slice(0, 6).map(nameOf).join(', ') + (ids.length > 6 ? ` +${ids.length - 6}` : '');
       if (joinedAgainst.length)
-        await foreign(t('minister.warJoined', { countries: names(joinedAgainst) }));
+        brief('minister.foreign', t('minister.warJoined', { countries: names(joinedAgainst) }));
       if (joinedFor.length) toasts.show(t('dip.allyJoined', { countries: names(joinedFor) }));
       // New proposals and requests wait in the corner without stopping the game.
       if (game && game.diplomacy.requests.some((r) => !seenRequests.has(r.id))) {
@@ -981,21 +988,17 @@ async function start(): Promise<void> {
       for (const e of events) {
         if (e.type !== 'nuclearStrike') continue;
         map.pulseCities([e.cityId], true);
-        await noticeDialog(
-          uiRoot,
-          t('minister.defence'),
-          t(e.attacker === player ? 'minister.nuclearOwn' : 'minister.nuclear', {
-            attacker: nameOf(e.attacker),
-            city: cityName(e.cityId),
-            country: nameOf(e.defender),
-          }),
-          t('minister.understood'),
-        );
+        const text = t(e.attacker === player ? 'minister.nuclearOwn' : 'minister.nuclear', {
+          attacker: nameOf(e.attacker),
+          city: cityName(e.cityId),
+          country: nameOf(e.defender),
+        });
+        // A nuclear strike involving us needs attention; one elsewhere is world news.
+        if (e.attacker === player || e.defender === player) brief('minister.defence', text);
+        else toasts.show(text, 'error');
       }
       if (incoming.launched) {
-        await noticeDialog(
-          uiRoot,
-          t('minister.defence'),
+        toasts.show(
           t('minister.strikes', {
             places: incoming.cities.slice(0, 3).map(cityName).join(', '),
             launched: incoming.launched,
@@ -1003,45 +1006,29 @@ async function start(): Promise<void> {
             killed: formatCount(incoming.killed),
             buildings: incoming.buildings,
           }),
-          t('minister.understood'),
+          'error',
         );
       }
       if (won || lost)
         toasts.show(t('war.battles', { won, lost }), lost > won ? 'error' : undefined);
       if (taken.length) toasts.show(t('war.taken', { places: placeList(taken) }));
       if (trained) toasts.show(t('recruit.done', { count: formatCount(trained) }));
-      if (lostProvinces.length && !game.gameOver) {
-        await noticeDialog(
-          uiRoot,
-          t('minister.defence'),
-          t('minister.provincesLost', {
-            places: placeList(lostProvinces),
-          }),
-          t('minister.understood'),
-        );
-      }
+      if (lostProvinces.length && !game.gameOver)
+        toasts.show(t('minister.provincesLost', { places: placeList(lostProvinces) }), 'error');
       for (const e of events) {
         if (e.type === 'shortage' && e.countryId === player)
-          await noticeDialog(
-            uiRoot,
-            t('minister.finance'),
+          toasts.show(
             t('minister.shortage', {
               resources: e.resources.map((r: ResourceId) => t(`res.${r}`)).join(', '),
             }),
-            t('minister.understood'),
+            'error',
           );
       }
       for (const e of events) {
         if (e.type === 'techLevel' && e.countryId === player)
           toasts.show(t('tech.newLevel', { points: e.points }));
-        if (e.type === 'inflationAlert' && e.countryId === player) {
-          await noticeDialog(
-            uiRoot,
-            t('minister.finance'),
-            t('minister.inflationAlert', { value: formatPercent(e.inflation) }),
-            t('minister.understood'),
-          );
-        }
+        if (e.type === 'inflationAlert' && e.countryId === player)
+          toasts.show(t('minister.inflationAlert', { value: formatPercent(e.inflation) }), 'error');
       }
       for (const e of events) {
         if (e.type === 'goalDone' || e.type === 'goalFailed') {
@@ -1054,6 +1041,9 @@ async function start(): Promise<void> {
           );
         }
       }
+      // One dialog for everything that needs attention this week.
+      if (briefing.length && !game.gameOver)
+        await briefingDialog(uiRoot, t('minister.briefing'), briefing, t('minister.understood'));
       for (const e of events) {
         if (e.type === 'report' && game) await reportDialog(uiRoot, e.report, nameOf);
       }
@@ -1513,6 +1503,7 @@ async function start(): Promise<void> {
     const settings = mountSettings(uiRoot, {
       onShowFps: (show) => fps.setVisible(show),
       onTheme: (theme) => map.setTheme(theme),
+      onReduceMotion: (on) => map.setReducedMotion(on),
       sound: {
         get musicVolume() {
           return sound.musicVolume;

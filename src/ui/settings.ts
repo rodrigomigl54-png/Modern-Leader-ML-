@@ -4,6 +4,22 @@ import { getLanguage, isLanguage, LANGUAGES, onLanguageChange, setLanguage, t } 
 const STORAGE_KEY = 'ml.language';
 const FPS_KEY = 'ml.showFps';
 const DISPUTED_KEY = 'ml.disputedMode';
+const MOTION_KEY = 'ml.reduceMotion';
+
+/** True when the player asked for fewer animations (or the system asks for reduced motion). */
+export function reducedMotion(): boolean {
+  return (
+    readFlag(MOTION_KEY) ||
+    (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false)
+  );
+}
+
+/** Applies the reduced-motion choice to the page (CSS) and returns it. */
+export function applyReducedMotion(): boolean {
+  const on = reducedMotion();
+  document.documentElement.classList.toggle('reduce-motion', on);
+  return on;
+}
 
 /** Default disputed-territories display for new games (GDD sections 4 and 13). */
 export function defaultDisputedMode(): DisputedMode {
@@ -87,6 +103,8 @@ export function applyAppearance(theme: Theme, scale: number): void {
 export interface SettingsOptions {
   onShowFps: (show: boolean) => void;
   onTheme: (theme: Theme) => void;
+  /** Fewer animations turned on or off. */
+  onReduceMotion: (on: boolean) => void;
   sound: {
     musicVolume: number;
     effectsVolume: number;
@@ -166,6 +184,13 @@ export function mountSettings(root: HTMLElement, options: SettingsOptions): Sett
       writeFlag(FPS_KEY, fps.checked);
       options.onShowFps(fps.checked);
     });
+    const motion = document.createElement('input');
+    motion.type = 'checkbox';
+    motion.checked = readFlag(MOTION_KEY);
+    motion.addEventListener('change', () => {
+      writeFlag(MOTION_KEY, motion.checked);
+      options.onReduceMotion(applyReducedMotion());
+    });
     const feedback = document.createElement('a');
     feedback.className = 'btn btn-secondary settings-feedback';
     feedback.href = FEEDBACK_URL;
@@ -232,6 +257,7 @@ export function mountSettings(root: HTMLElement, options: SettingsOptions): Sett
           (m) => writeString(DISPUTED_KEY, m),
         ),
       ),
+      row(t('settings.reduceMotion'), motion),
       row(t('settings.showFps'), fps),
       feedback,
       close,

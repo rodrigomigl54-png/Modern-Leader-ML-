@@ -934,5 +934,7 @@
   "log.goalDone": "Goal achieved: {goal}.",
   "log.goalFailed": "Goal failed: {goal}.",
   "log.event": "Event.",
-  "log.objective": "Objective."
+  "log.objective": "Objective.",
+  "minister.briefing": "Weekly briefing",
+  "settings.reduceMotion": "Fewer animations"
 }

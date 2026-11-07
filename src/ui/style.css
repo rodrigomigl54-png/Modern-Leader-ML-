@@ -3667,3 +3667,33 @@ textarea {
 .history-national .history-dot {
   background: var(--accent);
 }
+
+/* Weekly briefing: several notices in one dialog. */
+.briefing {
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+
+.briefing-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.briefing-item {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.briefing-item .modal-text {
+  margin-top: 4px;
+}
+
+/* Fewer animations (settings, or the system's reduced-motion choice). */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}

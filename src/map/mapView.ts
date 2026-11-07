@@ -56,6 +56,8 @@ export interface MapView {
   readonly data: MapData;
   /** Re-renders texts after a language change. */
   refreshLabels(): void;
+  /** Fewer animations: armies jump to their place instead of marching. */
+  setReducedMotion(on: boolean): void;
   /** Highlights one province (or none with -1). */
   highlightProvince(provinceId: number): void;
   /** Clears the province highlight. */
@@ -404,11 +406,16 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
     },
     ownerOf: (id) => politics.owners[id]!,
     onFrame: null,
+    setReducedMotion: (on) => {
+      reducedMotion = on;
+      requestRender();
+    },
   };
 
   // Render only when something changed, so an idle map costs no battery.
   let last = performance.now();
   let lastAnimation = 0;
+  let reducedMotion = false;
   const frame = (now: number): void => {
     // Schedule the next frame first: an error in one frame must never stop the map for good.
     requestAnimationFrame(frame);
@@ -416,7 +423,7 @@ export async function createMapView(root: HTMLElement, options: MapViewOptions):
     last = now;
     if (controls.update(dt)) dirty = true;
     // Moving armies are animated at about 20 frames a second (enough for a smooth march).
-    if (armies.animating && now - lastAnimation >= 50) {
+    if (!reducedMotion && armies.animating && now - lastAnimation >= 50) {
       lastAnimation = now;
       dirty = true;
     }

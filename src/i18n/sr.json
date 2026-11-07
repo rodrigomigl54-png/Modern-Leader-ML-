@@ -934,5 +934,7 @@
   "log.goalDone": "Cilj ispunjen: {goal}.",
   "log.goalFailed": "Cilj nije ispunjen: {goal}.",
   "log.event": "Događaj.",
-  "log.objective": "Cilj."
+  "log.objective": "Cilj.",
+  "minister.briefing": "Nedeljni brifing",
+  "settings.reduceMotion": "Manje animacija"
 }
