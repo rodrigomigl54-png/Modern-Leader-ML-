@@ -550,6 +550,11 @@ Dario: "follow the prompt and start working". Where he did not answer, the propo
 - **Phones**: the UI is drawn at 80% on touch screens with a landscape height up to 500 px (times the UI scale setting); panels use the full height under zoom (`--full-h`, which also fixes short panels with a small UI scale); the game menu has two columns. PC unchanged.
 - Tests: offers (each kind, refusal, an offer that became impossible, one at a time, deterministic), border log and replay. Lint, format, 234 tests, build; Chromium checks on Pixel 7 landscape.
 
+## License audit
+
+- Shipped libraries checked (all MIT, BSD-3, ISC or OFL); the build writes `THIRD-PARTY-LICENSES.md`; Settings → Credits and licenses names every data source.
+- Findings that need Dario's decision before a commercial release are listed in `docs/LICENSES.md` (SIPRI and IMF commercial terms, IISS, real leaders' names, the Ukraine war under Google Play's sensitive events policy, store ad rules, a trademark search for the name).
+
 ## Next
 
 - Dario: merge the PR and test the new map icons, AI offers, the timelapse and the phone layout on a real phone; changes come from that testing.
@@ -568,7 +573,7 @@ Dario: "follow the prompt and start working". Where he did not answer, the propo
 
 - The interface size uses CSS `zoom` (supported by current browsers; very old ones ignore it).
 
-- Credits with data attributions (World Bank CC BY 4.0, IMF, SIPRI) are still missing; see `docs/LICENSES.md`.
+- SIPRI and IMF data need permission (or replacement) before a commercial release; see `docs/LICENSES.md`.
 - Random events and objective rewards are first values: to tune by play.
 - History charts start empty in older saves (recorded from the first turn played after the update).
 - Peace talks list only the provinces the winner holds (the existing rule); occupied land cannot be swapped for other land.
